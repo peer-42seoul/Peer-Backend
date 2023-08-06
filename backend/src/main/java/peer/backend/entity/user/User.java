@@ -42,10 +42,11 @@ public class User {
     @OneToMany(orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserLink> userLinks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user_achievement")
+
+    @OneToMany(mappedBy = "user")
     private List<UserAchievement> userAchievements = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user_push_keyword")
+    @OneToMany(mappedBy = "user")
     private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)

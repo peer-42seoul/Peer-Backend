@@ -24,8 +24,11 @@ public class UserAchievement {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "achievement")
-    private List<Achievement> achievements = new ArrayList<>();
+    /**
+     * 업적 테이블 순환 문제 발생
+     */
+//    @OneToMany(mappedBy = "achievement")
+//    private List<Achievement> achievements = new ArrayList<>();
 
     private LocalDateTime created;
 }
