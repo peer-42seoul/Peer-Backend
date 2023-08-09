@@ -1,5 +1,6 @@
 package peer.backend.entity.user;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,20 +16,24 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_achievement")
-public class UserAchievement {
+public class UserAchievement implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
+    @Id
+    @Column(name = "achievement_id")
+    private Long achievementId;
+
+    @MapsId("userId")
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserProfile userProfile;
 
-    /**
-     * 업적 테이블 순환 문제 발생
-     */
-//    @OneToMany(mappedBy = "achievement")
-//    private List<Achievement> achievements = new ArrayList<>();
+    @MapsId("achievementId")
+    @ManyToOne
+    @JoinColumn(name = "achievement_id")
+    private Achievement achievement;
 
     private LocalDateTime created;
 }

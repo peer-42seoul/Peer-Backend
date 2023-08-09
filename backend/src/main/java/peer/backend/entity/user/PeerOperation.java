@@ -14,11 +14,12 @@ import java.time.LocalDateTime;
 @Table(name = "peer_operation")
 public class PeerOperation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private boolean is_club;

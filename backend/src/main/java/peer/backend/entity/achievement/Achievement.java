@@ -19,10 +19,12 @@ public class Achievement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_achievement")
-//    private UserAchievement userAchievement;
-
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String description;
+
+    @OneToMany(mappedBy = "achievement")
+    private List<UserAchievement> userAchievements = new ArrayList<>();
 }

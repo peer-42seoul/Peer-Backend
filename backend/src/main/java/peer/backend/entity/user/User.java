@@ -39,17 +39,12 @@ public class User {
     @Column(nullable = false)
     private String address;
 
-    @OneToMany(orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserLink> userLinks = new ArrayList<>();
-
-
-    @OneToMany(mappedBy = "user")
-    private List<UserAchievement> userAchievements = new ArrayList<>();
-
     @OneToMany(mappedBy = "user")
     private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "peer_operation", unique = true, nullable = false)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private PeerOperation peerOperation;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private UserProfile userProfile;
 }
