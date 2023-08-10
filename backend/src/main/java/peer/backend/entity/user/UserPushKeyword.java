@@ -22,7 +22,7 @@ public class UserPushKeyword implements Serializable {
     private Long userId;
 
     @MapsId("userId")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

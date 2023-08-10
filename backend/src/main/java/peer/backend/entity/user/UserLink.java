@@ -23,7 +23,7 @@ public class UserLink implements Serializable{
     private Long userId;
 
     @MapsId("userId")
-    @ManyToOne(targetEntity = UserProfile.class)
+    @ManyToOne(targetEntity = UserProfile.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserProfile userProfile;
 

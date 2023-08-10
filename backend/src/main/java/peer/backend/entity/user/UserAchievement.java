@@ -26,12 +26,12 @@ public class UserAchievement implements Serializable {
     private Long achievementId;
 
     @MapsId("userId")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserProfile userProfile;
 
     @MapsId("achievementId")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "achievement_id")
     private Achievement achievement;
 
