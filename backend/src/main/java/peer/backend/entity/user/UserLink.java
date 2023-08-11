@@ -13,23 +13,20 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_link")
-public class UserLink implements Serializable{
+public class UserLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Id
-    @Column(name = "user_id")
-    private Long userId;
-
-    @MapsId("userId")
     @ManyToOne(targetEntity = UserProfile.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private UserProfile userProfile;
 
     @Column(nullable = false)
     private String link_name;
 
+    @Column(nullable = false)
     private String link_url;
+
     private String favicon_path;
 }
