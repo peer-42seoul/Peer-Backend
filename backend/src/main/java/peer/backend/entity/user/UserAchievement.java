@@ -30,7 +30,7 @@ public class UserAchievement {
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserProfile userProfile;
+    private User user;
 
     @MapsId("achievementId")
     @ManyToOne(fetch = FetchType.LAZY)

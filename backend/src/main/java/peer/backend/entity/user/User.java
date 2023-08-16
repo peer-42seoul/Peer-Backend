@@ -1,6 +1,7 @@
 package peer.backend.entity.user;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user")
@@ -38,6 +40,18 @@ public class User {
     private String phone;
     @Column(nullable = false)
     private String address;
+    @Column
+    private String imageUrl;
+    @Column(nullable = false)
+    private boolean certification;
+    @Column(nullable = false)
+    private String company;
+    @Column(nullable = false)
+    private String introduce;
+    @Column(nullable = false)
+    private Long peerLevel;
+    @Column(nullable = false)
+    private String representAchievement;
 
     @OneToMany(mappedBy = "user")
     private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
@@ -45,6 +59,9 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private PeerOperation peerOperation;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-    private UserProfile userProfile;
+    @OneToMany(mappedBy = "user")
+    private List<UserAchievement> userAchievements = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<UserLink> userLinks = new ArrayList<>();
 }
