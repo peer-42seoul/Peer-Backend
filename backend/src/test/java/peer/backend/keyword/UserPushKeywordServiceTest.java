@@ -104,6 +104,6 @@ public class UserPushKeywordServiceTest {
         userPushKeywordService.deleteKeyword(userId, keyword);
 
         verify(userPushKeywordRepository, times(1))
-            .deleteByIdAndKeyword(userId, keyword);
+            .deleteByUserIdAndKeyword(userId, keyword);
     }
 }

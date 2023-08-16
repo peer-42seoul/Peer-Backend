@@ -8,5 +8,5 @@ public interface UserPushKeywordRepository extends JpaRepository<UserPushKeyword
 
     public List<UserPushKeyword> findAllByUserId(Long userId);
 
-    public void deleteByIdAndKeyword(Long userId, String keyword);
+    public void deleteByUserIdAndKeyword(Long userId, String keyword);
 }

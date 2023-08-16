@@ -36,6 +36,6 @@ public class UserPushKeywordService {
 
     @Transactional
     public void deleteKeyword(Long id, String keyword) {
-        this.userPushKeywordRepository.deleteByIdAndKeyword(id, keyword);
+        this.userPushKeywordRepository.deleteByUserIdAndKeyword(id, keyword);
     }
 }
