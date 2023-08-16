@@ -24,6 +24,8 @@ public class UserPushKeywordService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다!"));
         UserPushKeyword userPushKeyword = UserPushKeyword.builder()
             .user(user).keyword(keyword).build();
+        System.out.println(keyword);
+        System.out.println(userPushKeyword.getKeyword());
         return this.userPushKeywordRepository.save(userPushKeyword);
     }
 
