@@ -40,7 +40,8 @@ public class UserPushKeywordController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteKeyword(@PathVariable Long userId, @RequestBody KeywordDto keywordDto) {
+    public void deleteKeyword(@PathVariable Long userId,
+        @RequestBody @Valid KeywordDto keywordDto) {
         this.keywordService.deleteKeyword(userId, keywordDto.getKeyword());
     }
 }
