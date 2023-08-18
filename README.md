@@ -50,7 +50,7 @@ fix: A-JOI-01 게시글 수정 API에서 게시글이 수정되지 않는 버그
 </ul>
 <h3>제목양식</h3>
 <pre><code>
-[&lt;type&gt;] &lt;code&gt; &lt;subject&gt; &lt;#issueNumber&gt;
+[&lt;type&gt;] &lt;subject&gt; &lt;#issueNumber&gt;
 </code></pre>
 <h3>본문양식</h3>
 <pre><code>
@@ -64,10 +64,9 @@ ex) 베이스 브랜치에 포함되기 위한 코드는 모두 정상적으로 
 </code></pre>
 <ul>
 <li><strong>type</strong> : 어떤 의도의 커밋인지를 나타냅니다. 첫글자를 대문자로 작성합니다.</li>
-<li><strong>code</strong> : 기능코드</li>
 <li><strong>subject</strong> : 커밋의 제목입니다. 20자를 넘기지 않도록 합니다.</li>
 <ul>
-<li>제목은 영어 기준 50자 이내</li>
+<li>제목은 한글 기준 20자 이내</li>
 <li>목적어와 행위를 분명하게 명시하기 (과거 시제를 사용하지 않기)</li>
 <li>제목 끝에 <code>.</code> 는 금지</li>
 <li>제목은 명령어, 개조식으로 작성</li>
