@@ -66,6 +66,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserLink> userLinks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<InterestedProject> interestedProjects = new ArrayList<>();
 }
