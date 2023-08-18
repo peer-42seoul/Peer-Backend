@@ -24,7 +24,7 @@ public class User {
 
     @Column(length = 20)
     private String user_id;
-    @Column(length = 20)
+    @Column//(length = 20)
     private String password;
     @Column(length = 10, nullable = false)
     private String name;
@@ -42,15 +42,15 @@ public class User {
     private String address;
     @Column
     private String imageUrl;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private boolean certification;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String company;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String introduce;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private Long peerLevel;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String representAchievement;
 
     @OneToMany(mappedBy = "user")
