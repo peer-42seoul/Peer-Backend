@@ -16,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Cleanup;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -69,11 +70,20 @@ public class Team {
     @Column(nullable = false)
     TeamMemberStatus teamMemberStatus;
 
+    @Column(nullable = false)
+    Boolean isLock;
+
+    @Column()
+    Integer maxMember;
+
     @Column(length = 10, nullable = false)
     String region1;
 
     @Column(length = 10, nullable = false)
     String region2;
+
+    @Column(length = 10, nullable = false)
+    String region3;
 
     @CreatedDate
     private LocalDateTime createdAt;
