@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAchievementPK implements Serializable {
+public class TeamUserPK implements Serializable {
 
     private Long userId;
-    private Long achievementId;
+    private Long teamId;
 }

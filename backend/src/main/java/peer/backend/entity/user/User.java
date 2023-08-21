@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import peer.backend.entity.team.TeamUser;
 
 @Entity
 @Getter
@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "user")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -64,4 +65,10 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserLink> userLinks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<TeamUser> teamUsers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<InterestedProject> interestedProjects = new ArrayList<>();
 }
