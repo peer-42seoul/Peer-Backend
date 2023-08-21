@@ -1,16 +1,13 @@
 package peer.backend.entity.team.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum TeamType {
     STUDY("study"),
     PROJECT("project");
 
-    private String type;
-
-    private TeamType(String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
-    }
+    private final String type;
 }
