@@ -3,6 +3,7 @@ package peer.backend.teamuser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,8 +86,8 @@ public class TeamUserRepositoryTest {
     }
 
     @Test
-    @DisplayName("TeamUser select test")
-    void selectTest() {
+    @DisplayName("TeamUser findByUserIdAndTeamId test")
+    void findByUserIdAndTeamIdTest() {
         User user = userRepository.findAll().get(0);
         Team team = teamRepository.findAll().get(0);
 
@@ -101,6 +102,24 @@ public class TeamUserRepositoryTest {
         TeamUser find = teamUserRepository.findByUserIdAndTeamId(user.getId(),
             team.getId());
         assertEquals(find.getTeamId(), teamUser.getTeamId());
+    }
+
+    @Test
+    @DisplayName("TeamUser findByUserId test")
+    void findByUserIdTest() {
+        User user = userRepository.findAll().get(0);
+        Team team = teamRepository.findAll().get(0);
+
+        TeamUser teamUser = TeamUser.builder()
+            .user(user)
+            .userId(user.getId())
+            .team(team)
+            .teamId(team.getId())
+            .build();
+
+        teamUserRepository.save(teamUser);
+        List<TeamUser> teamUserList = teamUserRepository.findByUserId(user.getId());
+        assertEquals(teamUserList.size(), 1);
     }
 
     @Test
