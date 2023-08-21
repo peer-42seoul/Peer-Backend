@@ -2,7 +2,7 @@ package peer.backend.team;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +23,27 @@ public class TeamRepositoryTest {
     @Autowired
     TeamRepository teamRepository;
 
-    @Test
-    @DisplayName("Team Repository insert test")
-    void insertTest() {
-        Team team = Team.builder()
+    Team team;
+
+    @BeforeEach
+    void beforeEach() {
+        team = Team.builder()
             .name("test")
             .type(TeamType.STUDY)
             .dueTo("10월")
             .operationFormat(TeamOperationFormat.ONLINE)
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
+            .isLock(false)
             .region1("test")
             .region2("test")
+            .region3("test")
             .build();
+    }
 
+    @Test
+    @DisplayName("Team Repository insert test")
+    void insertTest() {
         assertEquals(teamRepository.count(), 0);
         teamRepository.save(team);
         assertEquals(teamRepository.count(), 1);
@@ -45,17 +52,6 @@ public class TeamRepositoryTest {
     @Test
     @DisplayName("Team Repository select test")
     void selectTest() {
-        Team team = Team.builder()
-            .name("test")
-            .type(TeamType.STUDY)
-            .dueTo("10월")
-            .operationFormat(TeamOperationFormat.ONLINE)
-            .status(TeamStatus.RECRUITING)
-            .teamMemberStatus(TeamMemberStatus.RECRUITING)
-            .region1("test")
-            .region2("test")
-            .build();
-
         teamRepository.save(team);
         assertEquals(teamRepository.findAll().size(), 1);
     }
@@ -63,17 +59,6 @@ public class TeamRepositoryTest {
     @Test
     @DisplayName("Team Repository delete test")
     void deleteTest() {
-        Team team = Team.builder()
-            .name("test")
-            .type(TeamType.STUDY)
-            .dueTo("10월")
-            .operationFormat(TeamOperationFormat.ONLINE)
-            .status(TeamStatus.RECRUITING)
-            .teamMemberStatus(TeamMemberStatus.RECRUITING)
-            .region1("test")
-            .region2("test")
-            .build();
-
         teamRepository.save(team);
         teamRepository.deleteAll();
         assertEquals(teamRepository.count(), 0);

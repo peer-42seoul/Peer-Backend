@@ -59,8 +59,10 @@ public class TeamUserRepositoryTest {
             .operationFormat(TeamOperationFormat.ONLINE)
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
+            .isLock(false)
             .region1("test")
             .region2("test")
+            .region3("test")
             .build();
         teamRepository.save(team);
     }
