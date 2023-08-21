@@ -44,8 +44,9 @@ public class RecruitBoard {
     @Lob
     private String content;
 
-    //TODO : 파일, 이미지 분리;
     private String tag;
     @Lob
     private String question;
+
+    //TODO : 파일, 이미지 만들기
 }

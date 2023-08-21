@@ -40,6 +40,8 @@ public class Board extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_board_list_id")
     private TeamBoardList teamBoardList;
-    // TODO: 이미지와 파일 분리
+
+
+    //TODO : 파일, 이미지 만들기
 
 }
