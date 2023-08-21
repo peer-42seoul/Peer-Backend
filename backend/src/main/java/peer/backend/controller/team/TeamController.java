@@ -14,8 +14,10 @@ import peer.backend.service.team.TeamService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/team")
+@RequestMapping(TeamController.TEAM_URL)
 public class TeamController {
+
+    public static final String TEAM_URL = "/api/v1/team";
 
     private final TeamService teamService;
 
