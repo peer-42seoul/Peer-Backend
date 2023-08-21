@@ -1,8 +1,9 @@
-package peer.backend.intersted;
+package peer.backend.team;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,31 +11,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamType;
-import peer.backend.entity.user.InterestedProject;
 import peer.backend.entity.user.User;
 import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.user.InterestedProjectRepository;
+import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
-@DisplayName("Interested Project Repository 테스트")
+@DisplayName("Team User Repository 테스트")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class InterestedProjectRepositoryTest {
+public class TeamUserRepositoryTest {
 
     @Autowired
-    InterestedProjectRepository interestedProjectRepository;
+    TeamUserRepository teamUserRepository;
 
     @Autowired
     UserRepository userRepository;
 
     @Autowired
     TeamRepository teamRepository;
-
-    InterestedProject interestedProject;
 
     @BeforeEach
     void beforeEach() {
@@ -70,57 +69,75 @@ public class InterestedProjectRepositoryTest {
     }
 
     @Test
-    @DisplayName("Interested Project insert test")
+    @DisplayName("TeamUser insert test")
     void insertTest() {
         User user = userRepository.findAll().get(0);
         Team team = teamRepository.findAll().get(0);
 
-        InterestedProject interestedProject = InterestedProject.builder()
+        TeamUser teamUser = TeamUser.builder()
             .user(user)
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
             .build();
 
-        interestedProjectRepository.save(interestedProject);
-        assertEquals(interestedProjectRepository.count(), 1);
+        teamUserRepository.save(teamUser);
+        assertEquals(teamUserRepository.count(), 1);
     }
 
     @Test
-    @DisplayName("Interested Project select test")
-    void selectTest() {
+    @DisplayName("TeamUser findByUserIdAndTeamId test")
+    void findByUserIdAndTeamIdTest() {
         User user = userRepository.findAll().get(0);
         Team team = teamRepository.findAll().get(0);
 
-        InterestedProject interestedProject = InterestedProject.builder()
+        TeamUser teamUser = TeamUser.builder()
             .user(user)
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
             .build();
 
-        interestedProjectRepository.save(interestedProject);
-        InterestedProject find = interestedProjectRepository.findByUserIdAndTeamId(user.getId(),
+        teamUserRepository.save(teamUser);
+        TeamUser find = teamUserRepository.findByUserIdAndTeamId(user.getId(),
             team.getId());
-        assertEquals(find.getTeamId(), interestedProject.getTeamId());
+        assertEquals(find.getTeamId(), teamUser.getTeamId());
     }
 
     @Test
-    @DisplayName("Interested Project delete test")
+    @DisplayName("TeamUser findByUserId test")
+    void findByUserIdTest() {
+        User user = userRepository.findAll().get(0);
+        Team team = teamRepository.findAll().get(0);
+
+        TeamUser teamUser = TeamUser.builder()
+            .user(user)
+            .userId(user.getId())
+            .team(team)
+            .teamId(team.getId())
+            .build();
+
+        teamUserRepository.save(teamUser);
+        List<TeamUser> teamUserList = teamUserRepository.findByUserId(user.getId());
+        assertEquals(teamUserList.size(), 1);
+    }
+
+    @Test
+    @DisplayName("TeamUser delete test")
     void deleteTest() {
         User user = userRepository.findAll().get(0);
         Team team = teamRepository.findAll().get(0);
 
-        InterestedProject interestedProject = InterestedProject.builder()
+        TeamUser teamUser = TeamUser.builder()
             .user(user)
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
             .build();
 
-        interestedProjectRepository.save(interestedProject);
-        assertEquals(interestedProjectRepository.count(), 1);
-        interestedProjectRepository.deleteByUserIdAndTeamId(user.getId(), team.getId());
-        assertEquals(interestedProjectRepository.count(), 0);
+        teamUserRepository.save(teamUser);
+        assertEquals(teamUserRepository.count(), 1);
+        teamUserRepository.deleteByUserIdAndTeamId(user.getId(), team.getId());
+        assertEquals(teamUserRepository.count(), 0);
     }
 }
