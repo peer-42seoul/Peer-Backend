@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import peer.backend.dto.Message;
-import peer.backend.dto.UserInfo;
+import peer.backend.dto.security.Message;
+import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
 

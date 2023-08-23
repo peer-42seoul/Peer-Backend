@@ -1,4 +1,4 @@
-package peer.backend.dto.request;
+package peer.backend.dto.security.request;
 
 import lombok.Data;
 

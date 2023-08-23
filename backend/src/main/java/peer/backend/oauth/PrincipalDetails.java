@@ -3,7 +3,6 @@ package peer.backend.oauth;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import peer.backend.dto.UserInfo;
 import peer.backend.entity.user.User;
 
 import java.util.Collection;
