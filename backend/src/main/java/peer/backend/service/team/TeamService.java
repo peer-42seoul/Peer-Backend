@@ -26,14 +26,27 @@ public class TeamService {
 
     @Transactional
     public List<Team> getTeamList(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = this.userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다."));
         List<Team> teamList = user.getTeamUsers().stream().map(x -> x.getTeam())
             .collect(Collectors.toList());
-//        List<TeamUser> teamUserList = teamUserRepository.findByUserId(userId);
-//        List<Team> teamList = teamUserList.stream().map(x -> x.getTeam())
-//            .collect(Collectors.toList());
 
         return teamList;
+    }
+
+    @Transactional
+    public Team getTeamById(Long teamId) {
+        Team team = this.teamRepository.findById(teamId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
+
+        return team;
+    }
+
+    @Transactional
+    public Team getTeamByName(String teamName) {
+        Team team = this.teamRepository.findByName(teamName)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
+
+        return team;
     }
 }
