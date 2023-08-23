@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .addFilter(corsConfig.corsFilter())
                 .authorizeHttpRequests()
-                .antMatchers("/login", "/membership").permitAll()
+                .antMatchers("/login", "/membership/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/**").authenticated()
                 .antMatchers(HttpMethod.GET, "/**").authenticated()
                 .and()

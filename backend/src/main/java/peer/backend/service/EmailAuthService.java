@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import peer.backend.dto.EmailMessage;
-import peer.backend.dto.Message;
+import peer.backend.dto.security.EmailMessage;
+import peer.backend.dto.security.Message;
 
 import java.util.Random;
 

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import peer.backend.dto.Message;
-import peer.backend.dto.UserInfo;
-import peer.backend.dto.request.EmailAddress;
+import peer.backend.dto.security.Message;
+import peer.backend.dto.security.UserInfo;
+import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.service.EmailAuthService;
 import peer.backend.service.MemberService;
 
