@@ -3,13 +3,17 @@ package peer.backend.controller.team;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.team.TeamListResponseDto;
-import peer.backend.dto.team.TeamResponseDto;
+import peer.backend.dto.team.TeamListResponse;
+import peer.backend.dto.team.TeamResponse;
+import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.team.Team;
 import peer.backend.service.team.TeamService;
 
@@ -24,10 +28,10 @@ public class TeamController {
 
     @ApiOperation(value = "C-MYPAGE-49", notes = "속한 팀 리스트를 가져옵니다.")
     @GetMapping("/{userId}")
-    public List<TeamListResponseDto> getTeamList(@PathVariable() Long userId) {
+    public List<TeamListResponse> getTeamList(@PathVariable() Long userId) {
         List<Team> teamList = this.teamService.getTeamList(userId);
-        List<TeamListResponseDto> teamListResponseDtoList = teamList.stream()
-            .map(x -> new TeamListResponseDto(x)).collect(
+        List<TeamListResponse> teamListResponseDtoList = teamList.stream()
+            .map(x -> new TeamListResponse(x)).collect(
                 Collectors.toList());
 
         return teamListResponseDtoList;
@@ -35,19 +39,26 @@ public class TeamController {
 
     @ApiOperation(value = "C-MYPAGE-49", notes = "팀 아이디로 세부 정보를 가져옵니다.")
     @GetMapping("/id/{teamId}")
-    public TeamResponseDto getTeamById(@PathVariable() Long teamId) {
+    public TeamResponse getTeamById(@PathVariable() Long teamId) {
         Team team = this.teamService.getTeamById(teamId);
-        TeamResponseDto teamResponseDto = new TeamResponseDto(team);
+        TeamResponse teamResponse = new TeamResponse(team);
 
-        return teamResponseDto;
+        return teamResponse;
     }
 
     @ApiOperation(value = "C-MYPAGE-49", notes = "팀 이름으로 세부 정보를 가져옵니다.")
     @GetMapping("/name/{teamName}")
-    public TeamResponseDto getTeamById(@PathVariable() String teamName) {
+    public TeamResponse getTeamById(@PathVariable() String teamName) {
         Team team = this.teamService.getTeamByName(teamName);
-        TeamResponseDto teamResponseDto = new TeamResponseDto(team);
+        TeamResponse teamResponse = new TeamResponse(team);
 
-        return teamResponseDto;
+        return teamResponse;
+    }
+
+    @ApiOperation(value = "I-TM-01 ~ I-TM-13", notes = "팀 정보를 업데이트 합니다.")
+    @PutMapping("/{teamId}")
+    public void updateTeam(@PathVariable() Long teamId,
+        @Valid() @RequestBody() UpdateTeamRequest updateTeamRequest) {
+        this.teamService.updateTeam(teamId, updateTeamRequest);
     }
 }

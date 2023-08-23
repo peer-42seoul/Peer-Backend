@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import peer.backend.controller.team.TeamController;
-import peer.backend.dto.team.TeamListResponseDto;
+import peer.backend.dto.team.TeamListResponse;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
@@ -78,8 +78,8 @@ public class TeamControllerTest {
             .andReturn();
 
         String json = mvcResult.getResponse().getContentAsString();
-        List<TeamListResponseDto> list = objectMapper.readValue(json,
-            new TypeReference<List<TeamListResponseDto>>() {
+        List<TeamListResponse> list = objectMapper.readValue(json,
+            new TypeReference<List<TeamListResponse>>() {
             });
 
         assertEquals(list.get(0).getName(), team.getName());

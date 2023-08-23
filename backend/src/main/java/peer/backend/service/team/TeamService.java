@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.User;
@@ -48,5 +49,11 @@ public class TeamService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
 
         return team;
+    }
+
+    @Transactional
+    public void updateTeam(Long teamId, UpdateTeamRequest request) {
+        Team team = this.getTeamById(teamId);
+        team.update(request);
     }
 }

@@ -4,9 +4,9 @@ import lombok.Getter;
 import peer.backend.entity.team.Team;
 
 @Getter
-public class TeamListResponseDto {
+public class TeamListResponse {
 
-    public TeamListResponseDto(Team team) {
+    public TeamListResponse(Team team) {
         this.id = team.getId();
         this.name = team.getName();
         this.dueTo = team.getDueTo();
