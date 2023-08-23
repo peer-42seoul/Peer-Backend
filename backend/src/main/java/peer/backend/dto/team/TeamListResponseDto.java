@@ -14,12 +14,12 @@ public class TeamListResponseDto {
     public TeamListResponseDto(Team team) {
         this.name = team.getName();
         this.dueTo = team.getDueTo();
-        this.status = team.getStatus();
+        this.status = team.getStatus().getValue();
     }
 
     String name;
     String dueTo;
-    TeamStatus status;
+    String status;
     /*
         To-Do: 팀원 권한 추가 예정
      */

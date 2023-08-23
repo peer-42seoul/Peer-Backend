@@ -9,5 +9,5 @@ public enum TeamMemberStatus {
     CONFIRMED("확정"),
     RECRUITING("모집 중");
 
-    private final String status;
+    private final String value;
 }

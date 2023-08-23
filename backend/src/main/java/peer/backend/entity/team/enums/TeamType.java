@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TeamType {
-    STUDY("study"),
-    PROJECT("project");
+    STUDY("스터디"),
+    PROJECT("프로젝트");
 
-    private final String type;
+    private final String value;
 }

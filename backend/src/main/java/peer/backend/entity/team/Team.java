@@ -86,4 +86,26 @@ public class Team extends BaseEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Team{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", type=" + type +
+            ", dueTo='" + dueTo + '\'' +
+            ", teamPicturePath='" + teamPicturePath + '\'' +
+            ", operationFormat=" + operationFormat +
+            ", teamLogoPath='" + teamLogoPath + '\'' +
+            ", status=" + status +
+            ", teamMemberStatus=" + teamMemberStatus +
+            ", isLock=" + isLock +
+            ", maxMember=" + maxMember +
+            ", region1='" + region1 + '\'' +
+            ", region2='" + region2 + '\'' +
+            ", region3='" + region3 + '\'' +
+            ", teamUsers=" + teamUsers +
+            ", interestedProjects=" + interestedProjects +
+            '}';
+    }
 }
