@@ -22,7 +22,7 @@ import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserPushKeyword;
 import peer.backend.repository.user.UserPushKeywordRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.UserPushKeywordService;
+import peer.backend.service.user.UserPushKeywordService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("KeywordService Test")

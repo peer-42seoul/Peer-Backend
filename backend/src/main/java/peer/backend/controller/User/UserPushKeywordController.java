@@ -1,4 +1,4 @@
-package peer.backend.controller;
+package peer.backend.controller.User;
 
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.KeywordDTO;
 import peer.backend.entity.user.UserPushKeyword;
-import peer.backend.service.UserPushKeywordService;
+import peer.backend.service.user.UserPushKeywordService;
 
 @RestController
 @RequiredArgsConstructor

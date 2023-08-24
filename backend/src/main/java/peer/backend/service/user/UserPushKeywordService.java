@@ -1,4 +1,4 @@
-package peer.backend.service;
+package peer.backend.service.user;
 
 import java.util.List;
 import javax.transaction.Transactional;

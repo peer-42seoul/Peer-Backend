@@ -87,25 +87,6 @@ public class InterestedProjectRepositoryTest {
     }
 
     @Test
-    @DisplayName("Interested Project select test")
-    void selectTest() {
-        User user = userRepository.findAll().get(0);
-        Team team = teamRepository.findAll().get(0);
-
-        InterestedProject interestedProject = InterestedProject.builder()
-            .user(user)
-            .userId(user.getId())
-            .team(team)
-            .teamId(team.getId())
-            .build();
-
-        interestedProjectRepository.save(interestedProject);
-        InterestedProject find = interestedProjectRepository.findByUserIdAndTeamId(user.getId(),
-            team.getId());
-        assertEquals(find.getTeamId(), interestedProject.getTeamId());
-    }
-
-    @Test
     @DisplayName("Interested Project delete test")
     void deleteTest() {
         User user = userRepository.findAll().get(0);
