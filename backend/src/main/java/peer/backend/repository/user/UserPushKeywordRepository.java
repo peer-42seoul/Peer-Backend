@@ -6,7 +6,7 @@ import peer.backend.entity.user.UserPushKeyword;
 
 public interface UserPushKeywordRepository extends JpaRepository<UserPushKeyword, Long> {
 
-    public List<UserPushKeyword> findAllByUserId(Long userId);
+    List<UserPushKeyword> findAllByUserId(Long userId);
 
-    public void deleteByUserIdAndKeyword(Long userId, String keyword);
+    void deleteByUserIdAndKeyword(Long userId, String keyword);
 }

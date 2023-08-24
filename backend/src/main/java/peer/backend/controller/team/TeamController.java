@@ -30,29 +30,26 @@ public class TeamController {
     @GetMapping("/{userId}")
     public List<TeamListResponse> getTeamList(@PathVariable() Long userId) {
         List<Team> teamList = this.teamService.getTeamList(userId);
-        List<TeamListResponse> teamListResponseDtoList = teamList.stream()
-            .map(x -> new TeamListResponse(x)).collect(
-                Collectors.toList());
 
-        return teamListResponseDtoList;
+        return teamList.stream()
+            .map(TeamListResponse::new).collect(
+                Collectors.toList());
     }
 
     @ApiOperation(value = "C-MYPAGE-49", notes = "팀 아이디로 세부 정보를 가져옵니다.")
     @GetMapping("/id/{teamId}")
     public TeamResponse getTeamById(@PathVariable() Long teamId) {
         Team team = this.teamService.getTeamById(teamId);
-        TeamResponse teamResponse = new TeamResponse(team);
 
-        return teamResponse;
+        return new TeamResponse(team);
     }
 
     @ApiOperation(value = "C-MYPAGE-49", notes = "팀 이름으로 세부 정보를 가져옵니다.")
     @GetMapping("/name/{teamName}")
     public TeamResponse getTeamById(@PathVariable() String teamName) {
         Team team = this.teamService.getTeamByName(teamName);
-        TeamResponse teamResponse = new TeamResponse(team);
 
-        return teamResponse;
+        return new TeamResponse(team);
     }
 
     @ApiOperation(value = "I-TM-01 ~ I-TM-13", notes = "팀 정보를 업데이트 합니다.")

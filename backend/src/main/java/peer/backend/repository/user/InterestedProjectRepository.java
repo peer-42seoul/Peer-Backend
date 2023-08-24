@@ -6,7 +6,7 @@ import peer.backend.entity.user.UserLink;
 
 public interface InterestedProjectRepository extends JpaRepository<InterestedProject, Long> {
 
-    public InterestedProject findByUserIdAndTeamId(Long userId, Long teamId);
+    InterestedProject findByUserIdAndTeamId(Long userId, Long teamId);
 
-    public void deleteByUserIdAndTeamId(Long userId, Long teamId);
+    void deleteByUserIdAndTeamId(Long userId, Long teamId);
 }

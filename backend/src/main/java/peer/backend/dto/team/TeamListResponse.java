@@ -13,12 +13,10 @@ public class TeamListResponse {
         this.status = team.getStatus().getValue();
     }
 
-    private Long id;
-    private String name;
-    private String dueTo;
-    private String status;
-    /*
-        To-Do: 팀원 권한 추가 예정
-     */
+    private final Long id;
+    private final String name;
+    private final String dueTo;
+    private final String status;
+    // TODO: 팀원 권한 추가 예정
 
 }

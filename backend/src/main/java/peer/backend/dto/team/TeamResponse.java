@@ -23,18 +23,18 @@ public class TeamResponse {
         this.region3 = team.getRegion3();
     }
 
-    private Long id;
-    private String name;
-    private String type;
-    private String dueTo;
-    private String teamPicturePath;
-    private String operationFormat;
-    private String teamLogoPath;
-    private String status;
-    private String teamMemberStatus;
-    private Boolean isLock;
-    private Integer maxMember;
-    private String region1;
-    private String region2;
-    private String region3;
+    private final Long id;
+    private final String name;
+    private final String type;
+    private final String dueTo;
+    private final String teamPicturePath;
+    private final String operationFormat;
+    private final String teamLogoPath;
+    private final String status;
+    private final String teamMemberStatus;
+    private final Boolean isLock;
+    private final Integer maxMember;
+    private final String region1;
+    private final String region2;
+    private final String region3;
 }

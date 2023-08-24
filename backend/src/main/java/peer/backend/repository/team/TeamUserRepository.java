@@ -7,10 +7,10 @@ import peer.backend.entity.user.InterestedProject;
 
 public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
-    public TeamUser findByUserIdAndTeamId(Long userId, Long teamId);
+    TeamUser findByUserIdAndTeamId(Long userId, Long teamId);
 
-    public void deleteByUserIdAndTeamId(Long userId, Long teamId);
+    void deleteByUserIdAndTeamId(Long userId, Long teamId);
 
-    public List<TeamUser> findByUserId(Long userId);
+    List<TeamUser> findByUserId(Long userId);
 
 }

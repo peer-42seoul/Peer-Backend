@@ -6,5 +6,5 @@ import peer.backend.entity.team.Team;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
 
-    public Optional<Team> findByName(String name);
+    Optional<Team> findByName(String name);
 }
