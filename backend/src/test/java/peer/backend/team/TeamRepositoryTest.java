@@ -1,5 +1,6 @@
 package peer.backend.team;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ public class TeamRepositoryTest {
     @BeforeEach
     void beforeEach() {
         team = Team.builder()
-            .name("test")
+            .name("unit_test")
             .type(TeamType.STUDY)
             .dueTo("10월")
             .operationFormat(TeamOperationFormat.ONLINE)
@@ -62,5 +63,14 @@ public class TeamRepositoryTest {
         teamRepository.save(team);
         teamRepository.deleteAll();
         assertEquals(teamRepository.count(), 0);
+    }
+
+    @Test
+    @DisplayName("Team Repository findByName test")
+    void findByNameTest() {
+        teamRepository.save(team);
+        Team find = teamRepository.findByName(team.getName()).orElse(null);
+        assertThat(find).isNotNull();
+        assertEquals(find.getName(), team.getName());
     }
 }

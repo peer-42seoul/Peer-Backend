@@ -17,7 +17,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
@@ -31,6 +33,7 @@ import peer.backend.entity.user.InterestedProject;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@DynamicUpdate
 @Table(name = "team")
 public class Team extends BaseEntity {
 
@@ -38,7 +41,7 @@ public class Team extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     String name;
 
     @Enumerated(EnumType.STRING)
@@ -86,4 +89,20 @@ public class Team extends BaseEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
+
+    public void update(UpdateTeamRequest request) {
+        this.name = request.getName();
+        this.type = request.getType();
+        this.dueTo = request.getDueTo();
+        this.teamPicturePath = request.getTeamPicturePath();
+        this.operationFormat = request.getOperationFormat();
+        this.teamLogoPath = request.getTeamLogoPath();
+        this.status = request.getStatus();
+        this.teamMemberStatus = request.getTeamMemberStatus();
+        this.isLock = request.getIsLock();
+        this.maxMember = request.getMaxMember();
+        this.region1 = request.getRegion1();
+        this.region2 = request.getRegion2();
+        this.region3 = request.getRegion3();
+    }
 }

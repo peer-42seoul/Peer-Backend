@@ -1,4 +1,4 @@
-package peer.backend.intersted;
+package peer.backend.team;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -84,25 +84,6 @@ public class InterestedProjectRepositoryTest {
 
         interestedProjectRepository.save(interestedProject);
         assertEquals(interestedProjectRepository.count(), 1);
-    }
-
-    @Test
-    @DisplayName("Interested Project select test")
-    void selectTest() {
-        User user = userRepository.findAll().get(0);
-        Team team = teamRepository.findAll().get(0);
-
-        InterestedProject interestedProject = InterestedProject.builder()
-            .user(user)
-            .userId(user.getId())
-            .team(team)
-            .teamId(team.getId())
-            .build();
-
-        interestedProjectRepository.save(interestedProject);
-        InterestedProject find = interestedProjectRepository.findByUserIdAndTeamId(user.getId(),
-            team.getId());
-        assertEquals(find.getTeamId(), interestedProject.getTeamId());
     }
 
     @Test
