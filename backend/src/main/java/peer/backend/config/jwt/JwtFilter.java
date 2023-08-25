@@ -25,19 +25,22 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
+        String requestUri = request.getRequestURI();
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            logger.info("토큰이 없습니다");
-            throw new NotFoundException("토큰이 없습니다.");
-//            return;
-        }
-        String token = authorizationHeader.substring(7);
-        // 토큰 검증
-        if (TokenProvider.isExpired(token, secretKey)) {
-            logger.info("토큰이 만료되었습니다");
-            filterChain.doFilter(request, response);
-            return;
+        if (!requestUri.startsWith("/membership") && !requestUri.startsWith("/login")){
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                logger.info("토큰이 없습니다");
+                throw new NotFoundException("토큰이 없습니다.");
+    //            return;
+            }
+            String token = authorizationHeader.substring(7);
+            // 토큰 검증
+            if (TokenProvider.isExpired(token, secretKey)) {
+                logger.info("토큰이 만료되었습니다");
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
         //UserName Token에서 꺼내기
         String userName = "";
