@@ -29,10 +29,8 @@ public class UserPushKeywordController {
     public List<KeywordDTO> getKeywordList(@PathVariable Long userId) {
         List<UserPushKeyword> userPushKeywordList = this.keywordService.getKeywordList(userId);
 
-        List<KeywordDTO> keywordDtoList = userPushKeywordList.stream()
+        return userPushKeywordList.stream()
             .map(m -> new KeywordDTO(m.getKeyword())).collect(Collectors.toList());
-
-        return keywordDtoList;
     }
 
     @ApiOperation(value = "C-MYPAGE-30", notes = "알림 키워드를 등록합니다.")
