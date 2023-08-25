@@ -15,8 +15,8 @@ public class TokenProvider {
 
     public static String createToken(User user, String key, long expireTimeMs) {
         Claims claims = Jwts.claims().setSubject("token");
-        claims.put("auth", "ROLE_USER");
-        claims.put("user_id", user.getId());
+        claims.put("role", "ROLE_USER");
+        claims.put("sub", user.getId());
 
         return Jwts.builder()
                 .setClaims(claims)

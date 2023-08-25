@@ -26,9 +26,6 @@ public class LoginService {
         // no username
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ForbiddenException("No such user"));
         // wrong password
-
-        System.out.println(user.getName());
-
         if (!encoder.matches(password, user.getPassword())) {
             throw new ForbiddenException("Wrong password");
         }
