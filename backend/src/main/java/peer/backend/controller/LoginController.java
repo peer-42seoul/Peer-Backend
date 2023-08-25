@@ -12,7 +12,7 @@ import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController
-public class LoginController {
+public class  LoginController {
 
     private final LoginService loginService;
 
