@@ -2,6 +2,7 @@ package peer.backend.entity.user;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,8 +12,10 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "user_push_keyword")
 public class UserPushKeyword {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
