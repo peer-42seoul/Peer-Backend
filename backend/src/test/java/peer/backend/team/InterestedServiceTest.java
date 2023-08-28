@@ -33,7 +33,7 @@ import peer.backend.service.team.TeamService;
 import peer.backend.service.user.InterestedProjectService;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("KeywordService Test")
+@DisplayName("InterestedService Test")
 public class InterestedServiceTest {
 
     @Mock

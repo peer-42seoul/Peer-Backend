@@ -26,7 +26,7 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.team.TeamService;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("KeywordService Test")
+@DisplayName("TeamService Test")
 public class TeamServiceTest {
 
     @Mock
