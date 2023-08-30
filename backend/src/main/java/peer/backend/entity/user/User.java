@@ -1,5 +1,6 @@
 package peer.backend.entity.user;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class User {
     private Long id;
 
     @Column(length = 20)
-    private String user_id;
+    private String userId;
     @Column(length = 20)
     private String password;
     @Column(length = 10, nullable = false)
@@ -36,9 +37,9 @@ public class User {
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
     @Column(nullable = false)
-    private LocalDateTime birthday;
+    private LocalDate birthday;
     @Column(nullable = false)
-    private boolean is_alarm;
+    private boolean isAlarm;
     @Column(nullable = false)
     private String phone;
     @Column(nullable = false)
