@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+  <!-- File Information -->
+  <Properties>
+    <Property name="file_name">./logs/${date:yyyy-MM-dd}.log</Property>
+    <!-- @formatter:off -->
+    <Property name="console_log_pattern">%style{%d{UTF-8}}{white} %highlight{%-5level} %style{%pid}{magenta} --- [%style{%t}{bright,blue}] %style{%c{1.}}{cyan}: %msg%n%throwable</Property>
+    <Property name="file_log_pattern">%d %p [%t] %c{1.} %m%n</Property>
+    <!-- @formatter:on -->
+  </Properties>
+
+  <Appenders>
+    <Console name="console_appender" target="SYSTEM_OUT">
+      <PatternLayout pattern="${console_log_pattern}"/>
+    </Console>
+
+    <!--    <RollingFile name="File_Info_" fileName="logs/application.log"-->
+    <!--      filePattern="logs/application.log.%d{yyyy-MM-dd-hh-mm}">-->
+    <!--      <PatternLayout pattern="${sys:FILE_LOG_PATTERN}"/>-->
+    <!--      <Policies>-->
+    <!--        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>-->
+    <!--      </Policies>-->
+    <!--      <DefaultRolloverStrategy>-->
+    <!--        <Delete basePath="logs" maxDepth="1">-->
+    <!--          <IfAccumulatedFileCount exceeds="3"/>-->
+    <!--        </Delete>-->
+    <!--      </DefaultRolloverStrategy>-->
+    <!--    </RollingFile>-->
+
+    <File name="file_appender">
+      <fileName>${file_name}</fileName>
+      <PatternLayout>
+        <pattern>${file_log_pattern}</pattern>
+      </PatternLayout>
+    </File>
+  </Appenders>
+
+  <Loggers>
+    <!-- Spring log  -->
+    <Logger name="org.springframework" additivity="false" level="INFO">
+      <AppenderRef ref="console_appender"/>
+      <AppenderRef ref="file_appender"/>
+    </Logger>
+
+    <!-- project log -->
+    <logger name="peer" additivity="false" level="DEBUG">
+      <AppenderRef ref="console_appender"/>
+      <AppenderRef ref="file_appender"/>
+    </logger>
+
+    <!-- auth log  -->
+    <!--    <logger name="com.pacakge.projectname.common.filter" additivity="false" level="INFO">-->
+    <!--      <AppenderRef ref="Console_Appender"/>-->
+    <!--      <AppenderRef ref="File_Info_Appender"/>-->
+    <!--      <AppenderRef ref="File_Error_Appender"/>-->
+    <!--    </logger>-->
+
+    <!-- default setting -->
+    <root additivity="false" level="OFF">
+      <AppenderRef ref="console_appender"/>
+    </root>
+  </Loggers>
+</Configuration>
