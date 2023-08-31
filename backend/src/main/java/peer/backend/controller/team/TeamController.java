@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.team.TeamListResponse;
+import peer.backend.dto.team.TeamMemberKickRequest;
 import peer.backend.dto.team.TeamResponse;
 import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.team.Team;
+import peer.backend.exception.NotFoundException;
 import peer.backend.service.team.TeamService;
 
 @RestController
@@ -57,5 +61,12 @@ public class TeamController {
     public void updateTeam(@PathVariable() Long teamId,
         @Valid() @RequestBody() UpdateTeamRequest updateTeamRequest) {
         this.teamService.updateTeam(teamId, updateTeamRequest);
+    }
+
+    // TODO: 권한 검증 추가
+    @ApiOperation(value = "I-TM-10", notes = "팀에서 유저를 추방 시킵니다.")
+    @DeleteMapping("/kick")
+    public void kickMember(@RequestBody() TeamMemberKickRequest request) {
+        this.teamService.deleteTeamUser(request.getTeamId(), request.getUserId());
     }
 }

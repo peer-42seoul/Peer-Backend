@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.team.Team;
@@ -50,5 +51,19 @@ public class TeamService {
     public void updateTeam(Long teamId, UpdateTeamRequest request) {
         Team team = this.getTeamById(teamId);
         team.update(request);
+    }
+
+    @Transactional
+    public void deleteTeamUser(Long teamId, Long userId) {
+        if (!this.userRepository.existsById(userId)) {
+            throw new NotFoundException("유저가 존재하지 않습니다!");
+        }
+        if (!this.teamRepository.existsById(teamId)) {
+            throw new NotFoundException("팀이 존재하지 않습니다!");
+        }
+        if (!this.teamUserRepository.existsByUserIdAndTeamId(userId, teamId)) {
+            throw new NotFoundException("해당 유저는 팀원이 아닙니다!");
+        }
+        this.teamUserRepository.deleteByUserIdAndTeamId(userId, teamId);
     }
 }
