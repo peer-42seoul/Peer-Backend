@@ -2,6 +2,7 @@ package peer.backend.team;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +42,8 @@ public class TeamUserRepositoryTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
-            .birthday(LocalDateTime.now())
-            .is_alarm(false)
+            .birthday(LocalDate.now())
+            .isAlarm(false)
             .phone("test")
             .address("test")
             .certification(false)

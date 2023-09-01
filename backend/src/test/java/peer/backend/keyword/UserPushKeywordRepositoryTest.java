@@ -3,6 +3,7 @@ package peer.backend.keyword;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.convert.DataSizeUnit;
@@ -34,8 +35,8 @@ public class UserPushKeywordRepositoryTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
-            .birthday(LocalDateTime.now())
-            .is_alarm(false)
+            .birthday(LocalDate.now())
+            .isAlarm(false)
             .phone("test")
             .address("test")
             .certification(false)
