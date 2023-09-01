@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.EditProfileDTO;
-import peer.backend.dto.profile.MyProfileRequest;
-import peer.backend.dto.profile.YourProfileRequest;
+import peer.backend.dto.profile.MyProfileResponse;
+import peer.backend.dto.profile.YourProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.NotFoundException;
@@ -20,12 +20,12 @@ public class ProfileService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public YourProfileRequest showOtherProfile(Long userId) throws Exception{
+    public YourProfileResponse showOtherProfile(Long userId) throws Exception{
         User user = userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("유저가 존재하지 않습니다");
         });
 
-        YourProfileRequest dto = YourProfileRequest.builder()
+        YourProfileResponse dto = YourProfileResponse.builder()
             .id(user.getId())
             .profileImageUrl(user.getImageUrl())
             .introduction(user.getIntroduce())
@@ -37,13 +37,13 @@ public class ProfileService {
 
     // Todo: Principle 통해 해당 유저가 나인지 판단할것
     @Transactional(readOnly = true)
-    public MyProfileRequest showMyProfile(Long userId) throws Exception
+    public MyProfileResponse showMyProfile(Long userId) throws Exception
     {
         User user = userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("유저가 존재하지 않습니다");
         });
 
-        MyProfileRequest dto = MyProfileRequest.builder()
+        MyProfileResponse dto = MyProfileResponse.builder()
             .id(user.getId())
             .profileImageUrl(user.getImageUrl())
             .introduction(user.getIntroduce())
