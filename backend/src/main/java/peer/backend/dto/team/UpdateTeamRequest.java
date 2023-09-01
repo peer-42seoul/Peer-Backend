@@ -9,7 +9,7 @@ import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamType;
-import peer.backend.validator.ValidEnum;
+import peer.backend.annotation.ValidEnum;
 
 @Getter
 @AllArgsConstructor
