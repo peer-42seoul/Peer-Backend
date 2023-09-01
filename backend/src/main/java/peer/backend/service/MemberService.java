@@ -26,7 +26,6 @@ public class MemberService {
         }
         User user = info.convertUser();
         repository.save(user);
-        PrincipalDetails principalDetails = new PrincipalDetails(user);
         return new Message(HttpStatus.CREATED);
     }
 }
