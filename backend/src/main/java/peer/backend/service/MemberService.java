@@ -2,21 +2,18 @@ package peer.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.security.Message;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
-
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final UserRepository repository;
-    private final BCryptPasswordEncoder encoder;
 
     public Message signUp(UserInfo info) {
         Optional<User> checkUser = repository.findByNickname(info.getNickname());
@@ -29,7 +26,6 @@ public class MemberService {
         }
         User user = info.convertUser();
         repository.save(user);
-        PrincipalDetails principalDetails = new PrincipalDetails(user);
         return new Message(HttpStatus.CREATED);
     }
 }
