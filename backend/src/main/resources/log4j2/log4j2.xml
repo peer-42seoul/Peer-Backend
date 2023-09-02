@@ -1,62 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
 
-  <!-- File Information -->
   <Properties>
-    <Property name="file_name">./logs/${date:yyyy-MM-dd}.log</Property>
+    <Property name="log_dir">./logs</Property>
     <!-- @formatter:off -->
-    <Property name="console_log_pattern">%style{%d{UTF-8}}{white} %highlight{%-5level} %style{%pid}{magenta} --- [%style{%t}{bright,blue}] %style{%c{1.}}{cyan}: %msg%n%throwable</Property>
-    <Property name="file_log_pattern">%d %p [%t] %c{1.} %m%n</Property>
+    <Property name="console_pattern">%style{%d{UTF-8}}{white} %highlight{%-5level} %style{%pid}{magenta} --- [%style{%t}{bright,blue}] %style{%c{1.}}{cyan}: %msg%n%throwable</Property>
+    <Property name="file_pattern">%d %p [%t] %c{1.} %m%n</Property>
     <!-- @formatter:on -->
   </Properties>
 
   <Appenders>
     <Console name="console_appender" target="SYSTEM_OUT">
-      <PatternLayout pattern="${console_log_pattern}"/>
+      <PatternLayout pattern="${console_pattern}"/>
     </Console>
 
-    <!--    <RollingFile name="File_Info_" fileName="logs/application.log"-->
-    <!--      filePattern="logs/application.log.%d{yyyy-MM-dd-hh-mm}">-->
-    <!--      <PatternLayout pattern="${sys:FILE_LOG_PATTERN}"/>-->
-    <!--      <Policies>-->
-    <!--        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>-->
-    <!--      </Policies>-->
-    <!--      <DefaultRolloverStrategy>-->
-    <!--        <Delete basePath="logs" maxDepth="1">-->
-    <!--          <IfAccumulatedFileCount exceeds="3"/>-->
-    <!--        </Delete>-->
-    <!--      </DefaultRolloverStrategy>-->
-    <!--    </RollingFile>-->
+    <RollingFile name="info_appender"
+      fileName="${log_dir}/info.log" filePattern="${log_dir}/%d{yyyy}/%d{MM}/%d{dd}/info_%i.log">
+      <PatternLayout pattern="${file_pattern}"/>
+      <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="1MB"/>
+        <TimeBasedTriggeringPolicy interval="1"/>
+        <TimeBasedTriggeringPolicy/>
+      </Policies>
+      <DefaultRolloverStrategy max="10" fileIndex="min">
+        <!--        <Delete basePath="${log_dir}" maxDepth="3">-->
+        <!--          <IfLastModified age="30d"/>-->
+        <!--        </Delete>-->
+      </DefaultRolloverStrategy>
+    </RollingFile>
 
-    <File name="file_appender">
-      <fileName>${file_name}</fileName>
-      <PatternLayout>
-        <pattern>${file_log_pattern}</pattern>
-      </PatternLayout>
-    </File>
+    <RollingFile name="error_appender"
+      fileName="${log_dir}/error.log" filePattern="${log_dir}/%d{yyyy}/%d{MM}/%d{dd}/error_%i.log">
+      <PatternLayout pattern="${file_pattern}"/>
+      <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="1MB"/>
+        <TimeBasedTriggeringPolicy interval="1"/>
+        <TimeBasedTriggeringPolicy/>
+      </Policies>
+      <DefaultRolloverStrategy max="10" fileIndex="min">
+        <!--        <Delete basePath="${log_dir}" maxDepth="3">-->
+        <!--          <IfLastModified age="30d"/>-->
+        <!--        </Delete>-->
+      </DefaultRolloverStrategy>
+    </RollingFile>
   </Appenders>
 
   <Loggers>
-    <!-- Spring log  -->
+    <!-- spring logger  -->
     <Logger name="org.springframework" additivity="false" level="INFO">
       <AppenderRef ref="console_appender"/>
-      <AppenderRef ref="file_appender"/>
+      <AppenderRef ref="info_appender"/>
+      <AppenderRef ref="error_appender"/>
     </Logger>
 
-    <!-- project log -->
-    <logger name="peer" additivity="false" level="DEBUG">
+    <!-- project logger -->
+    <logger name="peer" additivity="false" level="INFO">
       <AppenderRef ref="console_appender"/>
-      <AppenderRef ref="file_appender"/>
+      <AppenderRef ref="info_appender"/>
+      <AppenderRef ref="error_appender"/>
     </logger>
 
-    <!-- auth log  -->
-    <!--    <logger name="com.pacakge.projectname.common.filter" additivity="false" level="INFO">-->
-    <!--      <AppenderRef ref="Console_Appender"/>-->
-    <!--      <AppenderRef ref="File_Info_Appender"/>-->
-    <!--      <AppenderRef ref="File_Error_Appender"/>-->
-    <!--    </logger>-->
-
-    <!-- default setting -->
+    <!-- default logger -->
     <root additivity="false" level="OFF">
       <AppenderRef ref="console_appender"/>
     </root>
