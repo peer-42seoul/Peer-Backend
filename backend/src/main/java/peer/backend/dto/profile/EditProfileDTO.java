@@ -1,5 +1,6 @@
 package peer.backend.dto.profile;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,4 +15,20 @@ public class EditProfileDTO {
     private String phone;
     private String representAchievement;
     private String achievement;
+
+    public static List<UserLinkDTO> toUserLinkDTO(List<UserLink> userLinks)
+    {
+        List<UserLinkDTO> userLinkDTOS = new ArrayList<>();
+        for (UserLink userLink : userLinks)
+        {
+            UserLinkDTO userLinkDTO = UserLinkDTO.builder()
+                .id(userLink.getId())
+                .linkName(userLink.getLinkName())
+                .linkUrl(userLink.getLinkUrl())
+                .faviconPath(userLink.getFaviconPath())
+                .build();
+            userLinkDTOS.add(userLinkDTO);
+        }
+        return userLinkDTOS;
+    }
 }

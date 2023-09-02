@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.entity.team.TeamUser;
 import lombok.Setter;
 
@@ -20,6 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user")
+@DynamicUpdate
 public class User {
 
     @Id
@@ -66,7 +68,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserAchievement> userAchievements = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserLink> userLinks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)

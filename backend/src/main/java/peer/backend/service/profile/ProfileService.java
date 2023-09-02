@@ -1,16 +1,21 @@
 package peer.backend.service.profile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.boot.model.naming.IllegalIdentifierException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.EditProfileDTO;
 import peer.backend.dto.profile.MyProfileResponse;
+import peer.backend.dto.profile.UserLinkDTO;
 import peer.backend.dto.profile.YourProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 
 @Service
@@ -18,6 +23,7 @@ import peer.backend.repository.user.UserRepository;
 public class ProfileService {
 
     private final UserRepository userRepository;
+    private final UserLinkRepository userLinkRepository;
 
     @Transactional(readOnly = true)
     public YourProfileResponse showOtherProfile(Long userId) throws Exception{
@@ -70,24 +76,36 @@ public class ProfileService {
             .ifPresent(user::setIntroduce);
         Optional.ofNullable(profile.getPhone())
             .ifPresent(user::setPhone);
-
         Optional.ofNullable(profile.getAchievement())
             .ifPresent(user::setRepresentAchievement);
 
-        List<UserLink> existingLinks = user.getUserLinks();
-        existingLinks.clear(); // Remove existing links
+        if (profile.getLinkList() != null) {
+            List<UserLink> userLinks = user.getUserLinks();
+            List<UserLink> newLinks = new ArrayList<>(); // 새로운 링크 엔터티를 저장할 리스트
 
-        for (UserLink updatedLink : profile.getLinkList()) {
-            UserLink newLink = UserLink.builder()
-                .user(user)
-                .linkName(updatedLink.getLinkName())
-                .linkUrl(updatedLink.getLinkUrl())
-                .faviconPath(updatedLink.getFaviconPath())
-                .build();
-            existingLinks.add(newLink);
+            for (UserLink newLink : profile.getLinkList()) {
+                // 이미 존재하는 링크와 중복되는지 확인
+                boolean isDuplicate = false;
+                for (UserLink existingLink : userLinks) {
+                    if (existingLink.getLinkName().equals(newLink.getLinkName())) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                if (!isDuplicate) {
+                    UserLink userLink = new UserLink();
+                    userLink.setUser(user);
+                    userLink.setLinkName(newLink.getLinkName());
+                    userLink.setLinkUrl(newLink.getLinkUrl());
+                    userLink.setFaviconPath(newLink.getFaviconPath());
+
+                    newLinks.add(userLink); // 중복되지 않는 경우에만 새로운 링크 엔터티 추가
+                }
+            }
+
+            userLinks.addAll(newLinks); // 중복되지 않는 새로운 링크 목록을 기존 목록에 추가
         }
-
-        user.setUserLinks(existingLinks);
         userRepository.save(user);
 
         return profile;
