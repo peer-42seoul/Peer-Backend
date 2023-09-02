@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.DynamicUpdate;
+import peer.backend.entity.message.MessageBox;
 import peer.backend.entity.team.TeamUser;
 import lombok.Setter;
 
@@ -76,4 +77,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "message_box_id")
+    private MessageBox messageBox;
 }
