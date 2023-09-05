@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MessageType {
 
-    RECEIVE("수신"),
-    SEND("송신")
-    ;
+    SEND("송신"),
+    RECEIVE("수신");
     private final String type;
 }
