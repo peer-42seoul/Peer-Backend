@@ -1,11 +1,14 @@
 package peer.backend.service.message;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import peer.backend.dto.MessageUserDTO;
 import peer.backend.entity.message.Message;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
@@ -22,7 +25,7 @@ public class MessageService {
 
     // Todo: 해당 유저의 쪽지목록들 가져오기, userId -> Principle로 변경
     @Transactional(readOnly = true)
-    public List<User> myMessageList(Long userId) throws Exception {
+    public List<MessageUserDTO> myMessageList(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저의 아이디 입니다!"));
 
@@ -30,17 +33,27 @@ public class MessageService {
         List<Message> relatedMessages = messageRepository.findBySenderOrReceiver(user, user);
 
         // 관련된 메시지에서 상대방의 User 객체를 추출하여 중복을 제거한 목록을 생성합니다.
-        List<User> contactList = relatedMessages.stream()
+        List<MessageUserDTO> contactList = relatedMessages.stream()
             .filter(message -> !message.getSender().equals(message.getReceiver())) // 자기 자신은 추가하지 않음
             .map(message -> {
+                User otherUser;
                 if (message.getSender().equals(user)) {
-                    return message.getReceiver();
+                    otherUser = message.getReceiver();
                 } else {
-                    return message.getSender();
+                    otherUser = message.getSender();
                 }
+                // 상대방(User)의 프로필 이미지와 닉네임을 가져와서 MessageUserDTO로 생성
+                String profileImage = otherUser.getImageUrl();
+                String nickName = otherUser.getNickname();
+                return MessageUserDTO.builder()
+                    .profileImage(profileImage)
+                    .nickName(nickName)
+                    .build();
             })
             .distinct()
             .collect(Collectors.toList());
+
+        // Todo: 보낸순으로 내림차순 정
 
         return contactList;
     }
