@@ -55,12 +55,6 @@ public class TeamService {
 
     @Transactional
     public void deleteTeamUser(Long teamId, Long userId) {
-        if (!this.userRepository.existsById(userId)) {
-            throw new NotFoundException("유저가 존재하지 않습니다!");
-        }
-        if (!this.teamRepository.existsById(teamId)) {
-            throw new NotFoundException("팀이 존재하지 않습니다!");
-        }
         if (!this.teamUserRepository.existsByUserIdAndTeamId(userId, teamId)) {
             throw new NotFoundException("해당 유저는 팀원이 아닙니다!");
         }
