@@ -19,7 +19,7 @@
       <PatternLayout pattern="${file_pattern}"/>
       <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
       <Policies>
-        <SizeBasedTriggeringPolicy size="1MB"/>
+        <SizeBasedTriggeringPolicy size="10MB"/>
         <TimeBasedTriggeringPolicy interval="1"/>
         <TimeBasedTriggeringPolicy/>
       </Policies>
@@ -35,7 +35,7 @@
       <PatternLayout pattern="${file_pattern}"/>
       <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
       <Policies>
-        <SizeBasedTriggeringPolicy size="1MB"/>
+        <SizeBasedTriggeringPolicy size="10MB"/>
         <TimeBasedTriggeringPolicy interval="1"/>
         <TimeBasedTriggeringPolicy/>
       </Policies>
