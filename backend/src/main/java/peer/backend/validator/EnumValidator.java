@@ -2,6 +2,7 @@ package peer.backend.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import peer.backend.annotation.ValidEnum;
 
 public class EnumValidator implements ConstraintValidator<ValidEnum, Enum> {
 
