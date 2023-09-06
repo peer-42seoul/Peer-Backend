@@ -1,5 +1,10 @@
 package peer.backend.exception;
 
+import com.sun.net.httpserver.HttpServer;
+import java.net.http.HttpResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintDeclarationException;
+import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,29 +14,34 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalControllerAdvice {
 
-	@ExceptionHandler(value = MethodArgumentNotValidException.class)
-	public ResponseEntity methodArgumentNotValidException(MethodArgumentNotValidException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	}
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity methodArgumentNotValidException(HttpServletRequest req,
+        MethodArgumentNotValidException e) {
+        ErrorResponse errorResponse = new ErrorResponse(req, HttpStatus.BAD_REQUEST, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
 
-	@ExceptionHandler(value = ForbiddenException.class)
-	public ResponseEntity forbiddenException(ForbiddenException e) {
-		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-	}
+    @ExceptionHandler(value = ForbiddenException.class)
+    public ResponseEntity forbiddenException(HttpServletRequest req, ForbiddenException e) {
+        ErrorResponse errorResponse = new ErrorResponse(req, HttpStatus.FORBIDDEN, e);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
 
-	@ExceptionHandler(value = NotFoundException.class)
-	public ResponseEntity notFoundException(NotFoundException e) {
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	}
+    @ExceptionHandler(value = NotFoundException.class)
+    public ResponseEntity notFoundException(HttpServletRequest req, NotFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse(req, HttpStatus.NOT_FOUND, e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 
-	@ExceptionHandler(value = ConflictException.class)
-	public ResponseEntity conflictException(ConflictException e) {
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-	}
+    @ExceptionHandler(value = ConflictException.class)
+    public ResponseEntity conflictException(HttpServletRequest req, ConflictException e) {
+        ErrorResponse errorResponse = new ErrorResponse(req, HttpStatus.FORBIDDEN, e);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 
-	@ExceptionHandler(value = Exception.class)
-	public ResponseEntity exception(Exception e) {
-		//		e.printStackTrace(); 디버깅용 코드
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-	}
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity exception(Exception e) {
+        //		e.printStackTrace(); 디버깅용 코드
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
 }

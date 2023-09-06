@@ -15,7 +15,6 @@ import peer.backend.entity.composite.UserAchievementPK;
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @IdClass(UserAchievementPK.class)
 @Table(name = "user_achievement")
 public class UserAchievement {
@@ -39,4 +38,13 @@ public class UserAchievement {
 
     @Column(nullable = false)
     private LocalDateTime created;
+
+    public UserAchievement(Long userId, Long achievementId, User user, Achievement achievement,
+        LocalDateTime created) {
+        this.userId = userId;
+        this.achievementId = achievementId;
+        this.user = user;
+        this.achievement = achievement;
+        this.created = created;
+    }
 }
