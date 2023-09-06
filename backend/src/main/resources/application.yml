@@ -18,5 +18,18 @@ spring:
         format_sql: false
         default_batch_fetch_size: 1000
 
+cloud:
+  aws:
+    s3:
+      bucket: jweepeertest
+    credentials:
+      access-key: AKIAZIAWS73QIKJOJHMJ
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+
 logging:
   config: src/main/resources/log4j2/log4j2.xml

@@ -1,19 +1,23 @@
 package peer.backend.exception;
 
-import com.sun.net.httpserver.HttpServer;
-import java.net.http.HttpResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintDeclarationException;
-import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 public class GlobalControllerAdvice {
-
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity illegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    @ExceptionHandler(value = MultipartException.class)
+    public ResponseEntity multipartException(MultipartException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity methodArgumentNotValidException(HttpServletRequest req,
         MethodArgumentNotValidException e) {
