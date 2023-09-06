@@ -2,11 +2,13 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher # swagger
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url : jdbc:mysql://localhost:13306/peer?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:13306/peer?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: root
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -15,6 +17,7 @@ spring:
         show_sql: true
         format_sql: false
         default_batch_fetch_size: 1000
+
   security:
     oauth2:
       client:
@@ -67,4 +70,7 @@ app:
     authorizedRedirectUris:
       - http://localhost:8080/login/oauth2/code/42
       - http://localhost:8080/login/oauth2/code/google
+
+logging:
+  config: src/main/resources/log4j2/log4j2.xml
 
