@@ -21,7 +21,7 @@ public class MemberController {
     private final MemberService memberService;
     private final EmailAuthService emailService;
 
-    @GetMapping("/membership/email")
+    @GetMapping("/membership/email") // 메일을 전송하기 전, DB에서 메일이 있는지 확인
     public ResponseEntity<Object> sendEmail(@Valid @RequestBody EmailAddress address) {
         Message message = emailService.sendEmail(address.getAddress());
         return new ResponseEntity<Object>(message.getStatus());
@@ -36,6 +36,6 @@ public class MemberController {
     public ResponseEntity<Object> signUp(@Valid @RequestBody UserInfo info) {
         // SQL 인젝션 체크
         Message message = memberService.signUp(info);
-        return new ResponseEntity<Object>(message.getMessage(), message.getStatus());
+        return new ResponseEntity<Object>(message.getDto(), message.getStatus());
     }
 }
