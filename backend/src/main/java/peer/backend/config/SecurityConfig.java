@@ -45,7 +45,7 @@ public class SecurityConfig {
         .and()
                 .addFilter(corsConfig.corsFilter())
                 .authorizeRequests()
-                .antMatchers("/login", "/membership/**").permitAll()
+                .antMatchers("/login", "/membership/**", "/accesstoken").permitAll()
                 .anyRequest().authenticated()
 
         .and()

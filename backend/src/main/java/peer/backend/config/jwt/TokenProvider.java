@@ -35,7 +35,6 @@ public class TokenProvider {
     @Value("${jwt.token.validity-in-seconds-refresh}")
     private long refreshExpirationTime;
 
-
     public static boolean isExpired(String token, Key key) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().before(new Date());
     }
@@ -114,5 +113,10 @@ public class TokenProvider {
             return 2;
         }
         return 0;
+    }
+
+    public boolean validateRefreshToken(String token) {
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        return isExpired(token, key);
     }
 }
