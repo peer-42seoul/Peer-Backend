@@ -1,14 +1,15 @@
 package peer.backend.entity.user;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.entity.team.TeamUser;
 import lombok.Setter;
 
@@ -19,6 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user")
+@DynamicUpdate
 public class User {
 
     @Id
@@ -26,8 +28,8 @@ public class User {
     private Long id;
 
     @Column(length = 20)
-    private String user_id;
-    @Column//(length = 20)
+    private String userId;
+    @Column(length = 20)
     private String password;
     @Column(length = 10, nullable = false)
     private String name;
@@ -36,9 +38,9 @@ public class User {
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
     @Column(nullable = false)
-    private LocalDateTime birthday;
+    private LocalDate birthday;
     @Column(nullable = false)
-    private boolean is_alarm;
+    private boolean isAlarm;
     @Column(nullable = false)
     private String phone;
     @Column(nullable = false)
@@ -65,7 +67,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserAchievement> userAchievements = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserLink> userLinks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)

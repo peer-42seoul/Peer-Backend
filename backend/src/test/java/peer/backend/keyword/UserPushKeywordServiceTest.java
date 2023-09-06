@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,8 @@ public class UserPushKeywordServiceTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
-            .birthday(LocalDateTime.now())
-            .is_alarm(false)
+            .birthday(LocalDate.now())
+            .isAlarm(false)
             .phone("test")
             .address("test")
             .certification(false)
@@ -75,8 +76,8 @@ public class UserPushKeywordServiceTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
-            .birthday(LocalDateTime.now())
-            .is_alarm(false)
+            .birthday(LocalDate.now())
+            .isAlarm(false)
             .phone("test")
             .address("test")
             .certification(false)

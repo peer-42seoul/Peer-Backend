@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +50,8 @@ public class TeamServiceTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
-            .birthday(LocalDateTime.now())
-            .is_alarm(false)
+            .birthday(LocalDate.now())
+            .isAlarm(false)
             .phone("test")
             .address("test")
             .certification(false)

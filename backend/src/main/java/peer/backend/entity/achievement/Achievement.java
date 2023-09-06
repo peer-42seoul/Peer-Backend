@@ -12,7 +12,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "achievement")
 public class Achievement {
     @Id
@@ -27,4 +26,10 @@ public class Achievement {
 
     @OneToMany(mappedBy = "achievement")
     private List<UserAchievement> userAchievements = new ArrayList<>();
+
+    public Achievement(Long id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
 }
