@@ -57,13 +57,13 @@ public class ProfileImageService {
     }
 
     @Transactional
-    public ResponseEntity<Object> getProfileImageUrl(Long userId) {
+    public String getProfileImageUrl(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
         String imageUrl = user.getImageUrl();
         if (imageUrl.isEmpty())
-            return ResponseEntity.status(HttpStatus.OK).body(basicImageUrl);
-        return ResponseEntity.status(HttpStatus.OK).body(imageUrl);
+            return basicImageUrl;
+        return imageUrl;
     }
 
 

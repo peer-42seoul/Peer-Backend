@@ -22,7 +22,7 @@ public class ProfileImageController {
     @ApiOperation(value = "C-MYPAGE-01", notes = "프로필 이미지 url을 리턴한다. 이미지가 없으면 기본 이미지 url을 return한다.")
     //id를 로그인 아이디로 변경 필요
     @GetMapping("profile/image/{loginId}")
-    public ResponseEntity<Object> getProfileImage (@PathVariable("loginId") Long userId) throws IOException {
+    public String getProfileImage (@PathVariable("loginId") Long userId) throws IOException {
         /**
          * TO-DO : 해당 유저가 프로필을 조회할 수 있는 권한이 있는지 확인
          */

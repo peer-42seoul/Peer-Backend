@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 @Import(S3MockConfig.class)
 //@ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class ProfileImageControllerTest {
+public class ProfileImageServiceTest {
 
     @Mock
     private AmazonS3 amazonS3;
@@ -67,6 +67,7 @@ public class ProfileImageControllerTest {
                 .introduce("test")
                 .peerLevel(0L)
                 .representAchievement("test")
+                .imageUrl("/hello")
                 .build();
     }
 
@@ -89,5 +90,24 @@ public class ProfileImageControllerTest {
 //
         String result = profileImageService.saveProfileImage(multipartFile, 1L);
         assertThat(result).isEqualTo("https://hello.world.com");
+    }
+    @Test
+    @DisplayName("회원의 프로필 이미지 url을 가져온다.")
+    void getProfileImg() throws IOException {
+        Optional<User> opUser = Optional.of(user);
+        when(userRepository.findById(anyLong())).thenReturn(opUser);
+        String result = profileImageService.getProfileImageUrl(1L);
+        assertThat(result).isEqualTo("/hello");
+
+    }
+
+    @Test
+    @DisplayName("회원 프로필 이미지 삭제하고 db의 url정보 삭제")
+    void deleteProfile() throws IOException {
+        Optional<User> opUser = Optional.of(user);
+        when(userRepository.findById(anyLong())).thenReturn(opUser);
+        when(amazonS3.deleteObject(any(), any())).thenReturn(new DeleteObjectsResult());
+        assertThat(user.getImageUrl()).isEqualTo(null);
+
     }
 }
