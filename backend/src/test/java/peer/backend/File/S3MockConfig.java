@@ -1,4 +1,4 @@
-package peer.backend.controller.File;
+package peer.backend.File;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;

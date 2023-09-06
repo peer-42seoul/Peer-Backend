@@ -1,4 +1,4 @@
-package peer.backend.controller.File;
+package peer.backend.File;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
