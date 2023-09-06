@@ -2,11 +2,13 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher # swagger
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:13306/peer?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: root
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -15,3 +17,72 @@ spring:
         show_sql: true
         format_sql: false
         default_batch_fetch_size: 1000
+
+cloud:
+  aws:
+    s3:
+      bucket: jweepeertest
+    credentials:
+      access-key: AKIAZIAWS73QIKJOJHMJ
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+  security:
+    oauth2:
+      client:
+        registration:
+          42:
+            client-id: u-s4t2ud-e6fe4a26f32d70effda6f5a1a5463de9475e1eb8aefa0039de9beb30c4372679
+            client-secret: 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
+            client-name: 42
+            scope:
+              - email
+              - profile
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8081/login/oauth2/code/42
+          google:
+            client-id: 597003029862-3jarnp1n97t5numkra1mg5a8c71ns9e6.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - profile
+              - email
+        provider:
+          42:
+            authorization-uri: https://api.intra.42.fr/oauth/authorize
+            token-uri: https://api.intra.42.fr/oauth/token
+            user-info-uri: https://api.intra.42.fr/v2/me
+            user-name-attribute: login
+            jwk-set-uri: https://api.intra.42.fr/oauth/token_keys
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: juhyelee134@gmail.com
+    password: qstrpngbbmmgnyeg
+    properties:
+      mail:
+        smtp:
+          auth: true # 사용자 인증 시도
+          timeout: 5000 # socket read timeout
+          starttls:
+            enable: true # Start TLS 활성화
+
+jwt:
+  token:
+    secret: "secretKey"
+    validity-in-seconds: 600000 #10800000
+    validity-in-seconds-refresh: 604800000
+
+app:
+  oauth2:
+    authorizedRedirectUris:
+      - http://localhost:8080/login/oauth2/code/42
+      - http://localhost:8080/login/oauth2/code/google
+
+logging:
+  config: src/main/resources/log4j2/log4j2.xml
+

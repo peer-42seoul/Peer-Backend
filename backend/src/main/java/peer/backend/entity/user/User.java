@@ -47,15 +47,15 @@ public class User {
     private String address;
     @Column
     private String imageUrl;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private boolean certification;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String company;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String introduce;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private Long peerLevel;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String representAchievement;
 
     @OneToMany(mappedBy = "user")
