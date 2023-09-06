@@ -1,6 +1,6 @@
 package peer.backend.dto;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class KeywordDto {
+public class KeywordDTO {
 
-    @NotNull
+    @NotBlank(message = "키워드가 비어있습니다!")
     private String keyword;
 }
