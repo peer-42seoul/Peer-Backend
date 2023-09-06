@@ -18,6 +18,19 @@ spring:
         format_sql: false
         default_batch_fetch_size: 1000
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: juhyelee134@gmail.com
+    password: qstrpngbbmmgnyeg
+    properties:
+      mail:
+        smtp:
+          auth: true # 사용자 인증 시도
+          timeout: 5000 # socket read timeout
+          starttls:
+            enable: true # Start TLS 활성화
+
 cloud:
   aws:
     s3:
@@ -58,18 +71,7 @@ cloud:
             jwk-set-uri: https://api.intra.42.fr/oauth/token_keys
 
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: juhyelee134@gmail.com
-    password: qstrpngbbmmgnyeg
-    properties:
-      mail:
-        smtp:
-          auth: true # 사용자 인증 시도
-          timeout: 5000 # socket read timeout
-          starttls:
-            enable: true # Start TLS 활성화
+
 
 jwt:
   token:

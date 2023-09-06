@@ -3,6 +3,7 @@ package peer.backend.File;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import io.findify.s3mock.S3Mock;
+import java.time.LocalDate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,21 +55,21 @@ public class ProfileImageServiceTest {
     @BeforeEach
     void setting() {
         user = User.builder()
-                .id(1L)
-                .name("test")
-                .email("test@test.com")
-                .nickname("test")
-                .birthday(LocalDateTime.now())
-                .is_alarm(false)
-                .phone("test")
-                .address("test")
-                .certification(false)
-                .company("test")
-                .introduce("test")
-                .peerLevel(0L)
-                .representAchievement("test")
-                .imageUrl("/hello")
-                .build();
+            .id(1L)
+            .name("test")
+            .email("test@test.com")
+            .nickname("test")
+            .birthday(LocalDate.now())
+            .isAlarm(false)
+            .phone("test")
+            .address("test")
+            .certification(false)
+            .company("test")
+            .introduce("test")
+            .peerLevel(0L)
+            .representAchievement("test")
+            .imageUrl("/hello")
+            .build();
     }
 
     @Test
@@ -82,15 +83,17 @@ public class ProfileImageServiceTest {
     void updateProfileImg() throws IOException {
         Optional<User> opUser = Optional.of(user);
         FileInputStream fileInputStream = new FileInputStream("/Users/jwee/Postman/files/abcd.png");
-        MultipartFile multipartFile = new MockMultipartFile("abcd", "abcd.png", "image/png", fileInputStream);
+        MultipartFile multipartFile = new MockMultipartFile("abcd", "abcd.png", "image/png",
+            fileInputStream);
         when(userRepository.findById(anyLong())).thenReturn(opUser);
-        when(amazonS3.putObject(any(),any(),any(),any())).thenReturn(new PutObjectResult());
-        when(amazonS3.getUrl(any(),any())).thenReturn(new URL("https://hello.world.com"));
+        when(amazonS3.putObject(any(), any(), any(), any())).thenReturn(new PutObjectResult());
+        when(amazonS3.getUrl(any(), any())).thenReturn(new URL("https://hello.world.com"));
 //
 //
         String result = profileImageService.saveProfileImage(multipartFile, 1L);
         assertThat(result).isEqualTo("https://hello.world.com");
     }
+
     @Test
     @DisplayName("회원의 프로필 이미지 url을 가져온다.")
     void getProfileImg() throws IOException {
@@ -106,7 +109,7 @@ public class ProfileImageServiceTest {
     void deleteProfile() throws IOException {
         Optional<User> opUser = Optional.of(user);
         when(userRepository.findById(anyLong())).thenReturn(opUser);
-        when(amazonS3.deleteObject(any(), any())).thenReturn(new DeleteObjectsResult());
+//        when(amazonS3.deleteObject(any(), any())).thenReturn(new DeleteObjectsResult());
         assertThat(user.getImageUrl()).isEqualTo(null);
 
     }
