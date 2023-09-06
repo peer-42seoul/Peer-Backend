@@ -1,6 +1,7 @@
 package peer.backend.config.jwt;
 
 import io.jsonwebtoken.security.Keys;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("token provider Test")
 public class TokenProviderTest {
+
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
     @Mock
@@ -37,17 +39,19 @@ public class TokenProviderTest {
     String secretKey;
 
     User user;
+
     @BeforeEach
     void beforeEach() {
         user = User.builder()
-                .id(1L)
-                .user_id("asdf").name("asdf").nickname("asdf")
-                .password("asdf").email("asdf@asdf.com").birthday(LocalDateTime.now()).phone("010-1234-1234").address("asdf")
-                .is_alarm(false).certification(false)
-                .imageUrl(null).company(null).introduce(null).representAchievement(null)
-                .peerLevel(null).peerOperation(null)
-                .userPushKeywords(null).userAchievements(null).userLinks(null)
-                .build();
+            .id(1L)
+            .userId("asdf").name("asdf").nickname("asdf")
+            .password("asdf").email("asdf@asdf.com").birthday(LocalDate.now())
+            .phone("010-1234-1234").address("asdf")
+            .isAlarm(false).certification(false)
+            .imageUrl(null).company(null).introduce(null).representAchievement(null)
+            .peerLevel(null).peerOperation(null)
+            .userPushKeywords(null).userAchievements(null).userLinks(null)
+            .build();
     }
 
     @Test

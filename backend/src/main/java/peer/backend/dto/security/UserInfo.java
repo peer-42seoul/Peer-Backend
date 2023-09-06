@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfo {
+
     @NotBlank(message = "ID는 필수항목입니다.")
     private String userId;
     @NotBlank(message = "비밀번호는 필수항목입니다.")
@@ -40,19 +41,30 @@ public class UserInfo {
 
     public User convertUser() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return new User(
-                null,
-                this.userId,
-                encoder.encode(this.password),
-                this.name,
-                this.email,
-                this.nickname,
-                LocalDate.parse(this.birthday).atStartOfDay(),
-                this.isAlarm,
-                this.phone,
-                this.address,
-                null, false, null, null, null, null,
-                null, null, null, null
-        );
+        return User.builder()
+            .userId(this.userId)
+            .password(encoder.encode(this.password))
+            .name(this.name)
+            .email(this.email)
+            .nickname(this.nickname)
+            .birthday(LocalDate.parse(this.birthday))
+            .isAlarm(this.isAlarm)
+            .phone(this.phone)
+            .address(this.address)
+            .build();
+//        return new User(
+//            null,
+//            this.userId,
+//            encoder.encode(this.password),
+//            this.name,
+//            this.email,
+//            this.nickname,
+//            LocalDate.parse(this.birthday).atStartOfDay(),
+//            this.isAlarm,
+//            this.phone,
+//            this.address,
+//            null, false, null, null, null, null,
+//            null, null, null, null
+//        );
     }
 }
