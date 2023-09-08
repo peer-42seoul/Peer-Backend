@@ -28,7 +28,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Import(S3MockConfig.class)
 //@ExtendWith(MockitoExtension.class)
@@ -104,13 +104,15 @@ public class ProfileImageServiceTest {
 
     }
 
+
     @Test
     @DisplayName("회원 프로필 이미지 삭제하고 db의 url정보 삭제")
     void deleteProfile() throws IOException {
         Optional<User> opUser = Optional.of(user);
         when(userRepository.findById(anyLong())).thenReturn(opUser);
-//        when(amazonS3.deleteObject(any(), any())).thenReturn(new DeleteObjectsResult());
+        doNothing().when(amazonS3).deleteObject(any(), any());
+        profileImageService.deleteImage(1L);
+        verify(amazonS3, times(1)).deleteObject(any(), any());
         assertThat(user.getImageUrl()).isEqualTo(null);
-
     }
 }
