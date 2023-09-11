@@ -11,10 +11,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import peer.backend.config.jwt.TokenProvider;
 import peer.backend.dto.security.Message;
+import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.RefreshToken;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.TokenRepository;
 import peer.backend.repository.user.UserRepository;
+import scala.util.parsing.json.JSON;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -40,6 +42,8 @@ public class LoginServiceTest {
 
     Long id;
     String refreshToken;
+    String email;
+    String password;
     Optional<User> optionalUser;
     Optional<RefreshToken> optionalRefreshToken;
 
@@ -48,11 +52,14 @@ public class LoginServiceTest {
         id = 1L;
         refreshToken = "eyJ0eXAiOiJyZWZyZXNoVG9rZW4iLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlhdCI6MTY5MzgxMDc3OCwiZXhwIjoxNjk0NDE1NTc4fQ.fQ6TDUTiCa1HWc_Su00wmbbZ4wUnkpUctIesMVM3jdI";
 
+        email = "test@test.com";
+        password = "test";
+
         User user = User.builder()
             .id(id)
-            .userId("asdf").name("asdf").nickname("asdf")
-            .password("asdf").email("asdf@asdf.com").birthday(LocalDate.now())
-            .phone("010-1234-1234").address("asdf")
+            .userId("test").name("test").nickname("test")
+            .password(password).email(email).birthday(LocalDate.now())
+            .phone("010-1234-1234").address("test")
             .isAlarm(false).certification(false)
             .imageUrl(null).company(null).introduce(null).representAchievement(null)
             .peerLevel(null).peerOperation(null)

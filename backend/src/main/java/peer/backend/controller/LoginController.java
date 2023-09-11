@@ -51,7 +51,7 @@ public class  LoginController {
     public ResponseEntity<Object> reissueToken(@RequestBody ToReissueTokens tokens) {
         LinkedHashMap<String, Object> result;
         try {
-            String token = tokens.getExpiredaccessToken();
+            String token = tokens.getRefreshToken();
             Base64.Decoder decoder = Base64.getUrlDecoder();
             String rowBody = token.split("\\.")[1];
             String body = new String(decoder.decode(rowBody));

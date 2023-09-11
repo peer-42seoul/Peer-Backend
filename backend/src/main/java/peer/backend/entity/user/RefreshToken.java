@@ -20,6 +20,5 @@ public class RefreshToken {
     @Id
     @Column(name = "user_id")
     private Long userId;
-
     private String refreshToken;
 }

@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ToReissueTokens {
-    private String expiredaccessToken;
     private String refreshToken;
 }

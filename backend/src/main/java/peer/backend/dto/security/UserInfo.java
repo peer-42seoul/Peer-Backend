@@ -52,19 +52,5 @@ public class UserInfo {
             .phone(this.phone)
             .address(this.address)
             .build();
-//        return new User(
-//            null,
-//            this.userId,
-//            encoder.encode(this.password),
-//            this.name,
-//            this.email,
-//            this.nickname,
-//            LocalDate.parse(this.birthday).atStartOfDay(),
-//            this.isAlarm,
-//            this.phone,
-//            this.address,
-//            null, false, null, null, null, null,
-//            null, null, null, null
-//        );
     }
 }
