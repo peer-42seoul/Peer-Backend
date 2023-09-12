@@ -15,26 +15,21 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
-
     private final TokenProvider tokenProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = tokenProvider.resolveAccessToken(request);
-
-        // 토큰 검증
-        if (tokenProvider.validateToken(token) == 1) {
-            filterChain.doFilter(request, response);
-            log.info("토큰이 없습니다");
-            return;
-        }
-        if (tokenProvider.validateToken(token) == 2) {
-            log.info("토큰이 만료되었습니다");
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-        Authentication auth = tokenProvider.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        if (!tokenProvider.validateToken(token)) {
+            Authentication auth = tokenProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            filterChain.doFilter(request, response);
+            return;
+        }
         filterChain.doFilter(request, response);
     }
 }

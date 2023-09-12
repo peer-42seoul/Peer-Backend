@@ -1,6 +1,5 @@
 package peer.backend.config.jwt;
 
-import io.jsonwebtoken.security.Keys;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,19 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.TestPropertySource;
 import peer.backend.entity.user.User;
-import peer.backend.repository.user.RefreshTokenRepository;
 import peer.backend.service.UserDetailsServiceImpl;
 
-import javax.crypto.SecretKey;
-import java.security.Key;
-import java.time.LocalDateTime;
 import java.util.Base64;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("token provider Test")

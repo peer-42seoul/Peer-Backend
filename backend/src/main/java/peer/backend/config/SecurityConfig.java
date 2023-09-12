@@ -13,7 +13,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
 import peer.backend.config.jwt.TokenProvider;
-import peer.backend.repository.user.UserRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -21,7 +20,6 @@ import peer.backend.repository.user.UserRepository;
 public class SecurityConfig {
 
     private final CorsConfig corsConfig;
-    private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -45,7 +43,7 @@ public class SecurityConfig {
         .and()
                 .addFilter(corsConfig.corsFilter())
                 .authorizeRequests()
-                .antMatchers("/login", "/membership/**", "/accesstoken").permitAll()
+                .antMatchers("/login", "/membership/**", "/access-token").permitAll()
                 .anyRequest().authenticated()
 
         .and()
@@ -54,7 +52,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
 
         .and()
-                .apply(new JwtSecurityConfig(userRepository, tokenProvider));
+                .apply(new JwtSecurityConfig(tokenProvider));
         return httpSecurity.build();
     }
 
