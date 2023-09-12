@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.security.EmailMessage;
 import peer.backend.dto.security.Message;
+import peer.backend.exception.ForbiddenException;
 
 import java.util.Random;
 
@@ -36,7 +37,7 @@ public class EmailAuthService {
             mailMessage.setText(emailMessage.getText());
             sender.send(mailMessage);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ForbiddenException("잘못된 접근 입니다.");
         }
     }
 
@@ -50,7 +51,7 @@ public class EmailAuthService {
             this.send(emailMessage);
             message.setStatus(HttpStatus.OK);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send E-mail" + e);
+            throw new ForbiddenException("Failed to send E-mail");
         }
         return message;
     }

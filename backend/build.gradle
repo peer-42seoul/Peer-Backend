@@ -62,6 +62,9 @@ dependencies {
 
 	//Oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // redis
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.10'
 }
 
 tasks.named('test') {

@@ -1,4 +1,8 @@
 spring:
+  redis:
+    host: localhost
+    port: 16379
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher # swagger

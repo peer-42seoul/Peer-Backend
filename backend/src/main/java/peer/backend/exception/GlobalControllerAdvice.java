@@ -43,6 +43,18 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    @ExceptionHandler(value = UnauthorizedException.class)
+    public ResponseEntity unauthorizedException(HttpServletRequest req, UnauthorizedException e) {
+        ErrorResponse errorResponse = new ErrorResponse(req, HttpStatus.UNAUTHORIZED, e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(value = BadRequestException.class)
+    public ResponseEntity badRequestException(HttpServletRequest req, BadRequestException e) {
+        ErrorResponse errorResponse = new ErrorResponse(req, HttpStatus.BAD_REQUEST, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity exception(Exception e) {
         //		e.printStackTrace(); 디버깅용 코드

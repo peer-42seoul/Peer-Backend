@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ToReissueTokens {
+public class ToReissueToken {
     private String refreshToken;
 }

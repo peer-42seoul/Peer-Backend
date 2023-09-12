@@ -8,3 +8,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: peer
+  redis:
+    image: redis:alpine
+    container_name: peer_redis
+    ports:
+      - "16379:6379"
+    labels:
+      - "name=redis"
+      - "mode=standalone"
