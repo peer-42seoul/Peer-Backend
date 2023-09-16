@@ -1,9 +1,11 @@
 package peer.backend.dto.team;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import peer.backend.entity.team.Team;
 
 @Getter
+@NoArgsConstructor
 public class TeamListResponse {
 
     public TeamListResponse(Team team) {
@@ -13,10 +15,10 @@ public class TeamListResponse {
         this.status = team.getStatus().getValue();
     }
 
-    private final Long id;
-    private final String name;
-    private final String dueTo;
-    private final String status;
+    private Long id;
+    private String name;
+    private String dueTo;
+    private String status;
     // TODO: 팀원 권한 추가 예정
 
 }

@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
+import peer.backend.repository.user.UserRepository;
 import peer.backend.service.team.TeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,10 +33,10 @@ import peer.backend.service.team.TeamService;
 public class TeamServiceTest {
 
     @Mock
-    private TeamRepository teamRepository;
+    private TeamUserRepository teamUserRepository;
 
     @Mock
-    private TeamUserRepository teamUserRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private TeamService teamService;
@@ -87,7 +89,12 @@ public class TeamServiceTest {
         List<TeamUser> teamUserList = new ArrayList<>();
         teamUserList.add(teamUser);
 
-        when(teamUserRepository.findByUserId(anyLong())).thenReturn(teamUserList);
+        user.setTeamUsers(teamUserList);
+
+        Optional<User> opUser = Optional.of(user);
+
+        when(userRepository.findById(anyLong())).thenReturn(opUser);
+
         assertEquals(teamService.getTeamList(0L).get(0).getName(), team.getName());
     }
 }

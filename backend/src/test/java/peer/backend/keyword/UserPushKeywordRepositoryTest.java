@@ -49,12 +49,6 @@ public class UserPushKeywordRepositoryTest {
     }
 
     @Test
-    @DisplayName("BeforeEach에서 유저가 잘 insert 되었는지 테스트")
-    void beforeEachTest() {
-        assertThat(userRepository.count()).isEqualTo(1);
-    }
-
-    @Test
     @DisplayName("UserPushKeyword save 테스트")
     void saveTest() {
         User user = this.userRepository.findAll().get(0);
