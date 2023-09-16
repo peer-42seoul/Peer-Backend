@@ -19,8 +19,6 @@ import java.util.Base64;
 public class TokenProviderTest {
 
     @Mock
-    private RefreshTokenRepository refreshTokenRepository;
-    @Mock
     private UserDetailsServiceImpl userDetailsService;
     @InjectMocks
     private TokenProvider tokenProvider;
