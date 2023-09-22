@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,14 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import peer.backend.dto.team.TeamListResponse;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
-import peer.backend.entity.team.enums.TeamMemberStatus;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamStatus;
-import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
-import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.team.TeamService;
@@ -64,6 +60,7 @@ public class TeamServiceTest {
             .build();
 
         team = Team.builder()
+            .id(1L)
             .name("test")
             .type(TeamType.STUDY)
             .dueTo("10월")
@@ -85,16 +82,19 @@ public class TeamServiceTest {
             .team(team)
             .userId(user.getId())
             .teamId(team.getId())
+            .role(TeamUserRoleType.LEADER)
             .build();
         List<TeamUser> teamUserList = new ArrayList<>();
         teamUserList.add(teamUser);
 
         user.setTeamUsers(teamUserList);
+        TeamListResponse teamListResponse = new TeamListResponse(team, teamUser.getRole());
 
         Optional<User> opUser = Optional.of(user);
 
         when(userRepository.findById(anyLong())).thenReturn(opUser);
+        when(teamUserRepository.findByUserIdAndTeamId(anyLong(), anyLong())).thenReturn(teamUser);
 
-        assertEquals(teamService.getTeamList(0L).get(0).getName(), team.getName());
+        assertEquals(teamService.getTeamList(0L).get(0).getName(), teamListResponse.getName());
     }
 }
