@@ -1,6 +1,7 @@
 package peer.backend.controller.team;
 
 import io.swagger.annotations.ApiOperation;
+
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class TeamController {
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/{userId}")
     public List<TeamListResponse> getTeamList(@PathVariable() Long userId) {
+        //TODO: Principal 유저 아이디 가져와서 같은지 확인
         return this.teamService.getTeamList(userId);
     }
 
