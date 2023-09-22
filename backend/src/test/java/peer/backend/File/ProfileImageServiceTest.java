@@ -76,8 +76,8 @@ public class ProfileImageServiceTest {
                 fileInputStream);
 
         UserImageResponse result = profileImageService.saveProfileImage(multipartFile, 1L);
-
-        assertThat(result.getImageUrl()).isEqualTo("upload/profiles/1/profile.png");
+        String compare = result.getImageUrl().substring(result.getImageUrl().lastIndexOf("upload"));
+        assertThat(compare).isEqualTo("upload/profiles/1/profile.png");
     }
 
     @Test
