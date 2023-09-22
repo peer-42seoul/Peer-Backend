@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import peer.backend.dto.profile.UserImageResponse;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.MultipartException;
 import peer.backend.service.file.ProfileImageService;
@@ -42,7 +43,7 @@ public class ProfileImageController {
             throw new IllegalArgumentException("fail to save file : file is not exist");
         if (!uploadImage.getContentType().startsWith(("image")))
             throw new MultipartException("Fail to save file : file is not an image");
-        String resultPath = profileImageService.saveProfileImage(uploadImage, userId);
+        UserImageResponse resultPath = profileImageService.saveProfileImage(uploadImage, userId);
         return ResponseEntity.status(HttpStatus.OK).body(resultPath);
     }
 
@@ -53,15 +54,15 @@ public class ProfileImageController {
         /**
          * TO-DO : 해당 유저가 프로필을 수정할 수 있는 권한이 있는지 확인
          */
-        profileImageService.deleteImage(userId);
+        profileImageService.deleteProfileIamge(userId);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Success : file deleted");
     }
 
-    @ApiOperation(value = "C-MYPAGE-04", notes = "프로필 이미지를 다운로드 한다.")
-    @GetMapping("profile/image/{loginId}/download")
-    public ResponseEntity<byte[]> downloadProfileImage(
-            @PathVariable("loginId") Long userId) throws IOException {
-        return profileImageService.downloadImage(userId);
-    }
+//    @ApiOperation(value = "C-MYPAGE-04", notes = "프로필 이미지를 다운로드 한다.")
+//    @GetMapping("profile/image/{loginId}/download")
+//    public ResponseEntity<byte[]> downloadProfileImage(
+//            @PathVariable("loginId") Long userId) throws IOException {
+//        return profileImageService.downloadImage(userId);
+//    }
 }

@@ -36,17 +36,6 @@ spring:
             enable: true # Start TLS 활성화
 
 cloud:
-  aws:
-    s3:
-      bucket: jweepeertest
-    credentials:
-      access-key: AKIAZIAWS73QIKJOJHMJ
-      secret-key: 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
-    region:
-      static: ap-northeast-2
-      auto: false
-    stack:
-      auto: false
   security:
     oauth2:
       client:
