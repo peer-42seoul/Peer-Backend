@@ -1,19 +1,13 @@
 package peer.backend.entity.team;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.entity.composite.TeamUserPK;
+import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 
 @Entity
@@ -46,9 +40,7 @@ public class TeamUser {
     @Column(columnDefinition = "TEXT")
     private String review;
 
-    @Column()
-    private Boolean isLeader;
-
-    @Column()
-    private String role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TeamUserRoleType role;
 }
