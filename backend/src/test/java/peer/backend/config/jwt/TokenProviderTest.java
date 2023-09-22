@@ -1,6 +1,7 @@
 package peer.backend.config.jwt;
 
 import java.time.LocalDate;
+import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.util.ReflectionTestUtils;
 import peer.backend.entity.user.User;
 import peer.backend.service.UserDetailsServiceImpl;
 
@@ -40,6 +42,8 @@ public class TokenProviderTest {
             .peerLevel(null).peerOperation(null)
             .userPushKeywords(null).userAchievements(null).userLinks(null)
             .build();
+
+        ReflectionTestUtils.setField(tokenProvider, "secretKey", "testtesttesttesttesttesttesttesttesttesttesttesttest");
     }
 
     @Test
@@ -47,7 +51,7 @@ public class TokenProviderTest {
     void createToken() {
         String accesstoken = tokenProvider.createAccessToken(user);
         Base64.Decoder decoder = Base64.getUrlDecoder();
-        String[] rowToken = accesstoken.split("//.");
+        String[] rowToken = accesstoken.split("\\.");
         String header = new String(decoder.decode(rowToken[0]));
         String payload = new String(decoder.decode(rowToken[1]));
         String vert = new String(decoder.decode(rowToken[2]));
