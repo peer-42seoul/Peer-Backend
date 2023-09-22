@@ -1,54 +1,40 @@
 package peer.backend.File;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import io.findify.s3mock.S3Mock;
+import java.io.InputStream;
 import java.time.LocalDate;
-import org.junit.jupiter.api.AfterEach;
+
+import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import peer.backend.dto.profile.UserImageResponse;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.ProfileImageService;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-@Import(S3MockConfig.class)
-//@ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ProfileImageServiceTest {
 
     @Mock
-    private AmazonS3 amazonS3;
+    Tika tika;
     @Mock
     UserRepository userRepository;
     @InjectMocks
     ProfileImageService profileImageService;
-
-    @Autowired
-    private S3Mock s3Mock;
-
-    @AfterEach
-    public void tearDown() {
-        s3Mock.stop();
-    }
 
     User user;
 
@@ -82,26 +68,27 @@ public class ProfileImageServiceTest {
     @DisplayName("회원의 프로필 이미지를 변경하면 s3 서버와 연동하여 이미지를 업로드한다")
     void updateProfileImg() throws IOException {
         Optional<User> opUser = Optional.of(user);
+        when(tika.detect(any(InputStream.class))).thenReturn("image");
+        when(userRepository.findById(anyLong())).thenReturn(opUser);
+
         FileInputStream fileInputStream = new FileInputStream("/Users/jwee/Postman/files/abcd.png");
         MultipartFile multipartFile = new MockMultipartFile("abcd", "abcd.png", "image/png",
-            fileInputStream);
-        when(userRepository.findById(anyLong())).thenReturn(opUser);
-        when(amazonS3.putObject(any(), any(), any(), any())).thenReturn(new PutObjectResult());
-        when(amazonS3.getUrl(any(), any())).thenReturn(new URL("https://hello.world.com"));
-//
-//
-        String result = profileImageService.saveProfileImage(multipartFile, 1L);
-        assertThat(result).isEqualTo("https://hello.world.com");
+                fileInputStream);
+
+        UserImageResponse result = profileImageService.saveProfileImage(multipartFile, 1L);
+
+        assertThat(result.getImageUrl()).isEqualTo("/Users/jwee/42seoul/Peer-Backend/backend/upload/profiles/1/profile.png");
     }
 
     @Test
     @DisplayName("회원의 프로필 이미지 url을 가져온다.")
-    void getProfileImg() throws IOException {
+    void getProfileImg() {
         Optional<User> opUser = Optional.of(user);
         when(userRepository.findById(anyLong())).thenReturn(opUser);
-        String result = profileImageService.getProfileImageUrl(1L);
-        assertThat(result).isEqualTo("/hello");
 
+        String result = profileImageService.getProfileImageUrl(1L);
+
+        assertThat(result).isEqualTo("/hello");
     }
 
 
@@ -110,9 +97,7 @@ public class ProfileImageServiceTest {
     void deleteProfile() throws IOException {
         Optional<User> opUser = Optional.of(user);
         when(userRepository.findById(anyLong())).thenReturn(opUser);
-        doNothing().when(amazonS3).deleteObject(any(), any());
-        profileImageService.deleteImage(1L);
-        verify(amazonS3, times(1)).deleteObject(any(), any());
+        profileImageService.deleteProfileIamge(1L);
         assertThat(user.getImageUrl()).isEqualTo(null);
     }
 }
