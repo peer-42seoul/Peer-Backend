@@ -3,7 +3,6 @@ package peer.backend.team;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,10 +12,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
-import peer.backend.entity.team.enums.TeamMemberStatus;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamStatus;
-import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
@@ -80,6 +76,7 @@ public class TeamUserRepositoryTest {
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
+            .role(TeamUserRoleType.MEMBER)
             .build();
 
         teamUserRepository.save(teamUser);
@@ -97,6 +94,7 @@ public class TeamUserRepositoryTest {
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
+            .role(TeamUserRoleType.MEMBER)
             .build();
 
         teamUserRepository.save(teamUser);
@@ -116,6 +114,7 @@ public class TeamUserRepositoryTest {
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
+            .role(TeamUserRoleType.MEMBER)
             .build();
 
         teamUserRepository.save(teamUser);
@@ -134,6 +133,7 @@ public class TeamUserRepositoryTest {
             .userId(user.getId())
             .team(team)
             .teamId(team.getId())
+            .role(TeamUserRoleType.MEMBER)
             .build();
 
         teamUserRepository.save(teamUser);
