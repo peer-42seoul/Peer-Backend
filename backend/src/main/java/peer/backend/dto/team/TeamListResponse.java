@@ -23,5 +23,4 @@ public class TeamListResponse {
     private String status;
     private String myRole;
     // TODO: 팀원 권한 추가 예정
-
 }
