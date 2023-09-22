@@ -65,19 +65,19 @@ public class ProfileImageServiceTest {
     }
 
     @Test
-    @DisplayName("회원의 프로필 이미지를 변경하면 s3 서버와 연동하여 이미지를 업로드한다")
+    @DisplayName("회원의 프로필 이미지를 local에 저장한다.")
     void updateProfileImg() throws IOException {
         Optional<User> opUser = Optional.of(user);
         when(tika.detect(any(InputStream.class))).thenReturn("image");
         when(userRepository.findById(anyLong())).thenReturn(opUser);
 
-        FileInputStream fileInputStream = new FileInputStream("/Users/jwee/Postman/files/abcd.png");
+        FileInputStream fileInputStream = new FileInputStream("src/test/java/peer/backend/File/testImage.png");
         MultipartFile multipartFile = new MockMultipartFile("abcd", "abcd.png", "image/png",
                 fileInputStream);
 
         UserImageResponse result = profileImageService.saveProfileImage(multipartFile, 1L);
 
-        assertThat(result.getImageUrl()).isEqualTo("/Users/jwee/42seoul/Peer-Backend/backend/upload/profiles/1/profile.png");
+        assertThat(result.getImageUrl()).isEqualTo("upload/profiles/1/profile.png");
     }
 
     @Test
@@ -90,7 +90,6 @@ public class ProfileImageServiceTest {
 
         assertThat(result).isEqualTo("/hello");
     }
-
 
     @Test
     @DisplayName("회원 프로필 이미지 삭제하고 db의 url정보 삭제")

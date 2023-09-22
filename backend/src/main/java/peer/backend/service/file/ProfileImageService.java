@@ -85,7 +85,7 @@ public class ProfileImageService {
         Path filePath = Paths.get(fileName);
         uploadFile.transferTo(filePath.toFile());
 
-        user.setImageUrl(filePath.toAbsolutePath().toString());
+        user.setImageUrl(filePath.toUri().toString());
 
         return new UserImageResponse(user.getImageUrl());
     }
