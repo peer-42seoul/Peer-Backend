@@ -64,7 +64,7 @@ spring:
 
 jwt:
   token:
-    secret: "secretKey"
+    secret: "secretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKey"
     validity-in-seconds: 10800000
     validity-in-seconds-refresh: 604800000
 

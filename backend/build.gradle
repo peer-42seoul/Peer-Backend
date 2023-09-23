@@ -64,6 +64,9 @@ dependencies {
 
     //tika
     implementation group: 'org.apache.tika', name: 'tika-core', version: '1.24'
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {
