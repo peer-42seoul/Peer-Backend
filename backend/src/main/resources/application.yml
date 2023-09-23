@@ -17,15 +17,14 @@ spring:
     oauth2:
       client:
         registration:
-          42:
-            client-id: u-s4t2ud-e6fe4a26f32d70effda6f5a1a5463de9475e1eb8aefa0039de9beb30c4372679
-            client-secret: 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
-            client-name: 42
+          ft:
+            client-id: u-s4t2ud-878c3954e7ce03154571d30d7499ec4e8880ccdba220c8a2c8cf4a4b71ea1d51
+            client-secret: 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
+            client-name: ft
             scope:
-              - email
-              - profile
+              - public
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8081/login/oauth2/code/42
+            redirect-uri: http://localhost:8080/login/oauth2/code/ft
           google:
             client-id: 889460259597-ggticgamsbbn2p930vaur19sqobqmus8.apps.googleusercontent.com
             client-secret: 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
@@ -33,7 +32,7 @@ spring:
               - profile
               - email
         provider:
-          42:
+          ft:
             authorization-uri: https://api.intra.42.fr/oauth/authorize
             token-uri: https://api.intra.42.fr/oauth/token
             user-info-uri: https://api.intra.42.fr/v2/me
