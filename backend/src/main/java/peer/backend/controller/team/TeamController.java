@@ -5,13 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.team.TeamListResponse;
 import peer.backend.dto.team.TeamMemberKickRequest;
 import peer.backend.dto.team.TeamResponse;
@@ -29,9 +23,9 @@ public class TeamController {
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/{userId}")
-    public List<TeamListResponse> getTeamList(@PathVariable() Long userId) {
+    public List<TeamListResponse> getTeamList(@PathVariable() Long userId, @RequestParam int teamStatus) {
         //TODO: Principal 유저 아이디 가져와서 같은지 확인
-        return this.teamService.getTeamList(userId);
+        return this.teamService.getTeamList(userId, teamStatus);
     }
 
     @ApiOperation(value = "C-MYPAGE-49", notes = "팀 아이디로 세부 정보를 가져옵니다.")

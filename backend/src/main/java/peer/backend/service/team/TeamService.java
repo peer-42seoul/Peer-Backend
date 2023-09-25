@@ -10,6 +10,7 @@ import peer.backend.dto.team.TeamListResponse;
 import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.team.TeamRepository;
@@ -25,13 +26,13 @@ public class TeamService {
     private final TeamUserRepository teamUserRepository;
 
     @Transactional
-    public List<TeamListResponse> getTeamList(Long userId) {
-        User user = this.userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다."));
+    public List<TeamListResponse> getTeamList(Long userId, int teamStatus) {
+        User user = this.userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다."));
         List<Team> teamList = user.getTeamUsers().stream().map(TeamUser::getTeam).collect(Collectors.toList());
         List<TeamListResponse> teamListResponse = new ArrayList<>();
         for (Team team : teamList) {
-            teamListResponse.add(new TeamListResponse(team, teamUserRepository.findByUserIdAndTeamId(userId, team.getId()).getRole()));
+            if (team.getStatus().getOrdinal() == teamStatus || teamStatus == -1)
+                teamListResponse.add(new TeamListResponse(team, teamUserRepository.findByUserIdAndTeamId(userId, team.getId()).getRole()));
         }
         return  teamListResponse;
     }

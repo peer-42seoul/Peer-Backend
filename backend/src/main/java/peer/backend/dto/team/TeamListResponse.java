@@ -15,6 +15,8 @@ public class TeamListResponse {
         this.dueTo = team.getDueTo();
         this.status = team.getStatus().getValue();
         this.myRole = teamUserRoleType.getValue();
+        this.region = team.getRegion1();
+        this.operationFormat = team.getOperationFormat().getValue();
     }
 
     private Long id;
@@ -22,5 +24,7 @@ public class TeamListResponse {
     private String dueTo;
     private String status;
     private String myRole;
+    private String region;
+    private String operationFormat;
     // TODO: 팀원 권한 추가 예정
 }
