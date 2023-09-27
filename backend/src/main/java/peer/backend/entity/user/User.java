@@ -27,14 +27,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 20)
-    private String userId;
+    @Column(length = 100, unique = true, nullable = false)
+    private String email;
     @Column//(length = 20)
     private String password;
     @Column(length = 10, nullable = false)
     private String name;
-    @Column(length = 100, unique = true, nullable = false)
-    private String email;
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
     @Column(nullable = false)
@@ -75,4 +73,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<SocialLogin> socialLogins = new ArrayList<>();
 }
