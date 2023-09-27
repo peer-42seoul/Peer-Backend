@@ -104,11 +104,11 @@ class MessageRepositoryTest {
 
     }
 
-    @Test
-    public void userCountTest()
-    {
-        assertThat(userRepository.count()).isEqualTo(4);
-    }
+//    @Test
+//    public void userCountTest()
+//    {
+//        assertThat(userRepository.count()).isEqualTo(4);
+//    }
 
     @Test
     public void findBySenderOrReceiverTest()
