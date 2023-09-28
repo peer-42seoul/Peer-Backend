@@ -1,6 +1,7 @@
 package peer.backend.oauth.provider;
 
 import java.util.Map;
+import peer.backend.oauth.enums.SocialLoginProvider;
 
 public class FortyTwoUserInfo implements OAuth2UserInfo {
 
@@ -16,8 +17,8 @@ public class FortyTwoUserInfo implements OAuth2UserInfo {
   }
 
   @Override
-  public String getProvider() {
-    return "ft";
+  public SocialLoginProvider getProvider() {
+    return SocialLoginProvider.FT;
   }
 
   @Override

@@ -23,8 +23,10 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
             //logout
+            log.error(e.getMessage());
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            log.error(e.getMessage());
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);
         }
     }

@@ -1,7 +1,6 @@
 package peer.backend.entity.user;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,7 +19,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
-import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.oauth.enums.SocialLoginProvider;
 
 @Entity
@@ -37,13 +35,16 @@ public class SocialLogin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SocialLoginProvider socialLoginProvider;
+    private SocialLoginProvider provider;
+
+    @Column(nullable = false)
+    private String providerId;
 
     @Column
     private String accessToken;
@@ -51,6 +52,6 @@ public class SocialLogin {
     @Column
     private String refreshToken;
 
-    @Column(nullable = false)
-    private String oauthEmail;
+    @Column(nullable = false, unique = true)
+    private String email;
 }

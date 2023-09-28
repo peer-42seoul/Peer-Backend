@@ -1,10 +1,12 @@
 package peer.backend.oauth.provider;
 
+import peer.backend.oauth.enums.SocialLoginProvider;
+
 public interface OAuth2UserInfo {
 
   String getProviderId();
 
-  String getProvider();
+  SocialLoginProvider getProvider();
 
   String getEmail();
 

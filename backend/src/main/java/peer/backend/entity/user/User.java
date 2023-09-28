@@ -35,13 +35,13 @@ public class User {
     private String name;
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private LocalDate birthday;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private boolean isAlarm;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String phone;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String address;
     @Column
     private String imageUrl;

@@ -1,6 +1,8 @@
 package peer.backend.oauth.provider;
 
 import java.util.Map;
+import peer.backend.entity.user.SocialLogin;
+import peer.backend.oauth.enums.SocialLoginProvider;
 
 public class GitHubUserInfo implements OAuth2UserInfo {
 
@@ -16,8 +18,8 @@ public class GitHubUserInfo implements OAuth2UserInfo {
   }
 
   @Override
-  public String getProvider() {
-    return "github";
+  public SocialLoginProvider getProvider() {
+    return SocialLoginProvider.GITHUB;
   }
 
   @Override

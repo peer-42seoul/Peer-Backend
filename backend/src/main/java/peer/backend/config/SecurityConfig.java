@@ -8,10 +8,11 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
+import peer.backend.config.jwt.JwtFilter;
 import peer.backend.config.jwt.TokenProvider;
 import peer.backend.oauth.OAuthAuthenticationSuccessHandler;
 import peer.backend.oauth.PrincipalOauth2UserService;
@@ -39,6 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
+                .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement()
