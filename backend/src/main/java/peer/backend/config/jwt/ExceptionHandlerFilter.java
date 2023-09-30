@@ -1,5 +1,6 @@
 package peer.backend.config.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -14,20 +15,23 @@ import java.io.IOException;
 
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
             //logout
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);
-        }catch (Exception e) {
+        } catch (Exception e) {
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);
         }
     }
 
     public void setErrorResponse(HttpStatus status, HttpServletRequest request,
-                                 HttpServletResponse response, Exception e) throws IOException {
+        HttpServletResponse response, Exception e) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
         response.setStatus(status.value());
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().println(new ErrorResponse(request, status, e).convertToJson());

@@ -39,7 +39,7 @@ spring:
       host: localhost
       port: 27017
       authentication-database: admin
-      database: batch
+      database: tracking
       username: peer
       password: peer
 

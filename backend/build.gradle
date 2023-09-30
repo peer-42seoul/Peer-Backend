@@ -35,29 +35,29 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 
-    
-	// Swagger
-	implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
 
-	// Security
-	testImplementation 'org.springframework.security:spring-security-test'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Swagger
+    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
 
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // Security
+    testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	// Mail
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	// JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    // Mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-	//Oauth2
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    //Oauth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     // redis
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.10'
@@ -71,6 +71,7 @@ dependencies {
 
     // mongo
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

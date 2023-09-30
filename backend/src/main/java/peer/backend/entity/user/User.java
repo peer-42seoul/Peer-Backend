@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.DynamicUpdate;
+import peer.backend.entity.BaseEntity;
 import peer.backend.entity.team.TeamUser;
 import lombok.Setter;
 
@@ -21,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "user")
 @DynamicUpdate
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
