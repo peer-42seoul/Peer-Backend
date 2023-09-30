@@ -34,6 +34,15 @@ spring:
           timeout: 5000 # socket read timeout
           starttls:
             enable: true # Start TLS 활성화
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      database: batch
+      username: peer
+      password: peer
+
 
 cloud:
   security:
