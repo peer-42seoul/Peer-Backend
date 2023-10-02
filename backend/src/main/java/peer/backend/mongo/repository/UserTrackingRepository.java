@@ -6,4 +6,5 @@ import peer.backend.mongo.entity.UserTracking;
 
 public interface UserTrackingRepository extends MongoRepository<UserTracking, ObjectId> {
 
+    UserTracking findByUserId(Long id);
 }

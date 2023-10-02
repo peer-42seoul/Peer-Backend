@@ -54,4 +54,7 @@ public class SocialLogin {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column
+    private String intraId;
 }
