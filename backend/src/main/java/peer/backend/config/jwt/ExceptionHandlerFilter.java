@@ -2,6 +2,7 @@ package peer.backend.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
     @Override
@@ -23,17 +25,20 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
             //logout
+            log.error(e.getMessage());
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);
         } catch (Exception e) {
+            log.error(e.getMessage());
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);
         }
     }
 
     public void setErrorResponse(HttpStatus status, HttpServletRequest request,
         HttpServletResponse response, Exception e) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper om = new ObjectMapper();
         response.setStatus(status.value());
         response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().println(new ErrorResponse(request, status, e).convertToJson());
+        ErrorResponse errorResponse = new ErrorResponse(request, status, e);
+        response.getWriter().write(om.writeValueAsString(errorResponse));
     }
 }

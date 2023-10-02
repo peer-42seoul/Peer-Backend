@@ -8,11 +8,14 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
+import peer.backend.config.jwt.JwtFilter;
 import peer.backend.config.jwt.TokenProvider;
+import peer.backend.oauth.OAuthAuthenticationSuccessHandler;
+import peer.backend.oauth.PrincipalOauth2UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -23,6 +26,8 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final PrincipalOauth2UserService principalOauth2UserService;
+    private final OAuthAuthenticationSuccessHandler oAuthAuthenticationSuccessHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -35,6 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
+                .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement()
@@ -43,7 +49,7 @@ public class SecurityConfig {
         .and()
                 .addFilter(corsConfig.corsFilter())
                 .authorizeRequests()
-                .antMatchers("/login", "/membership/**", "/access-token").permitAll()
+                .antMatchers("/login", "/membership/**", "/access-token", "/", "/error").permitAll()
                 .anyRequest().authenticated()
 
         .and()
@@ -52,12 +58,14 @@ public class SecurityConfig {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
 
         .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
-        return httpSecurity.build();
-    }
+                .apply(new JwtSecurityConfig(tokenProvider))
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+
+        .and()
+            .oauth2Login()
+            .successHandler(oAuthAuthenticationSuccessHandler)
+            .userInfoEndpoint()
+            .userService(principalOauth2UserService);
+        return httpSecurity.build();
     }
 }

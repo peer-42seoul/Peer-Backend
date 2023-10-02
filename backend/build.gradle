@@ -71,7 +71,6 @@ dependencies {
 
     // mongo
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

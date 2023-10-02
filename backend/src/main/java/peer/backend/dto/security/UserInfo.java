@@ -42,7 +42,6 @@ public class UserInfo {
     public User convertUser() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return User.builder()
-            .userId(this.userId)
             .password(encoder.encode(this.password))
             .name(this.name)
             .email(this.email)
