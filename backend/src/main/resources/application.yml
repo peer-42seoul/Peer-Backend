@@ -74,6 +74,12 @@ spring:
       username: peer
       password: peer
 
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
 
 jwt:
   token:
