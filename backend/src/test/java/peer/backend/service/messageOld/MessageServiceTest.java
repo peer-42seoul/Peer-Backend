@@ -1,36 +1,37 @@
-package peer.backend.controller.message;
+package peer.backend.service.messageOld;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import peer.backend.entity.message.Message;
-import peer.backend.dto.message.MessageSendRequest;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import peer.backend.entity.messageOld.Message;
 import peer.backend.entity.user.User;
-import peer.backend.repository.message.MessageRepository;
+import peer.backend.repository.messageOld.MessageRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.message.MessageService;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/v1/api/message")
-public class MessageController {
+@ExtendWith(MockitoExtension.class)
+@DisplayName("Message Test")
+class MessageServiceTest {
 
-    private final MessageService messageService;
+    @Mock
+    private MessageRepository messageRepository;
 
-    private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
+    @Mock
+    private UserRepository userRepository;
 
-    @GetMapping("/setting")
-    public void setting()
-    {
-        User user0 = User.builder()
+    @InjectMocks
+    private MessageService messageService;
+
+    User user0, user1, user2, user3;
+    @Test
+    void setting() {
+        user0 = User.builder()
             .userId("userId123")
             .password("password")
             .name("John")
@@ -47,7 +48,7 @@ public class MessageController {
             .representAchievement("Achievement XYZ")
             .build();
 
-        User user1 = User.builder()
+        user1 = User.builder()
             .userId("user1")
             .password("password1")
             .name("User One")
@@ -64,7 +65,7 @@ public class MessageController {
             .representAchievement("Achievement ABC")
             .build();
 
-        User user2 = User.builder()
+        user2 = User.builder()
             .userId("user2")
             .password("password2")
             .name("User Two")
@@ -81,7 +82,7 @@ public class MessageController {
             .representAchievement("Achievement DEF")
             .build();
 
-        User user3 = User.builder()
+        user3 = User.builder()
             .userId("user3")
             .password("password3")
             .name("User Three")
@@ -97,11 +98,6 @@ public class MessageController {
             .peerLevel(3L)
             .representAchievement("Achievement GHI")
             .build();
-
-        userRepository.save(user0);
-        userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
 
         Message message1 = Message.builder()
             .content("예시1")
@@ -139,29 +135,16 @@ public class MessageController {
             .receiver(user0)
             .build();
 
-        messageRepository.save(message1);
-        messageRepository.save(message2);
-        messageRepository.save(message3);
-        messageRepository.save(message4);
-        messageRepository.save(message5);
-        messageRepository.save(message6);
     }
 
-    @GetMapping("/list/{userId}")
-    public ResponseEntity userMessageList(@PathVariable("userId") Long userId)
-    {
-        return new ResponseEntity(messageService.myMessageList(userId), HttpStatus.OK);
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity messageDetail(@PathVariable("userId") Long userId)
-    {
-        return new ResponseEntity(messageService.userDetailMessage(userId), HttpStatus.OK);
-    }
-
-    @PostMapping("/{userId}")
-    public ResponseEntity sendMessage(@PathVariable("userId") Long userId,
-        @RequestBody MessageSendRequest messageSendRequest) {
-        return new ResponseEntity(messageService.sendMessage(userId, messageSendRequest), HttpStatus.OK);
-    }
+//    @Test
+//    void myMessageUserListTest() {
+//        List<MessageUserDTO> messageUserDTOS = messageService.myMessageList(user0.getId());
+//        for (MessageUserDTO dto : messageUserDTOS)
+//        {
+//            System.out.println("dto.getProfileImage() = " + dto.getProfileImage());
+//            System.out.println("dto.getNickName() = " + dto.getNickName());
+//        }
+//        assertThat(0).isEqualTo(0);
+//    }
 }

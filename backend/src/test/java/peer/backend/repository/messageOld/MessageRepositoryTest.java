@@ -1,36 +1,32 @@
-package peer.backend.service.message;
+package peer.backend.repository.messageOld;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.dto.message.MessageUserDTO;
-import peer.backend.entity.message.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import peer.backend.entity.messageOld.Message;
 import peer.backend.entity.user.User;
-import peer.backend.repository.message.MessageRepository;
 import peer.backend.repository.user.UserRepository;
 
-@ExtendWith(MockitoExtension.class)
-@DisplayName("Message Test")
-class MessageServiceTest {
+@DisplayName("Message Repository 테스트")
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class MessageRepositoryTest {
+    @Autowired
+    MessageRepository messageRepository;
 
-    @Mock
-    private MessageRepository messageRepository;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
-    private MessageService messageService;
+    @Autowired
+    UserRepository userRepository;
 
     User user0, user1, user2, user3;
-    @Test
+
+    @BeforeEach
     void setting() {
         user0 = User.builder()
             .userId("userId123")
@@ -100,6 +96,22 @@ class MessageServiceTest {
             .representAchievement("Achievement GHI")
             .build();
 
+        userRepository.save(user0);
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
+
+    }
+
+//    @Test
+//    public void userCountTest()
+//    {
+//        assertThat(userRepository.count()).isEqualTo(4);
+//    }
+
+    @Test
+    public void findBySenderOrReceiverTest()
+    {
         Message message1 = Message.builder()
             .content("예시1")
             .sender(user0)
@@ -107,45 +119,49 @@ class MessageServiceTest {
             .build();
 
         Message message2 = Message.builder()
-            .content("예시2")
+            .content("예시1")
             .sender(user0)
             .receiver(user1)
             .build();
 
         Message message3 = Message.builder()
-            .content("예시3")
+            .content("예시1")
             .sender(user1)
             .receiver(user2)
             .build();
 
         Message message4 = Message.builder()
-            .content("예시4")
+            .content("예시1")
             .sender(user1)
             .receiver(user2)
             .build();
 
         Message message5 = Message.builder()
-            .content("예시5")
+            .content("예시1")
             .sender(user2)
             .receiver(user1)
             .build();
 
         Message message6 = Message.builder()
-            .content("예시6")
+            .content("예시1")
             .sender(user2)
             .receiver(user0)
             .build();
 
+        messageRepository.save(message1);
+        messageRepository.save(message2);
+        messageRepository.save(message3);
+        messageRepository.save(message4);
+        messageRepository.save(message5);
+        messageRepository.save(message6);
+//        assertThat(messageRepository.count()).isEqualTo(6);
+        List<Message> messages = messageRepository.findBySenderOrReceiver(user0, user0);
+        for (Message message : messages)
+        {
+            System.out.println("id = " + message.getId());
+            System.out.println("send = " + message.getSender().getNickname());
+            System.out.println("rec = " + message.getReceiver().getNickname());
+        }
+        assertThat(messageRepository.findBySenderOrReceiver(user0, user0).size()).isEqualTo(3);
     }
-
-//    @Test
-//    void myMessageUserListTest() {
-//        List<MessageUserDTO> messageUserDTOS = messageService.myMessageList(user0.getId());
-//        for (MessageUserDTO dto : messageUserDTOS)
-//        {
-//            System.out.println("dto.getProfileImage() = " + dto.getProfileImage());
-//            System.out.println("dto.getNickName() = " + dto.getNickName());
-//        }
-//        assertThat(0).isEqualTo(0);
-//    }
 }

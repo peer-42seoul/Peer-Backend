@@ -1,4 +1,4 @@
-package peer.backend.service.message;
+package peer.backend.service.messageOld;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,12 +11,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.dto.message.MessageDTO;
 import peer.backend.dto.message.MessageSendResponse;
 import peer.backend.dto.message.MessageUserDTO;
-import peer.backend.entity.message.Message;
+import peer.backend.entity.messageOld.Message;
 import peer.backend.dto.message.MessageSendRequest;
-import peer.backend.entity.message.MessageType;
+import peer.backend.entity.messageOld.MessageType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
-import peer.backend.repository.message.MessageRepository;
+import peer.backend.repository.messageOld.MessageRepository;
 import peer.backend.repository.user.UserRepository;
 
 @Service
