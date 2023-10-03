@@ -31,7 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
+        AuthenticationConfiguration authenticationConfiguration
     ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
@@ -40,28 +40,28 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
-                .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
-                .httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
+            .httpBasic().disable()
+            .csrf().disable()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-        .and()
-                .addFilter(corsConfig.corsFilter())
-                .authorizeRequests()
-                .antMatchers("/login", "/membership/**", "/access-token", "/", "/error").permitAll()
-                .anyRequest().authenticated()
+            .and()
+            .addFilter(corsConfig.corsFilter())
+            .authorizeRequests()
+            .antMatchers("/login", "/membership/**", "/access-token", "/", "/error",
+                "/tracking-excel", "/what").permitAll()
+            .anyRequest().authenticated()
 
-        .and()
-                .exceptionHandling()
-                .accessDeniedHandler(jwtAccessDeniedHandler)
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            .and()
+            .exceptionHandling()
+            .accessDeniedHandler(jwtAccessDeniedHandler)
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
 
-        .and()
-                .apply(new JwtSecurityConfig(tokenProvider))
+            .and()
+            .apply(new JwtSecurityConfig(tokenProvider))
 
-
-        .and()
+            .and()
             .oauth2Login()
             .successHandler(oAuthAuthenticationSuccessHandler)
             .userInfoEndpoint()

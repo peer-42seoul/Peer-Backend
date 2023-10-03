@@ -46,10 +46,15 @@ public class RequestLoggingAspect {
     }
 
     @Pointcut("execution(public * peer.backend.controller..*(..))")
-    public void onRequest() {
+    private void onRequest() {
     }
 
-    @Around("peer.backend.aspect.RequestLoggingAspect.onRequest()")
+    @Pointcut("@annotation(peer.backend.annotation.NoLogging)")
+    private static void noLogging() {
+
+    }
+
+    @Around("peer.backend.aspect.RequestLoggingAspect.onRequest() && !peer.backend.aspect.RequestLoggingAspect.noLogging()")
     public Object loggingApi(ProceedingJoinPoint pjp) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         ObjectMapper mapper = new ObjectMapper();
@@ -64,7 +69,13 @@ public class RequestLoggingAspect {
                 mapper.writeValueAsString(result), end - start);
             return result;
         } catch (Exception e) {
-            log.error("[Error] {} {}", requestInfo, e);
+            StringBuilder message = new StringBuilder();
+
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                message.append(System.lineSeparator()).append(stackTraceElement.toString());
+            }
+
+            log.error("[Error] {} {} {}", requestInfo, e, message.toString());
             throw e;
         }
     }
