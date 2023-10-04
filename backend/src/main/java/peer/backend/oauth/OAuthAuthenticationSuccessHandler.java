@@ -21,7 +21,8 @@ import peer.backend.oauth.enums.LoginStatus;
 @Slf4j
 public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private static final String REDIRECT_URL = "http://localhost:8080";
+    @Value("${url.front-base-url}")
+    private String REDIRECT_URL;
 
 
     private final TokenProvider tokenProvider;
@@ -32,7 +33,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
-        PrincipalDetails principalDetails =  (PrincipalDetails) authentication.getPrincipal();
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
         LoginStatus loginStatus = principalDetails.getLoginStatus();
         String redirectUrl = REDIRECT_URL;
@@ -49,7 +50,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
                 .toUriString();
 
             Cookie cookie = new Cookie("refreshToken", refreshToken);
-            cookie.setMaxAge((int)refreshExpirationTime / 1000);
+            cookie.setMaxAge((int) refreshExpirationTime / 1000);
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
         } else if (loginStatus == LoginStatus.REGISTER) {
