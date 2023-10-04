@@ -1,6 +1,13 @@
 package peer.backend.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,17 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import peer.backend.config.jwt.TokenProvider;
-import peer.backend.dto.security.Message;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 // @SpringbootTest와 함께 사용하면 충돌. 그리고 Moekito를 사용할 거면 SpringbootTest는 성능상 좋지 않음
@@ -58,7 +56,7 @@ public class LoginServiceTest {
 
         User user = User.builder()
             .id(id)
-            .userId("test").name("test").nickname("test")
+            .name("test").nickname("test")
             .password(password).email(email).birthday(LocalDate.now())
             .phone("010-1234-1234").address("test")
             .isAlarm(false).certification(false)
