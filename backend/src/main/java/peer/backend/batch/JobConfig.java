@@ -32,6 +32,7 @@ public class JobConfig {
     public Step integratingActivityWallet() {
         return stepBuilderFactory.get("integratingActivityWallet")
             .tasklet((contribution, chunkContext) -> {
+                // 정산 로직
                 log.info(">>>>> This is integratingActivityWallet");
                 return RepeatStatus.FINISHED;
             })
