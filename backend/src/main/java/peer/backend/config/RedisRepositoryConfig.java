@@ -8,7 +8,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import peer.backend.entity.user.SocialLogin;
 
 @RequiredArgsConstructor
 @Configuration
@@ -24,7 +26,7 @@ public class RedisRepositoryConfig {
     }
 
     @Bean
-    public RedisTemplate<?, ?> redisTemplate() {
+    public RedisTemplate<String, String> redisTemplate() {
         // redisTemplate를 받아와서 set, get, delete를 사용
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         // setKeySerializer, setValueSerializer 설정
@@ -33,6 +35,15 @@ public class RedisRepositoryConfig {
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
 
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, SocialLogin> socialInfoRedis() {
+        RedisTemplate<String, SocialLogin> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(SocialLogin.class));
         return redisTemplate;
     }
 }
