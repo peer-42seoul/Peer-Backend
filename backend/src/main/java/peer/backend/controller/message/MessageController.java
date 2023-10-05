@@ -31,7 +31,6 @@ public class MessageController {
     public void setting()
     {
         User user0 = User.builder()
-            .userId("userId123")
             .password("password")
             .name("John")
             .email("john@example.com")
@@ -48,7 +47,6 @@ public class MessageController {
             .build();
 
         User user1 = User.builder()
-            .userId("user1")
             .password("password1")
             .name("User One")
             .email("user1@example.com")
@@ -65,7 +63,6 @@ public class MessageController {
             .build();
 
         User user2 = User.builder()
-            .userId("user2")
             .password("password2")
             .name("User Two")
             .email("user2@example.com")
@@ -82,7 +79,6 @@ public class MessageController {
             .build();
 
         User user3 = User.builder()
-            .userId("user3")
             .password("password3")
             .name("User Three")
             .email("user3@example.com")
