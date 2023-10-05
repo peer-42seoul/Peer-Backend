@@ -1,4 +1,4 @@
-package peer.backend.dto.message;
+package peer.backend.dto.messageOld;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

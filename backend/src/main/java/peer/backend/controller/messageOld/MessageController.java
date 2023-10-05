@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.entity.messageOld.Message;
-import peer.backend.dto.message.MessageSendRequest;
+import peer.backend.dto.messageOld.MessageSendRequest;
 import peer.backend.entity.user.User;
 import peer.backend.repository.messageOld.MessageRepository;
 import peer.backend.repository.user.UserRepository;
