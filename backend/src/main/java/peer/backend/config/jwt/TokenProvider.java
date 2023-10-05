@@ -45,13 +45,13 @@ public class TokenProvider {
         claims.put("role", "ROLE_USER");
 
         return Jwts.builder()
-                .setHeaderParam("typ", "accessToken")
-                .setClaims(claims)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
-                .signWith(this.key, SignatureAlgorithm.HS256)
-                .compact()
-                ;
+            .setHeaderParam("typ", "accessToken")
+            .setClaims(claims)
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
+            .signWith(this.key, SignatureAlgorithm.HS256)
+            .compact()
+            ;
     }
 
     public String createRefreshToken(User user) {
@@ -61,17 +61,19 @@ public class TokenProvider {
         Date expireDate = new Date(now.getTime() + refreshExpirationTime);
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
-        return  Jwts.builder()
-                .setHeaderParam("typ", "refreshToken")
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(expireDate)
-                .signWith(this.key, SignatureAlgorithm.HS256)
-                .compact();
+        return Jwts.builder()
+            .setHeaderParam("typ", "refreshToken")
+            .setClaims(claims)
+            .setIssuedAt(now)
+            .setExpiration(expireDate)
+            .signWith(this.key, SignatureAlgorithm.HS256)
+            .compact();
     }
 
     public void putRefreshTokenInRedis(User user, String refreshToken) {
-        redisTemplate.opsForValue().set("refreshToken:" + user.getEmail(), refreshToken, refreshExpirationTime, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue()
+            .set("refreshToken:" + user.getEmail(), refreshToken, refreshExpirationTime,
+                TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -79,9 +81,11 @@ public class TokenProvider {
      */
     public Authentication getAuthentication(String token) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        String id = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(token).getBody().getSubject();
+        String id = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(token)
+            .getBody().getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(id);
-        return new UsernamePasswordAuthenticationToken(userDetails, null,  userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, null,
+            userDetails.getAuthorities());
     }
 
     /**
@@ -100,23 +104,26 @@ public class TokenProvider {
      */
     public boolean validateToken(String accessToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get(accessToken))) {
+        if (ObjectUtils.isEmpty(redisTemplate.opsForValue().get(accessToken))) {
             // 기존의 인증 인증 로직
-            return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration().before(new Date());
+            return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken)
+                .getBody().getExpiration().before(new Date());
         }
         return true;
     }
 
     public boolean validRefreshToken(String refreshToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(refreshToken).getBody().getExpiration().before(new Date());
+        return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(refreshToken)
+            .getBody().getExpiration().before(new Date());
     }
 
 
     public Long getExpiration(String accessToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         // accessToken 남은 유효시간
-        Date expiration = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration();
+        Date expiration = Jwts.parserBuilder().setSigningKey(this.key).build()
+            .parseClaimsJws(accessToken).getBody().getExpiration();
         return (expiration.getTime() - new Date().getTime());
     }
 }
