@@ -22,7 +22,7 @@ import peer.backend.repository.user.UserRepository;
 @Service
 @RequiredArgsConstructor
 @EnableWebMvc
-public class MessageService {
+public class MessageServiceOld {
 
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;

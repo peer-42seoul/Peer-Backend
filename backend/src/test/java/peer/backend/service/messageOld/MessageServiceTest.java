@@ -24,7 +24,7 @@ class MessageServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private MessageService messageService;
+    private MessageServiceOld messageServiceOld;
 
     User user0, user1, user2, user3;
 

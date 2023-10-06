@@ -2,6 +2,7 @@ package peer.backend.controller.message;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,7 @@ import peer.backend.service.message.MessageService;
 import peer.backend.dto.message.MsgObjectDTO;
 import peer.backend.dto.message.LetterTargetDTO;
 import peer.backend.dto.message.MsgDTO;
-import peer.backend.dto.message.targetDTO;
+import peer.backend.dto.message.TargetDTO;
 import peer.backend.dto.message.SpecificMsgDTO;
 import peer.backend.dto.message.SpecificScrollMsgDTO;
 import peer.backend.dto.message.MsgContentDTO;
@@ -22,9 +23,10 @@ import java.util.List;
 public class MessaageController {
 
     public static final String LETTER_URL = "api/v1/message";
+    @Autowired
     private final MessageService messageService;
 
-    @ApiOperation(value="", notes="")
+    @ApiOperation(value="", notes="유저의 쪽지 목록을 불러온다.")
     @GetMapping("/list")
     public ResponseEntity<List<MsgObjectDTO>> getAllLetters(@RequestParam long userId){
         MsgObjectDTO one = new MsgObjectDTO();
@@ -33,9 +35,9 @@ public class MessaageController {
         return new ResponseEntity<List<MsgObjectDTO>>(data, HttpStatus.OK);
     }
 
-    @ApiOperation(value="", notes="")
+    @ApiOperation(value="", notes="유저의 쪽지 목록 중 일부를 삭제 한다.")
     @DeleteMapping("/delete-message")
-    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(@RequestBody List<targetDTO> body) {
+    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(@RequestBody List<TargetDTO> body) {
         MsgObjectDTO one = new MsgObjectDTO();
         List<MsgObjectDTO> data = null;
         data.add(one);

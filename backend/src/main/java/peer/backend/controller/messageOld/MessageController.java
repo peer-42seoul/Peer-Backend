@@ -15,14 +15,14 @@ import peer.backend.dto.messageOld.MessageSendRequest;
 import peer.backend.entity.user.User;
 import peer.backend.repository.messageOld.MessageRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.messageOld.MessageService;
+import peer.backend.service.messageOld.MessageServiceOld;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/message")
 public class MessageController {
 
-    private final MessageService messageService;
+    private final MessageServiceOld messageService;
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;

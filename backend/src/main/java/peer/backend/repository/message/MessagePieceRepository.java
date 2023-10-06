@@ -6,5 +6,5 @@ import peer.backend.entity.message.MessagePiece;
 import java.util.List;
 
 public interface MessagePieceRepository extends JpaRepository<MessagePiece, Long> {
-    List<MessagePiece> findByConversationId(Long conversationId);
+    List<MessagePiece> findByConversationId(long conversationId);
 }

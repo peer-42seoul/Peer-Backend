@@ -18,10 +18,10 @@ import java.time.LocalDateTime;
 public class MessagePiece extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long msgId;
+    private long msgId;
 
     @Column(nullable = false)
-    private Long senderId;
+    private long senderId;
 
     @Column(nullable = false)
     private String senderNickname;
@@ -34,6 +34,9 @@ public class MessagePiece extends BaseEntity {
 
     @Column(nullable = false)
     private String text;
+
+    @Column(insertable = false, updatable = false)
+    private long conversationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversationId")

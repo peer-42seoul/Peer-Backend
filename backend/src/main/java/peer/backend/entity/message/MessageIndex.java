@@ -7,6 +7,8 @@ import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,4 +44,7 @@ public class MessageIndex extends BaseEntity {
     @JoinColumn(name = "userId2", nullable = false)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private User user2;
+
+    @OneToMany(mappedBy = "index", cascade = CascadeType.ALL)
+    private List<MessagePiece> messagePieces = new ArrayList<>();
 }

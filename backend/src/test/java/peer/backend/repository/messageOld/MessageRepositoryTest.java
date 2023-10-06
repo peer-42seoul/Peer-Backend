@@ -10,15 +10,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-<<<<<<< HEAD:backend/src/test/java/peer/backend/repository/messageOld/MessageRepositoryTest.java
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import peer.backend.entity.messageOld.Message;
-=======
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import peer.backend.entity.message.Message;
->>>>>>> dev:backend/src/test/java/peer/backend/repository/message/MessageRepositoryTest.java
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
 
