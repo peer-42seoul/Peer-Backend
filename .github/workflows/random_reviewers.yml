@@ -25,5 +25,4 @@ jobs:
 
           # PR에 리뷰어 추가
           echo "Assigning reviewers: $random_a_team_member and $random_b_team_member"
-          gh pr review-request -R $random_a_team_member
-          gh pr review-request -R $random_b_team_member
+          gh pr review --approve --body "Assigning reviewers: $random_a_team_member and $random_b_team_member" --reviewer "$random_a_team_member" --reviewer "$random_b_team_member"
