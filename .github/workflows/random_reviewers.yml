@@ -1,0 +1,29 @@
+name: Random Reviewers
+
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  assign_random_reviewers:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Assign Random Reviewers
+        run: |
+          # A 팀과 B 팀의 멤버 목록
+          a_team_members=("sinryuji" "Paul2021-R" "weejihye")
+          b_team_members=("perman0519" "juhyeonlee134")
+
+          # A 팀과 B 팀에서 랜덤으로 리뷰어 선택
+          random_a_team_member=${a_team_members[$RANDOM % ${#a_team_members[@]}]}
+          random_b_team_member=${b_team_members[$RANDOM % ${#b_team_members[@]}]}
+
+          # PR에 리뷰어 추가
+          echo "Assigning reviewers: $random_a_team_member and $random_b_team_member"
+          gh pr review-request -R $random_a_team_member
+          gh pr review-request -R $random_b_team_member
