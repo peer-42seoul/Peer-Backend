@@ -13,8 +13,8 @@ jobs:
       uses: actions/checkout@v4
       
     - name: pick_random_reviwer
-      id: pick_random_reviwer // 다음 step 에 output 을 넘기기 위해 추가
-      uses: actions/github-script@v3 // js 를 사용하기 위해 사용합니다
+      id: pick_random_reviwer
+      uses: actions/github-script@v3
       with:
         script: |
           const candidate1 = ['sinryuji', 'Paul2021-R', 'weejihye'];
@@ -23,10 +23,10 @@ jobs:
           const randomReviewer2 = candidate2[Math.floor(Math.random() * candidate2.length)];
           const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
           const comment2 = `🎉 @${randomReviewer2} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
-          core.setOutput('comment1', comment1) // output 을 세팅합니다
-          core.setOutput('comment2', comment2) // output 을 세팅합니다
-          core.setOutput('reviewer1', randomReviewer1) // core.setOutput(이름, 값)
-          core.setOutput('reviewer2', randomReviewer2) // core.setOutput(이름, 값)
+          core.setOutput('comment1', comment1)
+          core.setOutput('comment2', comment2
+          core.setOutput('reviewer1', randomReviewer1)
+          core.setOutput('reviewer2', randomReviewer2)
     
     - name: comment PR
       uses: mshick/add-pr-comment@v1
