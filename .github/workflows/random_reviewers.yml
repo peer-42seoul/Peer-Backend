@@ -24,7 +24,7 @@ jobs:
           const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
           const comment2 = `🎉 @${randomReviewer2} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
           core.setOutput('comment1', comment1)
-          core.setOutput('comment2', comment2
+          core.setOutput('comment2', comment2)
           core.setOutput('reviewer1', randomReviewer1)
           core.setOutput('reviewer2', randomReviewer2)
     
