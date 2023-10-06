@@ -32,8 +32,8 @@ jobs:
       uses: mshick/add-pr-comment@v1
       with:
         message: |
-          ${{ steps.pick_random_reviwer.outputs.comment1 }} // output 을 가져옵니다 ${{ steps.[step-id].outputs.[output-id] }}
-          ${{ steps.pick_random_reviwer.outputs.comment2 }} // output 을 가져옵니다 ${{ steps.[step-id].outputs.[output-id] }}
+          ${{ steps.pick_random_reviwer.outputs.comment1 }}
+          ${{ steps.pick_random_reviwer.outputs.comment2 }}
       
     - name: Add Pull Request Reviewer
       uses: madrapps/add-reviewers@v1
