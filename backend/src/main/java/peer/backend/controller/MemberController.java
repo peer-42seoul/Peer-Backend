@@ -12,6 +12,7 @@ import peer.backend.dto.security.Message;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.entity.user.User;
+import peer.backend.exception.ConflictException;
 import peer.backend.service.EmailAuthService;
 import peer.backend.service.MemberService;
 
@@ -24,6 +25,12 @@ public class MemberController {
 
     @GetMapping("/membership/email") // 메일을 전송하기 전, DB에서 메일이 있는지 확인
     public ResponseEntity<Object> sendEmail(@Valid @RequestBody EmailAddress address) {
+        String email = address.getAddress();
+
+        if (this.memberService.emailDuplicationCheck(email)) {
+            throw new ConflictException("이미 존재하는 이메일입니다!");
+        }
+
         Message message = emailService.sendEmail(address.getAddress());
         return new ResponseEntity<Object>(message.getStatus());
     }
