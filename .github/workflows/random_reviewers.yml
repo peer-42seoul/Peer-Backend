@@ -16,6 +16,7 @@ jobs:
       id: pick_random_reviwer
       uses: actions/github-script@v3
       with:
+        github-token: ${{secrets.TOKEN}}
         script: |
           const candidate1 = ['sinryuji', 'Paul2021-R', 'weejihye'];
           const candidate2 = ['perman0519', 'juhyeonlee134'];
@@ -34,8 +35,11 @@ jobs:
         message: |
           ${{ steps.pick_random_reviwer.outputs.comment1 }}
           ${{ steps.pick_random_reviwer.outputs.comment2 }}
+        repo-token: ${{ secrets.TOKEN }}
+        repo-token-user-login: 'github-actions[bot]'
       
     - name: Add Pull Request Reviewer
       uses: madrapps/add-reviewers@v1
       with:
         reviewers: ${{ steps.pick_random_reviwer.outputs.reviewer1 }},${{ steps.pick_random_reviwer.outputs.reviewer2 }}
+        token: ${{ secrets.TOKEN }}
