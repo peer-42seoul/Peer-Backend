@@ -1,7 +1,7 @@
 package peer.backend.config.jwt;
 
 import java.time.LocalDate;
-import org.junit.Before;
+import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 import peer.backend.entity.user.User;
 import peer.backend.service.UserDetailsServiceImpl;
-
-import java.util.Base64;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("token provider Test")
@@ -34,7 +32,7 @@ public class TokenProviderTest {
     void beforeEach() {
         user = User.builder()
             .id(1L)
-            .userId("asdf").name("asdf").nickname("asdf")
+            .name("asdf").nickname("asdf")
             .password("asdf").email("asdf@asdf.com").birthday(LocalDate.now())
             .phone("010-1234-1234").address("asdf")
             .isAlarm(false).certification(false)
@@ -43,7 +41,8 @@ public class TokenProviderTest {
             .userPushKeywords(null).userAchievements(null).userLinks(null)
             .build();
 
-        ReflectionTestUtils.setField(tokenProvider, "secretKey", "testtesttesttesttesttesttesttesttesttesttesttesttest");
+        ReflectionTestUtils.setField(tokenProvider, "secretKey",
+            "testtesttesttesttesttesttesttesttesttesttesttesttest");
     }
 
     @Test

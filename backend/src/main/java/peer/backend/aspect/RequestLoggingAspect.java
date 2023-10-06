@@ -4,19 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.hibernate.mapping.Join;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import springfox.documentation.spi.service.contexts.ResponseContext;
 
 @Component
 @Aspect
@@ -51,10 +46,15 @@ public class RequestLoggingAspect {
     }
 
     @Pointcut("execution(public * peer.backend.controller..*(..))")
-    public void onRequest() {
+    private void onRequest() {
     }
 
-    @Around("peer.backend.aspect.RequestLoggingAspect.onRequest()")
+    @Pointcut("@annotation(peer.backend.annotation.NoLogging)")
+    private static void noLogging() {
+
+    }
+
+    @Around("peer.backend.aspect.RequestLoggingAspect.onRequest() && !peer.backend.aspect.RequestLoggingAspect.noLogging()")
     public Object loggingApi(ProceedingJoinPoint pjp) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         ObjectMapper mapper = new ObjectMapper();
@@ -69,7 +69,13 @@ public class RequestLoggingAspect {
                 mapper.writeValueAsString(result), end - start);
             return result;
         } catch (Exception e) {
-            log.error("[Error] {} {}", requestInfo, e);
+            StringBuilder message = new StringBuilder();
+
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                message.append(System.lineSeparator()).append(stackTraceElement.toString());
+            }
+
+            log.error("[Error] {} {} {}", requestInfo, e, message.toString());
             throw e;
         }
     }

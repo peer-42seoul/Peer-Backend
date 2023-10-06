@@ -1,28 +1,35 @@
 package peer.backend.oauth;
 
 import java.time.LocalDate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import peer.backend.entity.user.*;
-
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import peer.backend.entity.user.PeerOperation;
+import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserAchievement;
+import peer.backend.entity.user.UserLink;
+import peer.backend.entity.user.UserPushKeyword;
+import peer.backend.oauth.enums.LoginStatus;
 
+@Getter
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private User user;
+    private final User user;
     private Map<String, Object> attributes;
+    private LoginStatus loginStatus;
 
     public PrincipalDetails(User user) {
         this.user = user;
     }
 
-    public PrincipalDetails(User user, Map<String, Object> attributes) {
+    public PrincipalDetails(User user, Map<String, Object> attributes, LoginStatus loginStatus) {
         this.user = user;
         this.attributes = attributes;
+        this.loginStatus = loginStatus;
     }
 
     @Override
@@ -40,10 +47,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return null;
     }
 
-    public String getUserId() {
-        return user.getUserId();
-    }
-
     @Override
     public String getPassword() {
         return user.getPassword();
@@ -52,6 +55,10 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     @Override
     public String getUsername() {
         return user.getName();
+    }
+
+    public Long getId() {
+        return user.getId();
     }
 
     public String getEmail() {

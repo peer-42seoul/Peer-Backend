@@ -4,20 +4,32 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+<<<<<<< HEAD:backend/src/test/java/peer/backend/repository/messageOld/MessageRepositoryTest.java
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import peer.backend.entity.messageOld.Message;
+=======
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import peer.backend.entity.message.Message;
+>>>>>>> dev:backend/src/test/java/peer/backend/repository/message/MessageRepositoryTest.java
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
 
 @DisplayName("Message Repository 테스트")
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//@DataJpaTest
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
+@RunWith(SpringRunner.class)
+@SpringBootTest
 class MessageRepositoryTest {
+
     @Autowired
     MessageRepository messageRepository;
 
@@ -29,7 +41,6 @@ class MessageRepositoryTest {
     @BeforeEach
     void setting() {
         user0 = User.builder()
-            .userId("userId123")
             .password("password")
             .name("John")
             .email("john@example.com")
@@ -46,7 +57,6 @@ class MessageRepositoryTest {
             .build();
 
         user1 = User.builder()
-            .userId("user1")
             .password("password1")
             .name("User One")
             .email("user1@example.com")
@@ -63,7 +73,6 @@ class MessageRepositoryTest {
             .build();
 
         user2 = User.builder()
-            .userId("user2")
             .password("password2")
             .name("User Two")
             .email("user2@example.com")
@@ -80,7 +89,6 @@ class MessageRepositoryTest {
             .build();
 
         user3 = User.builder()
-            .userId("user3")
             .password("password3")
             .name("User Three")
             .email("user3@example.com")
@@ -110,8 +118,7 @@ class MessageRepositoryTest {
 //    }
 
     @Test
-    public void findBySenderOrReceiverTest()
-    {
+    public void findBySenderOrReceiverTest() {
         Message message1 = Message.builder()
             .content("예시1")
             .sender(user0)
@@ -156,8 +163,7 @@ class MessageRepositoryTest {
         messageRepository.save(message6);
 //        assertThat(messageRepository.count()).isEqualTo(6);
         List<Message> messages = messageRepository.findBySenderOrReceiver(user0, user0);
-        for (Message message : messages)
-        {
+        for (Message message : messages) {
             System.out.println("id = " + message.getId());
             System.out.println("send = " + message.getSender().getNickname());
             System.out.println("rec = " + message.getReceiver().getNickname());

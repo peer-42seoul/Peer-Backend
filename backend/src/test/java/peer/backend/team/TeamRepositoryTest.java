@@ -3,12 +3,14 @@ package peer.backend.team;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
@@ -17,8 +19,11 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.repository.team.TeamRepository;
 
 @DisplayName("Team Repository 테스트")
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//@DataJpaTest
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class TeamRepositoryTest {
 
     @Autowired

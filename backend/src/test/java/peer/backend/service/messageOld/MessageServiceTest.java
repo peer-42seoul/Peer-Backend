@@ -1,7 +1,5 @@
 package peer.backend.service.messageOld;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.DisplayName;
@@ -29,10 +27,10 @@ class MessageServiceTest {
     private MessageService messageService;
 
     User user0, user1, user2, user3;
+
     @Test
     void setting() {
         user0 = User.builder()
-            .userId("userId123")
             .password("password")
             .name("John")
             .email("john@example.com")
@@ -49,7 +47,6 @@ class MessageServiceTest {
             .build();
 
         user1 = User.builder()
-            .userId("user1")
             .password("password1")
             .name("User One")
             .email("user1@example.com")
@@ -66,7 +63,6 @@ class MessageServiceTest {
             .build();
 
         user2 = User.builder()
-            .userId("user2")
             .password("password2")
             .name("User Two")
             .email("user2@example.com")
@@ -83,7 +79,6 @@ class MessageServiceTest {
             .build();
 
         user3 = User.builder()
-            .userId("user3")
             .password("password3")
             .name("User Three")
             .email("user3@example.com")

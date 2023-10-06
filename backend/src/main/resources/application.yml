@@ -13,6 +13,37 @@ spring:
     username: root
     password: root
 
+  security:
+    oauth2:
+      client:
+        registration:
+          ft:
+            client-id: u-s4t2ud-878c3954e7ce03154571d30d7499ec4e8880ccdba220c8a2c8cf4a4b71ea1d51
+            client-secret: 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
+            client-name: ft
+            scope:
+              - public
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/ft
+          google:
+            client-id: 889460259597-ggticgamsbbn2p930vaur19sqobqmus8.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - profile
+              - email
+          github:
+            client-id: 6805bbb9c0e8503d21f8
+            client-secret: b691ccc384cee514de82c241e1c39cacd5f457fe
+            scope:
+              - user
+        provider:
+          ft:
+            authorization-uri: https://api.intra.42.fr/oauth/authorize
+            token-uri: https://api.intra.42.fr/oauth/token
+            user-info-uri: https://api.intra.42.fr/v2/me
+            user-name-attribute: login
+            jwk-set-uri: https://api.intra.42.fr/oauth/token_keys
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -34,38 +65,25 @@ spring:
           timeout: 5000 # socket read timeout
           starttls:
             enable: true # Start TLS 활성화
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      database: tracking
+      username: peer
+      password: peer
 
-cloud:
-  security:
-    oauth2:
-      client:
-        registration:
-          42:
-            client-id: u-s4t2ud-e6fe4a26f32d70effda6f5a1a5463de9475e1eb8aefa0039de9beb30c4372679
-            client-secret: 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
-            client-name: 42
-            scope:
-              - email
-              - profile
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8081/login/oauth2/code/42
-          google:
-            client-id: 597003029862-3jarnp1n97t5numkra1mg5a8c71ns9e6.apps.googleusercontent.com
-            client-secret: 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
-            scope:
-              - profile
-              - email
-        provider:
-          42:
-            authorization-uri: https://api.intra.42.fr/oauth/authorize
-            token-uri: https://api.intra.42.fr/oauth/token
-            user-info-uri: https://api.intra.42.fr/v2/me
-            user-name-attribute: login
-            jwk-set-uri: https://api.intra.42.fr/oauth/token_keys
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
 
 jwt:
   token:
-    secret: "secretKey"
+    secret: "secretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKey"
     validity-in-seconds: 10800000
     validity-in-seconds-refresh: 604800000
 
@@ -76,4 +94,7 @@ app:
       - http://localhost:8080/login/oauth2/code/google
 
 logging:
-  config: backend/src/main/resources/log4j2/log4j2.xml
+  config: src/main/resources/log4j2/log4j2.xml
+
+url:
+  front-base-url: http://localhost:8080
