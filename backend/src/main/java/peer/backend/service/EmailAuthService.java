@@ -28,7 +28,7 @@ public class EmailAuthService {
             .limit(7)
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
-        this.redisTemplate.opsForValue().set(email, code, 3, TimeUnit.MINUTES);
+        this.redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
         return code;
     }
 
