@@ -1,4 +1,4 @@
-name: Random Reviewers
+name: "Pick Random Reviwer"
 
 on:
   pull_request:
@@ -6,23 +6,36 @@ on:
       - opened
 
 jobs:
-  assign_random_reviewers:
+  pick-random-reviwer:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Assign Random Reviewers
-        run: |
-          # A 팀과 B 팀의 멤버 목록
-          a_team_members=("sinryuji" "Paul2021-R" "weejihye")
-          b_team_members=("perman0519" "juhyeonlee134")
-
-          # A 팀과 B 팀에서 랜덤으로 리뷰어 선택
-          random_a_team_member=${a_team_members[$RANDOM % ${#a_team_members[@]}]}
-          random_b_team_member=${b_team_members[$RANDOM % ${#b_team_members[@]}]}
-
-          # PR에 리뷰어 추가
-          echo "Assigning reviewers: $random_a_team_member and $random_b_team_member"
-          gh pr review --approve --body "Assigning reviewers: $random_a_team_member and $random_b_team_member" --reviewer "$random_a_team_member" --reviewer "$random_b_team_member"
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: pick_random_reviwer
+      id: pick_random_reviwer // 다음 step 에 output 을 넘기기 위해 추가
+      uses: actions/github-script@v3 // js 를 사용하기 위해 사용합니다
+      with:
+        script: |
+          const candidate1 = ['sinryuji', 'Paul2021-R', 'weejihye'];
+          const candidate2 = ['perman0519', 'juhyeonlee134'];
+          const randomReviewer1 = candidate1[Math.floor(Math.random() * candidate1.length)];
+          const randomReviewer2 = candidate2[Math.floor(Math.random() * candidate2.length)];
+          const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
+          const comment2 = `🎉 @${randomReviewer2} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
+          core.setOutput('comment1', comment1) // output 을 세팅합니다
+          core.setOutput('comment2', comment2) // output 을 세팅합니다
+          core.setOutput('reviewer1', randomReviewer1) // core.setOutput(이름, 값)
+          core.setOutput('reviewer2', randomReviewer2) // core.setOutput(이름, 값)
+    
+    - name: comment PR
+      uses: mshick/add-pr-comment@v1
+      with:
+        message: |
+          ${{ steps.pick_random_reviwer.outputs.comment1 }} // output 을 가져옵니다 ${{ steps.[step-id].outputs.[output-id] }}
+          ${{ steps.pick_random_reviwer.outputs.comment2 }} // output 을 가져옵니다 ${{ steps.[step-id].outputs.[output-id] }}
+      
+    - name: Add Pull Request Reviewer
+      uses: madrapps/add-reviewers@v1
+      with:
+        reviewers: ${{ steps.pick_random_reviwer.outputs.reviewer1 }},${{ steps.pick_random_reviwer.outputs.reviewer2 }}
