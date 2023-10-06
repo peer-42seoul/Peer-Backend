@@ -20,8 +20,8 @@ jobs:
         script: |
           const team1 = ['sinryuji', 'Paul2021-R', 'weejihye'];
           const team2 = ['perman0519', 'juhyeonlee134'];
-          const candidate1 = team1.filter((e) => e != ${{ github.event.pull_request.user.login }});
-          const candidate2 = team2.filter((e) => e != ${{ github.event.pull_request.user.login }});
+          const candidate1 = team1.filter((e) => e != '${{ github.event.pull_request.user.login }}');
+          const candidate2 = team2.filter((e) => e != '${{ github.event.pull_request.user.login }}');
           const randomReviewer1 = candidate1[Math.floor(Math.random() * candidate1.length)];
           const randomReviewer2 = candidate2[Math.floor(Math.random() * candidate2.length)];
           const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
