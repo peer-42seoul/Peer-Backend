@@ -1,13 +1,11 @@
 package peer.backend.dto.message;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class MsgObjectDTO {
     private long targetId;
     private String targetNickname;

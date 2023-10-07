@@ -10,7 +10,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,7 +25,7 @@ public class MessagePiece extends BaseEntity {
     @Column(nullable = false)
     private String senderNickname;
 
-    @Column(columnDefinition =  "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @Column(nullable = true)
