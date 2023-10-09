@@ -48,7 +48,10 @@ public class MessaageController {
         }
         if (wrappedRet.getResult() != null)
             ret = wrappedRet.getResult();
-        else
+        else if (wrappedRet.getException().getMessage().equals("User Not found"))
+        {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
         return new ResponseEntity<List<MsgObjectDTO>>(ret, HttpStatus.OK);

@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
-import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
@@ -17,12 +16,10 @@ import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,26 +28,58 @@ public class MessageMainService {
     private final UserRepository userRepository;
     private final MessageIndexRepository indexRepository;
     private final MessagePieceRepository pieceRepository;
+    private final MessageSubService subService;
 
+    /**
+     * OutLine : 사용자 대화 목록을 모두 발견하고, 해당 목록과 마지막 대화를 불러와 MsgObject를 만들어 전달한다.
+     * Logic :
+     * 1. 사용자를 파악한다.
+     * 2. MessageIndex를 전부 추려서 ListUp 한다.
+     * 3. List<MessageIndex>를 사용하여 순회하면서 MsgObjectDTO 를 채우고 이를 추가한다.(conversationId, unreadMsgNumber)
+     * 3-1. Index를 통해 target 대상의 정보도 발견하고 받아낸다.(targetId, Nickname, profile URL)
+     * 3-2. MessagePiece에서 ConversationId를 가지고 latestContent를 확인하고, 전달 일자를 conversion해서 추가한다.(msgId, latestContent(Text), latestSendDate)
+     * 3-3. 최종적으로 데이터를 MsgObjectDTO로 반환 된 것을 받아서 추가해준다.
+     * @param userId
+     * @return
+     */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(long userId) {
-        // TODO: 사용자 계정 탐색
-        // TODO: 대화 탐색
-        // TODO: conversationId를 활용하여 latest 컨텐츠를 가져온다
-
-        Optional<User> target = userRepository.findById(userId);
-        if (target == null) {
-
+        Optional<User> msgOwnerData = userRepository.findById(userId);
+        User msgOwner = new User();
+        try {
+            // Owner Get
+            msgOwner = msgOwnerData.orElseThrow(() -> new NoSuchElementException("User Not found"));
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
-        Optional<List<MessageIndex>> values = indexRepository.findByUserId(userId);
-        if (values == null) {
-            //TODO: error handling
+
+        List<MessageIndex> msgList = null;
+        try {
+            // msgIndex Get
+            msgList = this.subService.getMessageIndexList(msgOwner.getId());
+        } catch (NoSuchElementException e) {
+            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
-        List<MessageIndex> list = values.orElseGet(() -> null);
-        list.get(0).getConversationId().longValue();
-        List<MsgObjectDTO> ret = null;
-        return CompletableFuture.completedFuture(AsyncResult.success(ret));
+
+        List<MsgObjectDTO> retList = null;
+        User target = null;
+
+        // Index 기준으로 반복문으로 MsgObject 작성 시작
+        for (MessageIndex msg : msgList) {
+            // 대화
+            MessagePiece conversation= this.pieceRepository.findTopByConversationId(msg.getConversationId()).orElseGet(() -> null);
+
+            // 상대방 확인
+            if (msg.getUserIdx1() == msgOwner.getId()) {
+                target = this.userRepository.findById(msg.getUserIdx2()).get();
+            } else {
+                target = this.userRepository.findById(msg.getUserIdx1()).get();
+            }
+
+            retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+        }
+        return CompletableFuture.completedFuture(AsyncResult.success(retList));
     }
 
     @Async
@@ -102,6 +131,8 @@ public class MessageMainService {
         }
 
         MessageIndex newData = new MessageIndex();
+        newData.setUserIdx1(owner.getId());
+        newData.setUserIdx2(target.getId());
         newData.setUnreadMessageNumber1(0L);
         newData.setUnreadMessageNumber2(0L);
         newData.setUser1delete(false);
