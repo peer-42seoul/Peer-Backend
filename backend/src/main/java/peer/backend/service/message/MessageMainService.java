@@ -144,17 +144,32 @@ public class MessageMainService {
     /**
      * OutLine : String keyword 를 전달하고 유사성 높은 대상을 간추려 낸다.
      * Logic:
-     * 1.
+     * 1. keyword 를 받는다.
+     * 2. UserRepository 를 활용해서 데이터를 간추려낸다.
+     * 3. 에러 핸들링 이후 DTO 에 담아 전달한다.
      * @param keyword
      * @return
      */
     @Async
     @Transactional(readOnly = true)
-    public List<LetterTargetDTO> findUserListByUserNickname(String keyword) {
-        //TODO: Make Logic
+    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(String keyword) {
+        List<User> raw = this.userRepository.findByKeyWord(keyword).orElseGet(() -> null);
+        if (raw == null)
+            return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = null;
-
-        return ret;
+        for (User candidate: raw) {
+            LetterTargetDTO data = new LetterTargetDTO();
+            try {
+                data.builder().
+                        targetId(candidate.getId()).
+                        targetNickname(candidate.getNickname()).
+                        targetProfile(candidate.getImageUrl());
+                ret.add(data);
+            } catch (Exception e) {
+                //TODO: error handling
+            }
+        }
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
     /**
