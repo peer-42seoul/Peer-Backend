@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -69,11 +70,14 @@ public class MessageMainService {
         for (MessageIndex msg : msgList) {
             // 대화
             MessagePiece conversation= this.pieceRepository.findTopByConversationId(msg.getConversationId()).orElseGet(() -> null);
-
             // 상대방 확인
             if (msg.getUserIdx1() == msgOwner.getId()) {
+                if (msg.isUser1delete())
+                    continue;
                 target = this.userRepository.findById(msg.getUserIdx2()).get();
             } else {
+                if (msg.isUser2delete())
+                    continue;
                 target = this.userRepository.findById(msg.getUserIdx1()).get();
             }
 
@@ -82,14 +86,68 @@ public class MessageMainService {
         return CompletableFuture.completedFuture(AsyncResult.success(retList));
     }
 
+    /**
+     * OutLine : Letter 목록을 전달 받으면 대화목록을 삭제 한다.
+     * Logic :
+     * 1. 삭제 리스트를 하나씩 순회한다.
+     * 2. 데이터 삭제를 했다고 index에 표시한다.
+     * 2-1. 양쪽 다 삭제 처리가 true가 된 index에 대해서는 DB에서 삭제를 진행한다.
+     * 3. 개수를 반환한다.
+     * 4. DB 상 에러 발생 시 에러 처리를 진행 한다.
+     * @param userId
+     * @param list
+     * @return
+     */
     @Async
-    @Transactional(readOnly = true)
-    public long deleteLetterList(long userId, List<TargetDTO> list){
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetDTO> list){
         //TODO: Make Logic
+        Long ret;
+        ret = 0L;
 
-        return 1;
+        List<MessageIndex> targetsData = this.indexRepository.findByUserId(userId).orElseGet(() -> null);
+        if (targetsData == null)
+            return CompletableFuture.completedFuture(AsyncResult.success(0L));
+        boolean check = false;
+        for (TargetDTO target : list) {
+            for (MessageIndex data : targetsData) {
+                if (data.getUserIdx1() == target.getTargetId()) {
+                    data.setUser1delete(true);
+                    check = true;
+                }
+                if (data.getUserIdx2() == target.getTargetId()) {
+                    data.setUser2delete(true);
+                    check = true;
+                }
+                if (check) {
+                    check = false;
+                    if (data.isUser1delete() && data.isUser2delete()) {
+                        this.indexRepository.delete(data);
+                        ret++;
+                        targetsData.remove(data);
+                        break ;
+                    }
+                    else {
+                        this.indexRepository.save(data);
+                        ret++;
+                        targetsData.remove(data);
+                        break ;
+                    }
+                    // TODO: check CASCADE so you need to check is MessagePieces deleted or not
+                }
+            }
+        }
+
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
+    /**
+     * OutLine : String keyword 를 전달하고 유사성 높은 대상을 간추려 낸다.
+     * Logic:
+     * 1.
+     * @param keyword
+     * @return
+     */
     @Async
     @Transactional(readOnly = true)
     public List<LetterTargetDTO> findUserListByUserNickname(String keyword) {

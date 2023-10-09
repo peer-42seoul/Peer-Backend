@@ -66,6 +66,8 @@ public class MessaageController {
          * */
 
         // After Delete user message List and get New List
+        this.deleteLetterList(userId, body);
+
         AsyncResult<List<MsgObjectDTO>> wrappedRet = null;
         List<MsgObjectDTO> ret = null;
         try {
