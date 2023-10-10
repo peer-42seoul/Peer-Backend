@@ -2,6 +2,7 @@ package peer.backend.team;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -65,7 +66,7 @@ public class TeamServiceTest {
             .type(TeamType.STUDY)
             .dueTo("10월")
             .operationFormat(TeamOperationFormat.ONLINE)
-            .status(TeamStatus.RECRUITING)
+            .status(TeamStatus.ONGOING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
             .region1("test")
@@ -95,6 +96,7 @@ public class TeamServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(opUser);
         when(teamUserRepository.findByUserIdAndTeamId(anyLong(), anyLong())).thenReturn(teamUser);
 
-        assertEquals(teamService.getTeamList(0L).get(0).getName(), teamListResponse.getName());
+        assertEquals(teamService.getTeamList(anyLong(), -1).get(0).getName(), teamListResponse.getName());
+
     }
 }
