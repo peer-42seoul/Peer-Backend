@@ -21,15 +21,18 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     private final User user;
     private Map<String, Object> attributes;
     private LoginStatus loginStatus;
+    private String socialEmail;
 
     public PrincipalDetails(User user) {
         this.user = user;
     }
 
-    public PrincipalDetails(User user, Map<String, Object> attributes, LoginStatus loginStatus) {
+    public PrincipalDetails(User user, Map<String, Object> attributes, LoginStatus loginStatus,
+        String socialEmail) {
         this.user = user;
         this.attributes = attributes;
         this.loginStatus = loginStatus;
+        this.socialEmail = socialEmail;
     }
 
     @Override
