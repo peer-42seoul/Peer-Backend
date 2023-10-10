@@ -26,16 +26,17 @@ public class PersonalInfoServiceTest {
     UserRepository userRepository;
     @InjectMocks
     PersonalInfoService personalInfoService;
-    String email;
+    String name;
     User user;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        email = "test@email.com";
+        name = "test name";
         user = User.builder()
                 .id(1L)
+                .email("test@email.com")
                 .password(encoder.encode("test password"))
-                .email(email)
+                .name(name)
                 .nickname("test nickname")
                 .isAlarm(false)
                 .address("test address")
@@ -46,8 +47,8 @@ public class PersonalInfoServiceTest {
     @Test
     @DisplayName("개인 정보 조회 테스트")
     public void getPersonalInfoTest() {
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
-        PersonalInfoResponse info = personalInfoService.getPersonalInfo(email);
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        PersonalInfoResponse info = personalInfoService.getPersonalInfo(name);
         assertThat(info.getEmail()).isEqualTo(user.getEmail());
         assertThat(info.getName()).isEqualTo(user.getName());
         assertThat(info.getLocal()).isEqualTo(user.getAddress());
