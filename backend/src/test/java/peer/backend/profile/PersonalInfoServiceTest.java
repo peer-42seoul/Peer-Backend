@@ -1,4 +1,4 @@
-package peer.backend.service.profile;
+package peer.backend.profile;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.dto.profile.PersonalInfoResponse;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.profile.PersonalInfoService;
 
 import java.util.Optional;
 
