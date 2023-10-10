@@ -55,7 +55,10 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             response.addCookie(cookie);
         } else if (loginStatus == LoginStatus.REGISTER) {
             log.info("회원가입 화면으로 리다이렉트");
-            redirectUrl += "/register";
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/register")
+                .queryParam("social-email", principalDetails.getSocialEmail())
+                .build()
+                .toUriString();
         } else {
             redirectUrl += "/profile/mypage";
             log.info("연동된 경우니 마이페이지로 리다이렉트");
