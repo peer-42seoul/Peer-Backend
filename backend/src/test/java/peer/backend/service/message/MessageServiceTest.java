@@ -33,14 +33,11 @@ class MessageServiceTest {
     @Test
     void setting() {
         user0 = User.builder()
-            .userId("userId123")
             .password("password")
             .name("John")
             .email("john@example.com")
             .nickname("userzero")
-            .birthday(LocalDate.of(1990, 1, 1))
             .isAlarm(true)
-            .phone("123-456-7890")
             .address("123 Main St")
             .certification(true)
             .company("ABC Inc.")
@@ -50,14 +47,11 @@ class MessageServiceTest {
             .build();
 
         user1 = User.builder()
-            .userId("user1")
             .password("password1")
             .name("User One")
             .email("user1@example.com")
             .nickname("userone")
-            .birthday(LocalDate.of(1990, 1, 1))
             .isAlarm(true)
-            .phone("111-111-1111")
             .address("123 First St")
             .certification(true)
             .company("Company A")
@@ -67,14 +61,11 @@ class MessageServiceTest {
             .build();
 
         user2 = User.builder()
-            .userId("user2")
             .password("password2")
             .name("User Two")
             .email("user2@example.com")
             .nickname("usertwo")
-            .birthday(LocalDate.of(1995, 3, 15))
             .isAlarm(true)
-            .phone("222-222-2222")
             .address("456 Second St")
             .certification(true)
             .company("Company B")
@@ -84,14 +75,11 @@ class MessageServiceTest {
             .build();
 
         user3 = User.builder()
-            .userId("user3")
             .password("password3")
             .name("User Three")
             .email("user3@example.com")
             .nickname("userthree")
-            .birthday(LocalDate.of(1985, 8, 20))
             .isAlarm(false)
-            .phone("333-333-3333")
             .address("789 Third St")
             .certification(false)
             .company("Company C")

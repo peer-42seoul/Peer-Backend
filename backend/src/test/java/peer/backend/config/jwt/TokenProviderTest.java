@@ -34,9 +34,9 @@ public class TokenProviderTest {
     void beforeEach() {
         user = User.builder()
             .id(1L)
-            .userId("asdf").name("asdf").nickname("asdf")
-            .password("asdf").email("asdf@asdf.com").birthday(LocalDate.now())
-            .phone("010-1234-1234").address("asdf")
+            .name("asdf").nickname("asdf")
+            .password("asdf").email("asdf@asdf.com")
+            .address("asdf")
             .isAlarm(false).certification(false)
             .imageUrl(null).company(null).introduce(null).representAchievement(null)
             .peerLevel(null).peerOperation(null)

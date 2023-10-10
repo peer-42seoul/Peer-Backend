@@ -27,9 +27,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 20)
-    private String userId;
-    @Column//(length = 20)
+    @Column
     private String password;
     @Column(length = 10, nullable = false)
     private String name;
@@ -38,11 +36,7 @@ public class User {
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
     @Column(nullable = false)
-    private LocalDate birthday;
-    @Column(nullable = false)
     private boolean isAlarm;
-    @Column(nullable = false)
-    private String phone;
     @Column(nullable = false)
     private String address;
     @Column

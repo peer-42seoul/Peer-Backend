@@ -54,7 +54,6 @@ public class ProfileService {
             .profileImageUrl(user.getImageUrl())
             .introduction(user.getIntroduce())
             .linkList(user.getUserLinks())
-            .phone(user.getPhone())
             .representAchievement(user.getRepresentAchievement())
             .achievements(user.getUserAchievements())
             .build();
@@ -74,8 +73,6 @@ public class ProfileService {
             .ifPresent(user::setImageUrl);
         Optional.ofNullable(profile.getIntroduction())
             .ifPresent(user::setIntroduce);
-        Optional.ofNullable(profile.getPhone())
-            .ifPresent(user::setPhone);
         Optional.ofNullable(profile.getAchievement())
             .ifPresent(user::setRepresentAchievement);
 
