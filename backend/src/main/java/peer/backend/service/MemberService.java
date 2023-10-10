@@ -45,4 +45,16 @@ public class MemberService {
         }
         return savedUser;
     }
+
+    public boolean emailDuplicationCheck(String email) {
+        User user = this.userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return false;
+        }
+        SocialLogin socialLogin = this.socialLoginRepository.findByEmail(email).orElse(null);
+        if (socialLogin == null) {
+            return false;
+        }
+        return true;
+    }
 }
