@@ -13,19 +13,23 @@ import peer.backend.repository.user.UserRepository;
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
     @UserRegistrationTracking
     public User signUp(UserInfo info) {
-        Optional<User> checkUser = repository.findByNickname(info.getNickname());
+        Optional<User> checkUser = userRepository.findByNickname(info.getNickname());
         if (checkUser.isPresent()) {
             throw new UnauthorizedException("이미 존재하는 닉네임입니다.");
         }
-        checkUser = repository.findByEmail(info.getEmail());
+        checkUser = userRepository.findByEmail(info.getEmail());
         if (checkUser.isPresent()) {
             throw new UnauthorizedException("이미 존재하는 이메일입니다.");
         }
         User user = info.convertUser();
-        return repository.save(user);
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(User user) {
+        this.userRepository.delete(user);
     }
 }
