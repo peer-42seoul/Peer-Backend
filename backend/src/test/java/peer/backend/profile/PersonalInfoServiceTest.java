@@ -1,6 +1,6 @@
 package peer.backend.profile;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,15 +38,16 @@ public class PersonalInfoServiceTest {
                 .id(1L)
                 .password(encoder.encode(password))
                 .email(email)
-                .nickname("test1234")
+                .nickname("test nickname")
                 .isAlarm(false)
                 .address("test address")
+                .imageUrl("tes image URL")
                 .build();
     }
 
     @Test
-    @DisplayName("개인정보 조회 테스트")
-    void getPersonalInfoTest() {
+    @DisplayName("개인 정보 조회 테스트")
+    public void getPersonalInfoTest() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
         PersonalInfoResponse info = personalInfoService.getPersonalInfo(email);
         assertThat(info.getEmail()).isEqualTo(email);
