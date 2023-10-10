@@ -1,6 +1,7 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,10 @@ import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.swing.text.html.parser.Entity;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,6 +31,9 @@ public class MessageSubService {
     private final UserRepository userRepository;
     private final MessageIndexRepository indexRepository;
     private final MessagePieceRepository pieceRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     /**
      * DB 상에 저장된 대화 목록의 index 객체를 반환합니다.
@@ -79,6 +87,12 @@ public class MessageSubService {
                 latestDate(formattedDateTime);
 
         return ret;
+    }
+
+    public List<MessagePiece> executeNativeSQLQueryForMessagePiece(String sql) {
+        Query query = entityManager.createNativeQuery(sql, MessagePiece.class);
+        List<MessagePiece> result = query.getResultList();
+        return result;
     }
 
 }
