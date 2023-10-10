@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import peer.backend.dto.profile.PasswordRequest;
 import peer.backend.dto.profile.PersonalInfoResponse;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
@@ -28,10 +29,13 @@ public class PersonalInfoServiceTest {
     PersonalInfoService personalInfoService;
     String name;
     User user;
+    String password;
+    PasswordRequest newPassword;
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     @BeforeEach
     void beforeEach() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         name = "test name";
+        password = "test password";
         user = User.builder()
                 .id(1L)
                 .email("test@email.com")
@@ -42,6 +46,9 @@ public class PersonalInfoServiceTest {
                 .address("test address")
                 .imageUrl("tes image URL")
                 .build();
+        newPassword = new PasswordRequest(
+                password, "new password", "new password"
+        );
     }
 
     @Test
@@ -53,5 +60,13 @@ public class PersonalInfoServiceTest {
         assertThat(info.getName()).isEqualTo(user.getName());
         assertThat(info.getLocal()).isEqualTo(user.getAddress());
         assertThat(info.getAuthentication()).isEqualTo(user.getCompany());
+    }
+
+    @Test
+    @DisplayName("비밀 번호 변경")
+    void changePasswordTest() {
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        personalInfoService.changePassword(name, newPassword);
+        assertThat(encoder.matches("new password", user.getPassword())).isTrue();
     }
 }

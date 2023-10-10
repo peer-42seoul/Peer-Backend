@@ -31,9 +31,9 @@ public class PersonalInfoService {
     }
 
     @Transactional
-    public void changePassword(String email, PasswordRequest passwords) {
+    public void changePassword(String name, PasswordRequest passwords) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         if (!encoder.matches(passwords.getPresentPassword(), user.getPassword())) {
