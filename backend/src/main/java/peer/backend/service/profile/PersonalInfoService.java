@@ -15,8 +15,8 @@ public class PersonalInfoService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public PersonalInfoResponse getPersonalInfo(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(
+    public PersonalInfoResponse getPersonalInfo(String name) {
+        User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         return PersonalInfoResponse.builder()
