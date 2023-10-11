@@ -49,8 +49,8 @@ public class SecurityConfig {
             .and()
             .addFilter(corsConfig.corsFilter())
             .authorizeRequests()
-            .antMatchers("/login", "/membership/**", "/access-token", "/", "/error",
-                "/tracking-excel", "/what").permitAll()
+            .antMatchers("/admin/**").hasRole("ADMIN")
+            .antMatchers("/login", "/membership/**", "/access-token", "/", "/error").permitAll()
             .anyRequest().authenticated()
 
             .and()
