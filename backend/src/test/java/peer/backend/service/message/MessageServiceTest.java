@@ -1,16 +1,12 @@
 package peer.backend.service.message;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.dto.message.MessageUserDTO;
 import peer.backend.entity.message.Message;
 import peer.backend.entity.user.User;
 import peer.backend.repository.message.MessageRepository;
@@ -30,10 +26,10 @@ class MessageServiceTest {
     private MessageService messageService;
 
     User user0, user1, user2, user3;
+
     @Test
     void setting() {
         user0 = User.builder()
-            .userId("userId123")
             .password("password")
             .name("John")
             .email("john@example.com")
@@ -50,7 +46,6 @@ class MessageServiceTest {
             .build();
 
         user1 = User.builder()
-            .userId("user1")
             .password("password1")
             .name("User One")
             .email("user1@example.com")
@@ -67,7 +62,6 @@ class MessageServiceTest {
             .build();
 
         user2 = User.builder()
-            .userId("user2")
             .password("password2")
             .name("User Two")
             .email("user2@example.com")
@@ -84,7 +78,6 @@ class MessageServiceTest {
             .build();
 
         user3 = User.builder()
-            .userId("user3")
             .password("password3")
             .name("User Three")
             .email("user3@example.com")

@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.DynamicUpdate;
+import peer.backend.entity.BaseEntity;
 import peer.backend.entity.team.TeamUser;
 import lombok.Setter;
 
@@ -21,29 +22,27 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "user")
 @DynamicUpdate
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 20)
-    private String userId;
+    @Column(length = 100, unique = true, nullable = false)
+    private String email;
     @Column//(length = 20)
     private String password;
     @Column(length = 10, nullable = false)
     private String name;
-    @Column(length = 100, unique = true, nullable = false)
-    private String email;
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private LocalDate birthday;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private boolean isAlarm;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String phone;
-    @Column(nullable = false)
+    @Column//(nullable = false)
     private String address;
     @Column
     private String imageUrl;
@@ -75,4 +74,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<SocialLogin> socialLogins = new ArrayList<>();
 }
