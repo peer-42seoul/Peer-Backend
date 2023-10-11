@@ -19,9 +19,9 @@ public class ProfileService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public MyProfileResponse getProfile(String email)
+    public MyProfileResponse getProfile(String name)
     {
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         List<UserLinkDTO> links = new ArrayList<>();
