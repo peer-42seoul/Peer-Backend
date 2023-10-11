@@ -34,13 +34,13 @@ public class PersonalInfoService {
     public void changePassword(String name, PasswordRequest passwords) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
+                () -> new NotFoundException("사용자가 존재하지 않습니다.")
         );
         if (!encoder.matches(passwords.getPresentPassword(), user.getPassword())) {
-            throw new ForbiddenException("존재하지 않는 비밀번호 입니다.");
+            throw new ForbiddenException("현재 비밀번호가 올바르지 않습니다..");
         }
         if (!passwords.getNewPassword().equals(passwords.getConfirmPassword())) {
-            throw new ForbiddenException("비밀번호가 일치하지 않습니다.");
+            throw new ForbiddenException("변경할 비밀번호와 일치하지 않습니다.");
         }
         user.setPassword(encoder.encode(passwords.getNewPassword()));
         userRepository.save(user);
