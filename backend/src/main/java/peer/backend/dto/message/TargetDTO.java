@@ -11,5 +11,5 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TargetDTO {
-    private long targetId;
+    private long targetId; // 대화 상대
 }

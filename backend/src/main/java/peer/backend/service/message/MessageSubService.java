@@ -2,10 +2,8 @@ package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
@@ -17,8 +15,7 @@ import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.swing.text.html.parser.Entity;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -82,7 +79,7 @@ public class MessageSubService {
                 targetProfile(target.getImageUrl()).
                 conversationId(index.getConversationId()).
                 unreadMsgNumber(msgNumber).
-                msgId(conversation.getMsgId()).
+                latestMsgId(conversation.getMsgId()).
                 latestContent(conversation.getText()).
                 latestDate(formattedDateTime);
 
@@ -91,8 +88,12 @@ public class MessageSubService {
 
     public List<MessagePiece> executeNativeSQLQueryForMessagePiece(String sql) {
         Query query = entityManager.createNativeQuery(sql, MessagePiece.class);
-        List<MessagePiece> result = query.getResultList();
-        return result;
+        return query.getResultList();
+    }
+
+    public String makeFormattedDate(LocalDateTime value) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
+        return value.format(formatter);
     }
 
 }

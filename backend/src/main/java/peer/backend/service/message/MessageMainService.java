@@ -1,7 +1,6 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -19,9 +18,6 @@ import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.management.Query;
-import javax.persistence.EntityManager;
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -162,12 +158,13 @@ public class MessageMainService {
             return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = null;
         for (User candidate: raw) {
-            LetterTargetDTO data = new LetterTargetDTO();
+            LetterTargetDTO data = null;
             try {
-                data.builder().
+                data = LetterTargetDTO.builder().
                         targetId(candidate.getId()).
+                        targetEmail(candidate.getEmail()).
                         targetNickname(candidate.getNickname()).
-                        targetProfile(candidate.getImageUrl());
+                        targetProfile(candidate.getImageUrl()).build();
                 ret.add(data);
             } catch (Exception e) {
                 //TODO: error handling
@@ -247,12 +244,11 @@ public class MessageMainService {
 
         msgOwner = user1.getId() == userId ? user1 : user2;
 
-        MessagePiece letter = new MessagePiece();
-        letter.builder().
+        MessagePiece letter = MessagePiece.builder().
                 conversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
                 senderId(msgOwner.getId()).
-                text(message.getContent());
+                text(message.getContent()).build();
 
         try {
             this.pieceRepository.save(letter);
@@ -293,8 +289,8 @@ public class MessageMainService {
      * @return
      */
     @Async
-    @Transactional(readOnly = true)
-    public List<MsgDTO> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
 
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
         if (targetIndex == null)
@@ -309,7 +305,8 @@ public class MessageMainService {
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece("SELECT * FROM message_piece WHERE conversationId = :" + target.getConversationalId() + "ORDER BY createdAt DESC LIMIT 21");
         Collections.sort(talks, new MessagePieceComparator());
 
-        List<MsgDTO> ret = new ArrayList<>();
+        MsgListDTO ret = new MsgListDTO();
+        List<Msg> innerData = new ArrayList<>();
         User data = null;
         Optional<User> rawData;
         long size = 0;
@@ -334,27 +331,42 @@ public class MessageMainService {
                     break ;
                 }
             }
-            MsgDTO talkBubble = new MsgDTO();
-            talkBubble.builder().
-                    senderId(piece.getSenderId()).
-                    senderNickname(piece.getSenderNickname()).
-                    targetProfile(data.getImageUrl()).
+            Msg talkBubble =  Msg.builder().
+                    userId(piece.getSenderId()).
                     msgId(piece.getMsgId()).
                     content(piece.getText()).
+                    date(this.subService.makeFormattedDate(piece.getCreatedAt())).
                     isEnd(isEnd).build();
             //TODO make new MsgDTO;
-            ret.add(talkBubble);
+            innerData.add(talkBubble);
             isEnd = false;
             size++;
         }
-        return ret;
+
+        User owner = this.userRepository.findById(userId).get();
+        User targetUser = this.userRepository.findById(target.getTargetId()).get();
+
+        MsgOwner user = MsgOwner.builder().
+                userId(owner.getId()).
+                userNickname(owner.getNickname()).
+                userProfile(owner.getImageUrl()).build();
+        MsgTarget msgTarget = MsgTarget.builder().
+                userId(targetUser.getId()).
+                userNickname(targetUser.getNickname()).
+                userProfile(targetUser.getImageUrl()).build();
+
+        ret.setMsgOwner(user);
+        ret.setMsgTarget(msgTarget);
+        ret.setMsgList(innerData);
+
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
     @Async
     @Transactional(readOnly = true)
-    public List<MsgDTO> getSpecificLetterUpByUserIdAndTargetId(long userId, long page, SpecificScrollMsgDTO target) {
+    public List<Msg> getSpecificLetterUpByUserIdAndTargetId(long userId, long page, SpecificScrollMsgDTO target) {
         //TODO: Make Logic
-        List<MsgDTO> ret = null;
+        List<Msg> ret = null;
         return ret;
     }
 }
