@@ -1,4 +1,4 @@
-package peer.backend.dto.profile;
+package peer.backend.dto.profile.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.profile.NicknameResponse;
-import peer.backend.dto.profile.UserLinkDTO;
+import peer.backend.dto.profile.response.NicknameResponse;
+import peer.backend.dto.profile.request.UserLinkDTO;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.profile.ProfileService;
 

@@ -4,8 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,16 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
-import peer.backend.dto.profile.MyProfileResponse;
-import peer.backend.entity.achievement.Achievement;
+import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.entity.user.User;
-import peer.backend.entity.user.UserAchievement;
 import peer.backend.entity.user.UserLink;
-import peer.backend.repository.achievement.AchievementRepository;
 import peer.backend.repository.user.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
