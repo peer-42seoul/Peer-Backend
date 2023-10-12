@@ -1,4 +1,4 @@
-package peer.backend.service.profile;
+package peer.backend.profile;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -16,28 +16,35 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import peer.backend.dto.profile.request.UserLinkDTO;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
+import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.profile.ProfileService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Test ProfileServiceTest")
 class ProfileServiceTest {
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserLinkRepository userLinkRepository;
     @InjectMocks
     private ProfileService profileService;
 
     String email;
     String nickname;
+    String name;
     List<UserLink> linkList = new ArrayList<>();
     User user;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        email = "test@test.com";
-        nickname = "test123";
+        email = "test@email.com";
+        nickname = "test nickname";
+        name = "test name";
         linkList.add(UserLink.builder()
                 .id(1L)
                 .linkName("test 1")
@@ -45,7 +52,8 @@ class ProfileServiceTest {
                 .build());
         user = User.builder()
                 .id(1L)
-                .password(encoder.encode("test1234"))
+                .password(encoder.encode("test password"))
+                .name(name)
                 .email(email)
                 .nickname(nickname)
                 .address("test address")
@@ -65,5 +73,29 @@ class ProfileServiceTest {
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());
         assertThat(ret.getCompany()).isEqualTo(user.getCompany());
         assertThat(ret.getIntroduction()).isEqualTo(user.getIntroduce());
+    }
+
+    @Test
+    @DisplayName("Edit links Test")
+    void editLinksTest() {
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        List<UserLinkDTO> newList = new ArrayList<>();
+        newList.add(
+                UserLinkDTO.builder()
+                        .linkName("new link 1")
+                        .linkUrl("new link 1")
+                        .build()
+        );
+        newList.add(
+                UserLinkDTO.builder()
+                        .linkName("new link 2")
+                        .linkUrl("new link 2")
+                        .build()
+        );
+        profileService.editLinks(email, newList);
+        assertThat(user.getUserLinks().get(0).getLinkName()).isEqualTo("new link 1");
+        assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
+        assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");
+        assertThat(user.getUserLinks().get(1).getLinkUrl()).isEqualTo("new link 2");
     }
 }

@@ -8,6 +8,7 @@ import peer.backend.dto.profile.request.UserLinkDTO;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfileService {
     private final UserRepository userRepository;
+    private final UserLinkRepository userLinkRepository;
 
     @Transactional(readOnly = true)
     public MyProfileResponse getProfile(String name)
@@ -52,15 +54,21 @@ public class ProfileService {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        user.getUserLinks().clear();
+        userLinkRepository.deleteAll(user.getUserLinks());
+        List<UserLink> newLink = user.getUserLinks();
+        newLink.clear();
         for (UserLinkDTO link : links) {
             UserLink userLink = UserLink.builder()
                     .user(user)
                     .linkName(link.getLinkName())
-                    .linkName(link.getLinkName())
+                    .linkUrl(link.getLinkUrl())
                     .build();
-            user.getUserLinks().add(userLink);
-        };
+            newLink.add(userLink);
+        }
+        for (int index = newLink.size() - 1; index >= 0; index--) {
+            userLinkRepository.save(newLink.get(index));
+        }
+        user.setUserLinks(newLink);
         userRepository.save(user);
     }
 }
