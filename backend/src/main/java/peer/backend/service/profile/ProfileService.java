@@ -41,4 +41,26 @@ public class ProfileService {
                 .linkList(links)
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public boolean isExistNickname(String nickname) {
+        return userRepository.findByNickname(nickname).isPresent();
+    }
+
+    @Transactional
+    public void editLinks(String name, List<UserLinkDTO> links) {
+        User user = userRepository.findByName(name).orElseThrow(
+                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
+        );
+        user.getUserLinks().clear();
+        for (UserLinkDTO link : links) {
+            UserLink userLink = UserLink.builder()
+                    .user(user)
+                    .linkName(link.getLinkName())
+                    .linkName(link.getLinkName())
+                    .build();
+            user.getUserLinks().add(userLink);
+        };
+        userRepository.save(user);
+    }
 }
