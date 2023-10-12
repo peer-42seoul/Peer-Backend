@@ -10,8 +10,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class UserLinkDTO {
-    private Long id;
     private String linkName;
     private String linkUrl;
-    private String faviconPath;
 }
