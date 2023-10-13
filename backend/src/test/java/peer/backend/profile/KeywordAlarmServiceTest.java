@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import peer.backend.dto.profile.KeywordResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.repository.user.UserRepository;
@@ -56,5 +57,17 @@ public class KeywordAlarmServiceTest {
                 keywordAlarmService.addKeyword(name, excepKeyword);
             }
         );
+    }
+
+    @Test
+    @DisplayName("키워드 알람 조회 테스트")
+    public void getKeywordTest() {
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        KeywordResponse ret = keywordAlarmService.getKeyword(name);
+        assertThat(ret.getKeyword()).isNull();
+        String newKeyword = "test1";
+        keywordAlarmService.addKeyword(name, newKeyword);
+        ret = keywordAlarmService.getKeyword(name);
+        assertThat(ret.getKeyword()).isEqualTo(newKeyword);
     }
 }
