@@ -1,36 +1,42 @@
-package peer.backend.controller.message;
+package peer.backend.repository.messageOld;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import peer.backend.entity.message.Message;
-import peer.backend.dto.message.MessageSendRequest;
+import java.util.List;
+import javax.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import peer.backend.entity.messageOld.Message;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import peer.backend.entity.user.User;
-import peer.backend.repository.message.MessageRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.message.MessageService;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/v1/api/message")
-public class MessageController {
+@DisplayName("Message Repository 테스트")
+//@DataJpaTest
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
+@RunWith(SpringRunner.class)
+@SpringBootTest
+class MessageRepositoryTest {
 
-    private final MessageService messageService;
+    @Autowired
+    MessageRepository messageRepository;
 
-    private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
-    @GetMapping("/setting")
-    public void setting()
-    {
-        User user0 = User.builder()
+    User user0, user1, user2, user3;
+
+    @BeforeEach
+    void setting() {
+        user0 = User.builder()
             .password("password")
             .name("John")
             .email("john@example.com")
@@ -46,7 +52,7 @@ public class MessageController {
             .representAchievement("Achievement XYZ")
             .build();
 
-        User user1 = User.builder()
+        user1 = User.builder()
             .password("password1")
             .name("User One")
             .email("user1@example.com")
@@ -62,7 +68,7 @@ public class MessageController {
             .representAchievement("Achievement ABC")
             .build();
 
-        User user2 = User.builder()
+        user2 = User.builder()
             .password("password2")
             .name("User Two")
             .email("user2@example.com")
@@ -78,7 +84,7 @@ public class MessageController {
             .representAchievement("Achievement DEF")
             .build();
 
-        User user3 = User.builder()
+        user3 = User.builder()
             .password("password3")
             .name("User Three")
             .email("user3@example.com")
@@ -99,6 +105,16 @@ public class MessageController {
         userRepository.save(user2);
         userRepository.save(user3);
 
+    }
+
+//    @Test
+//    public void userCountTest()
+//    {
+//        assertThat(userRepository.count()).isEqualTo(4);
+//    }
+
+    @Test
+    public void findBySenderOrReceiverTest() {
         Message message1 = Message.builder()
             .content("예시1")
             .sender(user0)
@@ -106,31 +122,31 @@ public class MessageController {
             .build();
 
         Message message2 = Message.builder()
-            .content("예시2")
+            .content("예시1")
             .sender(user0)
             .receiver(user1)
             .build();
 
         Message message3 = Message.builder()
-            .content("예시3")
+            .content("예시1")
             .sender(user1)
             .receiver(user2)
             .build();
 
         Message message4 = Message.builder()
-            .content("예시4")
+            .content("예시1")
             .sender(user1)
             .receiver(user2)
             .build();
 
         Message message5 = Message.builder()
-            .content("예시5")
+            .content("예시1")
             .sender(user2)
             .receiver(user1)
             .build();
 
         Message message6 = Message.builder()
-            .content("예시6")
+            .content("예시1")
             .sender(user2)
             .receiver(user0)
             .build();
@@ -141,23 +157,13 @@ public class MessageController {
         messageRepository.save(message4);
         messageRepository.save(message5);
         messageRepository.save(message6);
-    }
-
-    @GetMapping("/list/{userId}")
-    public ResponseEntity userMessageList(@PathVariable("userId") Long userId)
-    {
-        return new ResponseEntity(messageService.myMessageList(userId), HttpStatus.OK);
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity messageDetail(@PathVariable("userId") Long userId)
-    {
-        return new ResponseEntity(messageService.userDetailMessage(userId), HttpStatus.OK);
-    }
-
-    @PostMapping("/{userId}")
-    public ResponseEntity sendMessage(@PathVariable("userId") Long userId,
-        @RequestBody MessageSendRequest messageSendRequest) {
-        return new ResponseEntity(messageService.sendMessage(userId, messageSendRequest), HttpStatus.OK);
+//        assertThat(messageRepository.count()).isEqualTo(6);
+        List<Message> messages = messageRepository.findBySenderOrReceiver(user0, user0);
+        for (Message message : messages) {
+            System.out.println("id = " + message.getId());
+            System.out.println("send = " + message.getSender().getNickname());
+            System.out.println("rec = " + message.getReceiver().getNickname());
+        }
+        assertThat(messageRepository.findBySenderOrReceiver(user0, user0).size()).isEqualTo(3);
     }
 }

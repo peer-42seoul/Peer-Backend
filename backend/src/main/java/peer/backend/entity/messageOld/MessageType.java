@@ -1,4 +1,4 @@
-package peer.backend.entity.message;
+package peer.backend.entity.messageOld;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
