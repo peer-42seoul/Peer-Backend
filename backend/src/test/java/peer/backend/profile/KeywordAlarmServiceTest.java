@@ -70,4 +70,18 @@ public class KeywordAlarmServiceTest {
         ret = keywordAlarmService.getKeyword(name);
         assertThat(ret.getKeyword()).isEqualTo(newKeyword);
     }
+
+    @Test
+    @DisplayName("키워드 알람 삭제 테스트")
+    public void deleteKeywordTest() {
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        user.setKeywordAlarm("test1^&%test2^&%test3^&%test4");
+        keywordAlarmService.deleteKeyword(name, "test2");
+        assertThat(user.getKeywordAlarm()).isEqualTo("test1^&%test3^&%test4");
+        user.setKeywordAlarm("");
+        assertThrows(BadRequestException.class, () -> {
+                    keywordAlarmService.deleteKeyword(name, "test1");
+                }
+        );
+    }
 }

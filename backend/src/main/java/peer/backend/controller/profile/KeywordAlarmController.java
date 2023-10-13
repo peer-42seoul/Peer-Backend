@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.KeywordRequest;
 import peer.backend.dto.profile.KeywordResponse;
 import peer.backend.exception.BadRequestException;
@@ -38,5 +35,13 @@ public class KeywordAlarmController {
     public ResponseEntity<Object> getKeywords(Authentication auth) {
         KeywordResponse keyword = keywordAlarmService.getKeyword(auth.getName());
         return new ResponseEntity<> (keyword, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "C-MYPAGE-31", notes = "알람 키워드 삭제 하기")
+    @DeleteMapping("/alarm/delete")
+    public ResponseEntity<Object> deleteKeyword(Authentication auth,
+                                                @RequestParam(value = "keyword", required = true)String keyword) {
+        keywordAlarmService.deleteKeyword(auth.getName(), keyword);
+        return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }
