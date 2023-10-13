@@ -3,6 +3,7 @@ package peer.backend.service.profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import peer.backend.dto.profile.KeywordResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
@@ -29,5 +30,15 @@ public class KeywordAlarmService {
             user.setKeywordAlarm(keyword);
         }
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public KeywordResponse getKeyword(String name) {
+        User user = userRepository.findByName(name).orElseThrow(
+                () -> new NotFoundException("사용자가 존재하지 않습니다.")
+        );
+        return KeywordResponse.builder()
+                .keyword(user.getKeywordAlarm())
+                .build();
     }
 }
