@@ -9,11 +9,10 @@ import peer.backend.entity.user.UserLink;
 @Getter
 @Builder
 public class MyProfileResponse {
-    private Long id;
     private String profileImageUrl;
+    private String nickname;
+    private String email;
+    private String company;
     private String introduction;
-    private List<UserLink> linkList;
-    private String phone;
-    private String representAchievement;
-    private List<UserAchievement> achievements;
+    private List<UserLinkDTO> linkList;
 }
