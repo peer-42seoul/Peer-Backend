@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.team.*;
@@ -17,6 +18,7 @@ import peer.backend.service.team.TeamService;
 
 import javax.validation.Valid;
 
+@Secured("USER_ROLE")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(TeamController.TEAM_URL)
