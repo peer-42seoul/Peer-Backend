@@ -56,9 +56,11 @@ public class User extends BaseEntity {
     private Long peerLevel;
     @Column//(nullable = false)
     private String representAchievement;
+    @Column
+    private String keywordAlarm;
 
-    @OneToMany(mappedBy = "user")
-    private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
+//    @OneToMany(mappedBy = "user")
+//    private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private PeerOperation peerOperation;
