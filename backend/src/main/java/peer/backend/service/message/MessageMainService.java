@@ -1,6 +1,7 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.ObjectDeletedException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,12 @@ import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -101,7 +104,6 @@ public class MessageMainService {
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetDTO> list){
-        //TODO: Make Logic
         Long ret;
         ret = 0L;
 
@@ -278,6 +280,19 @@ public class MessageMainService {
         return true;
     }
 
+    @Transactional(readOnly = false)
+    public boolean sendMessage(long userId, MsgContentDTO message) {
+        long targetId = message.getTargetId();
+        MessageIndex index;
+        try {
+            index = this.indexRepository.findByUserIdx(userId, targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
+        } catch (NoSuchElementException e)
+        {
+            return false;
+        }
+        return this.sendMessage(index, userId, message);
+    }
+
     /**
      * OutLine : userId 와 구체적인 메시지 DTO를 통해 쪽지들을 불러온다.
      * Logic :
@@ -291,82 +306,110 @@ public class MessageMainService {
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
-
+        // MessageIndex 찾기
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
+        try {
         if (targetIndex == null)
-            return null;
+           throw new NoSuchElementException("There is no talks");
         if (targetIndex.getUserIdx1() == userId) {
             if (targetIndex.isUser1delete())
-                return null;
+                throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
         } else if (targetIndex.getUserIdx2() == userId) {
             if (targetIndex.isUser2delete())
-                return null;
+                throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+        } } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece("SELECT * FROM message_piece WHERE conversationId = :" + target.getConversationalId() + "ORDER BY createdAt DESC LIMIT 21");
-        Collections.sort(talks, new MessagePieceComparator());
 
+        // MessagePiece의 List 찾기
+        String sql = "SELECT * FROM message_piece WHERE conversationId = :conversationId ORDER BY createdAt LIMIT 21";
+        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
+        talks.sort(new MessagePieceComparator());
+
+        // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();
         List<Msg> innerData = new ArrayList<>();
-        User data = null;
-        Optional<User> rawData;
-        long size = 0;
-        boolean isEnd = false;
-        for (MessagePiece piece : talks) {
-            rawData = this.userRepository.findById(piece.getSenderId());
-            data = rawData.get();
+        innerData = this.subService.makeMsgDataWithMessagePiece(talks);
 
-            if (talks.size() > 20) {
-                if (size < 18) isEnd = false;
-                else if (size == 19) isEnd = false;
-                else if (size == 20)
-                    break ;
-            }
-            else {
-                // TODO: 여기 조건 정확히 넣어줘야 함. talks size가 작은 경우
-                if (size + 1 < talks.size())
-                    isEnd = false;
-                else if (size + 1 == talks.size())
-                    isEnd = true;
-                else if (size > talks.size()) {
-                    break ;
-                }
-            }
-            Msg talkBubble =  Msg.builder().
-                    userId(piece.getSenderId()).
-                    msgId(piece.getMsgId()).
-                    content(piece.getText()).
-                    date(this.subService.makeFormattedDate(piece.getCreatedAt())).
-                    isEnd(isEnd).build();
-            //TODO make new MsgDTO;
-            innerData.add(talkBubble);
-            isEnd = false;
-            size++;
+        // User 객체들 찾기
+        User owner = null;
+        User targetUser = null;
+        Optional<User> rawOwner;
+        Optional<User> rawTarget;
+        try {
+            rawOwner = this.userRepository.findById(userId);
+            rawTarget = this.userRepository.findById(target.getTargetId());
+            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+                throw new NotFoundException("There is no a specific user");
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
+        owner = rawOwner.get();
+        targetUser = rawTarget.get();
 
-        User owner = this.userRepository.findById(userId).get();
-        User targetUser = this.userRepository.findById(target.getTargetId()).get();
-
-        MsgOwner user = MsgOwner.builder().
-                userId(owner.getId()).
-                userNickname(owner.getNickname()).
-                userProfile(owner.getImageUrl()).build();
-        MsgTarget msgTarget = MsgTarget.builder().
-                userId(targetUser.getId()).
-                userNickname(targetUser.getNickname()).
-                userProfile(targetUser.getImageUrl()).build();
-
-        ret.setMsgOwner(user);
-        ret.setMsgTarget(msgTarget);
-        ret.setMsgList(innerData);
+        // User 객체, List<Msg> 객체로 MsgListDTO 만들기
+        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
+    /**
+     * OutLine :무한스크롤로 과거의 메시지를 기준 단위로 받아온다.
+     * Logic :
+     * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
+     * 1. ConversationId, earlyMsgId 를 통해 쪽지 데이터를 전체 들고옴.
+     * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
+     * @param userId
+     * @param target
+     * @return
+     */
     @Async
-    @Transactional(readOnly = true)
-    public List<Msg> getSpecificLetterUpByUserIdAndTargetId(long userId, long page, SpecificScrollMsgDTO target) {
-        //TODO: Make Logic
-        List<Msg> ret = null;
-        return ret;
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterUpByUserIdAndTargetId(long userId, SpecificScrollMsgDTO target) {
+        // MessageIndex 찾기
+        MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationId()).orElseGet(() -> null);
+        try {
+            if (targetIndex == null)
+                throw new NoSuchElementException("There is no Talks");
+            if (targetIndex.getUserIdx1() == userId) {
+                if (targetIndex.isUser1delete())
+                    throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+            } else if (targetIndex.getUserIdx2() == userId) {
+                if (targetIndex.isUser2delete())
+                    throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+            } } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+
+        // MessagePiece의 List 찾기
+        String sql = "SELECT * FROM message_piece WHERE conversationId = :conversationId AND msgId < :earlyMsgId ORDER BY createdAt LIMIT 21";
+        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationId(), "earlyMsgId", target.getEarlyMsgId()));
+        talks.sort(new MessagePieceComparator());
+
+        // Msg 객체 덩어리로 만들기
+        MsgListDTO ret = new MsgListDTO();
+        List<Msg> innerData = new ArrayList<>();
+        innerData = this.subService.makeMsgDataWithMessagePiece(talks);
+
+        // User 객체들 찾기
+        User owner = null;
+        User targetUser = null;
+        Optional<User> rawOwner;
+        Optional<User> rawTarget;
+        try {
+            rawOwner = this.userRepository.findById(userId);
+            rawTarget = this.userRepository.findById(target.getTargetId());
+            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+                throw new NotFoundException("There is no a specific user");
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+        owner = rawOwner.get();
+        targetUser = rawTarget.get();
+
+        // User 객체, List<Msg> 객체로 MsgListDTO 만들기
+        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 }
