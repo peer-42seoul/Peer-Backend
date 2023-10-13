@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -83,5 +84,14 @@ public class KeywordAlarmServiceTest {
                     keywordAlarmService.deleteKeyword(name, "test1");
                 }
         );
+    }
+
+    @Test
+    @DisplayName("키워드 알람 전부 삭제 테스트")
+    public void deleteAllTest() {
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        user.setKeywordAlarm("test1^&%test2^&%test3^&%test4");
+        keywordAlarmService.deleteAll(name);
+        assertThat(user.getKeywordAlarm()).isNull();
     }
 }

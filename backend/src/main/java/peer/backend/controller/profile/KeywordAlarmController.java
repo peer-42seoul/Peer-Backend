@@ -44,4 +44,11 @@ public class KeywordAlarmController {
         keywordAlarmService.deleteKeyword(auth.getName(), keyword);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
+
+    @ApiOperation(value = "C-MYPAGE-31", notes = "알람 키워드 전체 삭제 하기")
+    @DeleteMapping("/alarm/delete/all")
+    public ResponseEntity<Object> deleteAll(Authentication auth) {
+        keywordAlarmService.deleteAll(auth.getName());
+        return new ResponseEntity<> (HttpStatus.CREATED);
+    }
 }

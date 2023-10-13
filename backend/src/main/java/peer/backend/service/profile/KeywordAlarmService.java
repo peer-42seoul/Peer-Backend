@@ -68,4 +68,13 @@ public class KeywordAlarmService {
             userRepository.save(user);
         }
     }
+
+    @Transactional
+    public void deleteAll(String name) {
+        User user = userRepository.findByName(name).orElseThrow(
+                () -> new NotFoundException("사용자가 존재하지 않습니다.")
+        );
+        user.setKeywordAlarm(null);
+        userRepository.save(user);
+    }
 }
