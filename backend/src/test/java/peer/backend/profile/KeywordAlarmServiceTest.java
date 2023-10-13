@@ -28,19 +28,16 @@ public class KeywordAlarmServiceTest {
     private KeywordAlarmService keywordAlarmService;
 
     String name;
-    String keyword;
     User user;
     @BeforeEach
     void beforeEach() {
         name = "test name";
-        keyword = "keyword 1^&%keyword 2^&%keyword 3";
         user = User.builder()
                 .email("test@email.com")
                 .name(name)
                 .nickname("test nickname")
                 .isAlarm(false)
                 .address("test address")
-                .keywordAlarm(keyword)
                 .build();
     }
 
@@ -48,10 +45,13 @@ public class KeywordAlarmServiceTest {
     @DisplayName("키워드 알람 추가 테스트")
     public void addKeywordTest() {
         when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        String newKeyword = "newKeyword";
-        keywordAlarmService.addKeyword(name, newKeyword);
-        assertThat(user.getKeywordAlarm()).isEqualTo(String.format("%s^&%%%s", keyword, newKeyword));
-        String excepKeyword = "keyword 1";
+        String newKeyword1 = "test1";
+        keywordAlarmService.addKeyword(name, newKeyword1);
+        assertThat(user.getKeywordAlarm()).isEqualTo(newKeyword1);
+        String newKeyword2 = "test2";
+        keywordAlarmService.addKeyword(name, newKeyword2);
+        assertThat(user.getKeywordAlarm()).isEqualTo(String.format("%s^&%%%s", newKeyword1, newKeyword2));
+        String excepKeyword = "test1";
         assertThrows(BadRequestException.class, () -> {
                 keywordAlarmService.addKeyword(name, excepKeyword);
             }

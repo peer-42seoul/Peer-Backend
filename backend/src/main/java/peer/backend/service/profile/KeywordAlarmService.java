@@ -18,11 +18,16 @@ public class KeywordAlarmService {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자가 존재하지 않습니다.")
         );
-        if (user.getKeywordAlarm().contains(newKeyword)) {
+        if (user.getKeywordAlarm() == null) {
+            user.setKeywordAlarm(newKeyword);
+        }
+        else if (user.getKeywordAlarm().contains(newKeyword)) {
             throw new BadRequestException("이미 존재하는 키워드 입니다.");
         }
-        String keyword = String.format("%s^&%%%s", user.getKeywordAlarm(), newKeyword);
-        user.setKeywordAlarm(keyword);
+        else {
+            String keyword = String.format("%s^&%%%s", user.getKeywordAlarm(), newKeyword);
+            user.setKeywordAlarm(keyword);
+        }
         userRepository.save(user);
     }
 }

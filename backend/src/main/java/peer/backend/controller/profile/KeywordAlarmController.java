@@ -22,7 +22,9 @@ public class KeywordAlarmController {
     @ApiOperation(value = "C-MYPATE-30", notes = "알람 키워드 추가 하기")
     @PostMapping("/alarm/add")
     public ResponseEntity<Object> addKeyword(Authentication auth, @RequestBody KeywordRequest newKeyword) {
-        if (newKeyword.getNewKeyword().contains("^&%")) {
+        if (newKeyword.getNewKeyword().contains("^&%") ||
+            newKeyword.getNewKeyword().isEmpty() ||
+            newKeyword.getNewKeyword().isBlank()) {
             throw new BadRequestException("잘못된 문자열 입니다.");
         }
         keywordAlarmService.addKeyword(auth.getName(), newKeyword.getNewKeyword());
