@@ -1,4 +1,4 @@
-package peer.backend.service.messageOld;
+package peer.backend.service.message;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,21 +8,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import peer.backend.dto.messageOld.MessageDTO;
-import peer.backend.dto.messageOld.MessageSendResponse;
-import peer.backend.dto.messageOld.MessageUserDTO;
-import peer.backend.entity.messageOld.Message;
-import peer.backend.dto.messageOld.MessageSendRequest;
-import peer.backend.entity.messageOld.MessageType;
+import peer.backend.dto.message.MessageDTO;
+import peer.backend.dto.message.MessageSendResponse;
+import peer.backend.dto.message.MessageUserDTO;
+import peer.backend.entity.message.Message;
+import peer.backend.dto.message.MessageSendRequest;
+import peer.backend.entity.message.MessageType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
-import peer.backend.repository.messageOld.MessageRepository;
+import peer.backend.repository.message.MessageRepository;
 import peer.backend.repository.user.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 @EnableWebMvc
-public class MessageServiceOld {
+public class MessageService {
 
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;

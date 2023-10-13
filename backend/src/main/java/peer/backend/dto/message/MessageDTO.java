@@ -1,11 +1,11 @@
-package peer.backend.dto.messageOld;
+package peer.backend.dto.message;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.messageOld.MessageType;
+import peer.backend.entity.message.MessageType;
 
 @Getter
 @Builder
