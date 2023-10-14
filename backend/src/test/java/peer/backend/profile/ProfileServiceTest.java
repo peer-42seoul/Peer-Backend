@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.dto.profile.request.UserLinkDTO;
 import peer.backend.dto.profile.response.MyProfileResponse;
+import peer.backend.dto.profile.response.OtherProfileDto;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.repository.user.UserLinkRepository;
@@ -97,5 +98,25 @@ class ProfileServiceTest {
         assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");
         assertThat(user.getUserLinks().get(1).getLinkUrl()).isEqualTo("new link 2");
+    }
+
+    @Test
+    @DisplayName("Get other profile Test")
+    void getOtherProfileTest() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        List<String> info = new ArrayList<>();
+        info.add("nickname");
+        info.add("profileImageUrl");
+        OtherProfileDto ret = profileService.getOtherProfile(user.getId(), info);
+        assertThat(ret.getNickname()).isEqualTo(user.getNickname());
+        assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
+        info.clear();
+        info.add("nickname");
+        ret = profileService.getOtherProfile(user.getId(), info);
+        assertThat(ret.getNickname()).isEqualTo(user.getNickname());
+        info.clear();
+        info.add("profileImageUrl");
+        ret = profileService.getOtherProfile(user.getId(), info);
+        assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
     }
 }
