@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.request.UserLinkDTO;
+import peer.backend.dto.profile.response.OtherProfileDto;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
+import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
@@ -70,5 +72,26 @@ public class ProfileService {
         }
         user.setUserLinks(newLink);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public OtherProfileDto getOtherProfile(Long userId, List<String> infoList) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
+        );
+        OtherProfileDto profile = new OtherProfileDto();
+        for (String info : infoList) {
+            switch (info) {
+                case "nickname":
+                    profile.setNickname(user.getNickname());
+                    break;
+                case "profileImageUrl":
+                    profile.setProfileImageUrl(user.getImageUrl());
+                    break;
+                default:
+                    throw new BadRequestException("잘못된 요청입니다.");
+            }
+        }
+        return (profile);
     }
 }

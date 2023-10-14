@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
 import peer.backend.dto.profile.request.UserLinkDTO;
+import peer.backend.dto.profile.response.OtherProfileDto;
+import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
+import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.profile.ProfileService;
 
@@ -49,5 +52,24 @@ public class ProfileController{
         }
         profileService.editLinks(auth.getName(), linkList.getLinkList());
         return new ResponseEntity<> (HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "C-MYPAGE-09", notes = "다른 사용자 프로필 정보 조회하기")
+    @GetMapping("/profile/other")
+    public ResponseEntity<Object> getOtherProfile(Authentication auth,
+                                                  @RequestParam(value = "userId", required = true) Long userId,
+                                                  @RequestParam(value = "infoList", required = true)List<String> infoList) {
+        OtherProfileDto otherProfile = profileService.getOtherProfile(userId, infoList);
+        if (infoList.size() == 1) {
+            if (otherProfile.getNickname() == null) {
+                OtherProfileImageUrlResponse otherUrl = new OtherProfileImageUrlResponse(otherProfile.getProfileImageUrl());
+                return new ResponseEntity<> (otherUrl, HttpStatus.OK);
+            }
+            if (otherProfile.getProfileImageUrl() == null) {
+                OtherProfileNicknameResponse otherNickname = new OtherProfileNicknameResponse(otherProfile.getNickname());
+                return new ResponseEntity<> (otherNickname, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<> (otherProfile, HttpStatus.OK);
     }
 }
