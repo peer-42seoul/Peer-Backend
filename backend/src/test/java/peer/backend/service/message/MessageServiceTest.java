@@ -17,11 +17,16 @@ import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.messageOld.MessageRepository;
 import peer.backend.repository.user.UserRepository;
 
+import static org.mockito.Mockito.when;
+
 @DisplayName("Message Service Test")
 @Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class MessageServiceTest {
+
+    @InjectMocks
+    private MessageMainService mainService;
 
     @Mock
     private MessageIndexRepository indexRepository;
@@ -29,10 +34,7 @@ public class MessageServiceTest {
     private MessagePieceRepository pieceRepository;
     @Mock
     private UserRepository userRepository;
-
-    @InjectMocks
-    private MessageMainService mainService;
-    @InjectMocks
+    @Mock
     private MessageSubService subService;
 
     User user0, user1, user2, user3;
@@ -40,11 +42,16 @@ public class MessageServiceTest {
     @BeforeEach
     public void setUp() {
         //TODO: 어떻게 설정하지?
+        // User0 ~ User3 만들기
+        // User0-1 대화 만들기 -> 메시지 0 넣기
+        // User1-2 대화 만들기 -> 메시지 2 넣기
+        // User0-3 대화 만들기 -> 메시지 3 넣기
+        // User2-3 대화 만들기 -> 메시지 3 넣기
     }
 
     @Test
-    public void testAct1() {
-        //TODO: 뭘 할지 정할 것
+    public void testAct1()
+    {
     }
 
 }
