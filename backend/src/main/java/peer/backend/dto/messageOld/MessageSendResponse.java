@@ -1,4 +1,4 @@
-package peer.backend.dto.message;
+package peer.backend.dto.messageOld;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -8,10 +8,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class MessageSendRequest {
-    private Long userId;
+@NoArgsConstructor
+public class MessageSendResponse {
     private String content;
     private LocalDateTime messageTime;
+    private String senderNickname;
+    private String receiverNickname;
 }

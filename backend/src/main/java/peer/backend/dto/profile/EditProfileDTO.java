@@ -22,10 +22,8 @@ public class EditProfileDTO {
         for (UserLink userLink : userLinks)
         {
             UserLinkDTO userLinkDTO = UserLinkDTO.builder()
-                .id(userLink.getId())
                 .linkName(userLink.getLinkName())
                 .linkUrl(userLink.getLinkUrl())
-                .faviconPath(userLink.getFaviconPath())
                 .build();
             userLinkDTOS.add(userLinkDTO);
         }

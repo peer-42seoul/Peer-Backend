@@ -1,15 +1,16 @@
-package peer.backend.service.message;
+package peer.backend.service.messageOld;
 
 import java.time.LocalDate;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.entity.message.Message;
+import peer.backend.entity.messageOld.Message;
 import peer.backend.entity.user.User;
-import peer.backend.repository.message.MessageRepository;
+import peer.backend.repository.messageOld.MessageRepository;
 import peer.backend.repository.user.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,7 +24,7 @@ class MessageServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private MessageService messageService;
+    private MessageServiceOld messageServiceOld;
 
     User user0, user1, user2, user3;
 
