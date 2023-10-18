@@ -4,6 +4,7 @@ package peer.backend.service.board.recruit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.RecruitRequestDTO;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -84,4 +85,14 @@ public class RecruitService {
                 .build();
         recruitRepository.save(recruit);
     }
+
+    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO){
+        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집게시글입니다."));
+        Team team = recruit.getTeam();
+
+        recruit.update(recruitUpdateRequestDTO);
+        recruitRepository.save(recruit);
+    }
+
+
 }

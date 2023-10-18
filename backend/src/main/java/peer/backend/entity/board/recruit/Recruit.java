@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.board.recruit.enums.RecruitPlace;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.board.recruit.enums.RecruitType;
@@ -65,4 +67,16 @@ public class Recruit {
     private String thumbnailUrl;
     @ElementCollection
     private List<String> tags;
+
+    public void update(RecruitUpdateRequestDTO request){
+        this.title = request.getTitle();
+        this.due = request.getDue();
+        this.content = request.getContent();
+        this.status = request.getStatus();
+        this.region = request.getRegion();
+        this.link = request.getLink();
+        this.tags = request.getTagList();
+        this.roles = request.getRoleList();
+        this.interviews = request.getInterviewList();
+    }
 }
