@@ -12,6 +12,6 @@ public class TeamMemberDto {
     public TeamMemberDto(TeamUser teamUser) {
         this.id = teamUser.getUserId();
         this.name = teamUser.getUser().getName();
-        this.role = teamUser.getTeamUserRoleType().getValue();
+        this.role = teamUser.getRole().toString();
     }
 }

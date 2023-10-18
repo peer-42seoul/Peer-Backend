@@ -13,12 +13,12 @@ public class TeamListResponse {
         this.id = team.getId().toString();
         this.name = team.getName();
         this.dueTo = team.getDueTo();
-        this.status = team.getStatus().getValue();
-        this.role = teamUser.getTeamUserRoleType().getValue();
-        this.type = team.getType().getValue();
+        this.status = team.getStatus().toString();
+        this.role = teamUser.getRole().toString();
+        this.type = team.getType().toString();
         this.teamCount = String.format(team.getTeamUsers().size() + " / " + team.getMaxMember());
         this.region = team.getRegion1();
-        this.operationFormat = team.getOperationFormat().getValue();
+        this.operationFormat = team.getOperationFormat().toString();
     }
 
     private String id;

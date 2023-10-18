@@ -9,11 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.team.*;
 import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.exception.BadRequestException;
 import peer.backend.service.team.TeamService;
 
 import javax.validation.Valid;
@@ -36,7 +36,6 @@ public class TeamController {
 
     @GetMapping("/setting/{teamId}")
     public TeamSettingDto getTeamSetting(@PathVariable() Long teamId, Principal principal) {
-        principal.getName(); // Email
         return this.teamService.getTeamSetting(teamId, principal.getName());
     }
 
@@ -53,9 +52,14 @@ public class TeamController {
     }
 
     @PostMapping("/grant/{teamId}")
-    public ResponseEntity<?> grantRole(@PathVariable() Long teamId, @RequestParam("userId") Long userId, @RequestParam("role") TeamUserRoleType teamUserRoleType, Principal principal) {
-        this.teamService.grantRole(teamId, userId, principal.getName(), teamUserRoleType);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> grantRole(@PathVariable() Long teamId, @RequestParam("userId") Long userId, @RequestParam("role") String teamUserRoleType, Principal principal) {
+        try {
+            TeamUserRoleType teamUserRoleType1 = TeamUserRoleType.valueOf(teamUserRoleType.toUpperCase());
+            this.teamService.grantRole(teamId, userId, principal.getName(), teamUserRoleType1);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("잘못된 권한입니다.");
+        }
     }
 
     @DeleteMapping("/exit")
@@ -63,6 +67,11 @@ public class TeamController {
         this.teamService.exitTeam(teamId, principal.getName());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+//    @GetMapping("/applicant/{teamId}")
+//    public List<TeamApplicantDto> getTeamApplicant(@PathVariable() Long teamId, Principal principal) {
+//        return this.teamService.getTeamApplicant(teamId, principal.getName());
+//    }
 
 /*
     @ApiOperation(value = "C-MYPAGE-49", notes = "팀 아이디로 세부 정보를 가져옵니다.")

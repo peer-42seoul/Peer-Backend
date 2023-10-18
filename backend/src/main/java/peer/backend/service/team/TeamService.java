@@ -57,15 +57,15 @@ public class TeamService {
     @Transactional
     public TeamSettingDto getTeamSetting(Long teamId, String email) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        TeamUser teamUser = getTeamUserByEmail(teamId, email);
+        TeamUser teamUser = getTeamUserByName(teamId, email);
         return new TeamSettingDto(team);
     }
 
     @Transactional
-    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, String userEmail) {
+    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, String userName) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) &&
-            getTeamUserByEmail(teamId, userEmail).getTeamUserRoleType() == TeamUserRoleType.LEADER) {
+            getTeamUserByName(teamId, userName).getRole() == TeamUserRoleType.LEADER) {
             team.update(teamSettingInfoDto);
         } else {
             throw new ForbiddenException("팀장이 아니거나 팀 아이디가 일치하지 않습니다.");
@@ -73,11 +73,11 @@ public class TeamService {
     }
 
     @Transactional
-    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, String deletingToUserId, String userEmail) {
-        if (deletingToUserId.equals(userRepository.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId().toString())) {
+    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, String deletingToUserId, String userName) {
+        if (deletingToUserId.equals(userRepository.findByName(userName).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId().toString())) {
             throw new ForbiddenException("자기 자신을 팀에서 추방할 수 없습니다.");
         }
-        TeamUser teamUser = getTeamUserByEmail(teamId, userEmail);
+        TeamUser teamUser = getTeamUserByName(teamId, userName);
         Team team = teamUser.getTeam();
         boolean isRemoved = team.deleteTeamUser(Long.parseLong(deletingToUserId));
         if (!isRemoved) {
@@ -87,16 +87,16 @@ public class TeamService {
     }
 
     @Transactional
-    public void grantRole(Long teamId, Long grantingUserId, String userEmail, TeamUserRoleType teamUserRoleType) {
-        TeamUser teamUser = getTeamUserByEmail(teamId, userEmail);
+    public void grantRole(Long teamId, Long grantingUserId, String userName, TeamUserRoleType teamUserRoleType) {
+        TeamUser teamUser = getTeamUserByName(teamId, userName);
         Team team = teamUser.getTeam();
         team.grantLeaderPermission(grantingUserId, teamUserRoleType);
     }
 
     @Transactional
-    public void exitTeam(Long teamId, String userEmail) {
+    public void exitTeam(Long teamId, String userName) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        TeamUser teamUser = getTeamUserByEmail(teamId, userEmail);
+        TeamUser teamUser = getTeamUserByName(teamId, userName);
         if (!team.deleteTeamUser(teamUser.getUserId())) {
             throw new NotFoundException("탈퇴할 수 없습니다.");
         } else {
@@ -134,9 +134,9 @@ public class TeamService {
 //        this.teamUserRepository.deleteByUserIdAndTeamId(userId, teamId);
 //    }
 
-    private TeamUser getTeamUserByEmail(Long teamId, String email) throws NotFoundException, ForbiddenException {
-        TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId(), teamId);
-        if (teamUser.getTeamUserRoleType() != TeamUserRoleType.LEADER) {
+    private TeamUser getTeamUserByName(Long teamId, String userName) throws NotFoundException, ForbiddenException {
+        TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(this.userRepository.findByName(userName).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId(), teamId);
+        if (teamUser.getRole() != TeamUserRoleType.LEADER) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
         return teamUser;

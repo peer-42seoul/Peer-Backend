@@ -42,9 +42,9 @@ public class TeamUser {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TeamUserRoleType teamUserRoleType;
+    private TeamUserRoleType role;
 
     public void grantLeader(TeamUserRoleType teamUserRoleType) {
-        this.teamUserRoleType = teamUserRoleType;
+        this.role = teamUserRoleType;
     }
 }

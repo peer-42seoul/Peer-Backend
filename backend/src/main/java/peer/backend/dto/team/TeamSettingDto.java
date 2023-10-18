@@ -25,9 +25,9 @@ public class TeamSettingDto {
         this.id = team.getId().toString();
         this.name = team.getName();
         this.dueTo = team.getDueTo();
-        this.status = team.getStatus().getValue();
-        this.operationForm = team.getOperationFormat().getValue();
-        this.type = team.getType().getValue();
+        this.status = team.getStatus().toString();
+        this.operationForm = team.getOperationFormat().toString();
+        this.type = team.getType().toString();
         this.region = new String[]{
                 team.getRegion1(),
                 team.getRegion2(),
