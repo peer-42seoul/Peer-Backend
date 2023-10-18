@@ -8,7 +8,10 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.board.recruit.enums.RecruitPlace;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.board.recruit.enums.RecruitType;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamType;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -33,7 +36,7 @@ public class Recruit {
 
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitApplicant> applicants = new ArrayList<>();
-    @OneToMany
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitRole> roles;
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitInterview> interviews;
@@ -47,20 +50,19 @@ public class Recruit {
     @Column
     private String due;
     @Column
-    private String conent;
+    private String content;
     @Column
     private String region;
     @Column
     private String link;
     @Enumerated(EnumType.STRING)
-    private RecruitPlace place;
+    private TeamType type;
+    @Enumerated(EnumType.STRING)
+    private TeamOperationFormat place;
     @Enumerated(EnumType.STRING)
     private RecruitStatus status;
-    @ElementCollection
-    private List<String> schedule;
     @Column
     private String thumbnailUrl;
     @ElementCollection
     private List<String> tags;
-
 }

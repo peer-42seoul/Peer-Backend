@@ -30,8 +30,6 @@ public class RecruitInterview {
     private String question;
     @Enumerated(EnumType.STRING)
     private RecruitInterviewType type;
-//    질문
-    @OneToMany(mappedBy = "recruitInterview", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecruitInterviewOption> options;
-
+    @ElementCollection
+    private List<String> options;
 }
