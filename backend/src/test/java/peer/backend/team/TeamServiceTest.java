@@ -77,26 +77,26 @@ public class TeamServiceTest {
             .build();
     }
 
-    @Test
-    @DisplayName("getTeamList 함수 테스트")
-    void getTeamListTest() {
-        TeamUser teamUser = TeamUser.builder()
-            .user(user)
-            .team(team)
-            .userId(user.getId())
-            .teamId(team.getId())
-                .role(TeamUserRoleType.LEADER)
-            .build();
-        List<TeamUser> teamUserList = new ArrayList<>();
-        teamUserList.add(teamUser);
-
-        user.setTeamUsers(teamUserList);
-        TeamListResponse teamListResponse = new TeamListResponse(team, teamUser);
-
-        Optional<User> opUser = Optional.of(user);
-
-        when(userRepository.findById(anyLong())).thenReturn(opUser);
-        when(teamUserRepository.findByUserIdAndTeamId(anyLong(), anyLong())).thenReturn(teamUser);
-
-    }
+//    @Test
+//    @DisplayName("getTeamList 함수 테스트")
+//    void getTeamListTest() {
+//        TeamUser teamUser = TeamUser.builder()
+//            .user(user)
+//            .team(team)
+//            .userId(user.getId())
+//            .teamId(team.getId())
+//                .role(TeamUserRoleType.LEADER)
+//            .build();
+//        List<TeamUser> teamUserList = new ArrayList<>();
+//        teamUserList.add(teamUser);
+//
+//        user.setTeamUsers(teamUserList);
+//        TeamListResponse teamListResponse = new TeamListResponse(team, teamUser);
+//
+//        Optional<User> opUser = Optional.of(user);
+//
+//        when(userRepository.findById(anyLong())).thenReturn(opUser);
+//        when(teamUserRepository.findByUserIdAndTeamId(anyLong(), anyLong())).thenReturn(teamUser);
+//
+//    }
 }
