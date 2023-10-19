@@ -42,22 +42,24 @@ public class FavoriteService {
         );
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
-        for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
-            Recruit recruit = recruitFavorite.getRecruit();
-            String teamType = recruit.getTeam().getType().getValue();
-            if (teamType.equals(type)) {
-                User leader = getLeader(recruit);
-                FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                        .postId(recruit.getId())
-                        .title(recruit.getTitle())
-                        .image(recruit.getThumbnailUrl())
-                        .userId(leader != null ? leader.getId() : -1)
-                        .userNickname(leader != null ? leader.getNickname() : null)
-                        .userImage(leader != null ? leader.getImageUrl() : null)
-                        .status(recruit.getStatus().getStatus())
-                        .tagList(recruit.getTags())
-                        .build();
-                favoriteResponseList.add(favoriteResponse);
+        if (recruitFavoriteList != null) {
+            for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
+                Recruit recruit = recruitFavorite.getRecruit();
+                String teamType = recruit.getTeam().getType().getValue();
+                if (teamType.equals(type)) {
+                    User leader = getLeader(recruit);
+                    FavoriteResponse favoriteResponse = FavoriteResponse.builder()
+                            .postId(recruit.getId())
+                            .title(recruit.getTitle())
+                            .image(recruit.getThumbnailUrl())
+                            .userId(leader != null ? leader.getId() : -1)
+                            .userNickname(leader != null ? leader.getNickname() : null)
+                            .userImage(leader != null ? leader.getImageUrl() : null)
+                            .status(recruit.getStatus().getStatus())
+                            .tagList(recruit.getTags())
+                            .build();
+                    favoriteResponseList.add(favoriteResponse);
+                }
             }
         }
         return new PageImpl<> (favoriteResponseList, pageable, favoriteResponseList.size());
