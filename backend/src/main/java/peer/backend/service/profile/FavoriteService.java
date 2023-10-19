@@ -1,0 +1,81 @@
+package peer.backend.service.profile;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import peer.backend.dto.profile.FavoriteResponse;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.user.User;
+import peer.backend.exception.NotFoundException;
+import peer.backend.repository.user.UserRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class FavoriteService {
+    private final UserRepository userRepository;
+
+    private User getLeader(Recruit recruit) {
+        List<TeamUser> teamUserList = recruit.getTeam().getTeamUsers();
+        for (TeamUser teamUser : teamUserList) {
+            if (teamUser.getRole().equals(TeamUserRoleType.LEADER)) {
+                return teamUser.getUser();
+            }
+        }
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<FavoriteResponse> getFavorite(String name, String type, int pageIndex, int pageSize) {
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        User user = userRepository.findByName(name).orElseThrow(
+                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
+        );
+        List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
+        List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
+        for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
+            Recruit recruit = recruitFavorite.getRecruit();
+            String teamType = recruit.getTeam().getType().getValue();
+            if (teamType.equals(type)) {
+                User leader = getLeader(recruit);
+                FavoriteResponse favoriteResponse = FavoriteResponse.builder()
+                        .postId(recruit.getId())
+                        .title(recruit.getTitle())
+                        .image(recruit.getThumbnailUrl())
+                        .userId(leader != null ? leader.getId() : -1)
+                        .userNickname(leader != null ? leader.getNickname() : null)
+                        .userImage(leader != null ? leader.getImageUrl() : null)
+                        .status(recruit.getStatus().getStatus())
+                        .tagList(recruit.getTags())
+                        .build();
+                favoriteResponseList.add(favoriteResponse);
+            }
+        }
+        return new PageImpl<> (favoriteResponseList, pageable, favoriteResponseList.size());
+    }
+
+    @Transactional
+    public void deleteAll(String name, String type) {
+        User user = userRepository.findByName(name).orElseThrow(
+                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
+        );
+        List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
+        for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
+            Recruit recruit = recruitFavorite.getRecruit();
+            String teamType = recruit.getTeam().getType().getValue();
+            if (teamType.equals(type)) {
+                recruitFavoriteList.remove(recruitFavorite);
+            }
+        }
+        userRepository.save(user);
+    }
+}
