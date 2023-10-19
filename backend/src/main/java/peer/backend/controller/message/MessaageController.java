@@ -2,6 +2,7 @@ package peer.backend.controller.message;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.xwpf.usermodel.IBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -72,11 +73,12 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 넣은 키워드에 반응하여 해당하는 사용자를 호출합니다.")
     @PostMapping("/searching")
-    public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Authentication data, @RequestBody String keyword) {
+    public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Authentication data, @RequestBody KeywordDTO keyword) {
+        System.out.println(keyword.getKeyword());
         AsyncResult<List<LetterTargetDTO>> wrappedRet= new AsyncResult<>();
         List<LetterTargetDTO> ret;
         try {
-            this.messageMainService.findUserListByUserNickname(keyword).get();
+            wrappedRet = this.messageMainService.findUserListByUserNickname(keyword).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
@@ -88,7 +90,8 @@ public class MessaageController {
         } catch (NullPointerException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
-        return new ResponseEntity<>(ret, HttpStatus.OK);
+        System.out.println(ret);
+        return new ResponseEntity<List<LetterTargetDTO>>(ret, HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")

@@ -97,6 +97,11 @@ public class MessageSubService {
         return query.getResultList();
     }
 
+    public List<User> executeNativeSQLQueryForUser(String sql) {
+        Query query = entityManager.createNativeQuery(sql, User.class);
+        return query.getResultList();
+    }
+
     public String makeFormattedDate(LocalDateTime value) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
         return value.format(formatter);
