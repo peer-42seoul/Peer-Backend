@@ -11,6 +11,7 @@ import peer.backend.dto.profile.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
@@ -45,7 +46,7 @@ public class FavoriteService {
         if (recruitFavoriteList != null) {
             for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
                 Recruit recruit = recruitFavorite.getRecruit();
-                String teamType = recruit.getTeam().getType().getValue();
+                String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "project" : "study";
                 if (teamType.equals(type)) {
                     User leader = getLeader(recruit);
                     FavoriteResponse favoriteResponse = FavoriteResponse.builder()
@@ -71,13 +72,15 @@ public class FavoriteService {
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
+        List<RecruitFavorite> toDelete = new ArrayList<>();
         for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
             Recruit recruit = recruitFavorite.getRecruit();
-            String teamType = recruit.getTeam().getType().getValue();
+            String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "project" : "study";
             if (teamType.equals(type)) {
-                recruitFavoriteList.remove(recruitFavorite);
+                toDelete.add(recruitFavorite);
             }
         }
+        recruitFavoriteList.removeAll(toDelete);
         userRepository.save(user);
     }
 }
