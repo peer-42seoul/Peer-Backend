@@ -29,7 +29,7 @@ public class ProfileController{
         return new ResponseEntity<> (profileService.getProfile(auth.getName()), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", notes = "사용자 프로필 닉네임 중복 확인하기.")
+    @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")
     @PostMapping("/signup/nickname") // "/membership/nickname/check" 로 테스트 진행 했음
     public ResponseEntity<Object> isExistNickname(@RequestBody NicknameResponse nickname) {
         if (profileService.isExistNickname(nickname.getNickname())) {
@@ -47,7 +47,7 @@ public class ProfileController{
                 throw new BadRequestException("링크 이름이 없습니다.");
             if (link.getLinkUrl().isBlank() || link.getLinkUrl().isEmpty())
                 throw new BadRequestException("링크 URL이 없습니다.");
-            if (link.getLinkName().length() > 20 || link.getLinkUrl().length() > 100)
+            if (link.getLinkName().length() > 20 || link.getLinkUrl().length() > 300)
                 throw new BadRequestException("링크 글자 수가 너무 많습니다.");
         }
         profileService.editLinks(auth.getName(), linkList.getLinkList());
