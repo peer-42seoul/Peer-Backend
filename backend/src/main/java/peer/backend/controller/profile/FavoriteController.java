@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.FavoriteResponse;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.profile.FavoriteService;
@@ -31,8 +32,8 @@ public class FavoriteController {
                                               @RequestParam(value = "page") int page,
                                               @RequestParam(value = "pagesize") int pageSize) {
         checkType(type);
-        Page<FavoriteResponse> pages = favoriteService.getFavorite(principal.getName(), type, page, pageSize);
-        return new ResponseEntity<> (pages, HttpStatus.OK);
+        FavoritePage ret = favoriteService.getFavorite(principal.getName(), type, page, pageSize);
+        return new ResponseEntity<> (ret, HttpStatus.OK);
     }
 
     @ApiOperation(value = "C-MYPAGE-69", notes = "관심 리스트를 전부 삭제합니다.")

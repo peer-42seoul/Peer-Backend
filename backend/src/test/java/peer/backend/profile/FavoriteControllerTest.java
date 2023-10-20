@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.controller.profile.FavoriteController;
+import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.FavoriteResponse;
 import peer.backend.entity.user.User;
 import peer.backend.service.profile.FavoriteService;
@@ -37,7 +38,7 @@ public class FavoriteControllerTest {
     private FavoriteController favoriteController;
 
     User user;
-    Page<FavoriteResponse> page;
+    FavoritePage page;
 
     private static class TestPrincipal implements Principal {
         private final User user;
@@ -82,7 +83,7 @@ public class FavoriteControllerTest {
             favoriteResponseList.add(favoriteResponse);
         }
         Pageable pageable = PageRequest.of(1, 10);
-        page = new PageImpl<>(favoriteResponseList, pageable, favoriteResponseList.size());
+        page = new FavoritePage(favoriteResponseList, pageable);
         testPrincipal = new TestPrincipal(user);
     }
 

@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
@@ -107,7 +108,7 @@ public class FavoriteServiceTest {
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
         when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        Page<FavoriteResponse> ret = favoriteService.getFavorite(name, "project", 0, 10);
+        FavoritePage ret = favoriteService.getFavorite(name, "project", 0, 10);
         String json = null;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -137,15 +138,15 @@ public class FavoriteServiceTest {
                 favoriteResponseList.add(favoriteResponse);
             }
         }
-        for(int index = 0; index < ret.getContent().size(); index++) {
-            assertThat(ret.getContent().get(index).getPostId()).isEqualTo(favoriteResponseList.get(index).getPostId());
-            assertThat(ret.getContent().get(index).getTitle()).isEqualTo(favoriteResponseList.get(index).getTitle());
-            assertThat(ret.getContent().get(index).getImage()).isEqualTo(favoriteResponseList.get(index).getImage());
-            assertThat(ret.getContent().get(index).getUserId()).isEqualTo(favoriteResponseList.get(index).getUserId());
-            assertThat(ret.getContent().get(index).getUserNickname()).isEqualTo(favoriteResponseList.get(index).getUserNickname());
-            assertThat(ret.getContent().get(index).getUserImage()).isEqualTo(favoriteResponseList.get(index).getUserImage());
-            assertThat(ret.getContent().get(index).getTagList()).isEqualTo(favoriteResponseList.get(index).getTagList());
-            assertThat(ret.getContent().get(index).isFavorite()).isEqualTo(favoriteResponseList.get(index).isFavorite());
+        for(int index = 0; index < ret.getPostList().size(); index++) {
+            assertThat(ret.getPostList().get(index).getPostId()).isEqualTo(favoriteResponseList.get(index).getPostId());
+            assertThat(ret.getPostList().get(index).getTitle()).isEqualTo(favoriteResponseList.get(index).getTitle());
+            assertThat(ret.getPostList().get(index).getImage()).isEqualTo(favoriteResponseList.get(index).getImage());
+            assertThat(ret.getPostList().get(index).getUserId()).isEqualTo(favoriteResponseList.get(index).getUserId());
+            assertThat(ret.getPostList().get(index).getUserNickname()).isEqualTo(favoriteResponseList.get(index).getUserNickname());
+            assertThat(ret.getPostList().get(index).getUserImage()).isEqualTo(favoriteResponseList.get(index).getUserImage());
+            assertThat(ret.getPostList().get(index).getTagList()).isEqualTo(favoriteResponseList.get(index).getTagList());
+            assertThat(ret.getPostList().get(index).isFavorite()).isEqualTo(favoriteResponseList.get(index).isFavorite());
         }
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
@@ -36,7 +37,7 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FavoriteResponse> getFavorite(String name, String type, int pageIndex, int pageSize) {
+    public FavoritePage getFavorite(String name, String type, int pageIndex, int pageSize) {
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
@@ -63,7 +64,7 @@ public class FavoriteService {
                 }
             }
         }
-        return new PageImpl<> (favoriteResponseList, pageable, favoriteResponseList.size());
+        return new FavoritePage(favoriteResponseList, pageable);
     }
 
     @Transactional
