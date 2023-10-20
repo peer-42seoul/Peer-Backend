@@ -1,13 +1,6 @@
 package peer.backend.profile;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,15 +8,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
+import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
-import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.ProfileService;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Test ProfileServiceTest")
@@ -31,17 +37,18 @@ class ProfileServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private UserLinkRepository userLinkRepository;
+    private Tika tika;
     @InjectMocks
     private ProfileService profileService;
 
     String email;
     String nickname;
     String name;
+    String imagePath;
     List<UserLink> linkList = new ArrayList<>();
     User user;
     @BeforeEach
-    void beforeEach() {
+    void beforeEach() throws FileNotFoundException {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         email = "test@email.com";
         nickname = "test nickname";
@@ -62,6 +69,7 @@ class ProfileServiceTest {
                 .company("test company")
                 .userLinks(linkList)
                 .build();
+        imagePath = "src/test/java/peer/backend/profile/image";
     }
 
     @Test
@@ -118,5 +126,50 @@ class ProfileServiceTest {
         info.add("profileImageUrl");
         ret = profileService.getOtherProfile(user.getId(), info);
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
+    }
+
+    @Test
+    @DisplayName("Edit profile Test")
+    void editProfileTest() throws IOException {
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        when(tika.detect(any(InputStream.class))).thenReturn("image");
+        // 없는 상태 에서 추가
+        FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");
+        MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", fileInputStream);
+        EditProfileRequest profile = EditProfileRequest.builder()
+                .profileImage(multipartFile)
+                .imageChange(false)
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduce())
+                .build();
+        profileService.editProfile(user.getName(), profile);
+        assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
+        // 있는 상태 에서 변경
+        fileInputStream = new FileInputStream(imagePath + "/test2.png");
+        multipartFile = new MockMultipartFile("test2", "test2.png", "image", fileInputStream);
+        profile = EditProfileRequest.builder()
+                .profileImage(multipartFile)
+                .imageChange(false)
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduce())
+                .build();
+        profileService.editProfile(user.getName(), profile);
+        assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
+        // 있는 상태 에서 변경 하지 않음
+        profile = EditProfileRequest.builder()
+                .imageChange(false)
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduce())
+                .build();
+        profileService.editProfile(user.getName(), profile);
+        assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
+        // 삭제
+        profile = EditProfileRequest.builder()
+                .imageChange(true)
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduce())
+                .build();
+        profileService.editProfile(user.getName(), profile);
+        assertThat(user.getImageUrl()).isNull();
     }
 }
