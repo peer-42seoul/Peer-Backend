@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
@@ -18,6 +17,7 @@ import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.ProfileService;
 
@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +46,7 @@ class ProfileServiceTest {
     String imagePath;
     List<UserLink> linkList = new ArrayList<>();
     User user;
+    PrincipalDetails principal;
     @BeforeEach
     void beforeEach() throws FileNotFoundException {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -70,6 +70,7 @@ class ProfileServiceTest {
                 .userLinks(linkList)
                 .build();
         imagePath = "src/test/java/peer/backend/profile/image";
+        principal = new PrincipalDetails(user);
     }
 
     @Test
@@ -131,7 +132,7 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Edit profile Test")
     void editProfileTest() throws IOException {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        //when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(tika.detect(any(InputStream.class))).thenReturn("image");
         // 없는 상태 에서 추가
         FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");
@@ -142,7 +143,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user.getName(), profile);
+        profileService.editProfile(principal, profile);
         assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
         // 있는 상태 에서 변경
         fileInputStream = new FileInputStream(imagePath + "/test2.png");
@@ -153,7 +154,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user.getName(), profile);
+        profileService.editProfile(principal, profile);
         assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
         // 있는 상태 에서 변경 하지 않음
         profile = EditProfileRequest.builder()
@@ -161,7 +162,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user.getName(), profile);
+        profileService.editProfile(principal, profile);
         assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
         // 삭제
         profile = EditProfileRequest.builder()
@@ -169,7 +170,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user.getName(), profile);
+        profileService.editProfile(principal, profile);
         assertThat(user.getImageUrl()).isNull();
     }
 }

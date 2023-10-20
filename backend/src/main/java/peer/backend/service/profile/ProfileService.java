@@ -13,6 +13,7 @@ import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 
@@ -151,10 +152,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editProfile(String name, EditProfileRequest profile) throws IOException {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+    public void editProfile(PrincipalDetails principal, EditProfileRequest profile) throws IOException {
+        User user = principal.getUser();
         if (profile.getProfileImage() == null && profile.isImageChange()) {
             deleteUserImage(user);
         }

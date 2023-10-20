@@ -14,9 +14,11 @@ import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.exception.BadRequestException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -77,14 +79,14 @@ public class ProfileController{
 
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
     @PutMapping("/profile/introduction/edit")
-    public ResponseEntity<Object> editProfile(Authentication auth, @RequestBody EditProfileRequest profile) throws IOException {
+    public ResponseEntity<Object> editProfile(Principal principal, @RequestBody EditProfileRequest profile) throws IOException {
         if (profile.getIntroduction().length() > 150) {
             throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
         }
         if (profile.getNickname().length() > 7) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        profileService.editProfile(auth.getName(), profile);
+        profileService.editProfile((PrincipalDetails) principal, profile);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }
