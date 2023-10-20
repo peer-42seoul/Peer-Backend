@@ -1,8 +1,8 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +32,8 @@ public class ProfileService {
     private final UserLinkRepository userLinkRepository;
     private final Tika tika;
 
-    private String filepath = "/Users/juhyelee";
+    @Value("${custom.filePath}")
+    private String filepath;
 
     private void deleteUserImage(User user) throws IOException {
         String imagePath = user.getImageUrl();

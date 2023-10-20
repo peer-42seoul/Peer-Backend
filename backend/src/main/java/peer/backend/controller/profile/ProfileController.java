@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
@@ -19,7 +18,6 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -86,7 +84,13 @@ public class ProfileController{
         if (profile.getIntroduction().length() > 150) {
             throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
         }
-        if (profile.getNickname().length() > 7) {
+        if (profile.getNickname().isEmpty()) {
+            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
+        }
+        if (profile.getNickname().isBlank()) {
+            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
+        }
+        if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
