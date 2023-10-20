@@ -152,7 +152,9 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(principal, profile);
-        String imageUrl = user.getImageUrl().substring(52);
+        String imageUrl = user.getImageUrl();
+        int index = imageUrl.indexOf("/backend/");
+        imageUrl = imageUrl.substring(index + 9);
         assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
         // 있는 상태 에서 변경
         fileInputStream = new FileInputStream(imagePath + "/test2.png");
@@ -164,7 +166,9 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(principal, profile);
-        imageUrl = user.getImageUrl().substring(52);
+        imageUrl = user.getImageUrl();
+        index = imageUrl.indexOf("/backend/");
+        imageUrl = imageUrl.substring(index + 9);
         assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
         // 있는 상태 에서 변경 하지 않음
         MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
@@ -175,7 +179,9 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(principal, profile);
-        imageUrl = user.getImageUrl().substring(52);
+        imageUrl = user.getImageUrl();
+        index = imageUrl.indexOf("/backend/");
+        imageUrl = imageUrl.substring(index + 9);
         assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
         // 삭제
         profile = EditProfileRequest.builder()
