@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.user.User;
@@ -18,7 +19,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @IdClass(RecruitApplicantPK.class)
 @Table(name = "recruit_applicant")
-public class RecruitApplicant {
+public class RecruitApplicant extends BaseEntity {
     @Id
     @Column(name = "user_id")
     private Long userId;

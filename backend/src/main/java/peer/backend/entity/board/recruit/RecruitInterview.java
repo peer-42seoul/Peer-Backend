@@ -23,7 +23,7 @@ public class RecruitInterview {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recurit_id")
+    @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
     @Column(nullable = false, length = 255)

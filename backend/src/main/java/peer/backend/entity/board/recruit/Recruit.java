@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.team.UpdateTeamRequest;
-import peer.backend.entity.board.recruit.enums.RecruitPlace;
+import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
-import peer.backend.entity.board.recruit.enums.RecruitType;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
@@ -27,25 +25,28 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
 @Table(name = "Recruit")
-public class Recruit {
+public class Recruit extends BaseEntity {
     @Id
-    @Column(name="recruite_id")
+    @Column(name = "recruit_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
-    @MapsId
+    @JoinColumn(name = "team_id")
     private Team team;
 
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<RecruitFavorite> favorites = new ArrayList<>();
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitApplicant> applicants = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecruitRole> roles;
+    private List<RecruitRole> roles = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecruitInterview> interviews;
+    private List<RecruitInterview> interviews = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecruitFile> files;
+    private List<RecruitFile> files = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecruitAnswer> answers;
+    private List<RecruitAnswer> answers = new ArrayList<>();
 
     @Column
     private String title;
@@ -67,6 +68,10 @@ public class Recruit {
     private String thumbnailUrl;
     @ElementCollection
     private List<String> tags;
+    @Column
+    private Long writerId;
+
+
 
     public void update(RecruitUpdateRequestDTO request){
         this.title = request.getTitle();
@@ -75,8 +80,28 @@ public class Recruit {
         this.status = request.getStatus();
         this.region = request.getRegion();
         this.link = request.getLink();
+        this.tags.clear();
         this.tags = request.getTagList();
-        this.roles = request.getRoleList();
-        this.interviews = request.getInterviewList();
+        this.interviews.clear();
+        if (!request.getInterviewList().isEmpty()) {
+            for (RecruitInterview interview : request.getInterviewList()) {
+                this.addInterview(interview);
+            }
+        }
+        this.roles.clear();
+        if (!request.getInterviewList().isEmpty()) {
+            for (RecruitRole role : request.getRoleList()) {
+                this.addRole(role);
+            }
+        }
+    }
+
+    public void addInterview(RecruitInterview interview) {
+        this.interviews.add(interview);
+        interview.setRecruit(this);
+    }
+    public void addRole(RecruitRole role) {
+        this.roles.add(role);
+        role.setRecruit(this);
     }
 }
