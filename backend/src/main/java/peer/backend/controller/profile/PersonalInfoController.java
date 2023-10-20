@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import peer.backend.dto.profile.PasswordRequest;
+import peer.backend.dto.profile.request.PasswordRequest;
 import peer.backend.service.profile.PersonalInfoService;
 
 @Controller

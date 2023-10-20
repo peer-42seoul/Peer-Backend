@@ -1,9 +1,10 @@
-package peer.backend.dto.profile;
+package peer.backend.dto.profile.request;
 
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import peer.backend.dto.profile.request.UserLinkDTO;
 import peer.backend.entity.user.UserLink;
 
 @Getter
