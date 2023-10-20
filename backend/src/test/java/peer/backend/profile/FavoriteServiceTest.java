@@ -21,6 +21,7 @@ import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.FavoriteService;
 
@@ -44,6 +45,7 @@ public class FavoriteServiceTest {
     User user;
     List<RecruitFavorite> recruitFavoriteList;
     List<TeamUser> teamUserList;
+    PrincipalDetails principalDetails;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -102,13 +104,13 @@ public class FavoriteServiceTest {
             recruitFavoriteList.add(recruitFavorite);
         }
         user.setRecruitFavorites(recruitFavoriteList);
+        principalDetails = new PrincipalDetails(user);
     }
 
     @Test
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        FavoritePage ret = favoriteService.getFavorite(name, "project", 0, 10);
+        FavoritePage ret = favoriteService.getFavorite(principalDetails, "project", 0, 10);
         String json = null;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -153,8 +155,7 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("Test delete all")
     public void deleteAllTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        favoriteService.deleteAll(name, "project");
+        favoriteService.deleteAll(principalDetails, "project");
         assertThat(user.getRecruitFavorites().size()).isEqualTo(1);
     }
 }

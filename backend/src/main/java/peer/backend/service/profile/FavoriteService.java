@@ -16,6 +16,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -37,11 +38,9 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public FavoritePage getFavorite(String name, String type, int pageIndex, int pageSize) {
+    public FavoritePage getFavorite(PrincipalDetails principalDetails, String type, int pageIndex, int pageSize) {
+        User user = principalDetails.getUser();
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
         if (recruitFavoriteList != null) {
@@ -68,10 +67,8 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteAll(String name, String type) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public void deleteAll(PrincipalDetails principalDetails, String type) {
+        User user = principalDetails.getUser();
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<RecruitFavorite> toDelete = new ArrayList<>();
         for (RecruitFavorite recruitFavorite : recruitFavoriteList) {

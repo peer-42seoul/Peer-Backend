@@ -3,61 +3,60 @@ package peer.backend.profile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import peer.backend.config.jwt.TokenProvider;
 import peer.backend.controller.profile.FavoriteController;
 import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.FavoriteResponse;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.FavoriteService;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 @DisplayName("Test FavoriteController")
 public class FavoriteControllerTest {
+
+    MockMvc mvc;
+    @Autowired
+    TokenProvider tokenProvider;
     @Mock
-    private FavoriteService favoriteService;
+    FavoriteService favoriteService;
     @InjectMocks
-    private FavoriteController favoriteController;
-
+    FavoriteController favoriteController;
     User user;
-    FavoritePage page;
-
-    private static class TestPrincipal implements Principal {
-        private final User user;
-
-        public TestPrincipal(User user) {
-            this.user = user;
-        }
-
-        @Override
-        public String getName() {
-            return user.getName();
-        }
-    }
-
-    TestPrincipal testPrincipal;
+    PrincipalDetails principalDetails;
+    FavoritePage favoritePage;
 
     @BeforeEach
     @Transactional
     void beforeEach() {
+        mvc = standaloneSetup(favoriteController).build();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         user = User.builder()
                 .id(20L)
@@ -69,36 +68,103 @@ public class FavoriteControllerTest {
                 .address("test address")
                 .imageUrl("test image URL")
                 .build();
-        List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
-        for (int index = 0; index < 3; index++) {
-            FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                    .postId((long)index + 1)
-                    .title("test title " + index)
-                    .image("test image " + index)
-                    .userId((long)index * 4)
-                    .userNickname("test nickname " + index * 4)
-                    .userImage("test image " + index * 4)
-                    .isFavorite(true)
+        principalDetails = new PrincipalDetails(user);
+        List<TeamUser> teamUserList = new ArrayList<>();
+        for (int index = 0; index < 12; index++) {
+            User newUser = User.builder()
+                    .id((long)index + 1)
+                    .name("test " + index)
+                    .nickname("test " + index)
+                    .imageUrl("test " + index)
                     .build();
-            favoriteResponseList.add(favoriteResponse);
+            TeamUser teamUser = TeamUser.builder()
+                    .user(newUser)
+                    .role(index % 4 == 0 ? TeamUserRoleType.LEADER : TeamUserRoleType.MEMBER)
+                    .build();
+            teamUserList.add(teamUser);
         }
-        Pageable pageable = PageRequest.of(1, 10);
-        page = new FavoritePage(favoriteResponseList, pageable);
-        testPrincipal = new TestPrincipal(user);
+        List<RecruitFavorite> recruitFavoriteList = new ArrayList<>();
+        for (int index = 0; index < 3; index++) {
+            Team team = Team.builder()
+                    .teamUsers(teamUserList.subList(index * 4, index * 4 + 3))
+                    .type(index % 2 == 0 ? TeamType.PROJECT : TeamType.STUDY)
+                    .build();
+            RecruitStatus status;
+            if (index == 0) {
+                status = RecruitStatus.BEFORE;
+            }
+            else if (index == 1) {
+                status = RecruitStatus.ONGOING;
+            }
+            else {
+                status = RecruitStatus.DONE;
+            }
+            Recruit recruit = Recruit.builder()
+                    .id((long)index + 1)
+                    .team(team)
+                    .title("test title " + index)
+                    .link("test link " + index)
+                    .thumbnailUrl("test image " + index)
+                    .status(status)
+                    .build();
+            RecruitFavorite recruitFavorite = new RecruitFavorite(
+                    user.getId(), recruit.getId(), user, recruit, true
+            );
+            recruitFavoriteList.add(recruitFavorite);
+        }
+        List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
+        for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
+            Recruit recruit = recruitFavorite.getRecruit();
+            User leader = null;
+            for (TeamUser teamUser : recruit.getTeam().getTeamUsers()) {
+                if (teamUser.getRole().equals(TeamUserRoleType.LEADER))
+                    leader = teamUser.getUser();
+            }
+            if (recruit.getTeam().getType().equals(TeamType.PROJECT)) {
+                FavoriteResponse favoriteResponse = FavoriteResponse.builder()
+                        .postId(recruit.getId())
+                        .title(recruit.getTitle())
+                        .image(recruit.getThumbnailUrl())
+                        .userId(leader != null ? leader.getId() : -1)
+                        .userNickname(leader != null ? leader.getNickname() : null)
+                        .userImage(leader != null ? leader.getImageUrl() : null)
+                        .tagList(recruit.getTags())
+                        .build();
+                favoriteResponseList.add(favoriteResponse);
+            }
+        }
+        favoritePage = new FavoritePage(favoriteResponseList, PageRequest.of(1, 10));
     }
 
     @Test
     @DisplayName("Test getFavorite")
-    public void getFavoriteTest() {
-        when(favoriteService.getFavorite(anyString(), anyString(), anyInt(), anyInt())).thenReturn(page);
-        ResponseEntity<Object> ret = favoriteController.getFavorite(testPrincipal, "project", 1, 10);
-        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+    public void getFavoriteTest() throws Exception {
+        // given
+        String jwt = tokenProvider.createAccessToken(user);
+        // when
+        when(favoriteService.getFavorite(any(PrincipalDetails.class), anyString(), anyInt(), anyInt())).thenReturn(favoritePage);
+        // then
+        mvc.perform(get("/api/v1/recruit/favorite")
+                        .with(SecurityMockMvcRequestPostProcessors.user(principalDetails))
+                        .header("Authorization", "Bearer " + jwt)
+                        .param("type", "study")
+                        .param("page", String.valueOf(1))
+                        .param("pagesize", String.valueOf(10)))
+                .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Test deleteAll")
-    public void deleteAllTest() {
-        ResponseEntity<Object> ret = favoriteController.deleteAll(testPrincipal, "study");
-        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    public void deleteAllTest() throws Exception {
+        // given
+        String jwt = tokenProvider.createAccessToken(user);
+        // when
+        // then
+        mvc.perform(get("/api/v1/recruit/favorite")
+                        .with(SecurityMockMvcRequestPostProcessors.user(principalDetails))
+                        .header("Authorization", "Bearer " + jwt)
+                        .param("type", "study")
+                )
+                .andExpect(status().isCreated());
     }
 }
