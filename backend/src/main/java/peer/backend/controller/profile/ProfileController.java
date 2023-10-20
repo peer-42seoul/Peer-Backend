@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
-import peer.backend.dto.profile.request.UserLinkDTO;
-import peer.backend.dto.profile.response.OtherProfileDto;
+import peer.backend.dto.profile.request.UserLinkRequest;
+import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.exception.BadRequestException;
@@ -43,8 +43,8 @@ public class ProfileController{
     @ApiOperation(value = "C-MYPAGE-20", notes = "사용자 프로필 정보 링크 수정하기")
     @PutMapping("/profile/link")
     public ResponseEntity<Object> editLinks(Authentication auth, @RequestBody LinkListRequest linkList) {
-        List<UserLinkDTO> links = linkList.getLinkList();
-        for (UserLinkDTO link : links) {
+        List<UserLinkRequest> links = linkList.getLinkList();
+        for (UserLinkRequest link : links) {
             if (link.getLinkName().isBlank() || link.getLinkName().isEmpty())
                 throw new BadRequestException("링크 이름이 없습니다.");
             if (link.getLinkUrl().isBlank() || link.getLinkUrl().isEmpty())
@@ -61,7 +61,7 @@ public class ProfileController{
     public ResponseEntity<Object> getOtherProfile(Authentication auth,
                                                   @RequestParam(value = "userId", required = true) Long userId,
                                                   @RequestParam(value = "infoList", required = true)List<String> infoList) {
-        OtherProfileDto otherProfile = profileService.getOtherProfile(userId, infoList);
+        OtherProfileResponse otherProfile = profileService.getOtherProfile(userId, infoList);
         if (infoList.size() == 1) {
             if (otherProfile.getNickname() == null) {
                 OtherProfileImageUrlResponse otherUrl = new OtherProfileImageUrlResponse(otherProfile.getProfileImageUrl());

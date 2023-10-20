@@ -48,9 +48,7 @@ public class UserInfo {
             .name(this.name)
             .email(this.email)
             .nickname(this.nickname)
-            .birthday(LocalDate.parse(this.birthday))
             .isAlarm(this.isAlarm)
-            .phone(this.phone)
             .address(this.address)
             .build();
     }

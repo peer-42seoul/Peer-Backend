@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
-import peer.backend.dto.profile.request.UserLinkDTO;
-import peer.backend.dto.profile.response.OtherProfileDto;
+import peer.backend.dto.profile.request.UserLinkRequest;
+import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
@@ -83,9 +83,9 @@ public class ProfileService {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        List<UserLinkDTO> links = new ArrayList<>();
+        List<UserLinkRequest> links = new ArrayList<>();
         for (UserLink link : user.getUserLinks()) {
-            UserLinkDTO userLink = UserLinkDTO.builder()
+            UserLinkRequest userLink = UserLinkRequest.builder()
                     .linkName(link.getLinkName())
                     .linkUrl(link.getLinkUrl())
                     .build();
@@ -107,14 +107,14 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editLinks(String name, List<UserLinkDTO> links) {
+    public void editLinks(String name, List<UserLinkRequest> links) {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         userLinkRepository.deleteAll(user.getUserLinks());
         List<UserLink> newLink = user.getUserLinks();
         newLink.clear();
-        for (UserLinkDTO link : links) {
+        for (UserLinkRequest link : links) {
             UserLink userLink = UserLink.builder()
                     .user(user)
                     .linkName(link.getLinkName())
@@ -130,11 +130,11 @@ public class ProfileService {
     }
 
     @Transactional
-    public OtherProfileDto getOtherProfile(Long userId, List<String> infoList) {
+    public OtherProfileResponse getOtherProfile(Long userId, List<String> infoList) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        OtherProfileDto profile = new OtherProfileDto();
+        OtherProfileResponse profile = new OtherProfileResponse();
         for (String info : infoList) {
             switch (info) {
                 case "nickname":

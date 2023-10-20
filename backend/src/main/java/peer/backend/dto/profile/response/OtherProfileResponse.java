@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OtherProfileDto {
+public class OtherProfileResponse {
     private String profileImageUrl = null;
     private String nickname = null;
 }
