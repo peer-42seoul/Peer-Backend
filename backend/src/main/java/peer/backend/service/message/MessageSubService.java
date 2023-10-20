@@ -2,6 +2,7 @@ package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -163,4 +164,11 @@ public class MessageSubService {
         return ret;
     }
 
+    public boolean checkMessageIndexExistOrNot(long ownId, long userId) throws DataIntegrityViolationException {
+        Optional<MessageIndex> rawIndex = this.indexRepository.findByUserIdx(ownId, userId);
+        if (rawIndex.isEmpty())
+            return false;
+        else
+            throw new DataIntegrityViolationException("There is already message");
+    }
 }

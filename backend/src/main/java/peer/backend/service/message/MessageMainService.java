@@ -192,6 +192,11 @@ public class MessageMainService {
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
+        try {
+            this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
+        } catch (Exception e){
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
         User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
