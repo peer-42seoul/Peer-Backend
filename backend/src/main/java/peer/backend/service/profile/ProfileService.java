@@ -119,7 +119,9 @@ public class ProfileService {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        userLinkRepository.deleteAll(user.getUserLinks());
+        if (user.getUserLinks() != null) {
+            userLinkRepository.deleteAll(user.getUserLinks());
+        }
         List<UserLink> newLink = user.getUserLinks();
         newLink.clear();
         for (UserLinkRequest link : links) {

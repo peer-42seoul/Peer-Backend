@@ -21,6 +21,7 @@ import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.oauth.PrincipalDetails;
+import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.ProfileService;
 
@@ -38,6 +39,8 @@ import static org.mockito.Mockito.when;
 class ProfileServiceTest {
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserLinkRepository userLinkRepository;
     @Mock
     private Tika tika;
     @InjectMocks
