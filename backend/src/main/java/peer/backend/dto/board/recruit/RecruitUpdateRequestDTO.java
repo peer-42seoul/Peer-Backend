@@ -1,9 +1,6 @@
 package peer.backend.dto.Board.Recruit;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.RecruitRole;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -11,6 +8,7 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import java.util.List;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecruitUpdateRequestDTO {

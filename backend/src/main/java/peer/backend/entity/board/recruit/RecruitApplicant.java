@@ -1,20 +1,19 @@
 package peer.backend.entity.board.recruit;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(RecruitApplicantPK.class)
@@ -41,6 +40,6 @@ public class RecruitApplicant extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RecruitApplicantStatus status;
 
-    @Lob
-    private String answer;
+    @ElementCollection
+    private List<String> answerList;
 }

@@ -45,8 +45,6 @@ public class Recruit extends BaseEntity {
     private List<RecruitInterview> interviews = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitFile> files = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<RecruitAnswer> answers = new ArrayList<>();
 
     @Column
     private String title;
