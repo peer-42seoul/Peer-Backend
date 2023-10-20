@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
 import peer.backend.dto.profile.request.UserLinkDTO;
@@ -15,6 +16,7 @@ import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.profile.ProfileService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -71,5 +73,18 @@ public class ProfileController{
             }
         }
         return new ResponseEntity<> (otherProfile, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
+    @PutMapping("/profile/introduction/edit")
+    public ResponseEntity<Object> editProfile(Authentication auth, @RequestBody EditProfileRequest profile) throws IOException {
+        if (profile.getIntroduction().length() > 150) {
+            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
+        }
+        if (profile.getNickname().length() > 7) {
+            throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
+        }
+        profileService.editProfile(auth.getName(), profile);
+        return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }
