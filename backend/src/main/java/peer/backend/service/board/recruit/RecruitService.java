@@ -72,29 +72,6 @@ public class RecruitService {
         return result;
     }
 
-    private Team createTeam(User user, RecruitRequestDTO recruitRequestDTO){
-        Team team = Team.builder()
-                .name(recruitRequestDTO.getName())
-                .type(TeamType.from(recruitRequestDTO.getType()))
-                .dueTo(recruitRequestDTO.getDue())
-                .operationFormat(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
-                .status(TeamStatus.RECRUITING)
-                .teamMemberStatus(TeamMemberStatus.RECRUITING)
-                .isLock(false)
-                .region1(recruitRequestDTO.getRegion())
-                .region2(recruitRequestDTO.getRegion())
-                .region3(recruitRequestDTO.getRegion())
-                .build();
-        teamRepository.save(team);
-        // 리더 추가
-        TeamUser teamUser = TeamUser.builder()
-                .team(team)
-                .user(user)
-                .role(TeamUserRoleType.LEADER)
-                .build();
-        return team;
-    }
-
     public List<RecruitListResponce> getRecruitSearchList(Long page, Long pageSize, RecruitRequest request) {
         //TODO:다중검색 쿼리 만들어야 함.
         List<Recruit> recruits = recruitRepository.findAll();
@@ -144,6 +121,64 @@ public class RecruitService {
     }
 
 
+    private Team createTeam(User user, RecruitRequestDTO recruitRequestDTO){
+        Team team = Team.builder()
+                .name(recruitRequestDTO.getName())
+                .type(TeamType.from(recruitRequestDTO.getType()))
+                .dueTo(recruitRequestDTO.getDue())
+                .operationFormat(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
+                .status(TeamStatus.RECRUITING)
+                .teamMemberStatus(TeamMemberStatus.RECRUITING)
+                .isLock(false)
+                .region1(recruitRequestDTO.getRegion())
+                .region2(recruitRequestDTO.getRegion())
+                .region3(recruitRequestDTO.getRegion())
+                .build();
+        teamRepository.save(team);
+        // 리더 추가
+        TeamUser teamUser = TeamUser.builder()
+                .team(team)
+                .user(user)
+                .role(TeamUserRoleType.LEADER)
+                .build();
+        return team;
+    }
+
+    private void addInterviewsToRecruit(Recruit recruit, List<RecruitInterview> interviewList) {
+        if (interviewList != null && !interviewList.isEmpty()) {
+            for (RecruitInterview interview : interviewList) {
+                recruit.addInterview(interview);
+            }
+        }
+    }
+
+    private void addRolesToRecruit(Recruit recruit, List<RecruitRole> roleList) {
+        if (roleList != null && !roleList.isEmpty()) {
+            for (RecruitRole role : roleList) {
+                recruit.addRole(role);
+            }
+        }
+    }
+
+    private Recruit createRecruitFromDto(RecruitRequestDTO recruitRequestDTO, Team team){
+        Recruit recruit = Recruit.builder()
+                .team(team)
+                .type(TeamType.from(recruitRequestDTO.getType()))
+                .title(recruitRequestDTO.getTitle())
+                .due(recruitRequestDTO.getDue())
+                .link(recruitRequestDTO.getLink())
+                .content(recruitRequestDTO.getContent())
+                .place(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
+                .region(recruitRequestDTO.getRegion())
+                .tags(recruitRequestDTO.getTagList())
+                .status(RecruitStatus.ONGOING)
+                .writerId(recruitRequestDTO.getUserId())
+                .build();
+        //List 추가
+        addInterviewsToRecruit(recruit, recruitRequestDTO.getInterviewList());
+        addRolesToRecruit(recruit, recruitRequestDTO.getRoleList());
+        return recruit;
+    }
 
     @Transactional
     public void createRecruit(RecruitRequestDTO recruitRequestDTO){
@@ -160,33 +195,7 @@ public class RecruitService {
         Team team = createTeam(user, recruitRequestDTO);
 
         //모집게시글 생성
-        Recruit recruit = Recruit.builder()
-                .team(team)
-                .type(TeamType.from(recruitRequestDTO.getType()))
-                .title(recruitRequestDTO.getTitle())
-                .due(recruitRequestDTO.getDue())
-                .link(recruitRequestDTO.getLink())
-                .content(recruitRequestDTO.getContent())
-                .place(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
-                .region(recruitRequestDTO.getRegion())
-                .tags(recruitRequestDTO.getTagList())
-                .status(RecruitStatus.ONGOING)
-                .thumbnailUrl(null)
-                .interviews(new ArrayList<>())
-                .roles(new ArrayList<>())
-                .writerId(recruitRequestDTO.getUserId())
-                .build();
-        // List 추가
-        if (!recruitRequestDTO.getInterviewList().isEmpty()) {
-            for (RecruitInterview interview : recruitRequestDTO.getInterviewList()) {
-                recruit.addInterview(interview);
-            }
-        }
-        if (!recruitRequestDTO.getRoleList().isEmpty()) {
-            for (RecruitRole role : recruitRequestDTO.getRoleList()) {
-                recruit.addRole(role);
-            }
-        }
+        Recruit recruit = createRecruitFromDto(recruitRequestDTO, team);
         recruitRepository.save(recruit);
     }
 

@@ -95,10 +95,14 @@ public class Recruit extends BaseEntity {
     }
 
     public void addInterview(RecruitInterview interview) {
+        if (this.getInterviews() == null)
+            this.interviews = new ArrayList<>();
         this.interviews.add(interview);
         interview.setRecruit(this);
     }
     public void addRole(RecruitRole role) {
+        if (this.getRoles() == null)
+            this.roles = new ArrayList<>();
         this.roles.add(role);
         role.setRecruit(this);
     }
