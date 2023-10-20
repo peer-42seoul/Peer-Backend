@@ -3,17 +3,15 @@ package peer.backend.entity.team.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TeamStatus {
-    RECRUITING("모집 중"),
-    BEFORE("시작 전"),
-    ONGOING("진행 중"),
-    COMPLETE("완료");
+    RECRUITING("모집중"),
+    BEFORE("시작전"),
+    ONGOING("진행중"),
+    COMPLETE("진행완료");
 
     private final String value;
 

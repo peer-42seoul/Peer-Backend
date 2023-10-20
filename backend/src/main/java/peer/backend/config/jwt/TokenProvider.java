@@ -106,16 +106,24 @@ public class TokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         if (ObjectUtils.isEmpty(redisTemplate.opsForValue().get(accessToken))) {
             // 기존의 인증 인증 로직
-            return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken)
-                .getBody().getExpiration().before(new Date());
+            try {
+                return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken)
+                        .getBody().getExpiration().before(new Date());
+            } catch (JwtException e) {
+                return false;
+            }
         }
         return true;
     }
 
     public boolean validRefreshToken(String refreshToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(refreshToken)
-            .getBody().getExpiration().before(new Date());
+        try {
+            return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(refreshToken)
+                    .getBody().getExpiration().before(new Date());
+        } catch (JwtException e) {
+            return false;
+        }
     }
 
 
