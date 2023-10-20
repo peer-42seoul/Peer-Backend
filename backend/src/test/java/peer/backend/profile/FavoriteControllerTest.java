@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import peer.backend.config.jwt.TokenProvider;
 import peer.backend.controller.profile.FavoriteController;
 import peer.backend.dto.profile.FavoritePage;
-import peer.backend.dto.profile.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -28,6 +26,7 @@ import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.FavoriteService;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,9 +49,7 @@ public class FavoriteControllerTest {
     @InjectMocks
     FavoriteController favoriteController;
     User user;
-    PrincipalDetails principalDetails;
     FavoritePage favoritePage;
-
     @BeforeEach
     @Transactional
     void beforeEach() {
@@ -68,7 +65,7 @@ public class FavoriteControllerTest {
                 .address("test address")
                 .imageUrl("test image URL")
                 .build();
-        principalDetails = new PrincipalDetails(user);
+        List<RecruitFavorite> recruitFavoriteList = new ArrayList<>();
         List<TeamUser> teamUserList = new ArrayList<>();
         for (int index = 0; index < 12; index++) {
             User newUser = User.builder()
@@ -83,7 +80,6 @@ public class FavoriteControllerTest {
                     .build();
             teamUserList.add(teamUser);
         }
-        List<RecruitFavorite> recruitFavoriteList = new ArrayList<>();
         for (int index = 0; index < 3; index++) {
             Team team = Team.builder()
                     .teamUsers(teamUserList.subList(index * 4, index * 4 + 3))
@@ -112,28 +108,7 @@ public class FavoriteControllerTest {
             );
             recruitFavoriteList.add(recruitFavorite);
         }
-        List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
-        for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
-            Recruit recruit = recruitFavorite.getRecruit();
-            User leader = null;
-            for (TeamUser teamUser : recruit.getTeam().getTeamUsers()) {
-                if (teamUser.getRole().equals(TeamUserRoleType.LEADER))
-                    leader = teamUser.getUser();
-            }
-            if (recruit.getTeam().getType().equals(TeamType.PROJECT)) {
-                FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                        .postId(recruit.getId())
-                        .title(recruit.getTitle())
-                        .image(recruit.getThumbnailUrl())
-                        .userId(leader != null ? leader.getId() : -1)
-                        .userNickname(leader != null ? leader.getNickname() : null)
-                        .userImage(leader != null ? leader.getImageUrl() : null)
-                        .tagList(recruit.getTags())
-                        .build();
-                favoriteResponseList.add(favoriteResponse);
-            }
-        }
-        favoritePage = new FavoritePage(favoriteResponseList, PageRequest.of(1, 10));
+        user.setRecruitFavorites(recruitFavoriteList);
     }
 
     @Test
@@ -145,7 +120,7 @@ public class FavoriteControllerTest {
         when(favoriteService.getFavorite(any(PrincipalDetails.class), anyString(), anyInt(), anyInt())).thenReturn(favoritePage);
         // then
         mvc.perform(get("/api/v1/recruit/favorite")
-                        .with(SecurityMockMvcRequestPostProcessors.user(principalDetails))
+                        .with(SecurityMockMvcRequestPostProcessors.user(user.getName()))
                         .header("Authorization", "Bearer " + jwt)
                         .param("type", "study")
                         .param("page", String.valueOf(1))
@@ -161,7 +136,7 @@ public class FavoriteControllerTest {
         // when
         // then
         mvc.perform(get("/api/v1/recruit/favorite")
-                        .with(SecurityMockMvcRequestPostProcessors.user(principalDetails))
+                        .with(SecurityMockMvcRequestPostProcessors.user(user.getName()))
                         .header("Authorization", "Bearer " + jwt)
                         .param("type", "study")
                 )
