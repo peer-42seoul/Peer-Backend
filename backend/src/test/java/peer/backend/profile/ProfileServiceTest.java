@@ -1,5 +1,6 @@
 package peer.backend.profile;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +42,9 @@ class ProfileServiceTest {
     private Tika tika;
     @InjectMocks
     private ProfileService profileService;
+
+    @Value("${custom.filePath}")
+    private String filePath;
 
     String email;
     String nickname;
@@ -143,7 +149,8 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(principal, profile);
-        assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
+        String imageUrl = user.getImageUrl().substring(52);
+        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
         // 있는 상태 에서 변경
         fileInputStream = new FileInputStream(imagePath + "/test2.png");
         multipartFile = new MockMultipartFile("test2", "test2.png", "image", fileInputStream);
@@ -154,17 +161,22 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(principal, profile);
-        assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
+        imageUrl = user.getImageUrl().substring(52);
+        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
         // 있는 상태 에서 변경 하지 않음
+        MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
         profile = EditProfileRequest.builder()
+                .profileImage(emptyFile)
                 .imageChange(false)
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(principal, profile);
-        assertThat(user.getImageUrl()).isEqualTo("file:///Users/juhyelee/Peer-Backend/backend/upload/profiles/" + user.getId() + "/profile.png");
+        imageUrl = user.getImageUrl().substring(52);
+        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
         // 삭제
         profile = EditProfileRequest.builder()
+                .profileImage(emptyFile)
                 .imageChange(true)
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
