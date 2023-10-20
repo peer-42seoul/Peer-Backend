@@ -10,10 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.board.recruit.RecruitListResponce;
-import peer.backend.dto.board.recruit.RecruitRequest;
-import peer.backend.dto.board.recruit.RecruitRequestDTO;
-import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitApplicant;
@@ -24,6 +21,7 @@ import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.board.recruit.RecruitService;
 
 import javax.print.attribute.standard.PageRanges;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,13 +53,13 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("")
-    public void createRecruit(@RequestBody RecruitRequestDTO recruitRequestDTO){
+    public void createRecruit(@RequestBody RecruitRequestDTO recruitRequestDTO) throws IOException{
         recruitService.createRecruit(recruitRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
-    public void updateRecruit(@PathVariable Long recruit_id, @RequestBody RecruitUpdateRequestDTO recruitUpdateRequestDTO, Principal principal){
+    public void updateRecruit(@PathVariable Long recruit_id, @RequestBody RecruitUpdateRequestDTO recruitUpdateRequestDTO, Principal principal) throws IOException {
         //TODO:principal로 권한검사
         recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
@@ -74,7 +72,8 @@ public class RecruitController {
 
 
 //    @GetMapping("/test/{user_id}")
-//    public List<TeamApplicantListDto> test(@PathVariable Long user_id) {
-//        return recruitService.getTeamApplicantList(user_id);
+//    public void test(@PathVariable Long user_id, @RequestBody TestDTO testDTO) throws IOException {
+//        String result = recruitService.processMarkdownWithFormData(testDTO.getContent());
+
 //    }
 }

@@ -71,10 +71,10 @@ public class Recruit extends BaseEntity {
 
 
 
-    public void update(RecruitUpdateRequestDTO request){
+    public void update(RecruitUpdateRequestDTO request, String content){
         this.title = request.getTitle();
         this.due = request.getDue();
-        this.content = request.getContent();
+        this.content = content;
         this.status = request.getStatus();
         this.region = request.getRegion();
         this.link = request.getLink();

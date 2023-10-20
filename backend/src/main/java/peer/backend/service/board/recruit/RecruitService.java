@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
@@ -26,23 +27,32 @@ import peer.backend.repository.user.UserRepository;
 import peer.backend.service.team.TeamService;
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class RecruitService {
     private final UserRepository userRepository;
     private final RecruitRepository recruitRepository;
-    private final TeamService teamService;
     private final TeamRepository teamRepository;
-    private final TeamUserRepository teamUserRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
 
+    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image/png;base64.*?\\)");
+
+
     public List<TeamApplicantListDto> getTeamApplicantList(Long user_id){
+        //TODO:모듈화 리팩토링 필요
         User user = userRepository.findById(user_id).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
         List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByUserId(user_id);
         List<TeamApplicantListDto> result = new ArrayList<>();
@@ -160,14 +170,14 @@ public class RecruitService {
         }
     }
 
-    private Recruit createRecruitFromDto(RecruitRequestDTO recruitRequestDTO, Team team){
+    private Recruit createRecruitFromDto(RecruitRequestDTO recruitRequestDTO, Team team) throws IOException{
         Recruit recruit = Recruit.builder()
                 .team(team)
                 .type(TeamType.from(recruitRequestDTO.getType()))
                 .title(recruitRequestDTO.getTitle())
                 .due(recruitRequestDTO.getDue())
                 .link(recruitRequestDTO.getLink())
-                .content(recruitRequestDTO.getContent())
+                .content(processMarkdownWithFormData(recruitRequestDTO.getContent()))
                 .place(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
                 .region(recruitRequestDTO.getRegion())
                 .tags(recruitRequestDTO.getTagList())
@@ -180,8 +190,26 @@ public class RecruitService {
         return recruit;
     }
 
+
+    private String processMarkdownWithFormData(String markdown) throws IOException {
+        //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
+        Matcher matcher = IMAGE_PATTERN.matcher(markdown);
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            String formData = matcher.group().substring(26, matcher.group().length() - 1);
+            byte[] imageBytes = Base64.getDecoder().decode(formData);
+            UUID uuid = UUID.randomUUID();
+            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID().toString() + ".png");
+            Files.write(path, imageBytes);
+            matcher.appendReplacement(sb, "![image](" + path.toString() + ")");
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
     @Transactional
-    public void createRecruit(RecruitRequestDTO recruitRequestDTO){
+    public void createRecruit(RecruitRequestDTO recruitRequestDTO) throws IOException{
+        //TODO:첫번째이미지 대표 이미지 등록 필요
         //유저 검사
         User user = userRepository.findById(recruitRequestDTO.getUserId()).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
@@ -196,6 +224,7 @@ public class RecruitService {
 
         //모집게시글 생성
         Recruit recruit = createRecruitFromDto(recruitRequestDTO, team);
+        System.out.println(recruit.getContent());
         recruitRepository.save(recruit);
     }
 
@@ -207,9 +236,11 @@ public class RecruitService {
     }
 
     @Transactional
-    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO){
+    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException{
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
-        recruit.update(recruitUpdateRequestDTO);
+
+        String content = processMarkdownWithFormData(recruitUpdateRequestDTO.getContent());
+        recruit.update(recruitUpdateRequestDTO, content);
     }
 }
