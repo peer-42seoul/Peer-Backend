@@ -69,6 +69,11 @@ public class TeamController {
     }
 
 //    @GetMapping("/applicant/{teamId}")
+//    public ResponseEntity<?> getTeamApplicants(@PathVariable() Long teamId, Principal principal) {
+//        return new ResponseEntity<>(this.teamService.getTeamApplicants(teamId, principal.getName()), HttpStatus.OK);
+//    }
+
+//    @GetMapping("/applicant/{teamId}")
 //    public List<TeamApplicantDto> getTeamApplicant(@PathVariable() Long teamId, Principal principal) {
 //        return this.teamService.getTeamApplicant(teamId, principal.getName());
 //    }

@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.team.*;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamStatus;
@@ -109,29 +110,11 @@ public class TeamService {
     }
 
 //    @Transactional
-//    public Team getTeamById(Long teamId) {
-//        return this.teamRepository.findById(teamId)
-//            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
-//    }
-//
-//    @Transactional
-//    public Team getTeamByName(String teamName) {
-//        return this.teamRepository.findByName(teamName)
-//            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
-//    }
-//
-//    @Transactional
-//    public void updateTeam(Long teamId, UpdateTeamRequest request) {
-//        Team team = this.getTeamById(teamId);
-//        team.update(request);
-//    }
-////
-//    @Transactional
-//    public void deleteTeamUser(Long teamId, Long userId) {
-//        if (!this.teamUserRepository.existsByUserIdAndTeamId(userId, teamId)) {
-//            throw new NotFoundException("해당 유저는 팀원이 아닙니다!");
-//        }
-//        this.teamUserRepository.deleteByUserIdAndTeamId(userId, teamId);
+//    public ArrayList<TeamApplicantListDto> getTeamApplicants(Long teamId, String userName) {
+//        TeamUser teamUser = getTeamUserByName(teamId, userName);
+//        Team team = teamUser.getTeam();
+////        return team.getTeamApplicants().stream().map(TeamApplicantDto::new).collect(Collectors.toList());
+//        return
 //    }
 
     private TeamUser getTeamUserByName(Long teamId, String userName) throws NotFoundException, ForbiddenException {
