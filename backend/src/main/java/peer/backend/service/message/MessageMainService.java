@@ -225,6 +225,7 @@ public class MessageMainService {
         MessageIndex saved;
         try {
             saved = this.indexRepository.save(newData);
+            System.out.println("Saved ConversationId : " + saved.getConversationId());
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
@@ -250,13 +251,15 @@ public class MessageMainService {
         User user2 = index.getUser2();
         User msgOwner = null;
 
-        msgOwner = user1.getId() == userId ? user1 : user2;
+        msgOwner = user1.getId().equals(userId) ? user1 : user2;
 
+        System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
                 conversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
                 senderId(msgOwner.getId()).
-                text(message.getContent()).build();
+                text(message.getContent()).
+                build();
 
         try {
             this.pieceRepository.save(letter);
