@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
@@ -17,6 +19,7 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -79,14 +82,16 @@ public class ProfileController{
 
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
     @PutMapping("/profile/introduction/edit")
-    public ResponseEntity<Object> editProfile(Principal principal, @RequestBody EditProfileRequest profile) throws IOException {
+    public ResponseEntity<Object> editProfile(Principal principal, @ModelAttribute EditProfileRequest profile) throws IOException {
         if (profile.getIntroduction().length() > 150) {
             throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
         }
         if (profile.getNickname().length() > 7) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        profileService.editProfile((PrincipalDetails) principal, profile);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        PrincipalDetails principalDetails = (PrincipalDetails) auth.getPrincipal();
+        profileService.editProfile(principalDetails, profile);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

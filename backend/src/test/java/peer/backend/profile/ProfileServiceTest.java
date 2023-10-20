@@ -48,7 +48,7 @@ class ProfileServiceTest {
     User user;
     PrincipalDetails principal;
     @BeforeEach
-    void beforeEach() throws FileNotFoundException {
+    void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         email = "test@email.com";
         nickname = "test nickname";
@@ -132,7 +132,6 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Edit profile Test")
     void editProfileTest() throws IOException {
-        //when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(tika.detect(any(InputStream.class))).thenReturn("image");
         // 없는 상태 에서 추가
         FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");

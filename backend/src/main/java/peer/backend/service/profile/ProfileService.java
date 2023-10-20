@@ -1,6 +1,7 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class ProfileService {
     private final UserLinkRepository userLinkRepository;
     private final Tika tika;
 
+    private String filepath = "/Users/juhyelee";
+
     private void deleteUserImage(User user) throws IOException {
         String imagePath = user.getImageUrl();
         if (imagePath == null) {
@@ -55,6 +58,8 @@ public class ProfileService {
         }
         StringBuilder builder = new StringBuilder();
         String folderPath = builder
+                .append(filepath)
+                .append(File.separator)
                 .append("upload")
                 .append(File.separator)
                 .append("profiles")
@@ -62,7 +67,8 @@ public class ProfileService {
                 .append(user.getId().toString())
                 .toString();
         File folder = new File(folderPath);
-        if (!folder.mkdirs()) {
+        System.out.println(folder.getPath());
+        if (folder.mkdirs()) {
             if (!folder.exists()) {
                 throw new IOException("폴더 생성에 실패했습니다.");
             }
@@ -154,10 +160,10 @@ public class ProfileService {
     @Transactional
     public void editProfile(PrincipalDetails principal, EditProfileRequest profile) throws IOException {
         User user = principal.getUser();
-        if (profile.getProfileImage() == null && profile.isImageChange()) {
+        if (profile.getProfileImage().isEmpty() && profile.isImageChange()) {
             deleteUserImage(user);
         }
-        else if (profile.getProfileImage() != null) {
+        else if (!profile.getProfileImage().isEmpty()) {
             deleteUserImage(user);
             user.setImageUrl(
                     saveImageFilePath(user, profile.getProfileImage()).toUri().toString()
