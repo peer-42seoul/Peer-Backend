@@ -41,13 +41,13 @@ public class MessageIndex extends BaseEntity {
     @Builder.Default
     private boolean user2delete = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId1", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user1_id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private User user1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId2", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user2_id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private User user2;
 
