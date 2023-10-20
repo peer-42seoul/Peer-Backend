@@ -58,6 +58,7 @@ public class RecruitService {
                         .question(question.getQuestion())
                         .answer(answerList.get(index))
                         .type(question.getType().toString())
+                        .option(question.getOptions())
                         .build();
                 index++;
                 answerDtoList.add(answerDto);
