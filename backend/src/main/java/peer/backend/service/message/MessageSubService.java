@@ -17,7 +17,6 @@ import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -140,7 +139,7 @@ public class MessageSubService {
                     msgId(piece.getMsgId()).
                     content(piece.getText()).
                     date(this.makeFormattedDate(piece.getCreatedAt())).
-                    isEnd(isEnd).build();
+                    end(isEnd).build();
             // piece update
             if (piece.getReadAt() == null) {
                 piece.setReadAt(LocalDateTime.now());

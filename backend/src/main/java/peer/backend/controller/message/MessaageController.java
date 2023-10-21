@@ -169,10 +169,12 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
+            System.out.println("여긴가?");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
