@@ -6,7 +6,7 @@ import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import peer.backend.dto.profile.UserImageResponse;
+import peer.backend.dto.profile.response.UserImageResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
