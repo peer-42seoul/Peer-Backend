@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.team.TeamUser;
 import lombok.Setter;
@@ -75,6 +76,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<RecruitFavorite> recruitFavorites = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<SocialLogin> socialLogins = new ArrayList<>();
