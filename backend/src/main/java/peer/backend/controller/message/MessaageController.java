@@ -131,6 +131,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
             System.out.println("여기 어떰?!");
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -146,10 +147,11 @@ public class MessaageController {
     public ResponseEntity<MsgListDTO> getSpecificLetters(Principal data, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
-            wrappedData =this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body).get();
+            wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
