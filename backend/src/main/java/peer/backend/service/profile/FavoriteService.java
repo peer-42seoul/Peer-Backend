@@ -75,7 +75,9 @@ public class FavoriteService {
                 toDelete.add(recruitFavorite);
             }
         }
-        recruitFavoriteList.removeAll(toDelete);
+        for (RecruitFavorite recruitFavorite : toDelete) {
+            recruitFavoriteList.remove(recruitFavorite);
+        }
         userRepository.save(user);
     }
 }
