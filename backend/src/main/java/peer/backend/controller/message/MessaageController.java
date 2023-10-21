@@ -155,7 +155,7 @@ public class MessaageController {
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }

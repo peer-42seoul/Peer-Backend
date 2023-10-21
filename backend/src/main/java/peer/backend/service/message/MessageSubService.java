@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.dto.message.*;
@@ -16,6 +17,7 @@ import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -64,7 +66,7 @@ public class MessageSubService {
      */
     public MsgObjectDTO makeMsgObjectDTO(MessageIndex index, User target, MessagePiece conversation) {
         long msgNumber;
-        if (index.getUserIdx1() == target.getId())
+        if (index.getUserIdx1().equals(target.getId()))
             msgNumber = index.getUnreadMessageNumber1();
         else
             msgNumber = index.getUnreadMessageNumber2();
@@ -108,12 +110,14 @@ public class MessageSubService {
         return value.format(formatter);
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public List<Msg> makeMsgDataWithMessagePiece(List<MessagePiece> talks) {
         List<Msg> innerData = new ArrayList<>();
         User data = null;
         Optional<User> rawData;
         long size = 0;
         boolean isEnd = false;
+
         for (MessagePiece piece : talks) {
             rawData = this.userRepository.findById(piece.getSenderId());
             if (rawData.isEmpty())
@@ -125,7 +129,6 @@ public class MessageSubService {
                     break ;
             }
             else {
-                // TODO: 여기 조건 정확히 넣어줘야 함. talks size가 작은 경우
                 if (size + 1 == talks.size())
                     isEnd = true;
                 else if (size > talks.size()) {
@@ -138,7 +141,12 @@ public class MessageSubService {
                     content(piece.getText()).
                     date(this.makeFormattedDate(piece.getCreatedAt())).
                     isEnd(isEnd).build();
-            //TODO make new MsgDTO;
+            // piece update
+            if (piece.getReadAt() == null) {
+                piece.setReadAt(LocalDateTime.now());
+                this.pieceRepository.save(piece);
+            }
+
             innerData.add(talkBubble);
             isEnd = false;
             size++;

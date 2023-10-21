@@ -3,6 +3,10 @@ package peer.backend.service.message;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ObjectDeletedException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -12,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
+import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
@@ -71,11 +76,13 @@ public class MessageMainService {
         User target = null;
 
         System.out.println("MSG List Size : "+ msgList.size());
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // Index 기준으로 반복문으로 MsgObject 작성 시작
         for (MessageIndex msg : msgList) {
             // 대화
-            MessagePiece conversation= this.pieceRepository.findTopByConversationId(msg.getConversationId()).orElseGet(() -> null);
+              Page<MessagePiece> data = this.pieceRepository.findTopByTargetConversationIdOrderByCreatedAtDesc(msg.getConversationId(), pageable);
+              MessagePiece conversation = data.getContent().get(0);
             // 상대방 확인
             if (msg.getUserIdx1().equals(msgOwner.getId())) {
                 if (msg.isUser1delete())
@@ -159,7 +166,6 @@ public class MessageMainService {
     @Transactional(readOnly = true)
     public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword) {
         List<User> raw = this.userRepository.findByKeyWord(keyword.getKeyword()).orElseGet(() -> null);
-        System.out.println(raw.size() + " : " + raw.get(0).getNickname());
         if (raw == null)
             return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = new ArrayList<>();
@@ -173,7 +179,7 @@ public class MessageMainService {
                         targetProfile(candidate.getImageUrl()).build();
                 ret.add(data);
             } catch (Exception e) {
-                //TODO: error handling
+                return CompletableFuture.completedFuture(AsyncResult.failure(e));
             }
         }
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
@@ -253,7 +259,7 @@ public class MessageMainService {
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
         User user1 = index.getUser1();
         User user2 = index.getUser2();
@@ -261,7 +267,7 @@ public class MessageMainService {
 
         msgOwner = user1.getId().equals(userId) ? user1 : user2;
 
-        System.out.println("indexed ConversationId : " + index.getConversationId());
+//        System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
@@ -276,20 +282,19 @@ public class MessageMainService {
             return false;
         }
 
-        if (msgOwner.getId().equals(userId))
-        {
-            long unread = index.getUnreadMessageNumber1();
-            unread += 1;
-            index.setUnreadMessageNumber1(unread);
-        }
-        else
-        {
-            long unread = index.getUnreadMessageNumber2();
-            unread += 1;
-            index.setUnreadMessageNumber2(unread);
-        }
-
         try {
+            if (msgOwner.getId().equals(userId))
+            {
+                long unread = index.getUnreadMessageNumber2();
+                unread += 1;
+                index.setUnreadMessageNumber2(unread);
+            }
+            else
+            {
+                long unread = index.getUnreadMessageNumber1();
+                unread += 1;
+                index.setUnreadMessageNumber1(unread);
+            }
             this.indexRepository.save(index);
         } catch (OptimisticLockingFailureException e) {
             return false;
@@ -322,21 +327,37 @@ public class MessageMainService {
      * @return
      */
     @Async
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
         // MessageIndex 찾기
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
         try {
-        if (targetIndex == null)
-           throw new NoSuchElementException("There is no talks");
-        if (targetIndex.getUserIdx1().equals(userId)) {
-            if (targetIndex.isUser1delete())
-                throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
-        } else if (targetIndex.getUserIdx2().equals(userId)) {
-            if (targetIndex.isUser2delete())
-                throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
-        } } catch (Exception e) {
+            if (targetIndex == null)
+                throw new NoSuchElementException("There is no talks");
+            if (targetIndex.getUserIdx1().equals(userId)) {
+                if (targetIndex.isUser1delete())
+                    throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+            } else if (targetIndex.getUserIdx2().equals(userId)) {
+                if (targetIndex.isUser2delete())
+                    throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+            }
+        } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+
+        // index read 수정
+        if (targetIndex.getUserIdx1().equals(userId)){
+            if(targetIndex.getUnreadMessageNumber1() != 0)
+            {
+                targetIndex.setUnreadMessageNumber1(0L);
+                this.indexRepository.save(targetIndex);
+            }
+        } else {
+            if(targetIndex.getUnreadMessageNumber2() != 0)
+            {
+                targetIndex.setUnreadMessageNumber2(0L);
+                this.indexRepository.save(targetIndex);
+            }
         }
 
         // MessagePiece의 List 찾기
