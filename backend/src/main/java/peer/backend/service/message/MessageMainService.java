@@ -75,7 +75,7 @@ public class MessageMainService {
         List<MsgObjectDTO> retList = new ArrayList<>();
         User target = null;
 
-        System.out.println("MSG List Size : "+ msgList.size());
+//        System.out.println("MSG List Size : "+ msgList.size());
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // Index 기준으로 반복문으로 MsgObject 작성 시작
@@ -239,7 +239,7 @@ public class MessageMainService {
         MessageIndex saved;
         try {
             saved = this.indexRepository.save(newData);
-            System.out.println("Saved ConversationId : " + saved.getConversationId());
+//            System.out.println("Saved ConversationId : " + saved.getConversationId());
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
@@ -283,13 +283,13 @@ public class MessageMainService {
         }
 
         try {
-            if (msgOwner.getId().equals(userId))
+           if (index.getUserIdx1().equals(userId))
             {
                 long unread = index.getUnreadMessageNumber2();
                 unread += 1;
                 index.setUnreadMessageNumber2(unread);
             }
-            else
+            else if (index.getUserIdx2().equals(userId))
             {
                 long unread = index.getUnreadMessageNumber1();
                 unread += 1;
