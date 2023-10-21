@@ -70,7 +70,7 @@ spring:
       host: 10.0.1.43
       port: 27017
       authentication-database: admin
-      database: tracking
+      database: peer
       username: peer
       password: peer
 
