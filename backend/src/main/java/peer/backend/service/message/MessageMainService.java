@@ -116,11 +116,11 @@ public class MessageMainService {
         boolean check = false;
         for (TargetDTO target : list) {
             for (MessageIndex data : targetsData) {
-                if (data.getUserIdx1() == target.getTargetId()) {
+                if (data.getUserIdx1().equals(target.getTargetId())) {
                     data.setUser1delete(true);
                     check = true;
                 }
-                if (data.getUserIdx2() == target.getTargetId()) {
+                if (data.getUserIdx2().equals(target.getTargetId())) {
                     data.setUser2delete(true);
                     check = true;
                 }
@@ -257,12 +257,9 @@ public class MessageMainService {
     public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
         User user1 = index.getUser1();
         User user2 = index.getUser2();
-//        User user1 = this.userRepository.findById(index.getUserIdx1()).get();
-//        User user2 = this.userRepository.findById(index.getUserIdx2()).get();
         User msgOwner = null;
 
         msgOwner = user1.getId().equals(userId) ? user1 : user2;
-//        msgOwner = user1;
 
         System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
@@ -279,7 +276,7 @@ public class MessageMainService {
             return false;
         }
 
-        if (msgOwner.getId() == userId)
+        if (msgOwner.getId().equals(userId))
         {
             long unread = index.getUnreadMessageNumber1();
             unread += 1;
@@ -332,10 +329,10 @@ public class MessageMainService {
         try {
         if (targetIndex == null)
            throw new NoSuchElementException("There is no talks");
-        if (targetIndex.getUserIdx1() == userId) {
+        if (targetIndex.getUserIdx1().equals(userId)) {
             if (targetIndex.isUser1delete())
                 throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
-        } else if (targetIndex.getUserIdx2() == userId) {
+        } else if (targetIndex.getUserIdx2().equals(userId)) {
             if (targetIndex.isUser2delete())
                 throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
         } } catch (Exception e) {
@@ -392,10 +389,10 @@ public class MessageMainService {
         try {
             if (targetIndex == null)
                 throw new NoSuchElementException("There is no Talks");
-            if (targetIndex.getUserIdx1() == userId) {
+            if (targetIndex.getUserIdx1().equals(userId)) {
                 if (targetIndex.isUser1delete())
                     throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
-            } else if (targetIndex.getUserIdx2() == userId) {
+            } else if (targetIndex.getUserIdx2().equals(userId)) {
                 if (targetIndex.isUser2delete())
                     throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
             } } catch (Exception e) {
