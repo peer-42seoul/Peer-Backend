@@ -37,6 +37,7 @@ public class UserPushKeywordRepositoryTest {
         User user = User.builder()
             .name("test")
             .email("test@test.com")
+            .password("test")
             .nickname("test")
             .birthday(LocalDate.now())
             .isAlarm(false)
