@@ -8,11 +8,13 @@ import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
+import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
 import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -36,4 +38,47 @@ public class MessageSubService {
         Optional<MessageIndex> data = this.indexRepository.findByUserIdx(userId, targetId);
         return data.orElseThrow(()-> new NoSuchElementException("Message not found"));
     }
+
+    /**
+     * OutLine : DB 상에 저장된 대화 목록 Index의 List 를 반환한다.
+     * @param userId
+     * @return try - catch 문을 활용해서 받거나 아니면 Exception을 발생시킬 수 있다.
+     */
+    @Transactional(readOnly = true)
+    public List<MessageIndex> getMessageIndexList(long userId) {
+        Optional<List<MessageIndex>> listData = this.indexRepository.findByUserId(userId);
+        List<MessageIndex> retData = null;
+        return retData = listData.orElseThrow(() -> new NoSuchElementException("There are no messges"));
+    }
+
+    /**
+     * OutLine : MsgObjectDTO 를 생성하는 메서드
+     * @param index
+     * @param target
+     * @param conversation
+     * @return
+     */
+    public MsgObjectDTO makeMsgObjectDTO(MessageIndex index, User target, MessagePiece conversation) {
+        long msgNumber;
+        if (index.getUserIdx1() == target.getId())
+            msgNumber = index.getUnreadMessageNumber1();
+        else
+            msgNumber = index.getUnreadMessageNumber2();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
+        String formattedDateTime = conversation.getCreatedAt().format(formatter);
+
+        MsgObjectDTO ret = new MsgObjectDTO();
+        ret.builder().targetId(target.getId()).
+            targetNickname(target.getNickname()).
+                targetProfile(target.getImageUrl()).
+                conversationId(index.getConversationId()).
+                unreadMsgNumber(msgNumber).
+                msgId(conversation.getMsgId()).
+                latestContent(conversation.getText()).
+                latestDate(formattedDateTime);
+
+        return ret;
+    }
+
 }

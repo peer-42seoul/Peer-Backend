@@ -19,6 +19,7 @@ import peer.backend.dto.message.SpecificScrollMsgDTO;
 import peer.backend.dto.message.MsgContentDTO;
 import peer.backend.service.message.MessageSubService;
 
+import java.sql.Wrapper;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +49,10 @@ public class MessaageController {
         }
         if (wrappedRet.getResult() != null)
             ret = wrappedRet.getResult();
-        else
+        else if (wrappedRet.getException().getMessage().equals("User Not found"))
+        {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
         return new ResponseEntity<List<MsgObjectDTO>>(ret, HttpStatus.OK);
@@ -57,12 +61,8 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저의 쪽지 목록 중 일부를 삭제 한다.")
     @DeleteMapping("/delete-message")
     public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(@RequestParam long userId, @RequestBody List<TargetDTO> body) {
-        /*
-         * deleteLetterList
-         * getLetterListByUserId
-         * */
+        this.deleteLetterList(userId, body);
 
-        // After Delete user message List and get New List
         AsyncResult<List<MsgObjectDTO>> wrappedRet = null;
         List<MsgObjectDTO> ret = null;
         try {
@@ -84,13 +84,18 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저가 넣은 키워드에 반응하여 해당하는 사용자를 호출합니다.")
     @GetMapping("/searching")
     public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(@RequestBody String keyword) {
-        LetterTargetDTO one = new LetterTargetDTO();
-        List<LetterTargetDTO> data = null;
-        data.add(one);
-        /**
-         * findUserListByUserNickname
-         */
-        return new ResponseEntity<List<LetterTargetDTO>>(data, HttpStatus.OK);
+        AsyncResult<List<LetterTargetDTO>> wrappedRet = null;
+        List<LetterTargetDTO> ret = null;
+        try {
+            this.messageMainService.findUserListByUserNickname(keyword).get();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (wrappedRet.getResult() != null)
+            ret = wrappedRet.getResult();
+        else
+            return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<List<LetterTargetDTO>>(ret, HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")

@@ -21,6 +21,12 @@ public class MessageIndex extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long conversationId;
 
+    @Column
+    private Long userIdx1;
+
+    @Column
+    private Long userIdx2;
+
     @Column(nullable = true)
     private Long unreadMessageNumber1;
 
