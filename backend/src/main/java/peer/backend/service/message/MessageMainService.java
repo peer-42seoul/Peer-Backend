@@ -1,6 +1,7 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
@@ -17,9 +19,10 @@ import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import javax.management.Query;
+import javax.persistence.EntityManager;
+import javax.swing.text.html.Option;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -30,6 +33,7 @@ public class MessageMainService {
     private final MessageIndexRepository indexRepository;
     private final MessagePieceRepository pieceRepository;
     private final MessageSubService subService;
+
 
     /**
      * OutLine : 사용자 대화 목록을 모두 발견하고, 해당 목록과 마지막 대화를 불러와 MsgObject를 만들어 전달한다.
@@ -278,11 +282,71 @@ public class MessageMainService {
         return true;
     }
 
+    /**
+     * OutLine : userId 와 구체적인 메시지 DTO를 통해 쪽지들을 불러온다.
+     * Logic :
+     * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
+     * 1. targetId, Conversation Id를 통해 쪽지 데이터를 전체 들고옴.
+     * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
+     * @param userId
+     * @param target
+     * @return
+     */
     @Async
     @Transactional(readOnly = true)
     public List<MsgDTO> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
-        //TODO: Make Logic
-        List<MsgDTO> ret = null;
+
+        MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
+        if (targetIndex == null)
+            return null;
+        if (targetIndex.getUserIdx1() == userId) {
+            if (targetIndex.isUser1delete())
+                return null;
+        } else if (targetIndex.getUserIdx2() == userId) {
+            if (targetIndex.isUser2delete())
+                return null;
+        }
+        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece("SELECT * FROM message_piece WHERE conversationId = :" + target.getConversationalId() + "ORDER BY createdAt DESC LIMIT 21");
+        Collections.sort(talks, new MessagePieceComparator());
+
+        List<MsgDTO> ret = new ArrayList<>();
+        User data = null;
+        Optional<User> rawData;
+        long size = 0;
+        boolean isEnd = false;
+        for (MessagePiece piece : talks) {
+            rawData = this.userRepository.findById(piece.getSenderId());
+            data = rawData.get();
+
+            if (talks.size() > 20) {
+                if (size < 18) isEnd = false;
+                else if (size == 19) isEnd = false;
+                else if (size == 20)
+                    break ;
+            }
+            else {
+                // TODO: 여기 조건 정확히 넣어줘야 함. talks size가 작은 경우
+                if (size + 1 < talks.size())
+                    isEnd = false;
+                else if (size + 1 == talks.size())
+                    isEnd = true;
+                else if (size > talks.size()) {
+                    break ;
+                }
+            }
+            MsgDTO talkBubble = new MsgDTO();
+            talkBubble.builder().
+                    senderId(piece.getSenderId()).
+                    senderNickname(piece.getSenderNickname()).
+                    targetProfile(data.getImageUrl()).
+                    msgId(piece.getMsgId()).
+                    content(piece.getText()).
+                    isEnd(isEnd).build();
+            //TODO make new MsgDTO;
+            ret.add(talkBubble);
+            isEnd = false;
+            size++;
+        }
         return ret;
     }
 

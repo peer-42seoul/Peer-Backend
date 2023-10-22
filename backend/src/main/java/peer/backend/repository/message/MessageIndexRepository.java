@@ -13,4 +13,6 @@ public interface MessageIndexRepository extends JpaRepository<MessageIndex, Long
 
     @Query("SELECT m FROM MessageIndex m WHERE (m.user1.id = :id OR m.user2.id = :id)")
     Optional<List<MessageIndex>> findByUserId(Long id);
+
+    Optional<MessageIndex> findTopByConversationId(Long conversationId);
 }

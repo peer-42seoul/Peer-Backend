@@ -140,10 +140,7 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록을 불러옵니다.")
     @GetMapping("/conversation-list")
     public ResponseEntity<List<MsgDTO>> getSpecificLetters(@RequestParam long userId, @RequestBody SpecificMsgDTO body) {
-        List<MsgDTO> data = null;
-        /**
-         * getSpecificLetterListByUserIdAndTargetId
-         */
+        List<MsgDTO> data = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body);
         return new ResponseEntity<List<MsgDTO>>(data, HttpStatus.OK);
     }
 
