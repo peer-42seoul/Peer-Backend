@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import peer.backend.dto.profile.UserImageResponse;
+import peer.backend.dto.profile.response.UserImageResponse;
 import peer.backend.entity.user.User;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.ProfileImageService;

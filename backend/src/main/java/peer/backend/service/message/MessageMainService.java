@@ -160,6 +160,7 @@ public class MessageMainService {
             return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = null;
         for (User candidate: raw) {
+
             LetterTargetDTO data = null;
             try {
                 data = LetterTargetDTO.builder().

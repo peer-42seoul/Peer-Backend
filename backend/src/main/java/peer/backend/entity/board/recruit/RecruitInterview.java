@@ -7,6 +7,8 @@ import lombok.Setter;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,15 +23,13 @@ public class RecruitInterview {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recurit_id")
+    @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
     @Column(nullable = false, length = 255)
     private String question;
     @Enumerated(EnumType.STRING)
     private RecruitInterviewType type;
-//    질문
-//    @OneToMany(mappedBy = "recruit_interview", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<RecruitInterviewOption> options = new ArrayList<>();
-
+    @ElementCollection
+    private List<String> options;
 }
