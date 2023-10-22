@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    if: github.event.pull_request.merged == true || github.event.name == 'push'
+    if: ${{ (github.event.pull_request.merged == true) || (github.event.name == 'push') }}
     uses: ./.github/workflows/build_test.yml
 
   deploy:
