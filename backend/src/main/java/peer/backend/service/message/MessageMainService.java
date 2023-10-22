@@ -1,6 +1,7 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectDeletedException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,6 +35,8 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 @EnableWebMvc
+@Slf4j
+@Component
 public class MessageMainService {
     private final UserRepository userRepository;
     private final MessageIndexRepository indexRepository;
@@ -87,11 +91,13 @@ public class MessageMainService {
             if (msg.getUserIdx1().equals(msgOwner.getId())) {
                 if (msg.isUser1delete())
                     continue;
-                target = this.userRepository.findById(msg.getUserIdx2()).get();
-            } else {
+                else
+                    target = this.userRepository.findById(msg.getUserIdx2()).get();
+            } else if (msg.getUserIdx2().equals(msgOwner.getId())) {
                 if (msg.isUser2delete())
                     continue;
-                target = this.userRepository.findById(msg.getUserIdx1()).get();
+                else
+                    target = this.userRepository.findById(msg.getUserIdx1()).get();
             }
 
             retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
@@ -124,11 +130,11 @@ public class MessageMainService {
         for (TargetDTO target : list) {
             for (MessageIndex data : targetsData) {
                 if (data.getUserIdx1().equals(target.getTargetId())) {
-                    data.setUser1delete(true);
+                    data.setUser2delete(true);
                     check = true;
                 }
                 if (data.getUserIdx2().equals(target.getTargetId())) {
-                    data.setUser2delete(true);
+                    data.setUser1delete(true);
                     check = true;
                 }
                 if (check) {
@@ -199,8 +205,7 @@ public class MessageMainService {
      * @return : 성공 여부에 따라 messageIndex 객체를 반환 받는다.
      */
     @Async
-//    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
         try {
             this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
@@ -224,27 +229,30 @@ public class MessageMainService {
 //            System.out.println("Check to here3" + e.getMessage());
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
+//        MessageIndex newData = MessageIndex.builder().
+//                userIdx1(owner.getId()).
+//                userIdx2(target.getId()).
+//                unreadMessageNumber1(0L).
+//                unreadMessageNumber2(0L).
+//                user1(owner).
+//                user2(target).
+//                build();
 
-        MessageIndex newData = MessageIndex.builder().
-                userIdx1(owner.getId()).
-                userIdx2(target.getId()).
-                unreadMessageNumber1(0L).
-                unreadMessageNumber2(0L).
-                user1(owner).
-                user2(target).
-                build();
 
-//        System.out.println("Check to here4" );
 
-        MessageIndex saved;
-        try {
-            saved = this.indexRepository.save(newData);
+        System.out.println("Check to here4" );
+
+        MessageIndex saved = this.subService.saveNewData(owner, target);
+//        try {
+//            saved = this.indexRepository.save(newData);
 //            System.out.println("Saved ConversationId : " + saved.getConversationId());
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture(AsyncResult.failure(e));
-        }
+//        } catch (Exception e) {
+//            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+//        }
         return CompletableFuture.completedFuture(AsyncResult.success(saved));
     }
+
+
 
     /**
      * OutLine : 전달 받은 대화 내용을 저장합니다.
