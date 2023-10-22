@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum RecruitApplicantStatus {
-    APPROVED("승인"),
-    DENIED("보류"),
-    PENDING("보류")
+public enum RecruitType {
+    STUDY("스터디"),
+    PROJECT("프로젝트")
     ;
-    private final String status;
+    private final String type;
 }
