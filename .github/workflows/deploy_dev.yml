@@ -33,7 +33,7 @@ jobs:
         port: 22
         username: ${{ secrets.DEV_USERNAME }}
         key: ${{ secrets.DEV_KEY }}
-        scripts: |
+        script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker rm -f $(docker ps -qa)
           docker run -d -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
