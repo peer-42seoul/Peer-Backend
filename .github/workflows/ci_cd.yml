@@ -44,8 +44,8 @@ jobs:
     - name: Test with Gradle
       run: ./gradlew test
       
-  deploy:
-    if: github.event.pull_request.merged == true || github.event_name == 'push'
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push')
     needs: build
     runs-on: ubuntu-latest
 
