@@ -48,7 +48,6 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
@@ -101,6 +100,7 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
     public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Principal data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;

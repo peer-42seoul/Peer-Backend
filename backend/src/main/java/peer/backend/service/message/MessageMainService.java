@@ -161,7 +161,8 @@ public class MessageMainService {
             return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = new ArrayList<>();
         for (User candidate: raw) {
-            LetterTargetDTO data = new LetterTargetDTO();
+
+            LetterTargetDTO data = null;
             try {
                 data = LetterTargetDTO.builder().
                         targetId(candidate.getId()).
