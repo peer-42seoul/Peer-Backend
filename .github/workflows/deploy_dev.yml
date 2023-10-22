@@ -1,45 +1,45 @@
-name: Deploy
+# name: Deploy
 
-on:
-  push:
-    branches: [ "dev" ]
-  pull_request:
-    branches: [ "dev" ]
-    types: [ "closed" ]
+# on:
+#   push:
+#     branches: [ "dev" ]
+#   pull_request:
+#     branches: [ "dev" ]
+#     types: [ "closed" ]
 
-jobs:
-  build:
-    if: github.event.pull_request.merged == true || github.event_name == 'push'
-    uses: ./.github/workflows/build_test.yml
+# jobs:
+#   build:
+#     if: github.event.pull_request.merged == true || github.event_name == 'push'
+#     uses: ./.github/workflows/build_test.yml
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+#   deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v4
 
-    - name: Docker build & push
-      run: |
-        ./gradlew bootjar
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
-      working-directory: ./backend
+#     - name: Docker build & push
+#       run: |
+#         ./gradlew bootjar
+#         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+#         docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }} .
+#         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+#       working-directory: ./backend
 
-    - name: Deploy
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.DEV_HOST }}
-        port: 22
-        username: ${{ secrets.DEV_USERNAME }}
-        key: ${{ secrets.DEV_KEY }}
-        script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
-          docker rm -f $(docker ps -qa)
-          docker run -d -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
-          docker container prune -f
-          docker image prune -f
+#     - name: Deploy
+#       uses: appleboy/ssh-action@v1.0.0
+#       with:
+#         host: ${{ secrets.DEV_HOST }}
+#         port: 22
+#         username: ${{ secrets.DEV_USERNAME }}
+#         key: ${{ secrets.DEV_KEY }}
+#         script: |
+#           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+#           docker rm -f $(docker ps -qa)
+#           docker run -d -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+#           docker container prune -f
+#           docker image prune -f
 
         
