@@ -2,10 +2,9 @@ package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
@@ -17,12 +16,9 @@ import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.swing.text.html.parser.Entity;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +78,7 @@ public class MessageSubService {
                 targetProfile(target.getImageUrl()).
                 conversationId(index.getConversationId()).
                 unreadMsgNumber(msgNumber).
-                msgId(conversation.getMsgId()).
+                latestMsgId(conversation.getMsgId()).
                 latestContent(conversation.getText()).
                 latestDate(formattedDateTime);
 
@@ -91,8 +87,76 @@ public class MessageSubService {
 
     public List<MessagePiece> executeNativeSQLQueryForMessagePiece(String sql) {
         Query query = entityManager.createNativeQuery(sql, MessagePiece.class);
-        List<MessagePiece> result = query.getResultList();
-        return result;
+        return query.getResultList();
+    }
+
+    public List<MessagePiece> executeNativeSQLQueryForMessagePiece(String sql, Map<String, Long> mapping) {
+        Query query = entityManager.createNativeQuery(sql, MessagePiece.class);
+        for (Map.Entry<String, Long> entry : mapping.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+        return query.getResultList();
+    }
+
+    public String makeFormattedDate(LocalDateTime value) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
+        return value.format(formatter);
+    }
+
+    public List<Msg> makeMsgDataWithMessagePiece(List<MessagePiece> talks) {
+        List<Msg> innerData = new ArrayList<>();
+        User data = null;
+        Optional<User> rawData;
+        long size = 0;
+        boolean isEnd = false;
+        for (MessagePiece piece : talks) {
+            rawData = this.userRepository.findById(piece.getSenderId());
+            if (rawData.isEmpty())
+                continue;
+            data = rawData.get();
+
+            if (talks.size() > 20) {
+                if (size == 20)
+                    break ;
+            }
+            else {
+                // TODO: 여기 조건 정확히 넣어줘야 함. talks size가 작은 경우
+                if (size + 1 == talks.size())
+                    isEnd = true;
+                else if (size > talks.size()) {
+                    break ;
+                }
+            }
+            Msg talkBubble =  Msg.builder().
+                    userId(piece.getSenderId()).
+                    msgId(piece.getMsgId()).
+                    content(piece.getText()).
+                    date(this.makeFormattedDate(piece.getCreatedAt())).
+                    isEnd(isEnd).build();
+            //TODO make new MsgDTO;
+            innerData.add(talkBubble);
+            isEnd = false;
+            size++;
+        }
+        return innerData;
+    }
+
+    public MsgListDTO makeMsgDTO(User owner, User targetUser, List<Msg>innerData)
+    {
+        MsgListDTO ret = new MsgListDTO();
+        MsgOwner user = MsgOwner.builder().
+                userId(owner.getId()).
+                userNickname(owner.getNickname()).
+                userProfile(owner.getImageUrl()).build();
+        MsgTarget msgTarget = MsgTarget.builder().
+                userId(targetUser.getId()).
+                userNickname(targetUser.getNickname()).
+                userProfile(targetUser.getImageUrl()).build();
+
+        ret.setMsgOwner(user);
+        ret.setMsgTarget(msgTarget);
+        ret.setMsgList(innerData);
+        return ret;
     }
 
 }
