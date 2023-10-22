@@ -3,17 +3,18 @@ package peer.backend.controller.message;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xwpf.usermodel.IBody;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.asyncresult.AsyncResult;
-import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.service.message.MessageMainService;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -50,6 +51,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>(ret, HttpStatus.OK);
+
     }
 
     @ApiOperation(value = "", notes = "유저의 쪽지 목록 중 일부를 삭제 한다.")
@@ -71,7 +73,6 @@ public class MessaageController {
             ret = wrappedRet.getResult();
         else
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
@@ -101,6 +102,7 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
     public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Principal data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;

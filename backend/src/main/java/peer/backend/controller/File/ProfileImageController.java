@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import peer.backend.dto.profile.UserImageResponse;
+import peer.backend.dto.profile.response.UserImageResponse;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.MultipartException;
 import peer.backend.service.file.ProfileImageService;

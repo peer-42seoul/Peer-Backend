@@ -1,10 +1,9 @@
-package peer.backend.dto.profile;
+package peer.backend.dto.profile.response;
 
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
-import peer.backend.entity.user.UserAchievement;
-import peer.backend.entity.user.UserLink;
+import peer.backend.dto.profile.request.UserLinkDTO;
 
 @Getter
 @Builder
