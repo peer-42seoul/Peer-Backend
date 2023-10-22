@@ -1,4 +1,4 @@
-package peer.backend.dto.profile;
+package peer.backend.dto.profile.response;
 
 import java.util.List;
 import lombok.Builder;
