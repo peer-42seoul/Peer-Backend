@@ -47,6 +47,8 @@ public class Recruit extends BaseEntity {
     private List<RecruitFile> files = new ArrayList<>();
 
     @Column
+    private Long hit;
+    @Column
     private String title;
     @Column
     private String due;

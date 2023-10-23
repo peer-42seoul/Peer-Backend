@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -71,9 +72,9 @@ public class RecruitController {
     }
 
 
-//    @GetMapping("/test/{user_id}")
-//    public void test(@PathVariable Long user_id, @RequestBody TestDTO testDTO) throws IOException {
-//        String result = recruitService.processMarkdownWithFormData(testDTO.getContent());
-
-//    }
+    @GetMapping("/test/{user_id}")
+    public void test(@PathVariable Long user_id, @RequestParam int page, @RequestParam int pageSize, @RequestBody RecruitRequest request) throws IOException {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        recruitService.getRecruitSearchList(pageable, request, user_id);
+    }
 }

@@ -11,6 +11,7 @@ import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
 import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.board.recruit.enums.RecruitType;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
@@ -26,6 +27,9 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.team.TeamService;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -82,16 +86,66 @@ public class RecruitService {
         return result;
     }
 
-    public List<RecruitListResponce> getRecruitSearchList(Long page, Long pageSize, RecruitRequest request) {
+    @PersistenceContext
+    private EntityManager em;
+
+    public void getRecruitSearchList(Pageable pageable, RecruitRequest request, Long user_id) {
+
+        String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
         //TODO:다중검색 쿼리 만들어야 함.
-        List<Recruit> recruits = recruitRepository.findAll();
-        List<RecruitListResponce> result = new ArrayList<>();
-        for (Recruit recruit : recruits) {
-            result.add(RecruitListResponce.builder()
-                    .title(request.getKeyword())
-                    .build());
+        //query 생성 준비
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class);
+
+        Root<Recruit> recruit = cq.from(Recruit.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        // query 생성
+        predicates.add(cb.equal(recruit.get("status"), RecruitStatus.ONGOING));
+        if (request.getTag() != null && !request.getTag().isEmpty()) {
+            Join<Recruit, String> tagList = recruit.join("tags");
+            predicates.add(tagList.in(request.getTag()));
         }
-        return result;
+        if (request.getType() != null && !request.getType().isEmpty()){
+            predicates.add(cb.equal(recruit.get("type"), TeamType.from(request.getType())));
+        }
+
+        if (request.getPlace() != null && !request.getPlace().isEmpty()) {
+            predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.from(request.getPlace())));
+        }
+        if (request.getRegion() != null && !request.getRegion().isEmpty()) {
+            predicates.add(cb.equal(recruit.get("region"), request.getRegion()));
+        }
+        if (request.getDue() != null && !request.getDue().isEmpty()) {
+            int index = Arrays.asList(dues).indexOf(request.getDue());
+            if (index != -1) {
+                List<String> validDues = Arrays.asList(dues).subList(0, index + 1);
+                predicates.add(recruit.get("due").in(validDues));
+            }
+        }
+        if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
+            predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
+        }
+
+        //sort 기준 설정
+        List<Order> orders = new ArrayList<>();
+        switch(request.getSort()) {
+            case "latest":
+                orders.add(cb.desc(recruit.get("createdAt")));
+                break;
+            case "hit":
+                orders.add(cb.desc(recruit.get("hit")));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort value");
+        }
+
+        //query 전송
+        cq.where(predicates.toArray(new Predicate[0]));
+        List<Recruit> queryResult = em.createQuery(cq).getResultList();
+        for (Recruit recruit1 : queryResult) {
+            System.out.println(recruit1.getTitle());
+        }
     }
 
     public Page<RecruitListResponce> getRecruitList(int page, int pageSize, Principal principal){
