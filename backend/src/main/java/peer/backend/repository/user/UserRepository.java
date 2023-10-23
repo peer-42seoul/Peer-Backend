@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(String id);
 
-    @Query("SELECT m FROM User m WHERE (m.email LIKE %:keyword% OR m.nickname LIKE %:keyword%) ORDER BY m.nickname ASC")
+    @Query("SELECT m FROM User m WHERE (m.email LIKE %:keyword% OR m.nickname LIKE %:keyword%) ORDER BY m.nickname")
     Optional<List<User>> findByKeyWord(String keyword);
 }

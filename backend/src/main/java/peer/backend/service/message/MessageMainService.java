@@ -154,11 +154,12 @@ public class MessageMainService {
      */
     @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(String keyword) {
-        List<User> raw = this.userRepository.findByKeyWord(keyword).orElseGet(() -> null);
+    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword) {
+        List<User> raw = this.userRepository.findByKeyWord(keyword.getKeyword()).orElseGet(() -> null);
+        System.out.println(raw.size() + " : " + raw.get(0).getNickname());
         if (raw == null)
             return CompletableFuture.completedFuture(AsyncResult.success(null));
-        List<LetterTargetDTO> ret = null;
+        List<LetterTargetDTO> ret = new ArrayList<>();
         for (User candidate: raw) {
 
             LetterTargetDTO data = null;
@@ -192,6 +193,11 @@ public class MessageMainService {
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
+        try {
+            this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
+        } catch (Exception e){
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
         User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());

@@ -3,6 +3,8 @@ package peer.backend.service.message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -98,6 +100,11 @@ public class MessageSubService {
         return query.getResultList();
     }
 
+    public List<User> executeNativeSQLQueryForUser(String sql) {
+        Query query = entityManager.createNativeQuery(sql, User.class);
+        return query.getResultList();
+    }
+
     public String makeFormattedDate(LocalDateTime value) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
         return value.format(formatter);
@@ -159,4 +166,11 @@ public class MessageSubService {
         return ret;
     }
 
+    public boolean checkMessageIndexExistOrNot(long ownId, long userId) throws DataIntegrityViolationException {
+        Optional<MessageIndex> rawIndex = this.indexRepository.findByUserIdx(ownId, userId);
+        if (rawIndex.isEmpty())
+            return false;
+        else
+            throw new DataIntegrityViolationException("There is already message");
+    }
 }
