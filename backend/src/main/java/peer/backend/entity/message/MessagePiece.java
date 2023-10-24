@@ -26,20 +26,17 @@ public class MessagePiece extends BaseEntity {
     @Column(nullable = false)
     private String senderNickname;
 
-    @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdAt;
-
     @Column(nullable = true)
     private LocalDateTime readAt;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String text;
 
-    @Column(insertable = false, updatable = false)
+    @Column()
     private long conversationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversationId")
+    @JoinColumn(name = "index_key")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MessageIndex index;
 }
