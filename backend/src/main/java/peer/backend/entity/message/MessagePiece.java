@@ -18,10 +18,10 @@ import java.util.Comparator;
 public class MessagePiece extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long msgId;
+    private Long msgId;
 
     @Column(nullable = false)
-    private long senderId;
+    private Long senderId;
 
     @Column(nullable = false)
     private String senderNickname;
@@ -33,10 +33,11 @@ public class MessagePiece extends BaseEntity {
     private String text;
 
     @Column()
-    private long conversationId;
+    private Long targetConversationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "index_key")
+    @JoinColumn(name = "index_conversationId")
+
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MessageIndex index;
 }

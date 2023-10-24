@@ -190,7 +190,8 @@ public class MessageMainService {
      * @return : 성공 여부에 따라 messageIndex 객체를 반환 받는다.
      */
     @Async
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false)
     public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
         try {
             this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
@@ -203,24 +204,27 @@ public class MessageMainService {
         try {
             target = data.orElseThrow(() -> new Exception("User not found"));
         } catch (Exception e) {
+//            System.out.println("Check to here2" + e.getMessage());
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
         Optional<User> dataUser = this.userRepository.findById(userId);
         try {
             owner = dataUser.orElseThrow(() -> new Exception("User not found"));
         } catch (Exception e) {
+//            System.out.println("Check to here3" + e.getMessage());
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
 
-        MessageIndex newData = new MessageIndex();
-        newData.setUserIdx1(owner.getId());
-        newData.setUserIdx2(target.getId());
-        newData.setUnreadMessageNumber1(0L);
-        newData.setUnreadMessageNumber2(0L);
-        newData.setUser1delete(false);
-        newData.setUser2delete(false);
-        newData.setUser1(owner);
-        newData.setUser2(target);
+        MessageIndex newData = MessageIndex.builder().
+                userIdx1(owner.getId()).
+                userIdx2(target.getId()).
+                unreadMessageNumber1(0L).
+                unreadMessageNumber2(0L).
+                user1(owner).
+                user2(target).
+                build();
+
+//        System.out.println("Check to here4" );
 
         MessageIndex saved;
         try {
@@ -249,16 +253,19 @@ public class MessageMainService {
     public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
         User user1 = index.getUser1();
         User user2 = index.getUser2();
+//        User user1 = this.userRepository.findById(index.getUserIdx1()).get();
+//        User user2 = this.userRepository.findById(index.getUserIdx2()).get();
         User msgOwner = null;
 
         msgOwner = user1.getId().equals(userId) ? user1 : user2;
 
         System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
-                conversationId(index.getConversationId()).
+                targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
                 senderId(msgOwner.getId()).
                 text(message.getContent()).
+                index(index).
                 build();
 
         try {
@@ -269,13 +276,13 @@ public class MessageMainService {
 
         if (msgOwner.getId() == userId)
         {
-            Long unread = index.getUnreadMessageNumber1();
+            long unread = index.getUnreadMessageNumber1();
             unread += 1;
             index.setUnreadMessageNumber1(unread);
         }
         else
         {
-            Long unread = index.getUnreadMessageNumber2();
+            long unread = index.getUnreadMessageNumber2();
             unread += 1;
             index.setUnreadMessageNumber2(unread);
         }
