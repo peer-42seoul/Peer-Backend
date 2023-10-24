@@ -6,10 +6,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MsgDTO {
-    private long senderId;
-    private String senderNickname;
-    private String targetProfile;
+public class Msg {
+    private long userId;
     private long msgId;
     private String content;
     private String date;

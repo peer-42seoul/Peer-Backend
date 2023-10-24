@@ -15,6 +15,12 @@ public class GlobalControllerAdvice {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    public ResponseEntity constraintViolationException(ConstraintViolationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity illegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

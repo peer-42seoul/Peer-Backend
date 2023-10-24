@@ -13,6 +13,7 @@ public class AsyncResult<T> {
     private T result;
     private Exception exception;
 
+
     public static <T> AsyncResult<T> success(T result) {
         AsyncResult<T> asyncResult = new AsyncResult<>();
         asyncResult.result = result;

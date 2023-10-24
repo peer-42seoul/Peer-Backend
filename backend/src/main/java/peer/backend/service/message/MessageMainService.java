@@ -1,28 +1,29 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.ObjectDeletedException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
-import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.swing.text.html.Option;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.net.SocketOption;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,43 +32,151 @@ public class MessageMainService {
     private final UserRepository userRepository;
     private final MessageIndexRepository indexRepository;
     private final MessagePieceRepository pieceRepository;
+    private final MessageSubService subService;
 
+
+    /**
+     * OutLine : 사용자 대화 목록을 모두 발견하고, 해당 목록과 마지막 대화를 불러와 MsgObject를 만들어 전달한다.
+     * Logic :
+     * 1. 사용자를 파악한다.
+     * 2. MessageIndex를 전부 추려서 ListUp 한다.
+     * 3. List<MessageIndex>를 사용하여 순회하면서 MsgObjectDTO 를 채우고 이를 추가한다.(conversationId, unreadMsgNumber)
+     * 3-1. Index를 통해 target 대상의 정보도 발견하고 받아낸다.(targetId, Nickname, profile URL)
+     * 3-2. MessagePiece에서 ConversationId를 가지고 latestContent를 확인하고, 전달 일자를 conversion해서 추가한다.(msgId, latestContent(Text), latestSendDate)
+     * 3-3. 최종적으로 데이터를 MsgObjectDTO로 반환 된 것을 받아서 추가해준다.
+     * @param userId
+     * @return
+     */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(long userId) {
-        // TODO: 사용자 계정 탐색
-        // TODO: 대화 탐색
-        // TODO: conversationId를 활용하여 latest 컨텐츠를 가져온다
-
-        Optional<User> target = userRepository.findById(userId);
-        if (target == null) {
-
+        Optional<User> msgOwnerData = userRepository.findById(userId);
+        User msgOwner = new User();
+        try {
+            // Owner Get
+            msgOwner = msgOwnerData.orElseThrow(() -> new NoSuchElementException("User Not found"));
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
-        Optional<List<MessageIndex>> values = indexRepository.findByUserId(userId);
-        if (values == null) {
-            //TODO: error handling
+
+        List<MessageIndex> msgList = null;
+        try {
+            // msgIndex Get
+            msgList = this.subService.getMessageIndexList(msgOwner.getId());
+        } catch (NoSuchElementException e) {
+            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
-        List<MessageIndex> list = values.orElseGet(() -> null);
-        list.get(0).getConversationId().longValue();
-        List<MsgObjectDTO> ret = null;
+
+        List<MsgObjectDTO> retList = new ArrayList<>();
+        User target = null;
+
+        System.out.println("MSG List Size : "+ msgList.size());
+
+        // Index 기준으로 반복문으로 MsgObject 작성 시작
+        for (MessageIndex msg : msgList) {
+            // 대화
+            MessagePiece conversation= this.pieceRepository.findTopByConversationId(msg.getConversationId()).orElseGet(() -> null);
+            // 상대방 확인
+            if (msg.getUserIdx1().equals(msgOwner.getId())) {
+                if (msg.isUser1delete())
+                    continue;
+                target = this.userRepository.findById(msg.getUserIdx2()).get();
+            } else {
+                if (msg.isUser2delete())
+                    continue;
+                target = this.userRepository.findById(msg.getUserIdx1()).get();
+            }
+
+            retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+        }
+        return CompletableFuture.completedFuture(AsyncResult.success(retList));
+    }
+
+    /**
+     * OutLine : Letter 목록을 전달 받으면 대화목록을 삭제 한다.
+     * Logic :
+     * 1. 삭제 리스트를 하나씩 순회한다.
+     * 2. 데이터 삭제를 했다고 index에 표시한다.
+     * 2-1. 양쪽 다 삭제 처리가 true가 된 index에 대해서는 DB에서 삭제를 진행한다.
+     * 3. 개수를 반환한다.
+     * 4. DB 상 에러 발생 시 에러 처리를 진행 한다.
+     * @param userId
+     * @param list
+     * @return
+     */
+    @Async
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetDTO> list){
+        Long ret;
+        ret = 0L;
+
+        List<MessageIndex> targetsData = this.indexRepository.findByUserId(userId).orElseGet(() -> null);
+        if (targetsData == null)
+            return CompletableFuture.completedFuture(AsyncResult.success(0L));
+        boolean check = false;
+        for (TargetDTO target : list) {
+            for (MessageIndex data : targetsData) {
+                if (data.getUserIdx1() == target.getTargetId()) {
+                    data.setUser1delete(true);
+                    check = true;
+                }
+                if (data.getUserIdx2() == target.getTargetId()) {
+                    data.setUser2delete(true);
+                    check = true;
+                }
+                if (check) {
+                    check = false;
+                    if (data.isUser1delete() && data.isUser2delete()) {
+                        this.indexRepository.delete(data);
+                        ret++;
+                        targetsData.remove(data);
+                        break ;
+                    }
+                    else {
+                        this.indexRepository.save(data);
+                        ret++;
+                        targetsData.remove(data);
+                        break ;
+                    }
+                    // TODO: check CASCADE so you need to check is MessagePieces deleted or not
+                }
+            }
+        }
+
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
+    /**
+     * OutLine : String keyword 를 전달하고 유사성 높은 대상을 간추려 낸다.
+     * Logic:
+     * 1. keyword 를 받는다.
+     * 2. UserRepository 를 활용해서 데이터를 간추려낸다.
+     * 3. 에러 핸들링 이후 DTO 에 담아 전달한다.
+     * @param keyword
+     * @return
+     */
     @Async
     @Transactional(readOnly = true)
-    public long deleteLetterList(long userId, List<TargetDTO> list){
-        //TODO: Make Logic
-
-        return 1;
-    }
-
-    @Async
-    @Transactional(readOnly = true)
-    public List<LetterTargetDTO> findUserListByUserNickname(String keyword) {
-        //TODO: Make Logic
-        List<LetterTargetDTO> ret = null;
-
-        return ret;
+    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword) {
+        List<User> raw = this.userRepository.findByKeyWord(keyword.getKeyword()).orElseGet(() -> null);
+        System.out.println(raw.size() + " : " + raw.get(0).getNickname());
+        if (raw == null)
+            return CompletableFuture.completedFuture(AsyncResult.success(null));
+        List<LetterTargetDTO> ret = new ArrayList<>();
+        for (User candidate: raw) {
+            LetterTargetDTO data = new LetterTargetDTO();
+            try {
+                data = LetterTargetDTO.builder().
+                        targetId(candidate.getId()).
+                        targetEmail(candidate.getEmail()).
+                        targetNickname(candidate.getNickname()).
+                        targetProfile(candidate.getImageUrl()).build();
+                ret.add(data);
+            } catch (Exception e) {
+                //TODO: error handling
+            }
+        }
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
     /**
@@ -84,34 +193,46 @@ public class MessageMainService {
      * @return : 성공 여부에 따라 messageIndex 객체를 반환 받는다.
      */
     @Async
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false)
     public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
+        try {
+            this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
+        } catch (Exception e){
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
         User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
         try {
             target = data.orElseThrow(() -> new Exception("User not found"));
         } catch (Exception e) {
+//            System.out.println("Check to here2" + e.getMessage());
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
         Optional<User> dataUser = this.userRepository.findById(userId);
         try {
             owner = dataUser.orElseThrow(() -> new Exception("User not found"));
         } catch (Exception e) {
+//            System.out.println("Check to here3" + e.getMessage());
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
 
-        MessageIndex newData = new MessageIndex();
-        newData.setUnreadMessageNumber1(0L);
-        newData.setUnreadMessageNumber2(0L);
-        newData.setUser1delete(false);
-        newData.setUser2delete(false);
-        newData.setUser1(owner);
-        newData.setUser2(target);
+        MessageIndex newData = MessageIndex.builder().
+                userIdx1(owner.getId()).
+                userIdx2(target.getId()).
+                unreadMessageNumber1(0L).
+                unreadMessageNumber2(0L).
+                user1(owner).
+                user2(target).
+                build();
+
+//        System.out.println("Check to here4" );
 
         MessageIndex saved;
         try {
             saved = this.indexRepository.save(newData);
+            System.out.println("Saved ConversationId : " + saved.getConversationId());
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
@@ -135,16 +256,19 @@ public class MessageMainService {
     public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
         User user1 = index.getUser1();
         User user2 = index.getUser2();
+//        User user1 = this.userRepository.findById(index.getUserIdx1()).get();
+//        User user2 = this.userRepository.findById(index.getUserIdx2()).get();
         User msgOwner = null;
 
-        msgOwner = user1.getId() == userId ? user1 : user2;
-
-        MessagePiece letter = new MessagePiece();
-        letter.builder().
-                conversationId(index.getConversationId()).
+        msgOwner = user1.getId().equals(userId) ? user1 : user2;
+        System.out.println("indexed ConversationId : " + index.getConversationId());
+        MessagePiece letter = MessagePiece.builder().
+                targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
                 senderId(msgOwner.getId()).
-                text(message.getContent());
+                text(message.getContent()).
+                index(index).
+                build();
 
         try {
             this.pieceRepository.save(letter);
@@ -154,13 +278,13 @@ public class MessageMainService {
 
         if (msgOwner.getId() == userId)
         {
-            Long unread = index.getUnreadMessageNumber1();
+            long unread = index.getUnreadMessageNumber1();
             unread += 1;
             index.setUnreadMessageNumber1(unread);
         }
         else
         {
-            Long unread = index.getUnreadMessageNumber2();
+            long unread = index.getUnreadMessageNumber2();
             unread += 1;
             index.setUnreadMessageNumber2(unread);
         }
@@ -174,19 +298,136 @@ public class MessageMainService {
         return true;
     }
 
-    @Async
-    @Transactional(readOnly = true)
-    public List<MsgDTO> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
-        //TODO: Make Logic
-        List<MsgDTO> ret = null;
-        return ret;
+    @Transactional(readOnly = false)
+    public boolean sendMessage(long userId, MsgContentDTO message) {
+        long targetId = message.getTargetId();
+        MessageIndex index;
+        try {
+            index = this.indexRepository.findByUserIdx(userId, targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
+        } catch (NoSuchElementException e)
+        {
+            return false;
+        }
+        return this.sendMessage(index, userId, message);
     }
 
+    /**
+     * OutLine : userId 와 구체적인 메시지 DTO를 통해 쪽지들을 불러온다.
+     * Logic :
+     * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
+     * 1. targetId, Conversation Id를 통해 쪽지 데이터를 전체 들고옴.
+     * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
+     * @param userId
+     * @param target
+     * @return
+     */
     @Async
-    @Transactional(readOnly = true)
-    public List<MsgDTO> getSpecificLetterUpByUserIdAndTargetId(long userId, long page, SpecificScrollMsgDTO target) {
-        //TODO: Make Logic
-        List<MsgDTO> ret = null;
-        return ret;
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
+        // MessageIndex 찾기
+        MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
+        try {
+        if (targetIndex == null)
+           throw new NoSuchElementException("There is no talks");
+        if (targetIndex.getUserIdx1() == userId) {
+            if (targetIndex.isUser1delete())
+                throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+        } else if (targetIndex.getUserIdx2() == userId) {
+            if (targetIndex.isUser2delete())
+                throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+        } } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+
+        // MessagePiece의 List 찾기
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at LIMIT 21";
+        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
+        talks.sort(new MessagePieceComparator());
+
+        // Msg 객체 덩어리로 만들기
+        MsgListDTO ret = new MsgListDTO();
+        List<Msg> innerData = new ArrayList<>();
+        innerData = this.subService.makeMsgDataWithMessagePiece(talks);
+
+        // User 객체들 찾기
+        User owner = null;
+        User targetUser = null;
+        Optional<User> rawOwner;
+        Optional<User> rawTarget;
+        try {
+            rawOwner = this.userRepository.findById(userId);
+            rawTarget = this.userRepository.findById(target.getTargetId());
+            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+                throw new NotFoundException("There is no a specific user");
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+        owner = rawOwner.get();
+        targetUser = rawTarget.get();
+
+        // User 객체, List<Msg> 객체로 MsgListDTO 만들기
+        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
+    }
+
+    /**
+     * OutLine :무한스크롤로 과거의 메시지를 기준 단위로 받아온다.
+     * Logic :
+     * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
+     * 1. ConversationId, earlyMsgId 를 통해 쪽지 데이터를 전체 들고옴.
+     * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
+     * @param userId
+     * @param target
+     * @return
+     */
+    @Async
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterUpByUserIdAndTargetId(long userId, SpecificScrollMsgDTO target) {
+        // MessageIndex 찾기
+        MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationId()).orElseGet(() -> null);
+        try {
+            if (targetIndex == null)
+                throw new NoSuchElementException("There is no Talks");
+            if (targetIndex.getUserIdx1() == userId) {
+                if (targetIndex.isUser1delete())
+                    throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+            } else if (targetIndex.getUserIdx2() == userId) {
+                if (targetIndex.isUser2delete())
+                    throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
+            } } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+
+        // MessagePiece의 List 찾기
+        String sql = "SELECT * FROM message_piece WHERE conversationId = :conversationId AND msgId < :earlyMsgId ORDER BY createdAt LIMIT 21";
+        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationId(), "earlyMsgId", target.getEarlyMsgId()));
+        talks.sort(new MessagePieceComparator());
+
+        // Msg 객체 덩어리로 만들기
+        MsgListDTO ret = new MsgListDTO();
+        List<Msg> innerData = new ArrayList<>();
+        innerData = this.subService.makeMsgDataWithMessagePiece(talks);
+
+        // User 객체들 찾기
+        User owner = null;
+        User targetUser = null;
+        Optional<User> rawOwner;
+        Optional<User> rawTarget;
+        try {
+            rawOwner = this.userRepository.findById(userId);
+            rawTarget = this.userRepository.findById(target.getTargetId());
+            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+                throw new NotFoundException("There is no a specific user");
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(AsyncResult.failure(e));
+        }
+        owner = rawOwner.get();
+        targetUser = rawTarget.get();
+
+        // User 객체, List<Msg> 객체로 MsgListDTO 만들기
+        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+
+        return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 }
