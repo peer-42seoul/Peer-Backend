@@ -12,3 +12,5 @@ public enum RecruitApplicantStatus {
     ;
     private final String status;
 }
+
+//denied("거절")

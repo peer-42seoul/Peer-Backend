@@ -40,7 +40,11 @@ public class TeamUser {
     @Column(columnDefinition = "TEXT")
     private String review;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private TeamUserRoleType role;
+
+    public void grantLeader(TeamUserRoleType teamUserRoleType) {
+        this.role = teamUserRoleType;
+    }
 }
