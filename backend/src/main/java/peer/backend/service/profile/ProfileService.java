@@ -87,10 +87,8 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public MyProfileResponse getProfile(String name) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public MyProfileResponse getProfile(PrincipalDetails principalDetails) {
+        User user = principalDetails.getUser();
         List<UserLinkRequest> links = new ArrayList<>();
         for (UserLink link : user.getUserLinks()) {
             UserLinkRequest userLink = UserLinkRequest.builder()
@@ -115,10 +113,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editLinks(String name, List<UserLinkRequest> links) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public void editLinks(PrincipalDetails principalDetails, List<UserLinkRequest> links) {
+        User user = principalDetails.getUser();
         if (user.getUserLinks() != null) {
             userLinkRepository.deleteAll(user.getUserLinks());
         }
@@ -161,8 +157,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editProfile(PrincipalDetails principal, EditProfileRequest profile) throws IOException {
-        User user = principal.getUser();
+    public void editProfile(PrincipalDetails principalDetails, EditProfileRequest profile) throws IOException {
+        User user = principalDetails.getUser();
         if (profile.getProfileImage().isEmpty() && profile.isImageChange()) {
             deleteUserImage(user);
         }
