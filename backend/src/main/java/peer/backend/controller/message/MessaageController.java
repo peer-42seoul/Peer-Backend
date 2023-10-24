@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.message.MessageMainService;
 
 import javax.validation.Valid;
