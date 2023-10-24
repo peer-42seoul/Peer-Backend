@@ -1,19 +1,32 @@
 package peer.backend.entity.user;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.team.TeamUser;
-import lombok.Setter;
+import peer.backend.entity.user.enums.Role;
 
 @Entity
 @Getter
@@ -23,6 +36,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "user")
 @DynamicUpdate
+@DynamicInsert
 public class User extends BaseEntity {
 
     @Id
@@ -31,18 +45,14 @@ public class User extends BaseEntity {
 
     @Column(length = 100, unique = true, nullable = false)
     private String email;
-    @Column//(length = 20)
+    @Column(nullable = false)
     private String password;
     @Column(length = 10, nullable = false)
     private String name;
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
     @Column//(nullable = false)
-    private LocalDate birthday;
-    @Column//(nullable = false)
     private boolean isAlarm;
-    @Column//(nullable = false)
-    private String phone;
     @Column//(nullable = false)
     private String address;
     @Column
@@ -57,9 +67,14 @@ public class User extends BaseEntity {
     private Long peerLevel;
     @Column//(nullable = false)
     private String representAchievement;
+    @Column
+    private String keywordAlarm;
+    @Column(columnDefinition = "varchar(255) not null default 'ROLE_USER'")
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @OneToMany(mappedBy = "user")
-    private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
+//    @OneToMany(mappedBy = "user")
+//    private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private PeerOperation peerOperation;
@@ -77,6 +92,9 @@ public class User extends BaseEntity {
     private List<InterestedProject> interestedProjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<RecruitFavorite> recruitFavorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<SocialLogin> socialLogins = new ArrayList<>();
 
     @OneToMany(mappedBy = "user1", cascade = CascadeType.PERSIST)
@@ -84,4 +102,7 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user2", cascade = CascadeType.PERSIST)
     private List<MessageIndex> indexList2 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.PERSIST)
+    private List<Recruit> recruitList = new ArrayList<>();
 }

@@ -1,6 +1,7 @@
 package peer.backend.oauth;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,14 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                return user.getRole().getValue();
+            }
+        });
+        return authorities;
     }
 
     @Override
@@ -72,16 +80,8 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return user.getNickname();
     }
 
-    public LocalDate getBirthday() {
-        return user.getBirthday();
-    }
-
     public boolean isAlarm() {
         return user.isAlarm();
-    }
-
-    public String getPhone() {
-        return user.getPhone();
     }
 
     public String getAddress() {
@@ -112,9 +112,9 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return user.getRepresentAchievement();
     }
 
-    public List<UserPushKeyword> getUserPushKeywords() {
-        return user.getUserPushKeywords();
-    }
+//    public List<UserPushKeyword> getUserPushKeywords() {
+//        return user.getUserPushKeywords();
+//    }
 
     public PeerOperation getPeerOperation() {
         return user.getPeerOperation();

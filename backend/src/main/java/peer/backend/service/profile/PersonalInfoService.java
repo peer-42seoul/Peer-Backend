@@ -9,6 +9,7 @@ import peer.backend.dto.profile.response.PersonalInfoResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
 
 
@@ -18,10 +19,8 @@ public class PersonalInfoService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public PersonalInfoResponse getPersonalInfo(String name) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public PersonalInfoResponse getPersonalInfo(PrincipalDetails principalDetails) {
+        User user = principalDetails.getUser();
         return PersonalInfoResponse.builder()
                 .name(user.getName())
                 .email(user.getEmail())
@@ -31,11 +30,9 @@ public class PersonalInfoService {
     }
 
     @Transactional
-    public void changePassword(String name, PasswordRequest passwords) {
+    public void changePassword(PrincipalDetails principalDetails, PasswordRequest passwords) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+        User user = principalDetails.getUser();
         if (!encoder.matches(passwords.getPresentPassword(), user.getPassword())) {
             throw new ForbiddenException("현재 비밀번호가 올바르지 않습니다..");
         }

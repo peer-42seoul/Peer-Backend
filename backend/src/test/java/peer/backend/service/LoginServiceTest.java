@@ -57,12 +57,12 @@ public class LoginServiceTest {
         User user = User.builder()
             .id(id)
             .name("test").nickname("test")
-            .password(password).email(email).birthday(LocalDate.now())
-            .phone("010-1234-1234").address("test")
+            .password(password).email(email)
+            .address("test")
             .isAlarm(false).certification(false)
             .imageUrl(null).company(null).introduce(null).representAchievement(null)
             .peerLevel(null).peerOperation(null)
-            .userPushKeywords(null).userAchievements(null).userLinks(null)
+            .userAchievements(null).userLinks(null)
             .build();
         optionalUser = Optional.of(user);
     }

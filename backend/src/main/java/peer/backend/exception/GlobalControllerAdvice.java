@@ -18,10 +18,12 @@ public class GlobalControllerAdvice {
     public ResponseEntity illegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
     @ExceptionHandler(value = MultipartException.class)
     public ResponseEntity multipartException(MultipartException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity methodArgumentNotValidException(HttpServletRequest req,
         MethodArgumentNotValidException e) {

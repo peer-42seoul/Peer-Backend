@@ -11,7 +11,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLinkDTO {
+public class UserLinkRequest {
     private String linkName;
     private String linkUrl;
 }
