@@ -12,6 +12,7 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.user.User;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -35,6 +36,10 @@ public class Recruit extends BaseEntity {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User writer;
+
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitFavorite> favorites = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
@@ -46,6 +51,8 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitFile> files = new ArrayList<>();
 
+    @Column
+    private Long hit;
     @Column
     private String title;
     @Column
@@ -71,10 +78,10 @@ public class Recruit extends BaseEntity {
 
 
 
-    public void update(RecruitUpdateRequestDTO request){
+    public void update(RecruitUpdateRequestDTO request, String content){
         this.title = request.getTitle();
         this.due = request.getDue();
-        this.content = request.getContent();
+        this.content = content;
         this.status = request.getStatus();
         this.region = request.getRegion();
         this.link = request.getLink();
