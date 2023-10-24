@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import peer.backend.entity.composite.RecruitFavoritePK;
+import peer.backend.entity.BaseEntity;
+import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
@@ -15,9 +16,9 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "recruit_favorite")
-@IdClass(RecruitFavoritePK.class)
-public class RecruitFavorite {
+@Table(name = "recruit_test")
+@IdClass(RecruitApplicantPK.class)
+public class RecruitFavorite extends BaseEntity {
     @Id
     @Column(name = "user_id")
     private Long userId;
@@ -36,5 +37,5 @@ public class RecruitFavorite {
     @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
-    private Boolean like;
+    private Boolean likes;
 }
