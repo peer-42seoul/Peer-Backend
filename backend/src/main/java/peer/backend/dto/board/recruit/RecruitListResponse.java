@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecruitListResponce {
+public class RecruitListResponse {
 //    {
 //        "postList" :  {
 //        "post_id" : 10,
@@ -29,7 +29,7 @@ public class RecruitListResponce {
     private Long user_id;
     private String user_nickname;
     private String user_thumbnail;
-    private RecruitStatus status;
+    private String status;
     private List<String> tagList;
     private boolean isFavorite;
 }
