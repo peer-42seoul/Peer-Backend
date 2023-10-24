@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import peer.backend.dto.security.Message;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.dto.security.request.EmailAddress;
@@ -20,7 +21,8 @@ import peer.backend.service.MemberService;
 
 @Controller
 @RequiredArgsConstructor
-public class MemberController {
+@RequestMapping("/api/v1/signup")
+public class SignUpController {
 
     private final MemberService memberService;
     private final EmailAuthService emailService;
@@ -43,7 +45,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/membership")
+    @PostMapping("/form")
     public ResponseEntity<Object> signUp(@Valid @RequestBody UserInfo info) {
         // SQL 인젝션 체크
         User createdUser = memberService.signUp(info);
