@@ -13,6 +13,7 @@ import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.service.message.MessageMainService;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -77,8 +78,8 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 넣은 키워드에 반응하여 해당하는 사용자를 호출합니다.")
     @PostMapping("/searching")
-    public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Principal data, @RequestBody KeywordDTO keyword) {
-
+    public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Principal data, @RequestBody @Valid KeywordDTO keyword) {
+//        System.out.println(keyword.getKeyword());
         AsyncResult<List<LetterTargetDTO>> wrappedRet= new AsyncResult<>();
         List<LetterTargetDTO> ret;
         try {
@@ -110,7 +111,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
 //            System.out.println("여기 어떰?!" + e);
-//            e.printStackTrace();
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -130,7 +131,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
 //            System.out.println("여기 어떰?!");
-//            e.printStackTrace();
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
