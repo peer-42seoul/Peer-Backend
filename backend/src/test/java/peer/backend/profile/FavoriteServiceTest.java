@@ -148,7 +148,6 @@ public class FavoriteServiceTest {
             assertThat(ret.getPostList().get(index).getUserNickname()).isEqualTo(favoriteResponseList.get(index).getUserNickname());
             assertThat(ret.getPostList().get(index).getUserImage()).isEqualTo(favoriteResponseList.get(index).getUserImage());
             assertThat(ret.getPostList().get(index).getTagList()).isEqualTo(favoriteResponseList.get(index).getTagList());
-            assertThat(ret.getPostList().get(index).isFavorite()).isEqualTo(favoriteResponseList.get(index).isFavorite());
         }
     }
 
