@@ -36,10 +36,8 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public FavoritePage getFavorite(String name, String type, int pageIndex, int pageSize) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public FavoritePage getFavorite(PrincipalDetails principalDetails, String type, int pageIndex, int pageSize) {
+        User user = principalDetails.getUser();
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<FavoriteResponse> favoriteResponseList = new ArrayList<>();

@@ -110,8 +110,7 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        FavoritePage ret = favoriteService.getFavorite(name, "project", 1, 10);
+        FavoritePage ret = favoriteService.getFavorite(principalDetails, "project", 1, 10);
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {

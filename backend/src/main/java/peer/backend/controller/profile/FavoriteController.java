@@ -33,7 +33,7 @@ public class FavoriteController {
                                               @RequestParam(value = "page") int page,
                                               @RequestParam(value = "pagesize") int pageSize) {
         checkType(type);
-        FavoritePage ret = favoriteService.getFavorite(auth.getName(), type, page, pageSize);
+        FavoritePage ret = favoriteService.getFavorite((PrincipalDetails) auth.getPrincipal(), type, page, pageSize);
         return new ResponseEntity<> (ret, HttpStatus.OK);
     }
 
