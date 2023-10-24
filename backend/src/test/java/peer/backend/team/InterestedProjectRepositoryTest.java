@@ -47,6 +47,7 @@ public class InterestedProjectRepositoryTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
+            .password("test")
             .birthday(LocalDate.now())
             .isAlarm(false)
             .phone("test")
