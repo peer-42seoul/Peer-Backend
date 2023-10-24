@@ -21,6 +21,7 @@ import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileDto;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.ProfileService;
@@ -40,6 +41,7 @@ class ProfileServiceTest {
     String name;
     List<UserLink> linkList = new ArrayList<>();
     User user;
+    PrincipalDetails principalDetails;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -62,13 +64,13 @@ class ProfileServiceTest {
                 .company("test company")
                 .userLinks(linkList)
                 .build();
+        principalDetails = new PrincipalDetails(user);
     }
 
     @Test
     @DisplayName("Get profile Test")
     void getProfileTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        MyProfileResponse ret = profileService.getProfile(email);
+        MyProfileResponse ret = profileService.getProfile(principalDetails);
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
         assertThat(ret.getNickname()).isEqualTo(user.getNickname());
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());

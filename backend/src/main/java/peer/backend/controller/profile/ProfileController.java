@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
@@ -12,9 +13,12 @@ import peer.backend.dto.profile.request.UserLinkDTO;
 import peer.backend.dto.profile.response.OtherProfileDto;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -26,7 +30,7 @@ public class ProfileController{
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 조회하기")
     @GetMapping("/profile")
     public ResponseEntity<Object> getProfile(Authentication auth) {
-        return new ResponseEntity<> (profileService.getProfile(auth.getName()), HttpStatus.OK);
+        return new ResponseEntity<> (profileService.getProfile((PrincipalDetails) auth.getPrincipal()), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")

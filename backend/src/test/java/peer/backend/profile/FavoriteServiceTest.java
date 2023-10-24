@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,8 +110,8 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        FavoritePage ret = favoriteService.getFavorite(principalDetails, "project", 1, 10);
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        FavoritePage ret = favoriteService.getFavorite(name, "project", 1, 10);
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -154,8 +155,8 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("Test delete all")
     public void deleteAllTest() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        favoriteService.deleteAll(principalDetails, "project");
+        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
+        favoriteService.deleteAll(name, "project");
         assertThat(user.getRecruitFavorites().size()).isEqualTo(1);
     }
 }

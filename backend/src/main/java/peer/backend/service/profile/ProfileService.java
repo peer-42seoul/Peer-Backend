@@ -10,6 +10,7 @@ import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 
@@ -23,11 +24,9 @@ public class ProfileService {
     private final UserLinkRepository userLinkRepository;
 
     @Transactional(readOnly = true)
-    public MyProfileResponse getProfile(String name)
+    public MyProfileResponse getProfile(PrincipalDetails principalDetails)
     {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+        User user = principalDetails.getUser();
         List<UserLinkDTO> links = new ArrayList<>();
         for (UserLink link : user.getUserLinks()) {
             UserLinkDTO userLink = UserLinkDTO.builder()

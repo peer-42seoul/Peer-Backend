@@ -36,8 +36,8 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public FavoritePage getFavorite(PrincipalDetails principalDetails, String type, int pageIndex, int pageSize) {
-        User user = userRepository.findById(principalDetails.getId()).orElseThrow(
+    public FavoritePage getFavorite(String name, String type, int pageIndex, int pageSize) {
+        User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
@@ -67,8 +67,8 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteAll(PrincipalDetails principalDetails, String type) {
-        User user = userRepository.findById(principalDetails.getId()).orElseThrow(
+    public void deleteAll(String name, String type) {
+        User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
