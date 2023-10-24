@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface RecruitApplicantRepository extends JpaRepository<RecruitApplicant, RecruitApplicantPK> {
     List<RecruitApplicant> findByUserId(Long userId);
+    List<RecruitApplicant> findByRecruitId(Long recruitId);
+    RecruitApplicant findByUserIdAndRecruitId(Long userId, Long recruitId);
 }
