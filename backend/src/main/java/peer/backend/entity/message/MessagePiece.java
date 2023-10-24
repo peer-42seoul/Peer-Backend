@@ -8,8 +8,10 @@ import peer.backend.entity.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,28 +19,25 @@ import java.time.LocalDateTime;
 public class MessagePiece extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long msgId;
+    private Long msgId;
 
     @Column(nullable = false)
-    private long senderId;
+    private Long senderId;
 
     @Column(nullable = false)
     private String senderNickname;
 
-    @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdAt;
-
-    @Column(nullable = true)
+    @Column()
     private LocalDateTime readAt;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String text;
 
-    @Column(insertable = false, updatable = false)
-    private long conversationId;
+    @Column()
+    private Long targetConversationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversationId")
+    @JoinColumn(name = "index_conversationId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MessageIndex index;
 }

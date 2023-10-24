@@ -19,7 +19,7 @@ public class ExcelController {
     private final ExcelService excelService;
 
     @NoLogging
-    @GetMapping("/tracking-excel")
+    @GetMapping("/admin/tracking-excel")
     public ResponseEntity<InputStreamResource> getUserWageExcel() {
         ByteArrayInputStream result;
 

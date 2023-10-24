@@ -62,7 +62,7 @@ public class LoginServiceTest {
             .isAlarm(false).certification(false)
             .imageUrl(null).company(null).introduce(null).representAchievement(null)
             .peerLevel(null).peerOperation(null)
-            .userPushKeywords(null).userAchievements(null).userLinks(null)
+            .userAchievements(null).userLinks(null)
             .build();
         optionalUser = Optional.of(user);
     }

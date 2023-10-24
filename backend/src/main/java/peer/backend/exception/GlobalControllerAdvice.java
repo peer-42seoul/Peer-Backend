@@ -10,14 +10,27 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
+    @ExceptionHandler(ConversionFailedException.class)
+    public ResponseEntity<String> handleConflict(RuntimeException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    public ResponseEntity constraintViolationException(ConstraintViolationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity illegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
     @ExceptionHandler(value = MultipartException.class)
     public ResponseEntity multipartException(MultipartException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity methodArgumentNotValidException(HttpServletRequest req,
         MethodArgumentNotValidException e) {

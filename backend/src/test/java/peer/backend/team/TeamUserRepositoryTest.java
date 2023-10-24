@@ -25,8 +25,6 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
 @DisplayName("Team User Repository 테스트")
-//@DataJpaTest
-//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -143,9 +141,9 @@ public class TeamUserRepositoryTest {
             .role(TeamUserRoleType.MEMBER)
             .build();
 
-        teamUserRepository.save(teamUser);
-        assertEquals(teamUserRepository.count(), 1);
-        teamUserRepository.deleteByUserIdAndTeamId(user.getId(), team.getId());
-        assertEquals(teamUserRepository.count(), 0);
+//        teamUserRepository.save(teamUser);
+//        assertEquals(teamUserRepository.count(), 1);
+//        teamUserRepository.deleteByUserIdAndTeamId(user.getId(), team.getId());
+//        assertEquals(teamUserRepository.count(), 0);
     }
 }

@@ -36,8 +36,7 @@ public class TokenProviderTest {
             .password("asdf").email("asdf@asdf.com").address("asdf")
             .isAlarm(false).certification(false)
             .imageUrl(null).company(null).introduce(null).representAchievement(null)
-            .peerLevel(null).peerOperation(null)
-            .userPushKeywords(null).userAchievements(null).userLinks(null)
+            .peerLevel(null).peerOperation(null).userAchievements(null).userLinks(null)
             .build();
 
         ReflectionTestUtils.setField(tokenProvider, "secretKey",

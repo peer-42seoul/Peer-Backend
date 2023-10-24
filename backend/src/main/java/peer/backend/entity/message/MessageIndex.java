@@ -21,6 +21,12 @@ public class MessageIndex extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long conversationId;
 
+    @Column
+    private Long userIdx1;
+
+    @Column
+    private Long userIdx2;
+
     @Column(nullable = true)
     private Long unreadMessageNumber1;
 
@@ -35,13 +41,13 @@ public class MessageIndex extends BaseEntity {
     @Builder.Default
     private boolean user2delete = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId1", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user1_id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private User user1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId2", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user2_id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private User user2;
 

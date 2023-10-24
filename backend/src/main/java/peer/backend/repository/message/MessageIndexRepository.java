@@ -9,8 +9,10 @@ import java.util.Optional;
 
 public interface MessageIndexRepository extends JpaRepository<MessageIndex, Long> {
     @Query("SELECT m FROM MessageIndex m WHERE (m.user1.id = :id1 AND m.user2.id = :id2) OR (m.user1.id = :id2 AND m.user2.id = :id1)")
-    Optional<MessageIndex> findByUserIdx(Long id1, Long id2);
+    Optional<MessageIndex> findByUserIdx(long id1, Long id2);
 
     @Query("SELECT m FROM MessageIndex m WHERE (m.user1.id = :id OR m.user2.id = :id)")
-    Optional<List<MessageIndex>> findByUserId(Long id);
+    Optional<List<MessageIndex>> findByUserId(long id);
+
+    Optional<MessageIndex> findTopByConversationId(long conversationId);
 }

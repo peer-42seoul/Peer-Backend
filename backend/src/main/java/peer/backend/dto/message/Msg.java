@@ -1,17 +1,18 @@
 package peer.backend.dto.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MsgDTO {
-    private long senderId;
-    private String senderNickname;
-    private String targetProfile;
+public class Msg {
+    private long userId;
     private long msgId;
     private String content;
     private String date;
-    private boolean isEnd;
+
+    @JsonProperty("isEnd")
+    private boolean end;
 }
