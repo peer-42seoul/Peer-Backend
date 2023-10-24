@@ -52,7 +52,7 @@ public class Recruit extends BaseEntity {
     private List<RecruitFile> files = new ArrayList<>();
 
     @Column
-    private Long hit;
+    private Long hit = 0L;
     @Column
     private String title;
     @Column
@@ -112,5 +112,9 @@ public class Recruit extends BaseEntity {
             this.roles = new ArrayList<>();
         this.roles.add(role);
         role.setRecruit(this);
+    }
+
+    public void setHit(Long hit) {
+        this.hit = hit;
     }
 }

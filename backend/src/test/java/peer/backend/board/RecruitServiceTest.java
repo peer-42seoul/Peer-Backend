@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.dto.board.recruit.RecruitRequestDTO;
+import peer.backend.dto.board.recruit.RecruitListRequestDTO;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamMemberStatus;
@@ -28,9 +28,7 @@ import peer.backend.service.board.recruit.RecruitService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -89,7 +87,7 @@ public class RecruitServiceTest {
     @DisplayName("getInterestedProjectList 함수 테스트")
     void createRecruitTest() throws IOException {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        RecruitRequestDTO recruitRequestDTO = RecruitRequestDTO.builder()
+        RecruitListRequestDTO recruitListRequestDTO = RecruitListRequestDTO.builder()
                 .name("hello")
                 .due("1주일")
                 .region("고양시")
@@ -102,7 +100,7 @@ public class RecruitServiceTest {
                 .userId(1L)
                 .type("스터디")
                 .build();
-        recruitService.createRecruit(recruitRequestDTO);
+        recruitService.createRecruit(recruitListRequestDTO);
         Recruit recruit = recruitRepository.findById(1L).get();
         assertThat("hi").isEqualTo(recruit.getTitle());
     }

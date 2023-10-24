@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Principal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -164,61 +163,56 @@ public class RecruitService {
                         recruit2.getWriter().getImageUrl(),
                         recruit2.getStatus().toString(),
                         recruit2.getTags(),
-                        ((recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit2.getId())).isPresent()) ? true : false)
+                        (recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit2.getId())).isPresent())
                 )).collect(Collectors.toList());
 
         return  new PageImpl<>(results, pageable, results.size());
     }
 
-    public Page<RecruitListResponse> getRecruitList(int page, int pageSize, Principal principal){
-        List<Recruit> recruits = recruitRepository.findAll();
-        Pageable pageable = PageRequest.of(page, pageSize);
-        User user = userRepository.findByName(principal.getName()).orElseThrow(
-                () -> new NotFoundException("존재하지 않는 유저입니다."));
-        //TODO:userImage를 thumbnail로 변환하여 매핑
-        List<RecruitListResponse> result = new ArrayList<>();
-        for (Recruit recruit: recruits) {
-            User writer = userRepository.findById(recruit.getWriterId()).orElseThrow(
-                    () -> new NotFoundException("존재하지 않는 유저입니다."));
-            RecruitListResponse recruitListResponse = RecruitListResponse.builder()
-                    .title(recruit.getTitle())
-                    .tagList(recruit.getTags())
-                    .status(recruit.getStatus().toString())
-                    .image(recruit.getThumbnailUrl())
-                    .user_thumbnail(writer.getImageUrl())
-                    .user_nickname(writer.getNickname())
-                    .user_id(recruit.getWriterId())
-                    .build();
-            RecruitFavoritePK recruitFavoritePK = new RecruitFavoritePK(user.getId(), recruit.getId());
-            Optional<RecruitFavorite> recruitFavorite = recruitFavoriteRepository.findById(recruitFavoritePK);
-            if (recruitFavorite.isPresent())
-                recruitListResponse.setFavorite(true);
-            result.add(recruitListResponse);
-        }
-        return new PageImpl<>(result, pageable, result.size());
-    }
-
+    @Transactional
     public RecruitResponce getRecruit(Long recruit_id){
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        recruit.setHit(recruit.getHit() + 1);
+        List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
+        for (RecruitRole role: recruit.getRoles()) {
+            roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
+        }
+        List<RecruitInterviewDto> interviewDtoList = new ArrayList<>();
+        for (RecruitInterview interview : recruit.getInterviews()){
+            List<String> optionList = new ArrayList<>();
+            interviewDtoList.add(new RecruitInterviewDto(interview.getQuestion(), interview.getType(), interview.getOptions()));
+        }
         //TODO:DTO 항목 추가 필요
         return RecruitResponce.builder()
-                .name(recruit.getTitle())
+                .title(recruit.getTitle())
+                .content(recruit.getContent())
+                .region(recruit.getRegion())
+                .status(recruit.getStatus())
+                .totalNumber(recruit.getRoles().size())
+                .due(recruit.getDue())
+                .link(recruit.getLink())
+                .leader_id(recruit.getWriter().getId())
+                .leader_nickname(recruit.getWriter().getNickname())
+                .leader_image(recruit.getWriter().getImageUrl())
+                .tagList(recruit.getTags())
+                .roleList(roleDtoList)
+                .interviewsList(interviewDtoList)
                 .build();
     }
 
 
-    private Team createTeam(User user, RecruitRequestDTO recruitRequestDTO){
+    private Team createTeam(User user, RecruitListRequestDTO recruitListRequestDTO){
         Team team = Team.builder()
-                .name(recruitRequestDTO.getName())
-                .type(TeamType.from(recruitRequestDTO.getType()))
-                .dueTo(recruitRequestDTO.getDue())
-                .operationFormat(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
+                .name(recruitListRequestDTO.getName())
+                .type(TeamType.from(recruitListRequestDTO.getType()))
+                .dueTo(recruitListRequestDTO.getDue())
+                .operationFormat(TeamOperationFormat.from(recruitListRequestDTO.getPlace()))
                 .status(TeamStatus.RECRUITING)
                 .teamMemberStatus(TeamMemberStatus.RECRUITING)
                 .isLock(false)
-                .region1(recruitRequestDTO.getRegion())
-                .region2(recruitRequestDTO.getRegion())
-                .region3(recruitRequestDTO.getRegion())
+                .region1(recruitListRequestDTO.getRegion())
+                .region2(recruitListRequestDTO.getRegion())
+                .region3(recruitListRequestDTO.getRegion())
                 .build();
         teamRepository.save(team);
         // 리더 추가
@@ -246,61 +240,71 @@ public class RecruitService {
         }
     }
 
-    private Recruit createRecruitFromDto(RecruitRequestDTO recruitRequestDTO, Team team) throws IOException{
-        Recruit recruit = Recruit.builder()
-                .team(team)
-                .type(TeamType.from(recruitRequestDTO.getType()))
-                .title(recruitRequestDTO.getTitle())
-                .due(recruitRequestDTO.getDue())
-                .link(recruitRequestDTO.getLink())
-                .content(processMarkdownWithFormData(recruitRequestDTO.getContent()))
-                .place(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
-                .region(recruitRequestDTO.getRegion())
-                .tags(recruitRequestDTO.getTagList())
-                .status(RecruitStatus.ONGOING)
-                .writerId(recruitRequestDTO.getUserId())
-                .writer(userRepository.findById(recruitRequestDTO.getUserId()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다.")))
-                .build();
-        //List 추가
-        addInterviewsToRecruit(recruit, recruitRequestDTO.getInterviewList());
-        addRolesToRecruit(recruit, recruitRequestDTO.getRoleList());
-        return recruit;
-    }
-
-
-    private String processMarkdownWithFormData(String markdown) throws IOException {
+    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
         //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
         Matcher matcher = IMAGE_PATTERN.matcher(markdown);
         StringBuilder sb = new StringBuilder();
+        List<String> result = new ArrayList<>();
+        int index = 0;
         while (matcher.find()) {
+            System.out.println(matcher.groupCount());
             String formData = matcher.group().substring(26, matcher.group().length() - 1);
             byte[] imageBytes = Base64.getDecoder().decode(formData);
             UUID uuid = UUID.randomUUID();
             Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID().toString() + ".png");
             Files.write(path, imageBytes);
+            if (index == 0) {
+                result.add(path.toString());
+                index++;
+            }
             matcher.appendReplacement(sb, "![image](" + path.toString() + ")");
         }
         matcher.appendTail(sb);
-        return sb.toString();
+        result.add(sb.toString());
+        return result;
     }
 
+    private Recruit createRecruitFromDto(RecruitListRequestDTO recruitListRequestDTO, Team team) throws IOException{
+        List<String> content = processMarkdownWithFormData(recruitListRequestDTO.getContent());
+        Recruit recruit = Recruit.builder()
+                .team(team)
+                .type(TeamType.from(recruitListRequestDTO.getType()))
+                .title(recruitListRequestDTO.getTitle())
+                .due(recruitListRequestDTO.getDue())
+                .link(recruitListRequestDTO.getLink())
+                .content(content.get(1))
+                .place(TeamOperationFormat.from(recruitListRequestDTO.getPlace()))
+                .region(recruitListRequestDTO.getRegion())
+                .tags(recruitListRequestDTO.getTagList())
+                .status(RecruitStatus.ONGOING)
+                .thumbnailUrl(content.get(0))
+                .writerId(recruitListRequestDTO.getUserId())
+                .writer(userRepository.findById(recruitListRequestDTO.getUserId()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다.")))
+                .build();
+        //List 추가
+        addInterviewsToRecruit(recruit, recruitListRequestDTO.getInterviewList());
+        addRolesToRecruit(recruit, recruitListRequestDTO.getRoleList());
+        return recruit;
+    }
+
+
     @Transactional
-    public void createRecruit(RecruitRequestDTO recruitRequestDTO) throws IOException{
+    public void createRecruit(RecruitListRequestDTO recruitListRequestDTO) throws IOException{
         //TODO:첫번째이미지 대표 이미지 등록 필요
         //유저 검사
-        User user = userRepository.findById(recruitRequestDTO.getUserId()).orElseThrow(
+        User user = userRepository.findById(recruitListRequestDTO.getUserId()).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
         //동일한 팀 이름 검사
-        Optional<Team> findTeam = teamRepository.findByName(recruitRequestDTO.getName());
+        Optional<Team> findTeam = teamRepository.findByName(recruitListRequestDTO.getName());
         if (findTeam.isPresent())
             throw new IllegalArgumentException("이미 존재하는 팀 이름입니다.");
 
         //팀 생성
-        Team team = createTeam(user, recruitRequestDTO);
+        Team team = createTeam(user, recruitListRequestDTO);
 
         //모집게시글 생성
-        Recruit recruit = createRecruitFromDto(recruitRequestDTO, team);
+        Recruit recruit = createRecruitFromDto(recruitListRequestDTO, team);
         System.out.println(recruit.getContent());
         recruitRepository.save(recruit);
     }
@@ -317,7 +321,7 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
 
-        String content = processMarkdownWithFormData(recruitUpdateRequestDTO.getContent());
+        String content = processMarkdownWithFormData(recruitUpdateRequestDTO.getContent()).get(1);
         recruit.update(recruitUpdateRequestDTO, content);
     }
 }
