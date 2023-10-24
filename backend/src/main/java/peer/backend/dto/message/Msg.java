@@ -1,6 +1,8 @@
 package peer.backend.dto.message;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.*;
 
 @Getter
@@ -12,7 +14,8 @@ public class Msg {
     private long msgId;
     private String content;
     private String date;
-
+  
     @JsonProperty("isEnd")
     private boolean end;
+
 }

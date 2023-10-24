@@ -49,7 +49,6 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
@@ -112,7 +111,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
 //            System.out.println("여기 어떰?!" + e);
-            e.printStackTrace();
+//            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -170,7 +169,7 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();

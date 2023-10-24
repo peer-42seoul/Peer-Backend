@@ -46,6 +46,10 @@ public class MemberService {
         return savedUser;
     }
 
+    public void deleteUser(User user) {
+        this.userRepository.delete(user);
+    }
+
     public boolean emailDuplicationCheck(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
         if (user == null) {

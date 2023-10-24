@@ -18,7 +18,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
-import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
@@ -122,7 +121,6 @@ public class MessageMainService {
     public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetDTO> list){
         Long ret;
         ret = 0L;
-
         List<MessageIndex> targetsData = this.indexRepository.findByUserId(userId).orElseGet(() -> null);
         if (targetsData == null)
             return CompletableFuture.completedFuture(AsyncResult.success(0L));
@@ -155,7 +153,6 @@ public class MessageMainService {
                 }
             }
         }
-
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
 
@@ -212,7 +209,6 @@ public class MessageMainService {
         } catch (Exception e){
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-//        System.out.println("Check to here1");
         User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
@@ -237,9 +233,6 @@ public class MessageMainService {
 //                user1(owner).
 //                user2(target).
 //                build();
-
-
-
         System.out.println("Check to here4" );
 
         MessageIndex saved = this.subService.saveNewData(owner, target);

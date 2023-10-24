@@ -13,4 +13,5 @@ public interface MessagePieceRepository extends JpaRepository<MessagePiece, Long
     Page<MessagePiece> findTopByTargetConversationIdOrderByCreatedAtDesc(long conversationId, Pageable pageable);
 
     Optional<List<MessagePiece>> findByTargetConversationId(long conversationId);
+
 }
