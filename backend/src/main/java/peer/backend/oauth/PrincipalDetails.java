@@ -120,9 +120,9 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return user.getRepresentAchievement();
     }
 
-    public List<UserPushKeyword> getUserPushKeywords() {
-        return user.getUserPushKeywords();
-    }
+//    public List<UserPushKeyword> getUserPushKeywords() {
+//        return user.getUserPushKeywords();
+//    }
 
     public PeerOperation getPeerOperation() {
         return user.getPeerOperation();
