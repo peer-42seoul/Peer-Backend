@@ -1,5 +1,6 @@
 package peer.backend.controller.board;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -56,6 +57,11 @@ public class RecruitController {
         recruitService.deleteRecruit(recruit_id);
     }
 
+    @ApiOperation(value = "", notes = "모집에 지원한다.")
+    @PostMapping("/interview/{recruit_id}")
+    public void applyRecruit(@PathVariable Long recruit_id, @RequestBody ApplyRecruitRequest request){
+        recruitService.applyRecruit(recruit_id, request);
+    }
     @PostMapping("/favorite/{recruit_id}")
     public void goFavorite(@PathVariable Long recruit_id, Principal principal){
         User user = userRepository.findByName(principal.getName()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
