@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LinkListRequest {
-    private List<UserLinkDTO> linkList = new ArrayList<>();
+    private List<UserLinkRequest> linkList = new ArrayList<>();
 }

@@ -2,7 +2,6 @@ package peer.backend.service.board.recruit;
 
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
@@ -21,28 +20,57 @@ import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.team.TeamService;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecruitService {
     private final UserRepository userRepository;
     private final RecruitRepository recruitRepository;
-    private final TeamService teamService;
     private final TeamRepository teamRepository;
-    private final TeamUserRepository teamUserRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
 
+    //query 생성 및 주입
+    @PersistenceContext
+    private EntityManager em;
+
+    //Markdown에서 form-data를 추출하기 위한 패턴 ![](*)
+    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
+
+
+    public void changeRecruitFavorite(Long user_id, Long recruit_id){
+        User user = userRepository.findById(user_id).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
+        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        Optional<RecruitFavorite> optFavorite = recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit_id));
+        if (optFavorite.isPresent()) {
+            recruitFavoriteRepository.delete(optFavorite.get());
+        } else {
+            RecruitFavorite favorite = new RecruitFavorite();
+            favorite.setUser(user);
+            favorite.setRecruit(recruit);
+            favorite.setUserId(user_id);
+            favorite.setRecruitId(recruit_id);
+            recruitFavoriteRepository.save(favorite);
+        }
+    }
+
     public List<TeamApplicantListDto> getTeamApplicantList(Long user_id){
+        //TODO:모듈화 리팩토링 필요
         User user = userRepository.findById(user_id).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
         List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByUserId(user_id);
         List<TeamApplicantListDto> result = new ArrayList<>();
@@ -72,32 +100,90 @@ public class RecruitService {
         return result;
     }
 
-    public List<RecruitListResponce> getRecruitSearchList(Long page, Long pageSize, RecruitRequest request) {
-        //TODO:다중검색 쿼리 만들어야 함.
-        List<Recruit> recruits = recruitRepository.findAll();
-        List<RecruitListResponce> result = new ArrayList<>();
-        for (Recruit recruit : recruits) {
-            result.add(RecruitListResponce.builder()
-                    .title(request.getKeyword())
-                    .build());
+    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitRequest request, Long user_id) {
+
+        //TODO:favorite 등
+        //query 생성 준비
+        String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class).distinct(true);
+        Root<Recruit> recruit = cq.from(Recruit.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        // query 생성
+        predicates.add(cb.equal(recruit.get("status"), RecruitStatus.ONGOING));
+        if (request.getTag() != null && !request.getTag().isEmpty()) {
+            Join<Recruit, String> tagList = recruit.join("tags");
+            predicates.add(tagList.in(request.getTag()));
         }
-        return result;
+        if (request.getType() != null && !request.getType().isEmpty()){
+            predicates.add(cb.equal(recruit.get("type"), TeamType.from(request.getType())));
+        }
+        if (request.getPlace() != null && !request.getPlace().isEmpty()) {
+            predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.from(request.getPlace())));
+        }
+        if (request.getRegion() != null && !request.getRegion().isEmpty()) {
+            predicates.add(cb.equal(recruit.get("region"), request.getRegion()));
+        }
+        if (request.getDue() != null && !request.getDue().isEmpty()) {
+            int index = Arrays.asList(dues).indexOf(request.getDue());
+            if (index != -1) {
+                List<String> validDues = Arrays.asList(dues).subList(0, index + 1);
+                predicates.add(recruit.get("due").in(validDues));
+            }
+        }
+        if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
+            predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
+        }
+
+        //sort 기준 설정
+        List<Order> orders = new ArrayList<>();
+        switch (request.getSort()) {
+            case "latest":
+                orders.add(cb.desc(recruit.get("createdAt")));
+                break;
+            case "hit":
+                orders.add(cb.desc(recruit.get("hit")));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort value");
+        }
+        //query 전송
+        cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
+        List<Recruit> recruits = em.createQuery(cq).getResultList();
+        System.out.println(recruits.size());
+
+        // recruitResponseDto 매핑
+        List<RecruitListResponse> results = recruits.stream()
+                .map(recruit2 -> new RecruitListResponse(
+                        recruit2.getTitle(),
+                        recruit2.getThumbnailUrl(),
+                        recruit2.getWriterId(),
+                        recruit2.getWriter().getNickname(),
+                        recruit2.getWriter().getImageUrl(),
+                        recruit2.getStatus().toString(),
+                        recruit2.getTags(),
+                        ((recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit2.getId())).isPresent()) ? true : false)
+                )).collect(Collectors.toList());
+
+        return  new PageImpl<>(results, pageable, results.size());
     }
 
-    public Page<RecruitListResponce> getRecruitList(int page, int pageSize, Principal principal){
+    public Page<RecruitListResponse> getRecruitList(int page, int pageSize, Principal principal){
         List<Recruit> recruits = recruitRepository.findAll();
         Pageable pageable = PageRequest.of(page, pageSize);
         User user = userRepository.findByName(principal.getName()).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 유저입니다."));
         //TODO:userImage를 thumbnail로 변환하여 매핑
-        List<RecruitListResponce> result = new ArrayList<>();
+        List<RecruitListResponse> result = new ArrayList<>();
         for (Recruit recruit: recruits) {
             User writer = userRepository.findById(recruit.getWriterId()).orElseThrow(
                     () -> new NotFoundException("존재하지 않는 유저입니다."));
-            RecruitListResponce recruitListResponce = RecruitListResponce.builder()
+            RecruitListResponse recruitListResponse = RecruitListResponse.builder()
                     .title(recruit.getTitle())
                     .tagList(recruit.getTags())
-                    .status(recruit.getStatus())
+                    .status(recruit.getStatus().toString())
                     .image(recruit.getThumbnailUrl())
                     .user_thumbnail(writer.getImageUrl())
                     .user_nickname(writer.getNickname())
@@ -106,8 +192,8 @@ public class RecruitService {
             RecruitFavoritePK recruitFavoritePK = new RecruitFavoritePK(user.getId(), recruit.getId());
             Optional<RecruitFavorite> recruitFavorite = recruitFavoriteRepository.findById(recruitFavoritePK);
             if (recruitFavorite.isPresent())
-                recruitListResponce.setFavorite(true);
-            result.add(recruitListResponce);
+                recruitListResponse.setFavorite(true);
+            result.add(recruitListResponse);
         }
         return new PageImpl<>(result, pageable, result.size());
     }
@@ -160,19 +246,20 @@ public class RecruitService {
         }
     }
 
-    private Recruit createRecruitFromDto(RecruitRequestDTO recruitRequestDTO, Team team){
+    private Recruit createRecruitFromDto(RecruitRequestDTO recruitRequestDTO, Team team) throws IOException{
         Recruit recruit = Recruit.builder()
                 .team(team)
                 .type(TeamType.from(recruitRequestDTO.getType()))
                 .title(recruitRequestDTO.getTitle())
                 .due(recruitRequestDTO.getDue())
                 .link(recruitRequestDTO.getLink())
-                .content(recruitRequestDTO.getContent())
+                .content(processMarkdownWithFormData(recruitRequestDTO.getContent()))
                 .place(TeamOperationFormat.from(recruitRequestDTO.getPlace()))
                 .region(recruitRequestDTO.getRegion())
                 .tags(recruitRequestDTO.getTagList())
                 .status(RecruitStatus.ONGOING)
                 .writerId(recruitRequestDTO.getUserId())
+                .writer(userRepository.findById(recruitRequestDTO.getUserId()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다.")))
                 .build();
         //List 추가
         addInterviewsToRecruit(recruit, recruitRequestDTO.getInterviewList());
@@ -180,8 +267,26 @@ public class RecruitService {
         return recruit;
     }
 
+
+    private String processMarkdownWithFormData(String markdown) throws IOException {
+        //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
+        Matcher matcher = IMAGE_PATTERN.matcher(markdown);
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            String formData = matcher.group().substring(26, matcher.group().length() - 1);
+            byte[] imageBytes = Base64.getDecoder().decode(formData);
+            UUID uuid = UUID.randomUUID();
+            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID().toString() + ".png");
+            Files.write(path, imageBytes);
+            matcher.appendReplacement(sb, "![image](" + path.toString() + ")");
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
     @Transactional
-    public void createRecruit(RecruitRequestDTO recruitRequestDTO){
+    public void createRecruit(RecruitRequestDTO recruitRequestDTO) throws IOException{
+        //TODO:첫번째이미지 대표 이미지 등록 필요
         //유저 검사
         User user = userRepository.findById(recruitRequestDTO.getUserId()).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
@@ -196,6 +301,7 @@ public class RecruitService {
 
         //모집게시글 생성
         Recruit recruit = createRecruitFromDto(recruitRequestDTO, team);
+        System.out.println(recruit.getContent());
         recruitRepository.save(recruit);
     }
 
@@ -207,9 +313,11 @@ public class RecruitService {
     }
 
     @Transactional
-    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO){
+    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException{
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
-        recruit.update(recruitUpdateRequestDTO);
+
+        String content = processMarkdownWithFormData(recruitUpdateRequestDTO.getContent());
+        recruit.update(recruitUpdateRequestDTO, content);
     }
 }
