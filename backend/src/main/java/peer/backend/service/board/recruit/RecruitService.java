@@ -107,7 +107,7 @@ public class RecruitService {
         String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class);
+        CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class).distinct(true);
         Root<Recruit> recruit = cq.from(Recruit.class);
         List<Predicate> predicates = new ArrayList<>();
 
@@ -120,7 +120,6 @@ public class RecruitService {
         if (request.getType() != null && !request.getType().isEmpty()){
             predicates.add(cb.equal(recruit.get("type"), TeamType.from(request.getType())));
         }
-
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
             predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.from(request.getPlace())));
         }
@@ -140,7 +139,7 @@ public class RecruitService {
 
         //sort 기준 설정
         List<Order> orders = new ArrayList<>();
-        switch(request.getSort()) {
+        switch (request.getSort()) {
             case "latest":
                 orders.add(cb.desc(recruit.get("createdAt")));
                 break;
@@ -150,10 +149,10 @@ public class RecruitService {
             default:
                 throw new IllegalArgumentException("Invalid sort value");
         }
-
         //query 전송
         cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
         List<Recruit> recruits = em.createQuery(cq).getResultList();
+        System.out.println(recruits.size());
 
         // recruitResponseDto 매핑
         List<RecruitListResponse> results = recruits.stream()
@@ -165,13 +164,9 @@ public class RecruitService {
                         recruit2.getWriter().getImageUrl(),
                         recruit2.getStatus().toString(),
                         recruit2.getTags(),
-                        true
+                        ((recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit2.getId())).isPresent()) ? true : false)
                 )).collect(Collectors.toList());
 
-
-        for (Recruit recruit1 : recruits) {
-            System.out.println(recruit1.getTitle() + " " + recruit1.getCreatedAt() + " " + recruit1.getHit());
-        }
         return  new PageImpl<>(results, pageable, results.size());
     }
 

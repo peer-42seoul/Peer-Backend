@@ -57,7 +57,7 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("/test/{user_id}")
-    public Page<RecruitListResponse> getRecruitListByConditions(@PathVariable Long user_id, @RequestParam int page, @RequestParam int pageSize, @ModelAttribute RecruitRequest request) {
+    public Page<RecruitListResponse> getRecruitListByConditions(@PathVariable Long user_id, @RequestParam int page, @RequestParam int pageSize, @ModelAttribute("request") RecruitRequest request) {
         Pageable pageable = PageRequest.of(page, pageSize);
         return recruitService.getRecruitSearchList(pageable, request, user_id);
     }
