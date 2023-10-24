@@ -19,12 +19,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.team.enums.TeamMemberStatus;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamStatus;
-import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.InterestedProject;
 
 @Entity
@@ -104,5 +102,29 @@ public class Team extends BaseEntity {
         this.region1 = request.getRegion1();
         this.region2 = request.getRegion2();
         this.region3 = request.getRegion3();
+    }
+
+    public void update(TeamSettingInfoDto teamSettingInfoDto) {
+        this.name = teamSettingInfoDto.getName();
+        this.dueTo = teamSettingInfoDto.getDueTo();
+        this.status = TeamStatus.from(teamSettingInfoDto.getStatus());
+        String[] regions = teamSettingInfoDto.getRegion();
+        this.region1 = regions.length > 0 ? regions[0] : "";
+        this.region2 = regions.length > 1 ? regions[1] : "";
+        this.region3 = regions.length > 2 ? regions[2] : "";
+        this.operationFormat = TeamOperationFormat.from(teamSettingInfoDto.getOperationForm());
+        this.maxMember = Integer.valueOf(teamSettingInfoDto.getMaxMember());
+    }
+
+    public boolean deleteTeamUser(Long deletingToUserId) {
+        return this.teamUsers.removeIf(teamUser -> teamUser.getUserId().equals(deletingToUserId));
+    }
+
+    public void grantLeaderPermission(Long grantingUserId, TeamUserRoleType teamUserRoleType) {
+        for (TeamUser teamUser: this.teamUsers) {
+            if (teamUser.getUserId().equals(grantingUserId)) {
+                teamUser.grantLeader(teamUserRoleType);
+            }
+        }
     }
 }
