@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.composite.RecruitApplicantPK;
+import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
@@ -16,8 +17,8 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "recruit_test")
-@IdClass(RecruitApplicantPK.class)
+@Table(name = "recruit_favorite")
+@IdClass(RecruitFavoritePK.class)
 public class RecruitFavorite extends BaseEntity {
     @Id
     @Column(name = "user_id")
@@ -36,6 +37,4 @@ public class RecruitFavorite extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruit_id")
     private Recruit recruit;
-
-    private Boolean likes;
 }
