@@ -46,10 +46,6 @@ public class UserInfo {
             .password(encoder.encode(this.password))
             .name(this.name)
             .nickname(this.nickname)
-//            .birthday(LocalDate.parse(this.birthday))
-//            .isAlarm(this.isAlarm)
-//            .phone(this.phone)
-//            .address(this.address)
             .build();
     }
 }
