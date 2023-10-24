@@ -42,4 +42,7 @@ public class RecruitApplicant extends BaseEntity {
 
     @ElementCollection
     private List<String> answerList;
+
+    @Column(nullable = false, length = 7)
+    private String nickname;
 }
