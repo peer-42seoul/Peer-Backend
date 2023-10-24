@@ -76,6 +76,9 @@ public class MessageMainService {
         User target = null;
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
+//        System.out.println("MSG List Size : "+ msgList.size());
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+
         // Index 기준으로 반복문으로 MsgObject 작성 시작
         for (MessageIndex msg : msgList) {
             // 대화
@@ -236,6 +239,7 @@ public class MessageMainService {
         MessageIndex saved;
         try {
             saved = this.indexRepository.save(newData);
+//            System.out.println("Saved ConversationId : " + saved.getConversationId());
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
@@ -357,9 +361,15 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
-        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at LIMIT 21";
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at DESC LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
-        talks.sort(new MessagePieceComparator());
+//        for (MessagePiece talk : talks) {
+//            System.out.println("대화 목록" + talk.getCreatedAt());
+//        }
+//        talks.sort(new MessagePieceComparator());
+//        for (MessagePiece talk : talks) {
+//            System.out.println("대화 목록" + talk.getCreatedAt());
+//        }
 
         // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();
@@ -417,9 +427,9 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
-        String sql = "SELECT * FROM message_piece WHERE conversationId = :conversationId AND msgId < :earlyMsgId ORDER BY createdAt LIMIT 21";
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :earlyMsgId ORDER BY created_at DESC LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationId(), "earlyMsgId", target.getEarlyMsgId()));
-        talks.sort(new MessagePieceComparator());
+//        talks.sort(new MessagePieceComparator());
 
         // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();

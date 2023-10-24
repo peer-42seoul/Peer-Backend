@@ -141,7 +141,7 @@ public class MessageSubService {
                     msgId(piece.getMsgId()).
                     content(piece.getText()).
                     date(this.makeFormattedDate(piece.getCreatedAt())).
-                    isEnd(isEnd).build();
+                    end(isEnd).build();
             // piece update
             if (piece.getReadAt() == null) {
                 piece.setReadAt(LocalDateTime.now());
