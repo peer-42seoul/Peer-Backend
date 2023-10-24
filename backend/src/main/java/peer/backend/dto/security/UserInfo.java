@@ -45,6 +45,6 @@ public class UserInfo {
             .email(this.email)
             .password(encoder.encode(this.password))
             .name(this.name)
-            .nickname(this.nickname)
+            .nickname(this.nickname).build();
     }
 }
