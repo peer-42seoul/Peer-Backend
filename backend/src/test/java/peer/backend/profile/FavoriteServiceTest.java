@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Test FavoriteService")
 public class FavoriteServiceTest {
+
     @Mock
     private UserRepository userRepository;
     @InjectMocks
@@ -45,60 +46,59 @@ public class FavoriteServiceTest {
     List<RecruitFavorite> recruitFavoriteList;
     List<TeamUser> teamUserList;
     PrincipalDetails principalDetails;
+
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         name = "test name";
         user = User.builder()
-                .id(20L)
-                .email("test@email.com")
-                .password(encoder.encode("test password"))
-                .name(name)
-                .nickname("test nickname")
-                .isAlarm(false)
-                .address("test address")
-                .imageUrl("test image URL")
-                .build();
+            .id(20L)
+            .email("test@email.com")
+            .password(encoder.encode("test password"))
+            .name(name)
+            .nickname("test nickname")
+            .isAlarm(false)
+            .address("test address")
+            .imageUrl("test image URL")
+            .build();
         recruitFavoriteList = new ArrayList<>();
         teamUserList = new ArrayList<>();
         for (int index = 0; index < 12; index++) {
             User newUser = User.builder()
-                    .id((long)index + 1)
-                    .name("test " + index)
-                    .nickname("test " + index)
-                    .imageUrl("test " + index)
-                    .build();
+                .id((long) index + 1)
+                .name("test " + index)
+                .nickname("test " + index)
+                .imageUrl("test " + index)
+                .build();
             TeamUser teamUser = TeamUser.builder()
-                    .user(newUser)
-                    .role(index % 4 == 0 ? TeamUserRoleType.LEADER : TeamUserRoleType.MEMBER)
-                    .build();
+                .user(newUser)
+                .role(index % 4 == 0 ? TeamUserRoleType.LEADER : TeamUserRoleType.MEMBER)
+                .build();
             teamUserList.add(teamUser);
         }
         for (int index = 0; index < 3; index++) {
             Team team = Team.builder()
-                    .teamUsers(teamUserList.subList(index * 4, index * 4 + 3))
-                    .type(index % 2 == 0 ? TeamType.PROJECT : TeamType.STUDY)
-                    .build();
+                .teamUsers(teamUserList.subList(index * 4, index * 4 + 3))
+                .type(index % 2 == 0 ? TeamType.PROJECT : TeamType.STUDY)
+                .build();
             RecruitStatus status;
             if (index == 0) {
                 status = RecruitStatus.BEFORE;
-            }
-            else if (index == 1) {
+            } else if (index == 1) {
                 status = RecruitStatus.ONGOING;
-            }
-            else {
+            } else {
                 status = RecruitStatus.DONE;
             }
             Recruit recruit = Recruit.builder()
-                    .id((long)index + 1)
-                    .team(team)
-                    .title("test title " + index)
-                    .link("test link " + index)
-                    .thumbnailUrl("test image " + index)
-                    .status(status)
-                    .build();
+                .id((long) index + 1)
+                .team(team)
+                .title("test title " + index)
+                .link("test link " + index)
+                .thumbnailUrl("test image " + index)
+                .status(status)
+                .build();
             RecruitFavorite recruitFavorite = new RecruitFavorite(
-                    user.getId(), recruit.getId(), user, recruit, true
+                user.getId(), recruit.getId(), user, recruit
             );
             recruitFavoriteList.add(recruitFavorite);
         }
@@ -124,30 +124,38 @@ public class FavoriteServiceTest {
             Recruit recruit = recruitFavorite.getRecruit();
             User leader = null;
             for (TeamUser teamUser : recruit.getTeam().getTeamUsers()) {
-                if (teamUser.getRole().equals(TeamUserRoleType.LEADER))
+                if (teamUser.getRole().equals(TeamUserRoleType.LEADER)) {
                     leader = teamUser.getUser();
+                }
             }
             if (recruit.getTeam().getType().equals(TeamType.PROJECT)) {
                 FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                        .postId(recruit.getId())
-                        .title(recruit.getTitle())
-                        .image(recruit.getThumbnailUrl())
-                        .userId(leader != null ? leader.getId() : -1)
-                        .userNickname(leader != null ? leader.getNickname() : null)
-                        .userImage(leader != null ? leader.getImageUrl() : null)
-                        .tagList(recruit.getTags())
-                        .build();
+                    .postId(recruit.getId())
+                    .title(recruit.getTitle())
+                    .image(recruit.getThumbnailUrl())
+                    .userId(leader != null ? leader.getId() : -1)
+                    .userNickname(leader != null ? leader.getNickname() : null)
+                    .userImage(leader != null ? leader.getImageUrl() : null)
+                    .tagList(recruit.getTags())
+                    .build();
                 favoriteResponseList.add(favoriteResponse);
             }
         }
-        for(int index = 0; index < ret.getPostList().size(); index++) {
-            assertThat(ret.getPostList().get(index).getPostId()).isEqualTo(favoriteResponseList.get(index).getPostId());
-            assertThat(ret.getPostList().get(index).getTitle()).isEqualTo(favoriteResponseList.get(index).getTitle());
-            assertThat(ret.getPostList().get(index).getImage()).isEqualTo(favoriteResponseList.get(index).getImage());
-            assertThat(ret.getPostList().get(index).getUserId()).isEqualTo(favoriteResponseList.get(index).getUserId());
-            assertThat(ret.getPostList().get(index).getUserNickname()).isEqualTo(favoriteResponseList.get(index).getUserNickname());
-            assertThat(ret.getPostList().get(index).getUserImage()).isEqualTo(favoriteResponseList.get(index).getUserImage());
-            assertThat(ret.getPostList().get(index).getTagList()).isEqualTo(favoriteResponseList.get(index).getTagList());
+        for (int index = 0; index < ret.getPostList().size(); index++) {
+            assertThat(ret.getPostList().get(index).getPostId()).isEqualTo(
+                favoriteResponseList.get(index).getPostId());
+            assertThat(ret.getPostList().get(index).getTitle()).isEqualTo(
+                favoriteResponseList.get(index).getTitle());
+            assertThat(ret.getPostList().get(index).getImage()).isEqualTo(
+                favoriteResponseList.get(index).getImage());
+            assertThat(ret.getPostList().get(index).getUserId()).isEqualTo(
+                favoriteResponseList.get(index).getUserId());
+            assertThat(ret.getPostList().get(index).getUserNickname()).isEqualTo(
+                favoriteResponseList.get(index).getUserNickname());
+            assertThat(ret.getPostList().get(index).getUserImage()).isEqualTo(
+                favoriteResponseList.get(index).getUserImage());
+            assertThat(ret.getPostList().get(index).getTagList()).isEqualTo(
+                favoriteResponseList.get(index).getTagList());
         }
     }
 

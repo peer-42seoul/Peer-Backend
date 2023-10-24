@@ -46,7 +46,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -98,3 +98,6 @@ logging:
 
 url:
   front-base-url: http://localhost:8080
+
+custom:
+  filePath: asdf
