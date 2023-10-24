@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,7 +27,7 @@ public class MessagePiece extends BaseEntity {
     @Column(nullable = false)
     private String senderNickname;
 
-    @Column(nullable = true)
+    @Column()
     private LocalDateTime readAt;
 
     @Column(columnDefinition = "LONGTEXT", nullable = false)
