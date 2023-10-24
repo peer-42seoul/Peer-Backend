@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.team.*;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
+import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamStatus;
@@ -19,9 +21,11 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitApplicantRepository;
+import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.board.recruit.RecruitService;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +34,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
+    private final RecruitRepository recruitRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
 
     @Transactional
@@ -118,7 +123,10 @@ public class TeamService {
         TeamUser teamUser = getTeamUserByName(teamId, user.getName());
         List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByRecruitId(teamId);
         List<TeamApplicantListDto> result = new ArrayList<>();
-
+        Recruit recruit = recruitRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        if (recruit.getStatus() != RecruitStatus.ONGOING) {
+            throw new NotFoundException("모집이 진행중이 아닙니다.");
+        }
         //questionList 이터레이트 하면서 dtoList만들기
         for (RecruitApplicant recruitApplicant : recruitApplicantList) {
             ArrayList<RecruitAnswerDto> answerDtoList = new ArrayList<>();
