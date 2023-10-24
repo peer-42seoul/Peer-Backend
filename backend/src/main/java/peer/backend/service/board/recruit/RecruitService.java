@@ -2,16 +2,13 @@ package peer.backend.service.board.recruit;
 
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
 import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
-import peer.backend.entity.board.recruit.enums.RecruitType;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
@@ -23,18 +20,13 @@ import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.team.TeamService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +34,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +45,12 @@ public class RecruitService {
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
 
-    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image/png;base64.*?\\)");
+    //query 생성 및 주입
+    @PersistenceContext
+    private EntityManager em;
+
+    //Markdown에서 form-data를 추출하기 위한 패턴 ![](*)
+    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
     public List<TeamApplicantListDto> getTeamApplicantList(Long user_id){
@@ -86,17 +84,14 @@ public class RecruitService {
         return result;
     }
 
-    @PersistenceContext
-    private EntityManager em;
+    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitRequest request, Long user_id) {
 
-    public void getRecruitSearchList(Pageable pageable, RecruitRequest request, Long user_id) {
-
-        String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
-        //TODO:다중검색 쿼리 만들어야 함.
+        //TODO:favorite 등록
         //query 생성 준비
+        String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
+
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class);
-
         Root<Recruit> recruit = cq.from(Recruit.class);
         List<Predicate> predicates = new ArrayList<>();
 
@@ -141,27 +136,43 @@ public class RecruitService {
         }
 
         //query 전송
-        cq.where(predicates.toArray(new Predicate[0]));
-        List<Recruit> queryResult = em.createQuery(cq).getResultList();
-        for (Recruit recruit1 : queryResult) {
-            System.out.println(recruit1.getTitle());
+        cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
+        List<Recruit> recruits = em.createQuery(cq).getResultList();
+
+        // recruitResponseDto 매핑
+        List<RecruitListResponse> results = recruits.stream()
+                .map(recruit2 -> new RecruitListResponse(
+                        recruit2.getTitle(),
+                        recruit2.getThumbnailUrl(),
+                        recruit2.getWriterId(),
+                        recruit2.getWriter().getNickname(),
+                        recruit2.getWriter().getImageUrl(),
+                        recruit2.getStatus().toString(),
+                        recruit2.getTags(),
+                        true
+                )).collect(Collectors.toList());
+
+
+        for (Recruit recruit1 : recruits) {
+            System.out.println(recruit1.getTitle() + " " + recruit1.getCreatedAt() + " " + recruit1.getHit());
         }
+        return  new PageImpl<>(results, pageable, results.size());
     }
 
-    public Page<RecruitListResponce> getRecruitList(int page, int pageSize, Principal principal){
+    public Page<RecruitListResponse> getRecruitList(int page, int pageSize, Principal principal){
         List<Recruit> recruits = recruitRepository.findAll();
         Pageable pageable = PageRequest.of(page, pageSize);
         User user = userRepository.findByName(principal.getName()).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 유저입니다."));
         //TODO:userImage를 thumbnail로 변환하여 매핑
-        List<RecruitListResponce> result = new ArrayList<>();
+        List<RecruitListResponse> result = new ArrayList<>();
         for (Recruit recruit: recruits) {
             User writer = userRepository.findById(recruit.getWriterId()).orElseThrow(
                     () -> new NotFoundException("존재하지 않는 유저입니다."));
-            RecruitListResponce recruitListResponce = RecruitListResponce.builder()
+            RecruitListResponse recruitListResponse = RecruitListResponse.builder()
                     .title(recruit.getTitle())
                     .tagList(recruit.getTags())
-                    .status(recruit.getStatus())
+                    .status(recruit.getStatus().toString())
                     .image(recruit.getThumbnailUrl())
                     .user_thumbnail(writer.getImageUrl())
                     .user_nickname(writer.getNickname())
@@ -170,8 +181,8 @@ public class RecruitService {
             RecruitFavoritePK recruitFavoritePK = new RecruitFavoritePK(user.getId(), recruit.getId());
             Optional<RecruitFavorite> recruitFavorite = recruitFavoriteRepository.findById(recruitFavoritePK);
             if (recruitFavorite.isPresent())
-                recruitListResponce.setFavorite(true);
-            result.add(recruitListResponce);
+                recruitListResponse.setFavorite(true);
+            result.add(recruitListResponse);
         }
         return new PageImpl<>(result, pageable, result.size());
     }
@@ -237,6 +248,7 @@ public class RecruitService {
                 .tags(recruitRequestDTO.getTagList())
                 .status(RecruitStatus.ONGOING)
                 .writerId(recruitRequestDTO.getUserId())
+                .writer(userRepository.findById(recruitRequestDTO.getUserId()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다.")))
                 .build();
         //List 추가
         addInterviewsToRecruit(recruit, recruitRequestDTO.getInterviewList());
