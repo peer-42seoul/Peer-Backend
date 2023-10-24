@@ -19,7 +19,7 @@ spring:
         registration:
           ft:
             client-id: u-s4t2ud-878c3954e7ce03154571d30d7499ec4e8880ccdba220c8a2c8cf4a4b71ea1d51
-            client-secret: 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
+            client-secret: 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
             client-name: ft
             scope:
               - public
