@@ -27,7 +27,7 @@ public class SignUpController {
     private final MemberService memberService;
     private final EmailAuthService emailService;
 
-    @PostMapping("/membership/email") // 메일을 전송하기 전, DB에서 메일이 있는지 확인
+    @PostMapping("/email") // 메일을 전송하기 전, DB에서 메일이 있는지 확인
     public ResponseEntity<Object> sendEmail(@Valid @RequestBody EmailAddress address) {
         String email = address.getEmail();
 
@@ -39,7 +39,7 @@ public class SignUpController {
         return new ResponseEntity<Object>(message.getStatus());
     }
 
-    @PostMapping("/membership/email/code")
+    @PostMapping("/code")
     public ResponseEntity<Object> emailCodeVerification(@RequestBody EmailCode code) {
         this.emailService.emailCodeVerification(code.getEmail(), code.getCode());
         return ResponseEntity.ok().build();
@@ -52,7 +52,7 @@ public class SignUpController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/membership/withdrawal")
+    @DeleteMapping("/withdrawal")
     public ResponseEntity<Object> withdrawal(Authentication authentication) {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
