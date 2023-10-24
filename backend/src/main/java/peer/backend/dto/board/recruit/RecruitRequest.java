@@ -1,15 +1,13 @@
 package peer.backend.dto.board.recruit;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.aspectj.weaver.ast.Literal;
 import peer.backend.entity.board.recruit.enums.RecruitType;
 
 import java.util.List;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
