@@ -18,5 +18,4 @@ public class FavoriteResponse {
     String userImage;
     String status;
     List<String> tagList;
-    boolean isFavorite;
 }
