@@ -52,12 +52,8 @@ public class User extends BaseEntity {
     private String name;
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
-    @Column//(nullable = false)
-    private LocalDate birthday;
     @Column(columnDefinition = "boolean not null default false")
     private boolean isAlarm;
-    @Column//(nullable = false)
-    private String phone;
     @Column//(nullable = false)
     private String address;
     @Column
@@ -77,9 +73,6 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(255) not null default 'ROLE_USER'")
     @Enumerated(EnumType.STRING)
     private Role role;
-
-//    @OneToMany(mappedBy = "user")
-//    private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private PeerOperation peerOperation;

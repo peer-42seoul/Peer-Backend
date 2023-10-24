@@ -80,16 +80,8 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return user.getNickname();
     }
 
-    public LocalDate getBirthday() {
-        return user.getBirthday();
-    }
-
     public boolean isAlarm() {
         return user.isAlarm();
-    }
-
-    public String getPhone() {
-        return user.getPhone();
     }
 
     public String getAddress() {
