@@ -52,11 +52,7 @@ public class User extends BaseEntity {
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
     @Column//(nullable = false)
-    private LocalDate birthday;
-    @Column(columnDefinition = "boolean not null default false")
     private boolean isAlarm;
-    @Column//(nullable = false)
-    private String phone;
     @Column//(nullable = false)
     private String address;
     @Column

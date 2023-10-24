@@ -5,16 +5,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
-import peer.backend.dto.profile.request.UserLinkDTO;
-import peer.backend.dto.profile.response.OtherProfileDto;
+import peer.backend.dto.profile.request.UserLinkRequest;
+import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.exception.BadRequestException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
+import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -41,8 +46,8 @@ public class ProfileController{
     @ApiOperation(value = "C-MYPAGE-20", notes = "사용자 프로필 정보 링크 수정하기")
     @PutMapping("/profile/link")
     public ResponseEntity<Object> editLinks(Authentication auth, @RequestBody LinkListRequest linkList) {
-        List<UserLinkDTO> links = linkList.getLinkList();
-        for (UserLinkDTO link : links) {
+        List<UserLinkRequest> links = linkList.getLinkList();
+        for (UserLinkRequest link : links) {
             if (link.getLinkName().isBlank() || link.getLinkName().isEmpty())
                 throw new BadRequestException("링크 이름이 없습니다.");
             if (link.getLinkUrl().isBlank() || link.getLinkUrl().isEmpty())
@@ -59,7 +64,7 @@ public class ProfileController{
     public ResponseEntity<Object> getOtherProfile(Authentication auth,
                                                   @RequestParam(value = "userId", required = true) Long userId,
                                                   @RequestParam(value = "infoList", required = true)List<String> infoList) {
-        OtherProfileDto otherProfile = profileService.getOtherProfile(userId, infoList);
+        OtherProfileResponse otherProfile = profileService.getOtherProfile(userId, infoList);
         if (infoList.size() == 1) {
             if (otherProfile.getNickname() == null) {
                 OtherProfileImageUrlResponse otherUrl = new OtherProfileImageUrlResponse(otherProfile.getProfileImageUrl());
@@ -71,5 +76,26 @@ public class ProfileController{
             }
         }
         return new ResponseEntity<> (otherProfile, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
+    @PutMapping("/profile/introduction/edit")
+    public ResponseEntity<Object> editProfile(Principal principal, @ModelAttribute EditProfileRequest profile) throws IOException {
+        if (profile.getIntroduction().length() > 150) {
+            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
+        }
+        if (profile.getNickname().isEmpty()) {
+            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
+        }
+        if (profile.getNickname().isBlank()) {
+            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
+        }
+        if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
+            throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        PrincipalDetails principalDetails = (PrincipalDetails) auth.getPrincipal();
+        profileService.editProfile(principalDetails, profile);
+        return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

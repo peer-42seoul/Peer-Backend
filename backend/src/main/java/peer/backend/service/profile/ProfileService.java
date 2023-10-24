@@ -1,18 +1,27 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
-import peer.backend.dto.profile.request.UserLinkDTO;
-import peer.backend.dto.profile.response.OtherProfileDto;
+import peer.backend.dto.profile.request.UserLinkRequest;
+import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,16 +30,70 @@ import java.util.List;
 public class ProfileService {
     private final UserRepository userRepository;
     private final UserLinkRepository userLinkRepository;
+    private final Tika tika;
+
+    @Value("${custom.filePath}")
+    private String filepath;
+
+    private void deleteUserImage(User user) throws IOException {
+        String imagePath = user.getImageUrl();
+        if (imagePath == null) {
+            return;
+        }
+        imagePath = imagePath.substring(7);
+        File file = new File(imagePath);
+        if (!file.exists()) {
+            user.setImageUrl(null);
+            return;
+        }
+        else if (!file.delete()) {
+            throw new IOException("파일 삭제에 실패했습니다.");
+        }
+        user.setImageUrl(null);
+    }
+
+    private Path saveImageFilePath(User user, MultipartFile file) throws IOException {
+        String fileType = tika.detect(file.getInputStream());
+        if (!fileType.startsWith("image")) {
+            throw new IllegalArgumentException("image 타입이 아닙니다.");
+        }
+        StringBuilder builder = new StringBuilder();
+        String folderPath = builder
+                .append(filepath)
+                .append(File.separator)
+                .append("upload")
+                .append(File.separator)
+                .append("profiles")
+                .append(File.separator)
+                .append(user.getId().toString())
+                .toString();
+        File folder = new File(folderPath);
+        System.out.println(folder.getPath());
+        if (folder.mkdirs()) {
+            if (!folder.exists()) {
+                throw new IOException("폴더 생성에 실패했습니다.");
+            }
+        }
+        String originalName = file.getOriginalFilename();
+        assert originalName != null;
+        String filePath = builder
+                .append(File.separator)
+                .append("profile")
+                .append(originalName.substring(originalName.lastIndexOf(".")))
+                .toString();
+        Path path = Paths.get(filePath);
+        file.transferTo(path.toFile());
+        return path;
+    }
 
     @Transactional(readOnly = true)
-    public MyProfileResponse getProfile(String name)
-    {
+    public MyProfileResponse getProfile(String name) {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        List<UserLinkDTO> links = new ArrayList<>();
+        List<UserLinkRequest> links = new ArrayList<>();
         for (UserLink link : user.getUserLinks()) {
-            UserLinkDTO userLink = UserLinkDTO.builder()
+            UserLinkRequest userLink = UserLinkRequest.builder()
                     .linkName(link.getLinkName())
                     .linkUrl(link.getLinkUrl())
                     .build();
@@ -52,14 +115,16 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editLinks(String name, List<UserLinkDTO> links) {
+    public void editLinks(String name, List<UserLinkRequest> links) {
         User user = userRepository.findByName(name).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        userLinkRepository.deleteAll(user.getUserLinks());
+        if (user.getUserLinks() != null) {
+            userLinkRepository.deleteAll(user.getUserLinks());
+        }
         List<UserLink> newLink = user.getUserLinks();
         newLink.clear();
-        for (UserLinkDTO link : links) {
+        for (UserLinkRequest link : links) {
             UserLink userLink = UserLink.builder()
                     .user(user)
                     .linkName(link.getLinkName())
@@ -75,11 +140,11 @@ public class ProfileService {
     }
 
     @Transactional
-    public OtherProfileDto getOtherProfile(Long userId, List<String> infoList) {
+    public OtherProfileResponse getOtherProfile(Long userId, List<String> infoList) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("사용자를 찾을 수 없습니다.")
         );
-        OtherProfileDto profile = new OtherProfileDto();
+        OtherProfileResponse profile = new OtherProfileResponse();
         for (String info : infoList) {
             switch (info) {
                 case "nickname":
@@ -93,5 +158,22 @@ public class ProfileService {
             }
         }
         return (profile);
+    }
+
+    @Transactional
+    public void editProfile(PrincipalDetails principal, EditProfileRequest profile) throws IOException {
+        User user = principal.getUser();
+        if (profile.getProfileImage().isEmpty() && profile.isImageChange()) {
+            deleteUserImage(user);
+        }
+        else if (!profile.getProfileImage().isEmpty()) {
+            deleteUserImage(user);
+            user.setImageUrl(
+                    saveImageFilePath(user, profile.getProfileImage()).toUri().toString()
+            );
+        }
+        user.setNickname(profile.getNickname());
+        user.setIntroduce(profile.getIntroduction());
+        userRepository.save(user);
     }
 }
