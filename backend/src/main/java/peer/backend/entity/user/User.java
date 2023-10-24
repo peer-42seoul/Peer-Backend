@@ -1,6 +1,5 @@
 package peer.backend.entity.user;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -23,6 +22,7 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.team.TeamUser;
@@ -102,4 +102,7 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user2", cascade = CascadeType.PERSIST)
     private List<MessageIndex> indexList2 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.PERSIST)
+    private List<Recruit> recruitList = new ArrayList<>();
 }

@@ -45,8 +45,8 @@ public class UserInfo {
             .password(encoder.encode(this.password))
             .name(this.name)
             .nickname(this.nickname)
-            .isAlarm(this.isAlarm)
-            .address(this.address)
+            //.isAlarm(this.isAlarm)
+            //.address(this.address)
             .build();
     }
 }
