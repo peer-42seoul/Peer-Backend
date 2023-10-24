@@ -1,16 +1,8 @@
 package peer.backend.dto.board.recruit;
 
-import com.mongodb.Tag;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.RecruitRole;
-import peer.backend.entity.board.recruit.enums.RecruitPlace;
-import peer.backend.entity.board.recruit.enums.RecruitType;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamType;
 
 import java.util.List;
 
@@ -29,7 +21,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RecruitRequestDTO {
+public class RecruitListRequestDTO {
     private Long userId;
     private String name;
     private String title;
@@ -40,6 +32,7 @@ public class RecruitRequestDTO {
     private String region;
     private String link;
     private String status;
+    private String thumbnailUrl;
     private List<String> tagList;
     private List<RecruitRole> roleList;
     private List<RecruitInterview> interviewList;

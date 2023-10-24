@@ -25,20 +25,22 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
-    public RecruitResponce getRecruit(Long recruit_id){
+    public RecruitResponce getRecruit(@PathVariable Long recruit_id){
         return  recruitService.getRecruit(recruit_id);
     }
 
-    @ApiOperation(value = "", notes = "모집게시글 리스트를 불러온다.")
+    @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getAllRecruits(@RequestParam int page, @RequestParam int pageSize, Principal principal) {
-        return recruitService.getRecruitList(page, pageSize, principal);
+    public Page<RecruitListResponse> getRecruitListByConditions(@RequestParam int page, @RequestParam int pageSize, @ModelAttribute("request") RecruitRequest request, Principal principal) {
+        User user = userRepository.findByName(principal.getName()).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return recruitService.getRecruitSearchList(pageable, request, user.getId());
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("")
-    public void createRecruit(@RequestBody RecruitRequestDTO recruitRequestDTO) throws IOException{
-        recruitService.createRecruit(recruitRequestDTO);
+    public void createRecruit(@RequestBody RecruitListRequestDTO recruitListRequestDTO) throws IOException{
+        recruitService.createRecruit(recruitListRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
@@ -52,14 +54,6 @@ public class RecruitController {
     @DeleteMapping("/{recruit_id}")
     public void deleteRecruit(@PathVariable Long recruit_id){
         recruitService.deleteRecruit(recruit_id);
-    }
-
-
-    @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
-    @GetMapping("/test/{user_id}")
-    public Page<RecruitListResponse> getRecruitListByConditions(@PathVariable Long user_id, @RequestParam int page, @RequestParam int pageSize, @ModelAttribute("request") RecruitRequest request) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        return recruitService.getRecruitSearchList(pageable, request, user_id);
     }
 
     @PostMapping("/favorite/{recruit_id}")
