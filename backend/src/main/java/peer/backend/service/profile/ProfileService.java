@@ -51,10 +51,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editLinks(String name, List<UserLinkDTO> links) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public void editLinks(PrincipalDetails principalDetails, List<UserLinkDTO> links) {
+        User user = principalDetails.getUser();
         userLinkRepository.deleteAll(user.getUserLinks());
         List<UserLink> newLink = user.getUserLinks();
         newLink.clear();

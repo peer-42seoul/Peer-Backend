@@ -81,7 +81,6 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Edit links Test")
     void editLinksTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
         List<UserLinkDTO> newList = new ArrayList<>();
         newList.add(
                 UserLinkDTO.builder()
@@ -95,7 +94,7 @@ class ProfileServiceTest {
                         .linkUrl("new link 2")
                         .build()
         );
-        profileService.editLinks(email, newList);
+        profileService.editLinks(principalDetails, newList);
         assertThat(user.getUserLinks().get(0).getLinkName()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");
