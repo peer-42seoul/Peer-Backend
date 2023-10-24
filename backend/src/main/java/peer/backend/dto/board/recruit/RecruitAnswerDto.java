@@ -13,8 +13,8 @@ import java.util.List;
 @Getter
 @Builder
 public class RecruitAnswerDto {
-    String answer;
     String question;
+    String answer;
     String type;
     List<String> option;
 }

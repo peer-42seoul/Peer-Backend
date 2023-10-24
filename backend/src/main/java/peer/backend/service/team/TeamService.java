@@ -7,7 +7,10 @@ import javax.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.team.*;
+import peer.backend.entity.board.recruit.RecruitApplicant;
+import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamStatus;
@@ -15,6 +18,7 @@ import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
@@ -26,6 +30,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
+    private final RecruitApplicantRepository recruitApplicantRepository;
 
     @Transactional
     public List<TeamListResponse> getTeamList(Long userId, TeamStatus teamStatus) {
@@ -108,6 +113,67 @@ public class TeamService {
         }
     }
 
+    @Transactional
+    public List<TeamApplicantListDto> getTeamApplicantList(Long teamId, User user) {
+        TeamUser teamUser = getTeamUserByName(teamId, user.getName());
+        List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByRecruitId(teamId);
+        List<TeamApplicantListDto> result = new ArrayList<>();
+
+        //questionList 이터레이트 하면서 dtoList만들기
+        for (RecruitApplicant recruitApplicant : recruitApplicantList) {
+            ArrayList<RecruitAnswerDto> answerDtoList = new ArrayList<>();
+            List<String> answerList = recruitApplicant.getAnswerList();
+            List<RecruitInterview> questionList = recruitApplicant.getRecruit().getInterviews();
+            int index = 0;
+            for (RecruitInterview question: questionList) {
+                RecruitAnswerDto answerDto = RecruitAnswerDto.builder()
+                        .question(question.getQuestion())
+                        .answer(answerList.get(index))
+                        .type(question.getType().toString())
+                        .option(question.getOptions())
+                        .build();
+                index++;
+                answerDtoList.add(answerDto);
+            }
+            result.add(TeamApplicantListDto.builder()
+                    .answers(answerDtoList)
+                    .nickName(user.getNickname())
+                    .recruitId(recruitApplicant.getUserId())
+                    .build());
+        }
+        return result;
+    }
+
+    @Transactional
+    public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
+        TeamUser teamUser = getTeamUserByName(teamId, user.getName());
+        RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(applicantId, teamId);
+        if (recruitApplicant == null) {
+            throw new NotFoundException("존재하지 않는 지원자입니다.");
+        }
+        TeamUser newTeamUser = TeamUser.builder()
+                .teamId(teamId)
+                .userId(applicantId)
+                .role(TeamUserRoleType.MEMBER)
+                .review("")
+                .build();
+        teamUserRepository.save(newTeamUser);
+        recruitApplicantRepository.delete(recruitApplicant);
+        //TODO: 신청자에게 알림을 보내야됨
+    }
+
+    @Transactional
+    public void rejectTeamApplicant(Long teamId, Long applicantId, User user) {
+        TeamUser teamUser = getTeamUserByName(teamId, user.getName());
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(applicantId, teamId);
+        if (recruitApplicant == null) {
+            throw new NotFoundException("존재하지 않는 지원자입니다.");
+        }
+        recruitApplicantRepository.delete(recruitApplicant);
+        //TODO: 신청자에게 알림을 보내야됨
+    }
+
 //    @Transactional
 //    public Team getTeamById(Long teamId) {
 //        return this.teamRepository.findById(teamId)
@@ -141,5 +207,4 @@ public class TeamService {
         }
         return teamUser;
     }
-
 }
