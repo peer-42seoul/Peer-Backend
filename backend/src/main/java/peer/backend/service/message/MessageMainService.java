@@ -78,6 +78,7 @@ public class MessageMainService {
 
         List<MsgObjectDTO> retList = new ArrayList<>();
         User target = null;
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 //        System.out.println("MSG List Size : "+ msgList.size());
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -212,7 +213,6 @@ public class MessageMainService {
         } catch (Exception e){
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-//        System.out.println("Check to here1");
         User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
@@ -271,11 +271,11 @@ public class MessageMainService {
     public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
         User user1 = index.getUser1();
         User user2 = index.getUser2();
+//        User user1 = this.userRepository.findById(index.getUserIdx1()).get();
+//        User user2 = this.userRepository.findById(index.getUserIdx2()).get();
         User msgOwner = null;
 
         msgOwner = user1.getId().equals(userId) ? user1 : user2;
-
-//        System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).

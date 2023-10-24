@@ -3,6 +3,7 @@ package peer.backend.controller.message;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xwpf.usermodel.IBody;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -49,7 +50,6 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
@@ -95,7 +95,6 @@ public class MessaageController {
         } catch (NullPointerException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
-//        System.out.println(ret);
         return new ResponseEntity<List<LetterTargetDTO>>(ret, HttpStatus.OK);
     }
 
@@ -152,6 +151,7 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
