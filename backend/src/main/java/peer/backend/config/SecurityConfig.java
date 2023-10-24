@@ -50,7 +50,7 @@ public class SecurityConfig {
             .addFilter(corsConfig.corsFilter())
             .authorizeRequests()
             .antMatchers("/admin/**").hasRole("ADMIN")
-            .antMatchers("/login", "/membership/**", "/access-token", "/", "/error").permitAll()
+            .antMatchers("/login", "/api/v1/signup/**", "/access-token", "/", "/error").permitAll()
             .anyRequest().authenticated()
 
             .and()

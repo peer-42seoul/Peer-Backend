@@ -21,12 +21,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.security.core.Authentication;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
+import peer.backend.oauth.PrincipalDetails;
 
 @Entity
 @Getter
@@ -105,4 +107,8 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "writer", cascade = CascadeType.PERSIST)
     private List<Recruit> recruitList = new ArrayList<>();
+    
+    public static User authenticationToUser(Authentication authentication) {
+        return ((PrincipalDetails) authentication.getPrincipal()).getUser();
+    }
 }

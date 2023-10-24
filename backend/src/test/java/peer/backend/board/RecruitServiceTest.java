@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RecruitService Test")
 public class RecruitServiceTest {
+
     @Mock
     UserRepository userRepository;
     @Mock
@@ -56,31 +57,31 @@ public class RecruitServiceTest {
     @BeforeEach
     void beforeEach() {
         user = User.builder()
-                .id(1L)
-                .name("test")
-                .email("test@test.com")
-                .nickname("test")
-                .isAlarm(false)
-                .address("test")
-                .certification(false)
-                .company("test")
-                .introduce("test")
-                .peerLevel(0L)
-                .representAchievement("test")
-                .build();
+            .id(1L)
+            .name("test")
+            .email("test@test.com")
+            .nickname("test")
+            .isAlarm(false)
+            .address("test")
+            .certification(false)
+            .company("test")
+            .introduce("test")
+            .peerLevel(0L)
+            .representAchievement("test")
+            .build();
 
         team = Team.builder()
-                .name("test")
-                .type(TeamType.STUDY)
-                .dueTo("10월")
-                .operationFormat(TeamOperationFormat.ONLINE)
-                .status(TeamStatus.RECRUITING)
-                .teamMemberStatus(TeamMemberStatus.RECRUITING)
-                .isLock(false)
-                .region1("test")
-                .region2("test")
-                .region3("test")
-                .build();
+            .name("test")
+            .type(TeamType.STUDY)
+            .dueTo("10월")
+            .operationFormat(TeamOperationFormat.ONLINE)
+            .status(TeamStatus.RECRUITING)
+            .teamMemberStatus(TeamMemberStatus.RECRUITING)
+            .isLock(false)
+            .region1("test")
+            .region2("test")
+            .region3("test")
+            .build();
     }
 
     @Test

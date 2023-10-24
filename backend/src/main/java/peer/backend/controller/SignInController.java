@@ -23,7 +23,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @RestController
-public class SignController {
+public class SignInController {
     private final LoginService loginService;
 
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")

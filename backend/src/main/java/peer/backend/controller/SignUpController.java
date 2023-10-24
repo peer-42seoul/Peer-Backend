@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import peer.backend.dto.security.Message;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.dto.security.request.EmailAddress;
@@ -20,12 +21,13 @@ import peer.backend.service.MemberService;
 
 @Controller
 @RequiredArgsConstructor
-public class MemberController {
+@RequestMapping("/api/v1/signup")
+public class SignUpController {
 
     private final MemberService memberService;
     private final EmailAuthService emailService;
 
-    @PostMapping("/membership/email") // 메일을 전송하기 전, DB에서 메일이 있는지 확인
+    @PostMapping("/email") // 메일을 전송하기 전, DB에서 메일이 있는지 확인
     public ResponseEntity<Object> sendEmail(@Valid @RequestBody EmailAddress address) {
         String email = address.getEmail();
 
@@ -37,20 +39,20 @@ public class MemberController {
         return new ResponseEntity<Object>(message.getStatus());
     }
 
-    @PostMapping("/membership/email/code")
+    @PostMapping("/code")
     public ResponseEntity<Object> emailCodeVerification(@RequestBody EmailCode code) {
         this.emailService.emailCodeVerification(code.getEmail(), code.getCode());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/membership")
+    @PostMapping("/form")
     public ResponseEntity<Object> signUp(@Valid @RequestBody UserInfo info) {
         // SQL 인젝션 체크
         User createdUser = memberService.signUp(info);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/membership/withdrawal")
+    @DeleteMapping("/withdrawal")
     public ResponseEntity<Object> withdrawal(Authentication authentication) {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         User user = principalDetails.getUser();
