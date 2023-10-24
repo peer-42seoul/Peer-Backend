@@ -37,7 +37,6 @@ public class MessagePiece extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "index_conversationId")
-
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MessageIndex index;
 }

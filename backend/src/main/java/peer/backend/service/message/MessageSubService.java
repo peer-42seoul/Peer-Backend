@@ -74,14 +74,14 @@ public class MessageSubService {
         String formattedDateTime = conversation.getCreatedAt().format(formatter);
 
         MsgObjectDTO ret = new MsgObjectDTO();
-        ret.builder().targetId(target.getId()).
-            targetNickname(target.getNickname()).
-                targetProfile(target.getImageUrl()).
-                conversationId(index.getConversationId()).
-                unreadMsgNumber(msgNumber).
-                latestMsgId(conversation.getMsgId()).
-                latestContent(conversation.getText()).
-                latestDate(formattedDateTime);
+        ret.setTargetId(target.getId());
+        ret.setTargetNickname(target.getNickname());
+        ret.setTargetProfile(target.getImageUrl());
+        ret.setConversationId(index.getConversationId());
+        ret.setUnreadMsgNumber(msgNumber);
+        ret.setLatestMsgId(conversation.getMsgId());
+        ret.setLatestContent(conversation.getText());
+        ret.setLatestDate(formattedDateTime);
 
         return ret;
     }

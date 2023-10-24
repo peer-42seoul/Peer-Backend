@@ -2,7 +2,6 @@ package peer.backend.controller.message;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.poi.xwpf.usermodel.IBody;
 
 import org.springframework.http.HttpStatus;
@@ -102,7 +101,6 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
     public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Principal data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
-
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
@@ -148,10 +146,11 @@ public class MessaageController {
     public ResponseEntity<MsgListDTO> getSpecificLetters(Principal data, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
-            wrappedData =this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body).get();
+            wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();

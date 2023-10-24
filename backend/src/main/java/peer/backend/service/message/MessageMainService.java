@@ -21,6 +21,7 @@ import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.swing.text.html.Option;
+import java.net.SocketOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -66,15 +67,17 @@ public class MessageMainService {
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
 
-        List<MsgObjectDTO> retList = null;
+        List<MsgObjectDTO> retList = new ArrayList<>();
         User target = null;
+
+        System.out.println("MSG List Size : "+ msgList.size());
 
         // Index 기준으로 반복문으로 MsgObject 작성 시작
         for (MessageIndex msg : msgList) {
             // 대화
             MessagePiece conversation= this.pieceRepository.findTopByConversationId(msg.getConversationId()).orElseGet(() -> null);
             // 상대방 확인
-            if (msg.getUserIdx1() == msgOwner.getId()) {
+            if (msg.getUserIdx1().equals(msgOwner.getId())) {
                 if (msg.isUser1delete())
                     continue;
                 target = this.userRepository.findById(msg.getUserIdx2()).get();
@@ -258,7 +261,6 @@ public class MessageMainService {
         User msgOwner = null;
 
         msgOwner = user1.getId().equals(userId) ? user1 : user2;
-
         System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
@@ -338,7 +340,7 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
-        String sql = "SELECT * FROM message_piece WHERE conversationId = :conversationId ORDER BY createdAt LIMIT 21";
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
         talks.sort(new MessagePieceComparator());
 
