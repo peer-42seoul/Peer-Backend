@@ -154,8 +154,7 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("Test delete all")
     public void deleteAllTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        favoriteService.deleteAll(name, "project");
+        favoriteService.deleteAll(principalDetails, "project");
         assertThat(user.getRecruitFavorites().size()).isEqualTo(1);
     }
 }

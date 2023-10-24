@@ -65,10 +65,8 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteAll(String name, String type) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public void deleteAll(PrincipalDetails principalDetails, String type) {
+        User user = principalDetails.getUser();
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<RecruitFavorite> toDelete = new ArrayList<>();
         for (RecruitFavorite recruitFavorite : recruitFavoriteList) {

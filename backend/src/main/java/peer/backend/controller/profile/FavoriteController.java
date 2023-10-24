@@ -42,7 +42,7 @@ public class FavoriteController {
     public ResponseEntity<Object> deleteAll(Authentication auth,
                                             @RequestParam(value = "type") String type) {
         checkType(type);
-        favoriteService.deleteAll(auth.getName(), type);
+        favoriteService.deleteAll((PrincipalDetails) auth.getPrincipal(), type);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }
