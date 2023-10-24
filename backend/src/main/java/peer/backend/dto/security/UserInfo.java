@@ -46,6 +46,5 @@ public class UserInfo {
             .password(encoder.encode(this.password))
             .name(this.name)
             .nickname(this.nickname)
-            .build();
     }
 }

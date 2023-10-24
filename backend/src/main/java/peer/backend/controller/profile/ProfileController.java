@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
@@ -19,7 +18,6 @@ import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -31,7 +29,7 @@ public class ProfileController{
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 조회하기")
     @GetMapping("/profile")
     public ResponseEntity<Object> getProfile(Authentication auth) {
-        return new ResponseEntity<> (profileService.getProfile(auth.getName()), HttpStatus.OK);
+        return new ResponseEntity<> (profileService.getProfile((PrincipalDetails) auth.getPrincipal()), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")
@@ -55,7 +53,7 @@ public class ProfileController{
             if (link.getLinkName().length() > 20 || link.getLinkUrl().length() > 300)
                 throw new BadRequestException("링크 글자 수가 너무 많습니다.");
         }
-        profileService.editLinks(auth.getName(), linkList.getLinkList());
+        profileService.editLinks((PrincipalDetails) auth.getPrincipal(), linkList.getLinkList());
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 
@@ -80,7 +78,7 @@ public class ProfileController{
 
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
     @PutMapping("/profile/introduction/edit")
-    public ResponseEntity<Object> editProfile(Principal principal, @ModelAttribute EditProfileRequest profile) throws IOException {
+    public ResponseEntity<Object> editProfile(Authentication auth, @ModelAttribute EditProfileRequest profile) throws IOException {
         if (profile.getIntroduction().length() > 150) {
             throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
         }
@@ -93,9 +91,7 @@ public class ProfileController{
         if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalDetails principalDetails = (PrincipalDetails) auth.getPrincipal();
-        profileService.editProfile(principalDetails, profile);
+        profileService.editProfile((PrincipalDetails) auth.getPrincipal(), profile);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

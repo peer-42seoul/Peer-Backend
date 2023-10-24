@@ -1,9 +1,10 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @EnableWebMvc
+@Slf4j
+@Component
 public class MessageSubService {
     private final UserRepository userRepository;
     private final MessageIndexRepository indexRepository;
@@ -80,7 +83,12 @@ public class MessageSubService {
         ret.setTargetNickname(target.getNickname());
         ret.setTargetProfile(target.getImageUrl());
         ret.setConversationId(index.getConversationId());
-        ret.setUnreadMsgNumber(msgNumber);
+        if (index.getUserIdx1().equals(target.getId())) {
+            ret.setUnreadMsgNumber(index.getUnreadMessageNumber2());
+        }
+        if (index.getUserIdx2().equals(target.getId())) {
+            ret.setUnreadMsgNumber(index.getUnreadMessageNumber1());
+        }
         ret.setLatestMsgId(conversation.getMsgId());
         ret.setLatestContent(conversation.getText());
         ret.setLatestDate(formattedDateTime);
@@ -179,5 +187,29 @@ public class MessageSubService {
             return false;
         else
             throw new DataIntegrityViolationException("There is already message");
+    }
+
+    @Transactional(readOnly = false)
+    public MessageIndex saveNewData(User owner, User target) {
+//        MessageIndex newData = new MessageIndex();
+//        newData.setUserIdx1(owner.getId());
+//        newData.setUserIdx2(target.getId());
+//        newData.setUnreadMessageNumber1(0L);
+//        newData.setUnreadMessageNumber2(0L);
+//        newData.setUser1delete(false);
+//        newData.setUser2delete(false);
+//        newData.setUser1(owner);
+//        newData.setUser2(target);
+//        newData.setUser1(owner);
+//        newData.setUser2(target);
+        MessageIndex newData = MessageIndex.builder().
+                userIdx1(owner.getId()).
+                userIdx2(target.getId()).
+                unreadMessageNumber1(0L).
+                unreadMessageNumber2(0L).
+                user1(owner).
+                user2(target).
+                build();
+        return this.indexRepository.save(newData);
     }
 }

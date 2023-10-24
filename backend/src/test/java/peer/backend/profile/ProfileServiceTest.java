@@ -85,8 +85,7 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Get profile Test")
     void getProfileTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        MyProfileResponse ret = profileService.getProfile(email);
+        MyProfileResponse ret = profileService.getProfile(principal);
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
         assertThat(ret.getNickname()).isEqualTo(user.getNickname());
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());
@@ -97,7 +96,6 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Edit links Test")
     void editLinksTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
         List<UserLinkRequest> newList = new ArrayList<>();
         newList.add(
                 UserLinkRequest.builder()
@@ -111,7 +109,7 @@ class ProfileServiceTest {
                         .linkUrl("new link 2")
                         .build()
         );
-        profileService.editLinks(email, newList);
+        profileService.editLinks(principal, newList);
         assertThat(user.getUserLinks().get(0).getLinkName()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");

@@ -7,6 +7,7 @@ import peer.backend.dto.profile.KeywordResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -19,10 +20,8 @@ public class KeywordAlarmService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addKeyword(String name, String newKeyword) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+    public void addKeyword(PrincipalDetails principalDetails, String newKeyword) {
+        User user = principalDetails.getUser();
         if (user.getKeywordAlarm() == null) {
             user.setKeywordAlarm(newKeyword);
         }
@@ -37,20 +36,16 @@ public class KeywordAlarmService {
     }
 
     @Transactional(readOnly = true)
-    public KeywordResponse getKeyword(String name) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+    public KeywordResponse getKeyword(PrincipalDetails principalDetails) {
+        User user = principalDetails.getUser();
         return KeywordResponse.builder()
                 .keyword(user.getKeywordAlarm())
                 .build();
     }
 
     @Transactional
-    public void deleteKeyword(String name, String keyword) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+    public void deleteKeyword(PrincipalDetails principalDetails, String keyword) {
+        User user = principalDetails.getUser();
         String userKeyword = user.getKeywordAlarm();
         if (userKeyword != null) {
             if (!userKeyword.contains(keyword)) {
@@ -70,10 +65,8 @@ public class KeywordAlarmService {
     }
 
     @Transactional
-    public void deleteAll(String name) {
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+    public void deleteAll(PrincipalDetails principalDetails) {
+        User user = principalDetails.getUser();
         user.setKeywordAlarm(null);
         userRepository.save(user);
     }
