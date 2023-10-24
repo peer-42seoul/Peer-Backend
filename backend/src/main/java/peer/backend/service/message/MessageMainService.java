@@ -198,7 +198,6 @@ public class MessageMainService {
         } catch (Exception e){
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-//        System.out.println("Check to here1");
         User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
@@ -259,7 +258,6 @@ public class MessageMainService {
         User msgOwner = null;
 
         msgOwner = user1.getId().equals(userId) ? user1 : user2;
-//        msgOwner = user1;
 
         System.out.println("indexed ConversationId : " + index.getConversationId());
         MessagePiece letter = MessagePiece.builder().
