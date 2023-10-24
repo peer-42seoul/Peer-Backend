@@ -67,8 +67,7 @@ public class PersonalInfoServiceTest {
     @Test
     @DisplayName("비밀 번호 변경")
     void changePasswordTest() {
-        when(userRepository.findByName(anyString())).thenReturn(Optional.of(user));
-        personalInfoService.changePassword(name, newPassword);
+        personalInfoService.changePassword(principalDetails, newPassword);
         assertThat(encoder.matches("new password", user.getPassword())).isTrue();
     }
 }

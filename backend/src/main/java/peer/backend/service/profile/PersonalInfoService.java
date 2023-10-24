@@ -30,11 +30,9 @@ public class PersonalInfoService {
     }
 
     @Transactional
-    public void changePassword(String name, PasswordRequest passwords) {
+    public void changePassword(PrincipalDetails principalDetails, PasswordRequest passwords) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        User user = userRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("사용자가 존재하지 않습니다.")
-        );
+        User user = principalDetails.getUser();
         if (!encoder.matches(passwords.getPresentPassword(), user.getPassword())) {
             throw new ForbiddenException("현재 비밀번호가 올바르지 않습니다..");
         }

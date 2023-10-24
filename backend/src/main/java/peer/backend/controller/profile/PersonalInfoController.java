@@ -28,7 +28,7 @@ public class PersonalInfoController {
     @ApiOperation(value = "C-MYPAGE-11", notes = "사용자 개인정보 비밀번호 변경하기")
     @PutMapping("/info/password")
     public ResponseEntity<Object> changePassword(Authentication auth, @RequestBody PasswordRequest passwords) {
-        personalInfoService.changePassword(auth.getName(), passwords);
+        personalInfoService.changePassword((PrincipalDetails) auth.getPrincipal(), passwords);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }
