@@ -74,7 +74,6 @@ public class MessageMainService {
 
         List<MsgObjectDTO> retList = new ArrayList<>();
         User target = null;
-        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 //        System.out.println("MSG List Size : "+ msgList.size());
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
