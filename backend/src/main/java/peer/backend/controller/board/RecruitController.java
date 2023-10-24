@@ -15,7 +15,6 @@ import peer.backend.service.board.recruit.RecruitService;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,13 +22,6 @@ import java.util.List;
 public class RecruitController {
     private final RecruitService recruitService;
     private final UserRepository userRepository;
-
-//    @ApiOperation(value = "", notes = "조건에 맞는 모집게시글 리스트를 불러온다.")
-//    @GetMapping("")
-//    public List<RecruitListResponse> getRecruitSearchList(@RequestParam Long page, @RequestParam Long pageSize, @ModelAttribute RecruitRequest recruitRequest){
-//        //TODO: 페이지로 변환 필요, 쿼리 한땀한땀 자아낼 예정
-//        return recruitService.getRecruitSearchList(page, pageSize, recruitRequest);
-//    }
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -63,9 +55,16 @@ public class RecruitController {
     }
 
 
+    @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("/test/{user_id}")
-    public Page<RecruitListResponse> getRecruitListByConditions(@PathVariable Long user_id, @RequestParam int page, @RequestParam int pageSize, @ModelAttribute RecruitRequest request) throws IOException {
+    public Page<RecruitListResponse> getRecruitListByConditions(@PathVariable Long user_id, @RequestParam int page, @RequestParam int pageSize, @ModelAttribute RecruitRequest request) {
         Pageable pageable = PageRequest.of(page, pageSize);
         return recruitService.getRecruitSearchList(pageable, request, user_id);
+    }
+
+    @PostMapping("/favorite/{recruit_id}")
+    public void goFavorite(@PathVariable Long recruit_id, Principal principal){
+        User user = userRepository.findByName(principal.getName()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
+        recruitService.changeRecruitFavorite(user.getId(), recruit_id );
     }
 }

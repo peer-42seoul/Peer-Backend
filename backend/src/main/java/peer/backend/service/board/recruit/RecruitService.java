@@ -53,6 +53,22 @@ public class RecruitService {
     private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
+    public void changeRecruitFavorite(Long user_id, Long recruit_id){
+        User user = userRepository.findById(user_id).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
+        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        Optional<RecruitFavorite> optFavorite = recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit_id));
+        if (optFavorite.isPresent()) {
+            recruitFavoriteRepository.delete(optFavorite.get());
+        } else {
+            RecruitFavorite favorite = new RecruitFavorite();
+            favorite.setUser(user);
+            favorite.setRecruit(recruit);
+            favorite.setUserId(user_id);
+            favorite.setRecruitId(recruit_id);
+            recruitFavoriteRepository.save(favorite);
+        }
+    }
+
     public List<TeamApplicantListDto> getTeamApplicantList(Long user_id){
         //TODO:모듈화 리팩토링 필요
         User user = userRepository.findById(user_id).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
@@ -86,7 +102,7 @@ public class RecruitService {
 
     public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitRequest request, Long user_id) {
 
-        //TODO:favorite 등록
+        //TODO:favorite 등
         //query 생성 준비
         String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
 
