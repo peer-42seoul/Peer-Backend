@@ -16,6 +16,7 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitApplicantRepository;
@@ -320,7 +321,7 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         Optional <RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(new RecruitApplicantPK(recruit_id, request.getUser_id()));
         if (optRecruitApplicant.isPresent()){
-            throw new IllegalArgumentException("이미 지원한 팀입니다.");
+            throw new ConflictException("이미 지원한 팀입니다.");
         }
         RecruitApplicant recruitApplicant = RecruitApplicant.builder()
                 .recruitId(recruit_id)
