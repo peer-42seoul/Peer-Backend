@@ -35,6 +35,10 @@ public class ProfileService {
     @Value("${custom.filePath}")
     private String filepath;
 
+    private boolean isFileEmpty(MultipartFile imageFile) {
+        return imageFile == null || imageFile.isEmpty();
+    }
+
     private void deleteUserImage(User user) throws IOException {
         String imagePath = user.getImageUrl();
         if (imagePath == null) {
@@ -159,10 +163,10 @@ public class ProfileService {
     @Transactional
     public void editProfile(PrincipalDetails principalDetails, EditProfileRequest profile) throws IOException {
         User user = principalDetails.getUser();
-        if (profile.getProfileImage().isEmpty() && profile.isImageChange()) {
+        if (isFileEmpty(profile.getProfileImage()) && profile.isImageChange()) {
             deleteUserImage(user);
         }
-        else if (!profile.getProfileImage().isEmpty()) {
+        else if (!isFileEmpty(profile.getProfileImage())) {
             deleteUserImage(user);
             user.setImageUrl(
                     saveImageFilePath(user, profile.getProfileImage()).toUri().toString()
