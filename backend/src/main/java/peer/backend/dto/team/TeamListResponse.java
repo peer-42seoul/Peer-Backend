@@ -9,14 +9,14 @@ import peer.backend.entity.team.TeamUser;
 @NoArgsConstructor
 public class TeamListResponse {
 
-    public TeamListResponse(Team team, TeamUser teamUser) {
+    public TeamListResponse(Team team, TeamUser teamUser, int teamMemberCount) {
         this.id = team.getId().toString();
         this.name = team.getName();
         this.dueTo = team.getDueTo();
         this.status = team.getStatus().toString();
         this.role = teamUser.getRole().toString();
         this.type = team.getType().toString();
-        this.teamCount = String.format(team.getTeamUsers().size() + " / " + team.getMaxMember());
+        this.teamCount = String.format(teamMemberCount + " / " + team.getMaxMember());
         this.region = team.getRegion1();
         this.operationFormat = team.getOperationFormat().toString();
     }

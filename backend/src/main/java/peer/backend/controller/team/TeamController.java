@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.team.*;
 import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
-import peer.backend.oauth.PrincipalDetails;
-import peer.backend.service.board.recruit.RecruitService;
 import peer.backend.service.team.TeamService;
 
 import javax.validation.Valid;
@@ -29,13 +28,12 @@ public class TeamController {
 
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
-    private final RecruitService recruitService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
-    @GetMapping("/list/{userId}")
-    public List<TeamListResponse> getTeamList(@PathVariable() Long userId, @RequestParam("teamStatus") TeamStatus teamStatus) {
-        //TODO: Principal 유저 아이디 가져와서 같은지 확인
-        return this.teamService.getTeamList(userId, teamStatus);
+    @GetMapping("/list")
+    public List<TeamListResponse> getTeamList(@RequestParam("teamStatus") TeamStatus teamStatus, Authentication authentication) {
+        User thisUser = User.authenticationToUser(authentication);
+        return this.teamService.getTeamList(teamStatus, thisUser);
     }
 
     @GetMapping("/setting/{teamId}")
@@ -74,52 +72,26 @@ public class TeamController {
 
     @GetMapping("/applicant/{teamId}")
     public List<TeamApplicantListDto> getTeamApplicant(@PathVariable() Long teamId, Authentication authentication) {
-        return this.teamService.getTeamApplicantList(teamId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
+        return this.teamService.getTeamApplicantList(teamId, User.authenticationToUser(authentication));
     }
 
     @PutMapping("/applicant/accept/{teamId}")
     public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
-        this.teamService.acceptTeamApplicant(teamId, applicantId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
-        return this.teamService.getTeamApplicantList(teamId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
+        User thisUser =  User.authenticationToUser(authentication);
+        this.teamService.acceptTeamApplicant(teamId, applicantId, thisUser);
+        return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
     @PutMapping("/applicant/reject/{teamId}")
     public List<TeamApplicantListDto> rejectTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
-        this.teamService.rejectTeamApplicant(teamId, applicantId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
-        return this.teamService.getTeamApplicantList(teamId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
+        User thisUser =  User.authenticationToUser(authentication);
+        this.teamService.rejectTeamApplicant(teamId, applicantId, thisUser);
+        return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
-/*
-    @ApiOperation(value = "C-MYPAGE-49", notes = "팀 아이디로 세부 정보를 가져옵니다.")
-    @GetMapping("/id/{teamId}")
-    public TeamResponse getTeamById(@PathVariable() Long teamId) {
-        Team team = this.teamService.getTeamById(teamId);
-        return new TeamResponse(team);
+    @GetMapping("/main/{teamId}")
+    public TeamInfoResponse getTeamInfo(@PathVariable() Long teamId, Authentication authentication) {
+        User user = User.authenticationToUser(authentication);
+        return this.teamService.getTeamInfo(teamId, user);
     }
-
-    @ApiOperation(value = "C-MYPAGE-49", notes = "팀 이름으로 세부 정보를 가져옵니다.")
-    @GetMapping("/name/{teamName}")
-    public TeamResponse getTeamById(@PathVariable() String teamName) {
-        Team team = this.teamService.getTeamByName(teamName);
-        return new TeamResponse(team);
-    }
-
-    @ApiOperation(value = "I-TM-01 ~ I-TM-13", notes = "팀 정보를 업데이트 합니다.")
-    @PutMapping("/{teamId}")
-    public void updateTeam(@PathVariable() Long teamId, @Valid() @RequestBody() UpdateTeamRequest updateTeamRequest) {
-        this.teamService.updateTeam(teamId, updateTeamRequest);
-    }
-
-//         TODO: 권한 검증 추가
-    @ApiOperation(value = "I-TM-10", notes = "팀에서 유저를 추방 시킵니다.")
-    @DeleteMapping("/kick")
-    public void kickMember(@RequestBody() TeamMemberKickRequest request) {
-        this.teamService.deleteTeamUser(request.getTeamId(), request.getUserId());
-    }
-*/
-
-//    @GetMapping("/info/{teamId}")
-//    public TeamInfoResponse getTeamInfo(Authentication authentication, @PathVariable() Long teamId) {
-//        return this.teamService.getTeamInfo(teamId, authentication.getName());
-//    }
 }

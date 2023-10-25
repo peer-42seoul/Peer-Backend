@@ -46,6 +46,7 @@ public class InterestedProjectRepositoryTest {
         User user = User.builder()
             .name("test")
             .email("test@test.com")
+            .password("test")
             .nickname("test")
             .isAlarm(false)
             .address("test")
