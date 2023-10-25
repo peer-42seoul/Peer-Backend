@@ -54,27 +54,3 @@ public class AuthorCheckAspect {
         throw new IllegalArgumentException("post_id 파라미터를 찾을 수 없습니다.");
     }
 }
-
-
-
-
-//    @Before("@annotation(peer.backend.annotation.AuthorCheck) && args(authentication, recruit_id) ")
-//    private void checkAuthor(Authentication authentication, Long recruit_id){
-//        System.out.println("gheihaiehfiaheofihaoeifh");
-//        Object[] args = joinPoint.getArgs();
-//        System.out.println(args[0]);
-//
-//        if (args.length < 2 || !(args[0] instanceof Authentication) || !(args[1] instanceof Long)) {
-//            throw new IllegalArgumentException("메서드 파라미터가 부적절합니다.");
-//        }
-//        System.out.println("gheihaiehfiaheofihaoeifh");
-//        Authentication authentication = (Authentication) args[0];
-//        Long recruit_id = (Long) args[1];
-//        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
-//        System.out.println(User.authenticationToUser(authentication).getNickname() + " " + recruit.getWriter().getNickname());
-//        if (!User.authenticationToUser(authentication).getNickname().equals(recruit.getWriter().getNickname())){
-//            System.out.println("gheihaiehfiaheofihaoeifh");
-//            throw new ForbiddenException("작성자가 아닙니다.");
-//        }
-//    }
-//}
