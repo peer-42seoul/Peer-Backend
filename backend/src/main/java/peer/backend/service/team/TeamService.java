@@ -115,7 +115,9 @@ public class TeamService {
 
     @Transactional
     public List<TeamApplicantListDto> getTeamApplicantList(Long teamId, User user) {
-        TeamUser teamUser = getTeamUserByName(teamId, user.getName());
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
         List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByRecruitId(teamId);
         List<TeamApplicantListDto> result = new ArrayList<>();
         Recruit recruit = recruitRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
@@ -149,7 +151,9 @@ public class TeamService {
 
     @Transactional
     public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
-        TeamUser teamUser = getTeamUserByName(teamId, user.getName());
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
         RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(applicantId, teamId);
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (recruitApplicant == null) {
@@ -168,7 +172,9 @@ public class TeamService {
 
     @Transactional
     public void rejectTeamApplicant(Long teamId, Long applicantId, User user) {
-        TeamUser teamUser = getTeamUserByName(teamId, user.getName());
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
         RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(applicantId, teamId);
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (recruitApplicant == null) {
