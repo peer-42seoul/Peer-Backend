@@ -14,6 +14,7 @@ import peer.backend.dto.security.UserInfo;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
 import peer.backend.entity.user.User;
+import peer.backend.exception.UnauthorizedException;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.EmailAuthService;
@@ -53,9 +54,12 @@ public class SignUpController {
     }
 
     @DeleteMapping("/withdrawal")
-    public ResponseEntity<Object> withdrawal(Authentication authentication) {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        User user = principalDetails.getUser();
+    public ResponseEntity<Object> withdrawal(@RequestBody String password,
+        Authentication authentication) {
+        User user = User.authenticationToUser(authentication);
+        if (this.memberService.verificationPassword(password, user.getPassword())) {
+            throw new UnauthorizedException("비밀번호가 잘못되었습니다!");
+        }
         this.memberService.deleteUser(user);
         return ResponseEntity.ok().build();
     }
