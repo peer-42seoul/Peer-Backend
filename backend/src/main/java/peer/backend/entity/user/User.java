@@ -14,11 +14,13 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.Authentication;
@@ -49,9 +51,11 @@ public class User extends BaseEntity {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(length = 10, nullable = false)
+    @Column(nullable = false)
+    @Size(min = 2, max = 4)
     private String name;
-    @Column(length = 10, unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
+    @Size(min = 2, max = 7)
     private String nickname;
     @Column//(nullable = false)
     private boolean isAlarm;
@@ -107,7 +111,7 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "writer", cascade = CascadeType.PERSIST)
     private List<Recruit> recruitList = new ArrayList<>();
-    
+
     public static User authenticationToUser(Authentication authentication) {
         return ((PrincipalDetails) authentication.getPrincipal()).getUser();
     }
