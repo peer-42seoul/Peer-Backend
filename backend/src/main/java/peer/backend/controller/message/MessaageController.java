@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
+import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.message.MessageMainService;
 
@@ -30,11 +31,11 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저의 쪽지 목록을 불러온다.")
     @GetMapping("/list")
-    public ResponseEntity<List<MsgObjectDTO>> getAllLetters(Principal data, @RequestParam long userId) {
+    public ResponseEntity<List<MsgObjectDTO>> getAllLetters(Authentication auth, @RequestParam long userId) {
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {
-            wrappedRet = this.messageMainService.getLetterListByUserId(userId).get();
+            wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -56,13 +57,13 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저의 쪽지 목록 중 일부를 삭제 한다.")
     @DeleteMapping("/delete-message")
-    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Principal data, @RequestParam long userId, @RequestBody List<TargetDTO> body) {
+    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestParam long userId, @RequestBody List<TargetDTO> body) {
         this.messageMainService.deleteLetterList(userId, body);
 
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {
-            wrappedRet = this.messageMainService.getLetterListByUserId(userId).get();
+            wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -101,7 +102,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
-    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication auth, @RequestParam long userId, @RequestBody MsgContentDTO body) {
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
@@ -125,7 +126,7 @@ public class MessaageController {
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {
-            wrappedRet = this.messageMainService.getLetterListByUserId(userId).get();
+            wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);

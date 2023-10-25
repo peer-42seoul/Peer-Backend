@@ -58,15 +58,15 @@ public class MessageMainService {
      */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(long userId) {
-        Optional<User> msgOwnerData = userRepository.findById(userId);
-        User msgOwner = new User();
-        try {
-            // Owner Get
-            msgOwner = msgOwnerData.orElseThrow(() -> new NoSuchElementException("User Not found"));
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-        }
+    public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(User msgOwner) {
+//        Optional<User> msgOwnerData = userRepository.findById(userId);
+//        User msgOwner = new User();
+//        try {
+//            // Owner Get
+//            msgOwner = msgOwnerData.orElseThrow(() -> new NoSuchElementException("User Not found"));
+//        } catch (Exception e) {
+//            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
+//        }
 
         List<MessageIndex> msgList = null;
         try {
