@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import javax.validation.ValidationException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -172,7 +171,7 @@ public class TeamService {
     }
 
     @Transactional
-    public TeamInfoResponse getTeamInfoResponse(Long teamId, User user) {
+    public TeamInfoResponse getTeamInfo(Long teamId, User user) {
         Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 없습니다"));
         if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
             return new TeamInfoResponse(team);
