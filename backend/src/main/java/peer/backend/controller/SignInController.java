@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +31,7 @@ public class SignInController {
     private final LoginService loginService;
 
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
-    @GetMapping()
+    @PostMapping()
     public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
         JwtDto jwtDto = loginService.login(userLoginRequest.getUserEmail(),
