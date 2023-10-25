@@ -92,6 +92,12 @@ public class TeamController {
     @GetMapping("/main/{teamId}")
     public TeamInfoResponse getTeamInfo(@PathVariable() Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
-        return this.teamService.getTeamInfo(teamId, user);
+        return this.teamService.getTeamInfoResponse(teamId, user);
+    }
+
+    @GetMapping("/main/member/{teamId}")
+    public List<TeamMemberDto> getTeamMember(@PathVariable() Long teamId, Authentication authentication) {
+        User user = User.authenticationToUser(authentication);
+        return this.teamService.getTeamMemberList(teamId, user);
     }
 }

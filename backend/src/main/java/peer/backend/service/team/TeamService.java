@@ -172,41 +172,26 @@ public class TeamService {
     }
 
     @Transactional
-    public TeamInfoResponse getTeamInfo(Long teamId, User user) {
+    public TeamInfoResponse getTeamInfoResponse(Long teamId, User user) {
         Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 없습니다"));
         if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
             return new TeamInfoResponse(team);
         }
         else {
-            throw new ValidationException("팀에 속해있지 않습니다.");
+            throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
     }
 
-//    @Transactional
-//    public Team getTeamById(Long teamId) {
-//        return this.teamRepository.findById(teamId)
-//            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
-//    }
-//
-//    @Transactional
-//    public Team getTeamByName(String teamName) {
-//        return this.teamRepository.findByName(teamName)
-//            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
-//    }
-//
-//    @Transactional
-//    public void updateTeam(Long teamId, UpdateTeamRequest request) {
-//        Team team = this.getTeamById(teamId);
-//        team.update(request);
-//    }
-////
-//    @Transactional
-//    public void deleteTeamUser(Long teamId, Long userId) {
-//        if (!this.teamUserRepository.existsByUserIdAndTeamId(userId, teamId)) {
-//            throw new NotFoundException("해당 유저는 팀원이 아닙니다!");
-//        }
-//        this.teamUserRepository.deleteByUserIdAndTeamId(userId, teamId);
-//    }
+    @Transactional
+    public List<TeamMemberDto> getTeamMemberList(Long teamId, User user) {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
+            return team.getTeamUsers().stream().map(TeamMemberDto::new).collect(Collectors.toList());
+        }
+        else {
+            throw new ForbiddenException("팀에 속해있지 않습니다.");
+        }
+    }
 
     private TeamUser getTeamUserByName(Long teamId, String userName) throws NotFoundException, ForbiddenException {
         TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(this.userRepository.findByName(userName).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId(), teamId);
