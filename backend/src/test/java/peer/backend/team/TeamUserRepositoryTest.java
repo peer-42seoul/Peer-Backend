@@ -45,6 +45,7 @@ public class TeamUserRepositoryTest {
             .name("test")
             .email("test@test.com")
             .nickname("test")
+            .password("test")
             .isAlarm(false)
             .address("test")
             .certification(false)
