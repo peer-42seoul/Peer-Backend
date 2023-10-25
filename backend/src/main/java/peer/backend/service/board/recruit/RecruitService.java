@@ -1,9 +1,11 @@
 package peer.backend.service.board.recruit;
 
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
@@ -347,5 +349,14 @@ public class RecruitService {
 
         List<String> content = processMarkdownWithFormData(recruitUpdateRequestDTO.getContent());
         recruit.update(recruitUpdateRequestDTO, content);
+    }
+
+    public List<TagListResponse> getTagList(){
+        List<TagListResponse> result = new ArrayList<>();
+        result.add(new TagListResponse("Java", "#9AFE2E"));
+        result.add(new TagListResponse("JavaScript", "#045FB4"));
+        result.add(new TagListResponse("React", "#FF8000"));
+        result.add(new TagListResponse("SpringBoot", "#FE2EC8"));
+        return result;
     }
 }
