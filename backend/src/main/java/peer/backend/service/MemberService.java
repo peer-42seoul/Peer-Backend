@@ -10,6 +10,7 @@ import peer.backend.annotation.tracking.UserRegistrationTracking;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.SocialLoginRepository;
 import peer.backend.repository.user.UserRepository;
@@ -44,6 +45,8 @@ public class MemberService {
                 socialLogin.setUser(savedUser);
                 this.socialLoginRepository.save(socialLogin);
                 this.redisTemplate.delete(socialEmail);
+            } else {
+                throw new ConflictException("잘못된 소셜 로그인 이메일입니다!");
             }
         }
         return savedUser;
