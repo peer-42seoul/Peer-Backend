@@ -19,7 +19,7 @@ jobs:
         github-token: ${{secrets.TOKEN}}
         script: |
           const team1 = ['sinryuji', 'Paul2021-R', 'weejihye'];
-          const team2 = ['perman0519', 'juhyeonlee134'];
+          const team2 = ['perman0519', 'juhyeonlee134', 'wochae'];
           const candidate1 = team1.filter((e) => e != '${{ github.event.pull_request.user.login }}');
           const candidate2 = team2.filter((e) => e != '${{ github.event.pull_request.user.login }}');
           const randomReviewer1 = candidate1[Math.floor(Math.random() * candidate1.length)];
