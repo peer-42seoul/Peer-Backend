@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.user.User;
@@ -44,8 +45,10 @@ public class RecruitController {
         recruitService.createRecruit(recruitListRequestDTO);
     }
 
+
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
+    @AuthorCheck
     public void updateRecruit(@PathVariable Long recruit_id, @RequestBody RecruitUpdateRequestDTO recruitUpdateRequestDTO, Principal principal) throws IOException {
         //TODO:principal로 권한검사
         recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
