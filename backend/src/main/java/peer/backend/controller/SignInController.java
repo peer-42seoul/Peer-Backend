@@ -24,7 +24,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/singin")
+@RequestMapping("/api/v1/signin")
 public class SignInController {
 
     private final LoginService loginService;
