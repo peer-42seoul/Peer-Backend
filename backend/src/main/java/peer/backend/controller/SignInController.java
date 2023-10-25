@@ -51,7 +51,7 @@ public class SignInController {
     }
 
     @ApiOperation(value = "C-SIGN-09", notes = "accessToken 만료시에 다시 accessToken을 발급받습니다.")
-    @GetMapping("/reissue")
+    @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody ToReissueToken refreshToken) {
         try {
             String token = refreshToken.getRefreshToken();
