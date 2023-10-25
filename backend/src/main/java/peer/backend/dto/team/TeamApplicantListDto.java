@@ -13,7 +13,7 @@ import java.util.ArrayList;
 @Builder
 @Getter
 public class TeamApplicantListDto {
-    String nickName;
-    Long recruitId;
+    String name;
+    Long userId;
     ArrayList<RecruitAnswerDto> answers;
 }

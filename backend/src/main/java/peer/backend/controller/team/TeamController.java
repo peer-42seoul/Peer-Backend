@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.team.*;
 import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
-import peer.backend.oauth.PrincipalDetails;
-import peer.backend.service.board.recruit.RecruitService;
 import peer.backend.service.team.TeamService;
 
 import javax.validation.Valid;
@@ -29,7 +28,6 @@ public class TeamController {
 
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
-    private final RecruitService recruitService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/list/{userId}")
@@ -74,19 +72,21 @@ public class TeamController {
 
     @GetMapping("/applicant/{teamId}")
     public List<TeamApplicantListDto> getTeamApplicant(@PathVariable() Long teamId, Authentication authentication) {
-        return this.teamService.getTeamApplicantList(teamId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
+        return this.teamService.getTeamApplicantList(teamId, User.authenticationToUser(authentication));
     }
 
     @PutMapping("/applicant/accept/{teamId}")
     public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
-        this.teamService.acceptTeamApplicant(teamId, applicantId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
-        return this.teamService.getTeamApplicantList(teamId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
+        User thisUser =  User.authenticationToUser(authentication);
+        this.teamService.acceptTeamApplicant(teamId, applicantId, thisUser);
+        return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
     @PutMapping("/applicant/reject/{teamId}")
     public List<TeamApplicantListDto> rejectTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
-        this.teamService.rejectTeamApplicant(teamId, applicantId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
-        return this.teamService.getTeamApplicantList(teamId, ((PrincipalDetails)authentication.getPrincipal()).getUser());
+        User thisUser =  User.authenticationToUser(authentication);
+        this.teamService.rejectTeamApplicant(teamId, applicantId, thisUser);
+        return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
 /*

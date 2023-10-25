@@ -25,7 +25,6 @@ import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.board.recruit.RecruitService;
 
 @Service
 @RequiredArgsConstructor
@@ -145,8 +144,8 @@ public class TeamService {
             }
             result.add(TeamApplicantListDto.builder()
                     .answers(answerDtoList)
-                    .nickName(user.getNickname())
-                    .recruitId(recruitApplicant.getUserId())
+                    .name(recruitApplicant.getNickname())
+                    .userId(recruitApplicant.getUserId())
                     .build());
         }
         return result;
@@ -156,6 +155,7 @@ public class TeamService {
     public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
         TeamUser teamUser = getTeamUserByName(teamId, user.getName());
         RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(applicantId, teamId);
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (recruitApplicant == null) {
             throw new NotFoundException("존재하지 않는 지원자입니다.");
         }
@@ -173,8 +173,8 @@ public class TeamService {
     @Transactional
     public void rejectTeamApplicant(Long teamId, Long applicantId, User user) {
         TeamUser teamUser = getTeamUserByName(teamId, user.getName());
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(applicantId, teamId);
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (recruitApplicant == null) {
             throw new NotFoundException("존재하지 않는 지원자입니다.");
         }
