@@ -92,8 +92,8 @@ public class RecruitService {
             }
             result.add(TeamApplicantListDto.builder()
                     .answers(answerDtoList)
-                    .nickName(user.getNickname())
-                    .recruitId(recruitApplicant.getRecruitId())
+                    .name(user.getNickname())
+                    .userId(recruitApplicant.getRecruitId())
                     .build());
         }
         return result;
