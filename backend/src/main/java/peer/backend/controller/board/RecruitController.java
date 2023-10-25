@@ -45,7 +45,6 @@ public class RecruitController {
         recruitService.createRecruit(recruitListRequestDTO);
     }
 
-
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck

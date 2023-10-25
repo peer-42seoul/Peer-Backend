@@ -32,12 +32,11 @@ public class AuthorCheckAspect {
                 Long recruit_id = extractRecruitId(args); // recruit_id 추출
 
                 //recruit_id와 authentication 사용하여 사용자가 게시글 작성자인지 확인함.
-                Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+                Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
+                        () -> new NotFoundException("존재하지 않는 게시글입니다."));
 
-                String authorUsername = recruit.getWriter().getNickname();
-                String currentUsername = User.authenticationToUser(authentication).getNickname();
-
-                if (!authorUsername.equals(currentUsername)) {
+                if (!recruit.getWriter().getNickname()
+                        .equals(User.authenticationToUser(authentication).getNickname())) {
                     throw new ForbiddenException("게시글 작성자만 수정할 수 있습니다.");
                 }
             }
