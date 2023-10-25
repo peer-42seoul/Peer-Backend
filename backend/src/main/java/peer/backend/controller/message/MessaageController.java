@@ -101,7 +101,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
-    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Principal data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
