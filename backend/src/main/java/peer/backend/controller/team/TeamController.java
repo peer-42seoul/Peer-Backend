@@ -30,10 +30,10 @@ public class TeamController {
     private final TeamService teamService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
-    @GetMapping("/list/{userId}")
-    public List<TeamListResponse> getTeamList(@PathVariable() Long userId, @RequestParam("teamStatus") TeamStatus teamStatus) {
-        //TODO: Principal 유저 아이디 가져와서 같은지 확인
-        return this.teamService.getTeamList(userId, teamStatus);
+    @GetMapping("/list")
+    public List<TeamListResponse> getTeamList(@RequestParam("teamStatus") TeamStatus teamStatus, Authentication authentication) {
+        User thisUser = User.authenticationToUser(authentication);
+        return this.teamService.getTeamList(teamStatus, thisUser);
     }
 
     @GetMapping("/setting/{teamId}")
