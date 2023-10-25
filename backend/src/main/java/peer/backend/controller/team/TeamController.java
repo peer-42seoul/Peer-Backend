@@ -30,10 +30,10 @@ public class TeamController {
     private final TeamService teamService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
-    @GetMapping("/list/{userId}")
-    public List<TeamListResponse> getTeamList(@PathVariable() Long userId, @RequestParam("teamStatus") TeamStatus teamStatus) {
-        //TODO: Principal 유저 아이디 가져와서 같은지 확인
-        return this.teamService.getTeamList(userId, teamStatus);
+    @GetMapping("/list")
+    public List<TeamListResponse> getTeamList(@RequestParam("teamStatus") TeamStatus teamStatus, Authentication authentication) {
+        User thisUser = User.authenticationToUser(authentication);
+        return this.teamService.getTeamList(teamStatus, thisUser);
     }
 
     @GetMapping("/setting/{teamId}")
@@ -89,37 +89,9 @@ public class TeamController {
         return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
-/*
-    @ApiOperation(value = "C-MYPAGE-49", notes = "팀 아이디로 세부 정보를 가져옵니다.")
-    @GetMapping("/id/{teamId}")
-    public TeamResponse getTeamById(@PathVariable() Long teamId) {
-        Team team = this.teamService.getTeamById(teamId);
-        return new TeamResponse(team);
+    @GetMapping("/main/{teamId}")
+    public TeamInfoResponse getTeamInfo(@PathVariable() Long teamId, Authentication authentication) {
+        User user = User.authenticationToUser(authentication);
+        return this.teamService.getTeamInfo(teamId, user);
     }
-
-    @ApiOperation(value = "C-MYPAGE-49", notes = "팀 이름으로 세부 정보를 가져옵니다.")
-    @GetMapping("/name/{teamName}")
-    public TeamResponse getTeamById(@PathVariable() String teamName) {
-        Team team = this.teamService.getTeamByName(teamName);
-        return new TeamResponse(team);
-    }
-
-    @ApiOperation(value = "I-TM-01 ~ I-TM-13", notes = "팀 정보를 업데이트 합니다.")
-    @PutMapping("/{teamId}")
-    public void updateTeam(@PathVariable() Long teamId, @Valid() @RequestBody() UpdateTeamRequest updateTeamRequest) {
-        this.teamService.updateTeam(teamId, updateTeamRequest);
-    }
-
-//         TODO: 권한 검증 추가
-    @ApiOperation(value = "I-TM-10", notes = "팀에서 유저를 추방 시킵니다.")
-    @DeleteMapping("/kick")
-    public void kickMember(@RequestBody() TeamMemberKickRequest request) {
-        this.teamService.deleteTeamUser(request.getTeamId(), request.getUserId());
-    }
-*/
-
-//    @GetMapping("/info/{teamId}")
-//    public TeamInfoResponse getTeamInfo(Authentication authentication, @PathVariable() Long teamId) {
-//        return this.teamService.getTeamInfo(teamId, authentication.getName());
-//    }
 }

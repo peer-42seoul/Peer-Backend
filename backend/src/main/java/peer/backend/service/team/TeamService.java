@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import javax.validation.ValidationException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,31 +38,19 @@ public class TeamService {
     private final RecruitApplicantRepository recruitApplicantRepository;
 
     @Transactional
-    public List<TeamListResponse> getTeamList(Long userId, TeamStatus teamStatus) {
+    public List<TeamListResponse> getTeamList(TeamStatus teamStatus, User user) {
         if (teamStatus == null) {
             throw new NotFoundException("존재하지 않는 팀 상태 입니다.");
         }
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다."));
-        List<Team> teamList = user.getTeamUsers().stream().map(TeamUser::getTeam).collect(Collectors.toList());
+        List<TeamUser> teamUserList = teamUserRepository.findByUserId(user.getId());
         List<TeamListResponse> teamListResponse = new ArrayList<>();
-        for (Team team : teamList) {
-            if (team.getStatus() == teamStatus)
-                teamListResponse.add(new TeamListResponse(team, teamUserRepository.findByUserIdAndTeamId(userId, team.getId())));
+        for (TeamUser teamUser : teamUserList) {
+            Team team = teamUser.getTeam();
+            if (teamUser.getTeam().getStatus() == teamStatus)
+                teamListResponse.add(new TeamListResponse(team, teamUser, team.getTeamUsers().size()));
         }
         return  teamListResponse;
     }
-
-//    @Transactional
-//    public TeamInfoResponse getTeamInfo(Long teamId, String userEmail) {
-//        Long userId = this.userRepository.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId();
-//        if (teamUserRepository.existsByUserIdAndTeamId(userId, teamId)) {
-//            Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀 아이디 입니다."));
-//            return new TeamInfoResponse(team);
-//        }
-//        else {
-//            throw new NotFoundException("해당 팀에 접근할 수 없는 유저입니다.");
-//        }
-//    }
 
     @Transactional
     public TeamSettingDto getTeamSetting(Long teamId, String email) {
@@ -180,6 +169,17 @@ public class TeamService {
         }
         recruitApplicantRepository.delete(recruitApplicant);
         //TODO: 신청자에게 알림을 보내야됨
+    }
+
+    @Transactional
+    public TeamInfoResponse getTeamInfo(Long teamId, User user) {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
+            return new TeamInfoResponse(team);
+        }
+        else {
+            throw new ValidationException("팀에 속해있지 않습니다.");
+        }
     }
 
 //    @Transactional
