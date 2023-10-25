@@ -37,27 +37,29 @@ public class TeamController {
     }
 
     @GetMapping("/setting/{teamId}")
-    public TeamSettingDto getTeamSetting(@PathVariable() Long teamId, Principal principal) {
-        return this.teamService.getTeamSetting(teamId, principal.getName());
+    public TeamSettingDto getTeamSetting(@PathVariable() Long teamId, Authentication authentication) {
+        User thisUser = User.authenticationToUser(authentication);
+        return this.teamService.getTeamSetting(teamId, thisUser);
     }
 
     @PostMapping("/setting/{teamId}")
-    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto team, Principal principal) {
-        this.teamService.updateTeamSetting(teamId, team, principal.getName());
+    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto team, Authentication authentication) {
+        this.teamService.updateTeamSetting(teamId, team, User.authenticationToUser(authentication));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{teamId}")
-    public ArrayList<TeamMemberDto> deleteTeamMember(@PathVariable() Long teamId, @RequestParam("userId") String userId, Principal principal) {
+    public ArrayList<TeamMemberDto> deleteTeamMember(@PathVariable() Long teamId, @RequestParam("userId") Long userId, Authentication authentication) {
         System.out.println("deleteTeamMember");
-        return this.teamService.deleteTeamMember(teamId, userId, principal.getName());
+        return this.teamService.deleteTeamMember(teamId, userId, User.authenticationToUser(authentication));
     }
 
     @PostMapping("/grant/{teamId}")
-    public ResponseEntity<?> grantRole(@PathVariable() Long teamId, @RequestParam("userId") Long userId, @RequestParam("role") String teamUserRoleType, Principal principal) {
+    public ResponseEntity<?> grantRole(@PathVariable() Long teamId, @RequestParam("userId") Long userId, @RequestParam("role") String teamUserRoleType, Authentication authentication) {
         try {
             TeamUserRoleType teamUserRoleType1 = TeamUserRoleType.valueOf(teamUserRoleType.toUpperCase());
-            this.teamService.grantRole(teamId, userId, principal.getName(), teamUserRoleType1);
+            User user = User.authenticationToUser(authentication);
+            this.teamService.grantRole(teamId, userId, user, teamUserRoleType1);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("잘못된 권한입니다.");
@@ -65,8 +67,9 @@ public class TeamController {
     }
 
     @DeleteMapping("/exit")
-    public ResponseEntity<?> exitTeam(@RequestParam("teamId") Long teamId, Principal principal) {
-        this.teamService.exitTeam(teamId, principal.getName());
+    public ResponseEntity<?> exitTeam(@RequestParam("teamId") Long teamId, Authentication authentication) {
+        User user = User.authenticationToUser(authentication);
+        this.teamService.exitTeam(teamId, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

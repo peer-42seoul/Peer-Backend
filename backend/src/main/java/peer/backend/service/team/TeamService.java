@@ -53,17 +53,19 @@ public class TeamService {
     }
 
     @Transactional
-    public TeamSettingDto getTeamSetting(Long teamId, String email) {
+    public TeamSettingDto getTeamSetting(Long teamId, User user) {
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        TeamUser teamUser = getTeamUserByName(teamId, email);
         return new TeamSettingDto(team);
     }
 
     @Transactional
-    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, String userName) {
+    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) &&
-            getTeamUserByName(teamId, userName).getRole() == TeamUserRoleType.LEADER) {
+            isLeader(teamId, user)) {
             team.update(teamSettingInfoDto);
         } else {
             throw new ForbiddenException("팀장이 아니거나 팀 아이디가 일치하지 않습니다.");
@@ -71,30 +73,35 @@ public class TeamService {
     }
 
     @Transactional
-    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, String deletingToUserId, String userName) {
-        if (deletingToUserId.equals(userRepository.findByName(userName).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId().toString())) {
+    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, Long deletingToUserId, User user) {
+        if (deletingToUserId.equals(user.getId())) {
             throw new ForbiddenException("자기 자신을 팀에서 추방할 수 없습니다.");
         }
-        TeamUser teamUser = getTeamUserByName(teamId, userName);
-        Team team = teamUser.getTeam();
-        boolean isRemoved = team.deleteTeamUser(Long.parseLong(deletingToUserId));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
+        boolean isRemoved = team.deleteTeamUser(deletingToUserId);
         if (!isRemoved) {
             throw new ForbiddenException("삭제할 유저는 팀장이 아닙니다!");
         }
         return team.getTeamUsers().stream().map(TeamMemberDto::new).collect(Collectors.toCollection(ArrayList::new));
     }
 
+    //TODO: Auth 해야됨
     @Transactional
-    public void grantRole(Long teamId, Long grantingUserId, String userName, TeamUserRoleType teamUserRoleType) {
-        TeamUser teamUser = getTeamUserByName(teamId, userName);
-        Team team = teamUser.getTeam();
+    public void grantRole(Long teamId, Long grantingUserId, User user, TeamUserRoleType teamUserRoleType) {
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         team.grantLeaderPermission(grantingUserId, teamUserRoleType);
     }
 
     @Transactional
-    public void exitTeam(Long teamId, String userName) {
+    public void exitTeam(Long teamId, User user) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        TeamUser teamUser = getTeamUserByName(teamId, userName);
+        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(user.getId(), teamId);
         if (!team.deleteTeamUser(teamUser.getUserId())) {
             throw new NotFoundException("탈퇴할 수 없습니다.");
         } else {
@@ -214,5 +221,9 @@ public class TeamService {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
         return teamUser;
+    }
+
+    private boolean isLeader(Long teamId, User user) {
+        return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId()) == TeamUserRoleType.LEADER;
     }
 }
