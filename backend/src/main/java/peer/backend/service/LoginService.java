@@ -30,16 +30,17 @@ public class LoginService {
     @Transactional
     public JwtDto login(String userEmail, String password) {
         // no username
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UnauthorizedException("로그인이 실패"));
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new UnauthorizedException("로그인이 실패"));
         // wrong password
         if (!encoder.matches(password, user.getPassword())) {
             throw new UnauthorizedException("로그인이 실패");
         }
         // create jwtDto
         JwtDto jwtDto = new JwtDto(
-                user.getId(),
-                tokenProvider.createAccessToken(user),
-                tokenProvider.createRefreshToken(user)
+            user.getId(),
+            tokenProvider.createAccessToken(user),
+            tokenProvider.createRefreshToken(user)
         );
         try {
             tokenProvider.putRefreshTokenInRedis(user, jwtDto.getRefreshToken());
@@ -53,23 +54,27 @@ public class LoginService {
     public ResponseEntity<?> logout(LogoutRequest logoutRequest, Authentication authentication) {
         try {
             if (tokenProvider.validateToken(logoutRequest.getAccessToken())) {
-                throw new BadRequestException("잘못된 토큰으로 로그아웃을 시도했습니다.");
+                throw new UnauthorizedException("잘못된 토큰으로 로그아웃을 시도했습니다.");
             }
         } catch (Exception e) {
-            throw new BadRequestException("잘못된 토큰으로 로그아웃을 시도했습니다.");
+            throw new UnauthorizedException("잘못된 토큰으로 로그아웃을 시도했습니다.");
         }
         if (redisTemplate.opsForValue().get("refreshToken:" + authentication.getName()) != null) {
             redisTemplate.delete("refreshToken:" + authentication.getName());
         }
         //redis에 만료되지 않은 accessToken 추가
         Long expiration = tokenProvider.getExpiration(logoutRequest.getAccessToken());
-        redisTemplate.opsForValue().set(logoutRequest.getAccessToken(), "unexpiredAccessToken", expiration, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue()
+            .set(logoutRequest.getAccessToken(), "unexpiredAccessToken", expiration,
+                TimeUnit.MILLISECONDS);
         return ResponseEntity.ok("logout success.");
     }
 
     public String reissue(Long userId, String refreshToken) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UnauthorizedException("올바르지 않은 accessToken/refreshToken 입니다."));
-        String RefreshTokenInRedis = redisTemplate.opsForValue().get("refreshToken:" + user.getEmail());
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UnauthorizedException("올바르지 않은 accessToken/refreshToken 입니다."));
+        String RefreshTokenInRedis = redisTemplate.opsForValue()
+            .get("refreshToken:" + user.getEmail());
 //        if (RefreshTokenInRedis == null) {
 //            // redirect login Page (이건 프론트가 access랑 redir이 만료인지 체크해야한다?)
 //        }
