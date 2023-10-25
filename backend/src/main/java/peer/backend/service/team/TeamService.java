@@ -144,7 +144,7 @@ public class TeamService {
             }
             result.add(TeamApplicantListDto.builder()
                     .answers(answerDtoList)
-                    .name(user.getNickname())
+                    .name(recruitApplicant.getNickname())
                     .userId(recruitApplicant.getUserId())
                     .build());
         }
