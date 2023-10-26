@@ -19,8 +19,7 @@ public class PersonalInfoService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public PersonalInfoResponse getPersonalInfo(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public PersonalInfoResponse getPersonalInfo(User user) {
         return PersonalInfoResponse.builder()
                 .name(user.getName())
                 .email(user.getEmail())
@@ -30,9 +29,8 @@ public class PersonalInfoService {
     }
 
     @Transactional
-    public void changePassword(PrincipalDetails principalDetails, PasswordRequest passwords) {
+    public void changePassword(User user, PasswordRequest passwords) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        User user = principalDetails.getUser();
         if (!encoder.matches(passwords.getPresentPassword(), user.getPassword())) {
             throw new ForbiddenException("현재 비밀번호가 올바르지 않습니다..");
         }

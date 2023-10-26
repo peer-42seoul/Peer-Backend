@@ -36,8 +36,7 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public FavoritePage getFavorite(PrincipalDetails principalDetails, String type, int pageIndex, int pageSize) {
-        User user = principalDetails.getUser();
+    public FavoritePage getFavorite(User user, String type, int pageIndex, int pageSize) {
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
@@ -65,8 +64,7 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteAll(PrincipalDetails principalDetails, String type) {
-        User user = principalDetails.getUser();
+    public void deleteAll(User user, String type) {
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<RecruitFavorite> toDelete = new ArrayList<>();
         for (RecruitFavorite recruitFavorite : recruitFavoriteList) {

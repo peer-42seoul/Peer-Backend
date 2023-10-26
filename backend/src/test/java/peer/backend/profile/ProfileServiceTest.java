@@ -55,7 +55,6 @@ class ProfileServiceTest {
     String imagePath;
     List<UserLink> linkList = new ArrayList<>();
     User user;
-    PrincipalDetails principal;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -79,13 +78,12 @@ class ProfileServiceTest {
                 .userLinks(linkList)
                 .build();
         imagePath = "src/test/java/peer/backend/profile/image";
-        principal = new PrincipalDetails(user);
     }
 
     @Test
     @DisplayName("Get profile Test")
     void getProfileTest() {
-        MyProfileResponse ret = profileService.getProfile(principal);
+        MyProfileResponse ret = profileService.getProfile(user);
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
         assertThat(ret.getNickname()).isEqualTo(user.getNickname());
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());
@@ -109,7 +107,7 @@ class ProfileServiceTest {
                         .linkUrl("new link 2")
                         .build()
         );
-        profileService.editLinks(principal, newList);
+        profileService.editLinks(user, newList);
         assertThat(user.getUserLinks().get(0).getLinkName()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");
@@ -149,7 +147,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
+        profileService.editProfile(user, profile);
         String imageUrl = user.getImageUrl();
         int index = imageUrl.indexOf("/backend/");
         imageUrl = imageUrl.substring(index + 9);
@@ -163,7 +161,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
+        profileService.editProfile(user, profile);
         imageUrl = user.getImageUrl();
         index = imageUrl.indexOf("/backend/");
         imageUrl = imageUrl.substring(index + 9);
@@ -176,7 +174,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
+        profileService.editProfile(user, profile);
         imageUrl = user.getImageUrl();
         index = imageUrl.indexOf("/backend/");
         imageUrl = imageUrl.substring(index + 9);
@@ -188,7 +186,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
+        profileService.editProfile(user, profile);
         assertThat(user.getImageUrl()).isNull();
     }
 }

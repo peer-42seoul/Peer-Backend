@@ -1,6 +1,7 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.KeywordResponse;
@@ -20,8 +21,8 @@ public class KeywordAlarmService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addKeyword(PrincipalDetails principalDetails, String newKeyword) {
-        User user = principalDetails.getUser();
+    public void addKeyword(Authentication auth, String newKeyword) {
+        User user = User.authenticationToUser(auth);
         if (user.getKeywordAlarm() == null) {
             user.setKeywordAlarm(newKeyword);
         }
@@ -36,16 +37,16 @@ public class KeywordAlarmService {
     }
 
     @Transactional(readOnly = true)
-    public KeywordResponse getKeyword(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public KeywordResponse getKeyword(Authentication auth) {
+        User user = User.authenticationToUser(auth);
         return KeywordResponse.builder()
                 .keyword(user.getKeywordAlarm())
                 .build();
     }
 
     @Transactional
-    public void deleteKeyword(PrincipalDetails principalDetails, String keyword) {
-        User user = principalDetails.getUser();
+    public void deleteKeyword(Authentication auth, String keyword) {
+        User user = User.authenticationToUser(auth);
         String userKeyword = user.getKeywordAlarm();
         if (userKeyword != null) {
             if (!userKeyword.contains(keyword)) {
@@ -65,8 +66,8 @@ public class KeywordAlarmService {
     }
 
     @Transactional
-    public void deleteAll(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public void deleteAll(Authentication auth) {
+        User user = User.authenticationToUser(auth);
         user.setKeywordAlarm(null);
         userRepository.save(user);
     }
