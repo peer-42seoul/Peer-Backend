@@ -91,8 +91,7 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public MyProfileResponse getProfile(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public MyProfileResponse getProfile(User user) {
         List<UserLinkRequest> links = new ArrayList<>();
         for (UserLink link : user.getUserLinks()) {
             UserLinkRequest userLink = UserLinkRequest.builder()
@@ -117,8 +116,7 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editLinks(PrincipalDetails principalDetails, List<UserLinkRequest> links) {
-        User user = principalDetails.getUser();
+    public void editLinks(User user, List<UserLinkRequest> links) {
         if (user.getUserLinks() != null) {
             userLinkRepository.deleteAll(user.getUserLinks());
         }
@@ -161,8 +159,7 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editProfile(PrincipalDetails principalDetails, EditProfileRequest profile) throws IOException {
-        User user = principalDetails.getUser();
+    public void editProfile(User user, EditProfileRequest profile) throws IOException {
         if (isFileEmpty(profile.getProfileImage()) && profile.isImageChange()) {
             deleteUserImage(user);
         }
