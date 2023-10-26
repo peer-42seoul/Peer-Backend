@@ -1,6 +1,7 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.KeywordResponse;
@@ -20,7 +21,8 @@ public class KeywordAlarmService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addKeyword(User user, String newKeyword) {
+    public void addKeyword(Authentication auth, String newKeyword) {
+        User user = User.authenticationToUser(auth);
         if (user.getKeywordAlarm() == null) {
             user.setKeywordAlarm(newKeyword);
         }
@@ -35,14 +37,16 @@ public class KeywordAlarmService {
     }
 
     @Transactional(readOnly = true)
-    public KeywordResponse getKeyword(User user) {
+    public KeywordResponse getKeyword(Authentication auth) {
+        User user = User.authenticationToUser(auth);
         return KeywordResponse.builder()
                 .keyword(user.getKeywordAlarm())
                 .build();
     }
 
     @Transactional
-    public void deleteKeyword(User user, String keyword) {
+    public void deleteKeyword(Authentication auth, String keyword) {
+        User user = User.authenticationToUser(auth);
         String userKeyword = user.getKeywordAlarm();
         if (userKeyword != null) {
             if (!userKeyword.contains(keyword)) {
@@ -62,7 +66,8 @@ public class KeywordAlarmService {
     }
 
     @Transactional
-    public void deleteAll(User user) {
+    public void deleteAll(Authentication auth) {
+        User user = User.authenticationToUser(auth);
         user.setKeywordAlarm(null);
         userRepository.save(user);
     }
