@@ -1,6 +1,5 @@
 package peer.backend.controller.board;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +16,7 @@ import peer.backend.service.board.recruit.RecruitService;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,9 +47,9 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
+
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id, @RequestBody RecruitUpdateRequestDTO recruitUpdateRequestDTO, Principal principal) throws IOException {
-        //TODO:principal로 권한검사
+    public void updateRecruit(@PathVariable Long recruit_id, @RequestBody RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
         recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
@@ -69,4 +69,19 @@ public class RecruitController {
         User user = userRepository.findByName(principal.getName()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
         recruitService.changeRecruitFavorite(user.getId(), recruit_id );
     }
+
+    //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
+    @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
+    @GetMapping("/write")
+    public List<TagListResponse> getTagListForWrite(){
+        return recruitService.getTagList();
+    }
+
+    //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요. 추후 글 생성, 수정이 어떻게 달라질지 몰라서 일단 동일한 기능이지만 api 분리해두었음.
+    @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
+    @GetMapping("/edit")
+    public List<TagListResponse> getTagListForEdit(){
+        return recruitService.getTagList();
+    }
+
 }
