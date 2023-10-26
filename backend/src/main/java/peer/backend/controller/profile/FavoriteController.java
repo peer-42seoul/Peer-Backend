@@ -34,7 +34,7 @@ public class FavoriteController {
                                               @RequestParam(value = "page") int page,
                                               @RequestParam(value = "pagesize") int pageSize) {
         checkType(type);
-        FavoritePage ret = favoriteService.getFavorite(User.authenticationToUser(auth), type, page, pageSize);
+        FavoritePage ret = favoriteService.getFavorite(auth, type, page, pageSize);
         return new ResponseEntity<> (ret, HttpStatus.OK);
     }
 
@@ -43,7 +43,7 @@ public class FavoriteController {
     public ResponseEntity<Object> deleteAll(Authentication auth,
                                             @RequestParam(value = "type") String type) {
         checkType(type);
-        favoriteService.deleteAll(User.authenticationToUser(auth), type);
+        favoriteService.deleteAll(auth, type);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

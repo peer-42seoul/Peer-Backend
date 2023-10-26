@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.response.FavoriteResponse;
@@ -45,7 +47,7 @@ public class FavoriteServiceTest {
     User user;
     List<RecruitFavorite> recruitFavoriteList;
     List<TeamUser> teamUserList;
-
+    Authentication auth;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -102,12 +104,14 @@ public class FavoriteServiceTest {
             recruitFavoriteList.add(recruitFavorite);
         }
         user.setRecruitFavorites(recruitFavoriteList);
+        PrincipalDetails details = new PrincipalDetails(user);
+        auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(), details.getAuthorities());
     }
 
     @Test
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
-        FavoritePage ret = favoriteService.getFavorite(user, "project", 1, 10);
+        FavoritePage ret = favoriteService.getFavorite(auth, "project", 1, 10);
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -159,7 +163,7 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("Test delete all")
     public void deleteAllTest() {
-        favoriteService.deleteAll(user, "project");
+        favoriteService.deleteAll(auth, "project");
         assertThat(user.getRecruitFavorites().size()).isEqualTo(1);
     }
 }
