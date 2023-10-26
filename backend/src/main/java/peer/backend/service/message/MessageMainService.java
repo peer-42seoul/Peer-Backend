@@ -343,13 +343,6 @@ public class MessageMainService {
         // MessagePiece의 List 찾기
         String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at DESC LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
-//        for (MessagePiece talk : talks) {
-//            System.out.println("대화 목록" + talk.getCreatedAt());
-//        }
-//        talks.sort(new MessagePieceComparator());
-//        for (MessagePiece talk : talks) {
-//            System.out.println("대화 목록" + talk.getCreatedAt());
-//        }
 
         // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();
@@ -357,23 +350,19 @@ public class MessageMainService {
         innerData = this.subService.makeMsgDataWithMessagePiece(talks);
 
         // User 객체들 찾기
-        User owner = null;
         User targetUser = null;
-        Optional<User> rawOwner;
         Optional<User> rawTarget;
         try {
-            rawOwner = this.userRepository.findById(userId);
             rawTarget = this.userRepository.findById(target.getTargetId());
-            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+            if (rawTarget.isEmpty())
                 throw new NotFoundException("There is no a specific user");
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        owner = rawOwner.get();
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
@@ -384,15 +373,17 @@ public class MessageMainService {
      * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
      * 1. ConversationId, earlyMsgId 를 통해 쪽지 데이터를 전체 들고옴.
      * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
-     * @param userId
+     * @param auth
      * @param target
      * @return
      */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterUpByUserIdAndTargetId(long userId, SpecificScrollMsgDTO target) {
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterUpByUserIdAndTargetId(Authentication auth, SpecificScrollMsgDTO target) {
         // MessageIndex 찾기
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationId()).orElseGet(() -> null);
+        User requestingUser = User.authenticationToUser(auth);
+        long userId = requestingUser.getId();
         try {
             if (targetIndex == null)
                 throw new NoSuchElementException("There is no Talks");
@@ -417,23 +408,19 @@ public class MessageMainService {
         innerData = this.subService.makeMsgDataWithMessagePiece(talks);
 
         // User 객체들 찾기
-        User owner = null;
         User targetUser = null;
-        Optional<User> rawOwner;
         Optional<User> rawTarget;
         try {
-            rawOwner = this.userRepository.findById(userId);
             rawTarget = this.userRepository.findById(target.getTargetId());
-            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+            if (rawTarget.isEmpty())
                 throw new NotFoundException("There is no a specific user");
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        owner = rawOwner.get();
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }

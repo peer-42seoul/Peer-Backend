@@ -162,10 +162,10 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록의 과거 기록을 불러옵니다.")
     @PostMapping("/conversation-list/more")
-    public ResponseEntity<MsgListDTO> getSpecificLettersInHistory(Principal data, @RequestParam long userId, @RequestBody SpecificScrollMsgDTO body) {
+    public ResponseEntity<MsgListDTO> getSpecificLettersInHistory(Authentication auth, @RequestParam long userId, @RequestBody SpecificScrollMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
-            wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(userId, body).get();
+            wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
@@ -173,7 +173,6 @@ public class MessaageController {
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
-            System.out.println("여긴가?");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
