@@ -45,7 +45,6 @@ public class FavoriteServiceTest {
     User user;
     List<RecruitFavorite> recruitFavoriteList;
     List<TeamUser> teamUserList;
-    PrincipalDetails principalDetails;
 
     @BeforeEach
     void beforeEach() {
@@ -103,13 +102,12 @@ public class FavoriteServiceTest {
             recruitFavoriteList.add(recruitFavorite);
         }
         user.setRecruitFavorites(recruitFavoriteList);
-        principalDetails = new PrincipalDetails(user);
     }
 
     @Test
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
-        FavoritePage ret = favoriteService.getFavorite(principalDetails, "project", 1, 10);
+        FavoritePage ret = favoriteService.getFavorite(user, "project", 1, 10);
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -161,7 +159,7 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("Test delete all")
     public void deleteAllTest() {
-        favoriteService.deleteAll(principalDetails, "project");
+        favoriteService.deleteAll(user, "project");
         assertThat(user.getRecruitFavorites().size()).isEqualTo(1);
     }
 }

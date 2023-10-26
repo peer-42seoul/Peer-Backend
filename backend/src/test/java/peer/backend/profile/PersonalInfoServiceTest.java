@@ -34,7 +34,6 @@ public class PersonalInfoServiceTest {
     String password;
     PasswordRequest newPassword;
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    PrincipalDetails principalDetails;
     @BeforeEach
     void beforeEach() {
         name = "test name";
@@ -52,13 +51,12 @@ public class PersonalInfoServiceTest {
         newPassword = new PasswordRequest(
                 password, "new password", "new password"
         );
-        principalDetails = new PrincipalDetails(user);
     }
 
     @Test
     @DisplayName("개인 정보 조회 테스트")
     public void getPersonalInfoTest() {
-        PersonalInfoResponse info = personalInfoService.getPersonalInfo(principalDetails);
+        PersonalInfoResponse info = personalInfoService.getPersonalInfo(user);
         assertThat(info.getEmail()).isEqualTo(user.getEmail());
         assertThat(info.getName()).isEqualTo(user.getName());
         assertThat(info.getLocal()).isEqualTo(user.getAddress());
@@ -68,7 +66,7 @@ public class PersonalInfoServiceTest {
     @Test
     @DisplayName("비밀 번호 변경")
     void changePasswordTest() {
-        personalInfoService.changePassword(principalDetails, newPassword);
+        personalInfoService.changePassword(user, newPassword);
         assertThat(encoder.matches("new password", user.getPassword())).isTrue();
     }
 }
