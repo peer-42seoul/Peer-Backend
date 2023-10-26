@@ -1,9 +1,12 @@
 package peer.backend.repository.team;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import peer.backend.entity.team.TeamUser;
-import peer.backend.entity.user.InterestedProject;
+import peer.backend.entity.team.enums.TeamUserRoleType;
 
 public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
@@ -14,4 +17,7 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     List<TeamUser> findByUserId(Long userId);
 
     Boolean existsByUserIdAndTeamId(Long userId, Long teamId);
+
+    @Query("select t.role from TeamUser t where t.teamId = :teamId and t.userId = :userId")
+    TeamUserRoleType findTeamUserRoleTypeByTeamIdAndUserId(Long teamId, Long userId);
 }
