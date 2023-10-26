@@ -300,15 +300,17 @@ public class MessageMainService {
      * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
      * 1. targetId, Conversation Id를 통해 쪽지 데이터를 전체 들고옴.
      * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
-     * @param userId
+     * @param auth
      * @param target
      * @return
      */
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(Authentication auth, SpecificMsgDTO target) {
         // MessageIndex 찾기
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
+        User requestingUser = User.authenticationToUser(auth);
+        long userId = requestingUser.getId();
         try {
             if (targetIndex == null)
                 throw new NoSuchElementException("There is no talks");

@@ -144,10 +144,10 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록을 불러옵니다.")
     @PostMapping("/conversation-list")
-    public ResponseEntity<MsgListDTO> getSpecificLetters(Principal data, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
+    public ResponseEntity<MsgListDTO> getSpecificLetters(Authentication auth, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
-            wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body).get();
+            wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
