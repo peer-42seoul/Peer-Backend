@@ -54,20 +54,12 @@ public class MessageMainService {
      * 3-1. Index를 통해 target 대상의 정보도 발견하고 받아낸다.(targetId, Nickname, profile URL)
      * 3-2. MessagePiece에서 ConversationId를 가지고 latestContent를 확인하고, 전달 일자를 conversion해서 추가한다.(msgId, latestContent(Text), latestSendDate)
      * 3-3. 최종적으로 데이터를 MsgObjectDTO로 반환 된 것을 받아서 추가해준다.
-     * @param msgOwner
+     * @param msgOwner : 구체적으로 Letter 목록을 요청하는 대상
      * @return
      */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(User msgOwner) {
-//        Optional<User> msgOwnerData = userRepository.findById(userId);
-//        User msgOwner = new User();
-//        try {
-//            // Owner Get
-//            msgOwner = msgOwnerData.orElseThrow(() -> new NoSuchElementException("User Not found"));
-//        } catch (Exception e) {
-//            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-//        }
 
         List<MessageIndex> msgList = null;
         try {
@@ -80,9 +72,6 @@ public class MessageMainService {
         List<MsgObjectDTO> retList = new ArrayList<>();
         User target = null;
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-//        System.out.println("MSG List Size : "+ msgList.size());
-//        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // Index 기준으로 반복문으로 MsgObject 작성 시작
         for (MessageIndex msg : msgList) {
@@ -115,8 +104,8 @@ public class MessageMainService {
      * 2-1. 양쪽 다 삭제 처리가 true가 된 index에 대해서는 DB에서 삭제를 진행한다.
      * 3. 개수를 반환한다.
      * 4. DB 상 에러 발생 시 에러 처리를 진행 한다.
-     * @param userId
-     * @param list
+     * @param userId : 삭제하려는 당사자
+     * @param list : 삭제할 대화 목록
      * @return
      */
     @Async
@@ -167,7 +156,7 @@ public class MessageMainService {
      * 1. keyword 를 받는다.
      * 2. UserRepository 를 활용해서 데이터를 간추려낸다.
      * 3. 에러 핸들링 이후 DTO 에 담아 전달한다.
-     * @param keyword
+     * @param keyword : 검색할 키워드
      * @return
      */
     @Async
@@ -202,7 +191,7 @@ public class MessageMainService {
      * 3-1. 데이터 조건을 통해 데이터 저장 여부 확인
      * 3-2. getMessageIndex 로 index 객체 반환 받기
      * 4. sendMessage 메소드 실행하기
-     * @param userId : 사용자의 userID
+     * @param auth : 사용자의 userID
      * @param message : 대상이 되는 대상에게 메시지를 보내는 경우
      * @return : 성공 여부에 따라 messageIndex 객체를 반환 받는다.
      */
@@ -237,8 +226,8 @@ public class MessageMainService {
      * 3. 해당 메시지의 index의 값도 성공적으로 저장한다.
      * 3. 성공적인 저장 여부를 판단하고 반환한다.
      * @param index : 메시지 index 객체입니다.
-     * @param auth :
-     * @param message
+     * @param auth : 당사자
+     * @param message : 보낼 메시지를 담고 있다.
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
@@ -281,6 +270,12 @@ public class MessageMainService {
         return true;
     }
 
+    /**
+     * 메시지가 존재하며, 구체적인 대화 목록에서 대화를 진행하면 사용하는 메소드
+     * @param auth : 메시지를 보낸 당사자
+     * @param message : 메시지 내용
+     * @return
+     */
     @Transactional(readOnly = false)
     public boolean sendMessage(Authentication auth, MsgContentDTO message) {
         long targetId = message.getTargetId();
@@ -300,8 +295,8 @@ public class MessageMainService {
      * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
      * 1. targetId, Conversation Id를 통해 쪽지 데이터를 전체 들고옴.
      * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
-     * @param auth
-     * @param target
+     * @param auth : 당사자
+     * @param target : 구체적인 대화 목록을 불러 온다.
      * @return
      */
     @Async
@@ -373,8 +368,8 @@ public class MessageMainService {
      * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
      * 1. ConversationId, earlyMsgId 를 통해 쪽지 데이터를 전체 들고옴.
      * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
-     * @param auth
-     * @param target
+     * @param auth : 당사자
+     * @param target :
      * @return
      */
     @Async
