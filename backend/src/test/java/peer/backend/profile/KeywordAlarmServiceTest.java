@@ -66,7 +66,7 @@ public class KeywordAlarmServiceTest {
     @Test
     @DisplayName("키워드 알람 조회 테스트")
     public void getKeywordTest() {
-        KeywordResponse ret = keywordAlarmService.getKeyword(user);
+        KeywordResponse ret = keywordAlarmService.getKeyword(auth);
         assertThat(ret.getKeyword()).isNull();
         String newKeyword = "test1";
         keywordAlarmService.addKeyword(auth, newKeyword);
