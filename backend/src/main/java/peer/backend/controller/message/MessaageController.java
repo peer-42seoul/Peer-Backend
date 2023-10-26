@@ -107,7 +107,7 @@ public class MessaageController {
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
         try {
-            wrappedIndex = this.messageMainService.makeNewMessageIndex(userId, body).get();
+            wrappedIndex = this.messageMainService.makeNewMessageIndex(auth, body).get();
         }
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -120,7 +120,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         else
             index = wrappedIndex.getResult();
-        this.messageMainService.sendMessage(index, userId, body);
+        this.messageMainService.sendMessage(index, auth, body);
 
         // Get New Message List
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
@@ -144,10 +144,10 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록을 불러옵니다.")
     @PostMapping("/conversation-list")
-    public ResponseEntity<MsgListDTO> getSpecificLetters(Principal data, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
+    public ResponseEntity<MsgListDTO> getSpecificLetters(Authentication auth, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
-            wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(userId, body).get();
+            wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
@@ -162,10 +162,10 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록의 과거 기록을 불러옵니다.")
     @PostMapping("/conversation-list/more")
-    public ResponseEntity<MsgListDTO> getSpecificLettersInHistory(Principal data, @RequestParam long userId, @RequestBody SpecificScrollMsgDTO body) {
+    public ResponseEntity<MsgListDTO> getSpecificLettersInHistory(Authentication auth, @RequestParam long userId, @RequestBody SpecificScrollMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
-            wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(userId, body).get();
+            wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
@@ -173,7 +173,6 @@ public class MessaageController {
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
-            System.out.println("여긴가?");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
@@ -181,9 +180,9 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록에서 메시지를 전달합니다. ")
     @PostMapping("/back-message")
-    public ResponseEntity<Void> sendBackInSpecificLetter(Principal data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<Void> sendBackInSpecificLetter(Authentication auth, @RequestParam long userId, @RequestBody MsgContentDTO body) {
 
-        if (!this.messageMainService.sendMessage(userId, body))
+        if (!this.messageMainService.sendMessage(auth, body))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
