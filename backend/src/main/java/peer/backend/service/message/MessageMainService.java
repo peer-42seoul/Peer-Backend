@@ -54,7 +54,7 @@ public class MessageMainService {
      * 3-1. Index를 통해 target 대상의 정보도 발견하고 받아낸다.(targetId, Nickname, profile URL)
      * 3-2. MessagePiece에서 ConversationId를 가지고 latestContent를 확인하고, 전달 일자를 conversion해서 추가한다.(msgId, latestContent(Text), latestSendDate)
      * 3-3. 최종적으로 데이터를 MsgObjectDTO로 반환 된 것을 받아서 추가해준다.
-     * @param userId
+     * @param msgOwner
      * @return
      */
     @Async
