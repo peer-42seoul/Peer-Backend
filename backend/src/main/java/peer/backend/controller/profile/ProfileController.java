@@ -13,7 +13,6 @@ import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
-import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
@@ -32,7 +31,7 @@ public class ProfileController {
     @GetMapping("/profile")
     public ResponseEntity<Object> getProfile(Authentication auth) {
         return new ResponseEntity<>(
-            profileService.getProfile(User.authenticationToUser(auth)), HttpStatus.OK);
+            profileService.getProfile(auth), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")
@@ -60,7 +59,7 @@ public class ProfileController {
                 throw new BadRequestException("링크 글자 수가 너무 많습니다.");
             }
         }
-        profileService.editLinks(User.authenticationToUser(auth), linkList.getLinkList());
+        profileService.editLinks(auth, linkList.getLinkList());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -101,7 +100,7 @@ public class ProfileController {
         if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        profileService.editProfile(User.authenticationToUser(auth), profile);
+        profileService.editProfile(auth, profile);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

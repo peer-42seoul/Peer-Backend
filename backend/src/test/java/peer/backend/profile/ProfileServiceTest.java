@@ -1,6 +1,5 @@
 package peer.backend.profile;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,9 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
@@ -55,6 +55,7 @@ class ProfileServiceTest {
     String imagePath;
     List<UserLink> linkList = new ArrayList<>();
     User user;
+    Authentication auth;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -78,12 +79,14 @@ class ProfileServiceTest {
                 .userLinks(linkList)
                 .build();
         imagePath = "src/test/java/peer/backend/profile/image";
+        PrincipalDetails details = new PrincipalDetails(user);
+        auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(), details.getAuthorities());
     }
 
     @Test
     @DisplayName("Get profile Test")
     void getProfileTest() {
-        MyProfileResponse ret = profileService.getProfile(user);
+        MyProfileResponse ret = profileService.getProfile(auth);
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
         assertThat(ret.getNickname()).isEqualTo(user.getNickname());
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());
@@ -107,7 +110,7 @@ class ProfileServiceTest {
                         .linkUrl("new link 2")
                         .build()
         );
-        profileService.editLinks(user, newList);
+        profileService.editLinks(auth, newList);
         assertThat(user.getUserLinks().get(0).getLinkName()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");
@@ -147,7 +150,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user, profile);
+        profileService.editProfile(auth, profile);
         String imageUrl = user.getImageUrl();
         int index = imageUrl.indexOf("/backend/");
         imageUrl = imageUrl.substring(index + 9);
@@ -161,7 +164,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user, profile);
+        profileService.editProfile(auth, profile);
         imageUrl = user.getImageUrl();
         index = imageUrl.indexOf("/backend/");
         imageUrl = imageUrl.substring(index + 9);
@@ -174,7 +177,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user, profile);
+        profileService.editProfile(auth, profile);
         imageUrl = user.getImageUrl();
         index = imageUrl.indexOf("/backend/");
         imageUrl = imageUrl.substring(index + 9);
@@ -186,7 +189,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(user, profile);
+        profileService.editProfile(auth, profile);
         assertThat(user.getImageUrl()).isNull();
     }
 }
