@@ -107,7 +107,7 @@ public class MessaageController {
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
         try {
-            wrappedIndex = this.messageMainService.makeNewMessageIndex(userId, body).get();
+            wrappedIndex = this.messageMainService.makeNewMessageIndex(auth, body).get();
         }
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -120,7 +120,7 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         else
             index = wrappedIndex.getResult();
-        this.messageMainService.sendMessage(index, userId, body);
+        this.messageMainService.sendMessage(index, auth, body);
 
         // Get New Message List
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
@@ -181,9 +181,9 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록에서 메시지를 전달합니다. ")
     @PostMapping("/back-message")
-    public ResponseEntity<Void> sendBackInSpecificLetter(Principal data, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<Void> sendBackInSpecificLetter(Authentication auth, @RequestParam long userId, @RequestBody MsgContentDTO body) {
 
-        if (!this.messageMainService.sendMessage(userId, body))
+        if (!this.messageMainService.sendMessage(auth, body))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

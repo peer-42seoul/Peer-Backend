@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -207,13 +208,13 @@ public class MessageMainService {
      */
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
+    public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(Authentication auth, MsgContentDTO message) {
+        User owner = User.authenticationToUser(auth);
         try {
-            this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
+            this.subService.checkMessageIndexExistOrNot(owner.getId(), message.getTargetId());
         } catch (Exception e){
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
         try {
@@ -222,33 +223,7 @@ public class MessageMainService {
 //            System.out.println("Check to here2" + e.getMessage());
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
-        Optional<User> dataUser = this.userRepository.findById(userId);
-        try {
-            owner = dataUser.orElseThrow(() -> new Exception("User not found"));
-        } catch (Exception e) {
-//            System.out.println("Check to here3" + e.getMessage());
-            return CompletableFuture.completedFuture(AsyncResult.failure(e));
-        }
-//        MessageIndex newData = MessageIndex.builder().
-//                userIdx1(owner.getId()).
-//                userIdx2(target.getId()).
-//                unreadMessageNumber1(0L).
-//                unreadMessageNumber2(0L).
-//                user1(owner).
-//                user2(target).
-//                build();
-
-
-
-        System.out.println("Check to here4" );
-
         MessageIndex saved = this.subService.saveNewData(owner, target);
-//        try {
-//            saved = this.indexRepository.save(newData);
-//            System.out.println("Saved ConversationId : " + saved.getConversationId());
-//        } catch (Exception e) {
-//            return CompletableFuture.completedFuture(AsyncResult.failure(e));
-//        }
         return CompletableFuture.completedFuture(AsyncResult.success(saved));
     }
 
@@ -262,20 +237,15 @@ public class MessageMainService {
      * 3. 해당 메시지의 index의 값도 성공적으로 저장한다.
      * 3. 성공적인 저장 여부를 판단하고 반환한다.
      * @param index : 메시지 index 객체입니다.
-     * @param userId
+     * @param auth :
      * @param message
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
-        User user1 = index.getUser1();
-        User user2 = index.getUser2();
-//        User user1 = this.userRepository.findById(index.getUserIdx1()).get();
-//        User user2 = this.userRepository.findById(index.getUserIdx2()).get();
-        User msgOwner = null;
+    public boolean sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) {
+        User msgOwner = User.authenticationToUser(auth);
 
-        msgOwner = user1.getId().equals(userId) ? user1 : user2;
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
@@ -291,13 +261,13 @@ public class MessageMainService {
         }
 
         try {
-           if (index.getUserIdx1().equals(userId))
+           if (index.getUserIdx1().equals(msgOwner.getId()))
             {
                 long unread = index.getUnreadMessageNumber2();
                 unread += 1;
                 index.setUnreadMessageNumber2(unread);
             }
-            else if (index.getUserIdx2().equals(userId))
+            else if (index.getUserIdx2().equals(msgOwner.getId()))
             {
                 long unread = index.getUnreadMessageNumber1();
                 unread += 1;
@@ -312,16 +282,16 @@ public class MessageMainService {
     }
 
     @Transactional(readOnly = false)
-    public boolean sendMessage(long userId, MsgContentDTO message) {
+    public boolean sendMessage(Authentication auth, MsgContentDTO message) {
         long targetId = message.getTargetId();
         MessageIndex index;
         try {
-            index = this.indexRepository.findByUserIdx(userId, targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
+            index = this.indexRepository.findByUserIdx(User.authenticationToUser(auth).getId(), targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
         } catch (NoSuchElementException e)
         {
             return false;
         }
-        return this.sendMessage(index, userId, message);
+        return this.sendMessage(index, auth, message);
     }
 
     /**
