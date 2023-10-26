@@ -20,8 +20,7 @@ public class KeywordAlarmService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addKeyword(PrincipalDetails principalDetails, String newKeyword) {
-        User user = principalDetails.getUser();
+    public void addKeyword(User user, String newKeyword) {
         if (user.getKeywordAlarm() == null) {
             user.setKeywordAlarm(newKeyword);
         }
@@ -36,16 +35,14 @@ public class KeywordAlarmService {
     }
 
     @Transactional(readOnly = true)
-    public KeywordResponse getKeyword(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public KeywordResponse getKeyword(User user) {
         return KeywordResponse.builder()
                 .keyword(user.getKeywordAlarm())
                 .build();
     }
 
     @Transactional
-    public void deleteKeyword(PrincipalDetails principalDetails, String keyword) {
-        User user = principalDetails.getUser();
+    public void deleteKeyword(User user, String keyword) {
         String userKeyword = user.getKeywordAlarm();
         if (userKeyword != null) {
             if (!userKeyword.contains(keyword)) {
@@ -65,8 +62,7 @@ public class KeywordAlarmService {
     }
 
     @Transactional
-    public void deleteAll(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public void deleteAll(User user) {
         user.setKeywordAlarm(null);
         userRepository.save(user);
     }
