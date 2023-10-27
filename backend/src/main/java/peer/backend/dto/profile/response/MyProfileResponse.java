@@ -13,5 +13,5 @@ public class MyProfileResponse {
     private String email;
     private String company;
     private String introduction;
-    private List<UserLinkRequest> linkList;
+    private List<UserLinkResponse> linkList;
 }
