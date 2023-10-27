@@ -70,7 +70,7 @@ public class TeamController {
     public ResponseEntity<?> exitTeam(@RequestParam("teamId") Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
         this.teamService.exitTeam(teamId, user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/applicant/{teamId}")
@@ -108,7 +108,7 @@ public class TeamController {
     public ResponseEntity<?> deleteTeamImage(@PathVariable() Long teamId, Authentication authentication) throws IOException {
         User user = User.authenticationToUser(authentication);
         this.teamService.deleteTeamImage(teamId, user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/setting/image/{teamId}")
