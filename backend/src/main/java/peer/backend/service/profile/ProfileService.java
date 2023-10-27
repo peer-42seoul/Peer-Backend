@@ -11,6 +11,7 @@ import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.OtherProfileResponse;
+import peer.backend.dto.profile.response.UserLinkResponse;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
@@ -94,11 +95,13 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public MyProfileResponse getProfile(Authentication auth) {
         User user = User.authenticationToUser(auth);
-        List<UserLinkRequest> links = new ArrayList<>();
-        for (UserLink link : user.getUserLinks()) {
-            UserLinkRequest userLink = UserLinkRequest.builder()
+        List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
+        List<UserLinkResponse> links = new ArrayList<>();
+        for (UserLink link : userLinks) {
+            UserLinkResponse userLink = UserLinkResponse.builder()
+                    .id(link.getId())
+                    .link(link.getLinkUrl())
                     .linkName(link.getLinkName())
-                    .linkUrl(link.getLinkUrl())
                     .build();
             links.add(userLink);
         }
