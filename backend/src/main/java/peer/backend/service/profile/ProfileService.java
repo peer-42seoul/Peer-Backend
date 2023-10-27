@@ -123,10 +123,6 @@ public class ProfileService {
     public void editLinks(Authentication auth, List<UserLinkRequest> links) {
         User user = User.authenticationToUser(auth);
         List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
-        for (UserLink userLink : userLinks) {
-            userLink.setUser(null);
-        }
-        userLinkRepository.deleteAll(userLinks);
         userLinks.clear();
         userLinks = new ArrayList<>();
         for (UserLinkRequest linkRequest : links) {
