@@ -80,8 +80,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 넣은 키워드에 반응하여 해당하는 사용자를 호출합니다.")
     @PostMapping("/searching")
-    public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Principal data, @RequestBody @Valid KeywordDTO keyword) {
-//        System.out.println(keyword.getKeyword());
+    public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Authentication data, @RequestBody @Valid KeywordDTO keyword) {
         AsyncResult<List<LetterTargetDTO>> wrappedRet= new AsyncResult<>();
         List<LetterTargetDTO> ret;
         try {
