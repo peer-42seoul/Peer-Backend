@@ -2,6 +2,7 @@ package peer.backend.controller.team;
 
 import io.swagger.annotations.ApiOperation;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,6 @@ import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.team.TeamService;
-
 import javax.validation.Valid;
 
 @Secured("USER_ROLE")
@@ -102,5 +102,19 @@ public class TeamController {
     public List<TeamMemberDto> getTeamMember(@PathVariable() Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
         return this.teamService.getTeamMemberList(teamId, user);
+    }
+
+    @DeleteMapping("/setting/image/{teamId}")
+    public ResponseEntity<?> deleteTeamImage(@PathVariable() Long teamId, Authentication authentication) throws IOException {
+        User user = User.authenticationToUser(authentication);
+        this.teamService.deleteTeamImage(teamId, user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/setting/image/{teamId}")
+    public ResponseEntity<?> updateTeamImage(@PathVariable() Long teamId, @RequestBody() TeamImageDto teamImageDto, Authentication authentication) throws IOException {
+        User user = User.authenticationToUser(authentication);
+        this.teamService.updateTeamImage(teamId, teamImageDto, user);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
