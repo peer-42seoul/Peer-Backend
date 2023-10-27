@@ -12,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserLinkRequest {
+    private Long id;
     private String linkName;
     private String linkUrl;
 }

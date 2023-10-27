@@ -92,9 +92,11 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public MyProfileResponse getProfile(User user) {
+        List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
         List<UserLinkRequest> links = new ArrayList<>();
-        for (UserLink link : user.getUserLinks()) {
+        for (UserLink link : userLinks) {
             UserLinkRequest userLink = UserLinkRequest.builder()
+                    .id(link.getId())
                     .linkName(link.getLinkName())
                     .linkUrl(link.getLinkUrl())
                     .build();
