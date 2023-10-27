@@ -10,6 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
+
+    @ExceptionHandler
+    public ResponseEntity indexOutOfBoundsException(java.lang.IndexOutOfBoundsException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
     @ExceptionHandler(value = ConstraintViolationException.class)
     public ResponseEntity constraintViolationException(ConstraintViolationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
