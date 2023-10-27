@@ -3,6 +3,7 @@ package peer.backend.service.profile;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -91,8 +92,8 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public MyProfileResponse getProfile(User user) {
-        List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
+    public MyProfileResponse getProfile(Authentication auth) {
+        User user = User.authenticationToUser(auth);
         List<UserLinkRequest> links = new ArrayList<>();
         for (UserLink link : userLinks) {
             UserLinkRequest userLink = UserLinkRequest.builder()
@@ -118,7 +119,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editLinks(User user, List<UserLinkRequest> links) {
+    public void editLinks(Authentication auth, List<UserLinkRequest> links) {
+        User user = User.authenticationToUser(auth);
         if (user.getUserLinks() != null) {
             userLinkRepository.deleteAll(user.getUserLinks());
         }
@@ -161,7 +163,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editProfile(User user, EditProfileRequest profile) throws IOException {
+    public void editProfile(Authentication auth, EditProfileRequest profile) throws IOException {
+        User user = User.authenticationToUser(auth);
         if (isFileEmpty(profile.getProfileImage()) && profile.isImageChange()) {
             deleteUserImage(user);
         }
