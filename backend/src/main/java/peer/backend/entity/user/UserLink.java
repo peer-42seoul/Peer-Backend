@@ -35,6 +35,4 @@ public class UserLink {
 
     @Column(nullable = false)
     private String linkUrl;
-
-    private String faviconPath;
 }

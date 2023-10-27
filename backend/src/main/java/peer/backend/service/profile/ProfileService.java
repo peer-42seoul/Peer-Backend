@@ -16,7 +16,6 @@ import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 
@@ -123,23 +122,22 @@ public class ProfileService {
     @Transactional
     public void editLinks(Authentication auth, List<UserLinkRequest> links) {
         User user = User.authenticationToUser(auth);
-        if (user.getUserLinks() != null) {
-            userLinkRepository.deleteAll(user.getUserLinks());
+        List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
+        for (UserLink userLink : userLinks) {
+            userLink.setUser(null);
         }
-        List<UserLink> newLink = user.getUserLinks();
-        newLink.clear();
-        for (UserLinkRequest link : links) {
+        userLinkRepository.deleteAll(userLinks);
+        userLinks.clear();
+        userLinks = new ArrayList<>();
+        for (UserLinkRequest linkRequest : links) {
             UserLink userLink = UserLink.builder()
                     .user(user)
-                    .linkName(link.getLinkName())
-                    .linkUrl(link.getLinkUrl())
+                    .linkName(linkRequest.getLinkName())
+                    .linkUrl(linkRequest.getLinkUrl())
                     .build();
-            newLink.add(userLink);
+            userLinks.add(userLink);
         }
-        for (int index = newLink.size() - 1; index >= 0; index--) {
-            userLinkRepository.save(newLink.get(index));
-        }
-        user.setUserLinks(newLink);
+        user.setUserLinks(userLinks);
         userRepository.save(user);
     }
 

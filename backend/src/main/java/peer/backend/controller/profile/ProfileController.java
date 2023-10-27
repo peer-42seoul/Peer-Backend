@@ -48,6 +48,9 @@ public class ProfileController {
     public ResponseEntity<Object> editLinks(Authentication auth,
         @RequestBody LinkListRequest linkList) {
         List<UserLinkRequest> links = linkList.getLinkList();
+        if (links.size() > 3) {
+            throw new BadRequestException("링크는 3개만 등록할 수 있습니다.");
+        }
         for (UserLinkRequest link : links) {
             if (link.getLinkName().isBlank() || link.getLinkName().isEmpty()) {
                 throw new BadRequestException("링크 이름이 없습니다.");
