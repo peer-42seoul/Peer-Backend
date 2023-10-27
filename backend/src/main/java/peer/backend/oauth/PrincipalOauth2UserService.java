@@ -53,18 +53,18 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         if (socialInfo == null) {
             if (authentication == null) {
                 // 회원가입
-                this.socialLoginService.putSocialLoginInRedis(user, oAuth2UserInfo,
+                this.socialLoginService.putSocialLoginInRedis(new SocialLogin(user, oAuth2UserInfo,
                     userRequest.getAccessToken().getTokenValue(),
-                    email);
+                    email));
                 loginStatus = LoginStatus.REGISTER;
             } else {
                 // 연동
                 loginStatus = LoginStatus.LINK;
                 PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
                 user = principalDetails.getUser();
-                this.socialLoginService.save(user, oAuth2UserInfo,
+                this.socialLoginService.save(new SocialLogin(user, oAuth2UserInfo,
                     userRequest.getAccessToken().getTokenValue(),
-                    email);
+                    email));
             }
         } else {
             // 소셜 로그인 시켜주기!!
