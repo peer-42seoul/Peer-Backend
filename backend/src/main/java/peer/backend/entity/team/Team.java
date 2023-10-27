@@ -13,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,6 +42,7 @@ public class Team extends BaseEntity {
     Long id;
 
     @Column(nullable = false, unique = true)
+    @Size(min = 2, max = 12)
     String name;
 
     @Enumerated(EnumType.STRING)
