@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-public class ProfileImageController {
+public class ProfileImageController_old {
 
     private final ProfileImageService profileImageService;
 
