@@ -45,7 +45,6 @@ public class FileService {
 
         String folder = makeFolder(folderPath);
         String contentType = multipartFile.getContentType();
-        System.out.println(contentType);
         String extention = contentType.substring(contentType.lastIndexOf("/") + 1);
         String fileName = new StringBuilder()
                 .append(folder)
@@ -63,7 +62,6 @@ public class FileService {
     @Transactional
     public String updateFile(MultipartFile multipartFile, String oldFilePath, String type) throws IOException {
         File oldFile = new File(oldFilePath);
-        System.out.println("aefae");
         if (oldFile.exists()){
             if (!oldFile.delete())
                 throw new IOException("파일을 삭제할 수 없습니다.");
