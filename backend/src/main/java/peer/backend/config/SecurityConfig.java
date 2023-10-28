@@ -40,6 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
+            .addFilter(corsConfig.corsFilter())
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .httpBasic().disable()
             .csrf().disable()
@@ -47,7 +48,6 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
             .and()
-            .addFilter(corsConfig.corsFilter())
             .authorizeRequests()
             .antMatchers("/admin/**").hasRole("ADMIN")
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
