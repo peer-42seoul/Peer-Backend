@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.team.TeamSettingInfoDto;
-import peer.backend.dto.team.UpdateTeamRequest;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.InterestedProject;
@@ -82,7 +81,7 @@ public class Team extends BaseEntity {
     @Column(length = 10, nullable = false)
     String region2;
 
-    @Column(length = 10, nullable = false)
+    @Column(length = 10)
     String region3;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
@@ -90,22 +89,6 @@ public class Team extends BaseEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<InterestedProject> interestedProjects = new ArrayList<>();
-
-    public void update(UpdateTeamRequest request) {
-        this.name = request.getName();
-        this.type = request.getType();
-        this.dueTo = request.getDueTo();
-        this.teamPicturePath = request.getTeamPicturePath();
-        this.operationFormat = request.getOperationFormat();
-        this.teamLogoPath = request.getTeamLogoPath();
-        this.status = request.getStatus();
-        this.teamMemberStatus = request.getTeamMemberStatus();
-        this.isLock = request.getIsLock();
-        this.maxMember = request.getMaxMember();
-        this.region1 = request.getRegion1();
-        this.region2 = request.getRegion2();
-        this.region3 = request.getRegion3();
-    }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
