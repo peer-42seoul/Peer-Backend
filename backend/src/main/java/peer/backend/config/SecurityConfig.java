@@ -32,6 +32,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuthAuthenticationSuccessHandler oAuthAuthenticationSuccessHandler;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -50,7 +51,7 @@ public class SecurityConfig {
 //            .authorizeRequests()
 //            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 //            .and()
-            .cors().configurationSource(corsConfigurationSource())
+            .cors().configurationSource(corsConfigurationSource)
             .and()
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .httpBasic().disable()
@@ -81,17 +82,17 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.addAllowedOrigin("*");
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//
+//        configuration.addAllowedOrigin("*");
+//        configuration.addAllowedHeader("*");
+//        configuration.addAllowedMethod("*");
+//        configuration.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 }
