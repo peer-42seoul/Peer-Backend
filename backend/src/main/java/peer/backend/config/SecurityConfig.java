@@ -10,7 +10,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
 import peer.backend.config.jwt.JwtFilter;
@@ -47,6 +50,8 @@ public class SecurityConfig {
 //            .authorizeRequests()
 //            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 //            .and()
+            .cors().configurationSource(corsConfigurationSource())
+            .and()
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .httpBasic().disable()
             .csrf().disable()
@@ -74,5 +79,19 @@ public class SecurityConfig {
             .userInfoEndpoint()
             .userService(principalOauth2UserService);
         return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

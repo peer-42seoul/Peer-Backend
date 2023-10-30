@@ -9,7 +9,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsConfig {
 
     @Bean
