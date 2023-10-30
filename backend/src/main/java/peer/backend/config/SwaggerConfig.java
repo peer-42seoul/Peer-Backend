@@ -2,8 +2,10 @@ package peer.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.SecurityReference;
@@ -17,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig {
     @Bean
     public Docket api() {
@@ -31,6 +32,15 @@ public class SwaggerConfig {
                 .ignoredParameterTypes(Principal.class)
                 ;
     }
+
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("Batch Swagger")
+                .description("batch execute swagger")
+                .version("1.0")
+                .build();
+    }
+
 
     private SecurityContext securityContext() {
         return SecurityContext.builder()
