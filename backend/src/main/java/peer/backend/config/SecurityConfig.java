@@ -34,8 +34,8 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuthAuthenticationSuccessHandler oAuthAuthenticationSuccessHandler;
-    private final CorsConfigurationSource corsConfigurationSource;
-
+//    private final CorsConfigurationSource corsConfigurationSource;
+    
     @Bean
     public AuthenticationManager authenticationManager(
         AuthenticationConfiguration authenticationConfiguration
