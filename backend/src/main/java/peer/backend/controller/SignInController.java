@@ -27,7 +27,6 @@ import java.util.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/signin")
-@CrossOrigin(origins = "http://133.186.153.113")
 public class SignInController {
 
     private final LoginService loginService;

@@ -42,11 +42,11 @@ public class SecurityConfig {
 
         httpSecurity
 //            .addFilter(corsConfig.corsFilter())
-            .cors()
-            .and()
-            .authorizeRequests()
-            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .and()
+//            .cors()
+//            .and()
+//            .authorizeRequests()
+//            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+//            .and()
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .httpBasic().disable()
             .csrf().disable()
