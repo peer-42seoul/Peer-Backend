@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsUtils;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
 import peer.backend.config.jwt.JwtFilter;
@@ -41,6 +42,8 @@ public class SecurityConfig {
 
         httpSecurity
 //            .addFilter(corsConfig.corsFilter())
+            .cors()
+            .and()
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .httpBasic().disable()
             .csrf().disable()
@@ -52,6 +55,7 @@ public class SecurityConfig {
             .antMatchers("/admin/**").hasRole("ADMIN")
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
             .permitAll()
+            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             .anyRequest().authenticated()
 
             .and()
