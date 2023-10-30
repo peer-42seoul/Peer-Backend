@@ -45,7 +45,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
-            .addFilter(corsConfig.corsFilter())
 //            .cors()
 //            .and()
 //            .authorizeRequests()
@@ -53,7 +52,6 @@ public class SecurityConfig {
 //            .and()
 //            .cors().configurationSource(corsConfigurationSource)
 //            .and()
-            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .httpBasic().disable()
             .csrf().disable()
             .sessionManagement()
@@ -67,6 +65,8 @@ public class SecurityConfig {
             .anyRequest().authenticated()
 
             .and()
+            .addFilter(corsConfig.corsFilter())
+            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .exceptionHandling()
             .accessDeniedHandler(jwtAccessDeniedHandler)
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
