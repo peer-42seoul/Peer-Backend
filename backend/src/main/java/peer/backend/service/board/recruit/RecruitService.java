@@ -218,6 +218,31 @@ public class RecruitService {
                 .build();
     }
 
+    public RecruitUpdateResponse getRecruitwithInterviewList(Long recruit_id){
+        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
+        for (RecruitRole role: recruit.getRoles()) {
+            roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
+        }
+        //TODO:DTO 항목 추가 필요
+        return RecruitUpdateResponse.builder()
+                .title(recruit.getTitle())
+                .content(recruit.getContent())
+                .region1(recruit.getRegion1())
+                .region2(recruit.getRegion2())
+                .status(recruit.getStatus())
+                .totalNumber(recruit.getRoles().size())
+                .due(recruit.getDue())
+                .link(recruit.getLink())
+                .leader_id(recruit.getWriter().getId())
+                .leader_nickname(recruit.getWriter().getNickname())
+                .leader_image(recruit.getWriter().getImageUrl())
+                .tagList(recruit.getTags())
+                .roleList(roleDtoList)
+                .interviewList(getInterviewList(recruit_id))
+                .build();
+    }
+
     private void addInterviewsToRecruit(Recruit recruit, List<RecruitInterview> interviewList) {
         if (interviewList != null && !interviewList.isEmpty()) {
             for (RecruitInterview interview : interviewList) {
