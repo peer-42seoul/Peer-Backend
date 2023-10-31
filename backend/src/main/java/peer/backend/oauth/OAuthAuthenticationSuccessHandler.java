@@ -34,7 +34,6 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-//        User user = principalDetails.getUser();
         User user = User.authenticationToUser(authentication);
         LoginStatus loginStatus = principalDetails.getLoginStatus();
         String redirectUrl = REDIRECT_URL;
@@ -44,9 +43,8 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             String accessToken = this.tokenProvider.createAccessToken(user);
             String refreshToken = this.tokenProvider.createRefreshToken(user);
 
-            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL)
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/login/oauth")
                 .queryParam("accessToken", accessToken)
-                .queryParam("refreshToken", refreshToken)
                 .build()
                 .toUriString();
 
@@ -56,12 +54,12 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             response.addCookie(cookie);
         } else if (loginStatus == LoginStatus.REGISTER) {
             log.info("회원가입 화면으로 리다이렉트");
-            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/register")
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/signup")
                 .queryParam("social-email", principalDetails.getSocialEmail())
                 .build()
                 .toUriString();
         } else {
-            redirectUrl += "/profile/mypage";
+            redirectUrl += "/profile/MyPage";
             log.info("연동된 경우니 마이페이지로 리다이렉트");
         }
 

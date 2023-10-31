@@ -25,35 +25,14 @@ public class SocialLoginService {
         return this.socialLoginRepository.findByEmail(email).orElse(null);
     }
 
-    @Transactional
     @UserFtLinkTracking
-    public SocialLogin save(User user, OAuth2UserInfo oAuth2UserInfo, String accessToken,
-        String email) {
-        SocialLogin socialLogin = SocialLogin.builder()
-            .user(user)
-            .provider(oAuth2UserInfo.getProvider())
-            .providerId(oAuth2UserInfo.getProviderId())
-            .accessToken(accessToken)
-            .email(email)
-            .build();
-        if (socialLogin.getProvider() == SocialLoginProvider.FT) {
-            socialLogin.setIntraId(((FortyTwoUserInfo) oAuth2UserInfo).getIntraId());
-        }
+    public SocialLogin save(SocialLogin socialLogin) {
         return this.socialLoginRepository.save(socialLogin);
     }
 
-    public void putSocialLoginInRedis(User user, OAuth2UserInfo oAuth2UserInfo, String accessToken,
-        String email) {
-        SocialLogin socialLogin = SocialLogin.builder()
-            .user(user)
-            .provider(oAuth2UserInfo.getProvider())
-            .providerId(oAuth2UserInfo.getProviderId())
-            .accessToken(accessToken)
-            .email(email)
-            .build();
-
+    public void putSocialLoginInRedis(SocialLogin socialLogin) {
         this.redisTemplate.opsForValue()
-            .set(email, socialLogin, 3,
+            .set(socialLogin.getEmail(), socialLogin, 3,
                 TimeUnit.HOURS);
     }
 }

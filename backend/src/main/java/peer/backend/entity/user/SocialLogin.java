@@ -20,6 +20,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.oauth.enums.SocialLoginProvider;
+import peer.backend.oauth.provider.FortyTwoUserInfo;
+import peer.backend.oauth.provider.OAuth2UserInfo;
 
 @Entity
 @Getter
@@ -57,4 +59,16 @@ public class SocialLogin {
 
     @Column
     private String intraId;
+
+    public SocialLogin(User user, OAuth2UserInfo oAuth2UserInfo, String accessToken,
+        String email) {
+        this.user = user;
+        this.provider = oAuth2UserInfo.getProvider();
+        this.providerId = oAuth2UserInfo.getProviderId();
+        this.accessToken = accessToken;
+        this.email = email;
+        if (oAuth2UserInfo.getProvider() == SocialLoginProvider.FT) {
+            this.intraId = ((FortyTwoUserInfo) oAuth2UserInfo).getIntraId();
+        }
+    }
 }
