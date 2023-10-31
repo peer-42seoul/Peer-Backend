@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
@@ -30,7 +29,6 @@ public class UserTrackingAspect {
     public void userFtLink() {
     }
 
-    //    @Order(1)
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
         UserTracking userTracking = UserTracking.builder()
@@ -44,7 +42,6 @@ public class UserTrackingAspect {
         this.userTrackingRepository.save(userTracking);
     }
 
-    //    @Order(0)
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userFtLink()", returning = "socialLogin")
     public void userOAuthTacking(SocialLogin socialLogin) {
         if (socialLogin.getProvider() == SocialLoginProvider.FT) {
