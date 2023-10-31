@@ -89,9 +89,4 @@ public class RecruitController {
         return recruitService.getTagList();
     }
 
-    @PostMapping("/test")
-    public void test(@RequestParam MultipartFile multipartFile) throws IOException, IllegalArgumentException {
-        fileService.saveFile(multipartFile, "/Users/jwee/upload", "image");
-    }
-
 }
