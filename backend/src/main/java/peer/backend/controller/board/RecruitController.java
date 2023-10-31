@@ -1,5 +1,6 @@
 package peer.backend.controller.board;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -88,6 +89,12 @@ public class RecruitController {
     @GetMapping("/edit")
     public List<TagListResponse> getTagListForEdit(){
         return recruitService.getTagList();
+    }
+
+    @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")
+    @GetMapping("/interview/{post_id}")
+    public List<RecruitInterviewDto> getInterviewList(@PathVariable Long post_id){
+        return recruitService.getInterviewList(post_id);
     }
 
 }
