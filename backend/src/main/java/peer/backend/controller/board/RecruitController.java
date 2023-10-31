@@ -8,13 +8,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.user.User;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.board.recruit.RecruitService;
+import peer.backend.service.file.FileService;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -26,6 +29,7 @@ import java.util.List;
 public class RecruitController {
     private final RecruitService recruitService;
     private final UserRepository userRepository;
+    private final FileService fileService;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -35,16 +39,17 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(@RequestParam int page, @RequestParam int pageSize, @ModelAttribute("request") RecruitRequest request, Principal principal) {
-        User user = userRepository.findByName(principal.getName()).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+    public Page<RecruitListResponse> getRecruitListByConditions(@RequestParam int page, @RequestParam int pageSize, @ModelAttribute("request") RecruitRequest request, Authentication auth) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        return recruitService.getRecruitSearchList(pageable, request, user.getId());
+
+
+        return recruitService.getRecruitSearchList(pageable, request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("")
-    public void createRecruit(@RequestBody RecruitListRequestDTO recruitListRequestDTO) throws IOException{
-        recruitService.createRecruit(recruitListRequestDTO);
+    public void createRecruit(@RequestBody RecruitListRequestDTO recruitListRequestDTO, Authentication auth) throws IOException{
+        recruitService.createRecruit(recruitListRequestDTO, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
