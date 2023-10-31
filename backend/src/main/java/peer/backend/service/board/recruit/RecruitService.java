@@ -197,11 +197,6 @@ public class RecruitService {
         for (RecruitRole role: recruit.getRoles()) {
             roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
         }
-        List<RecruitInterviewDto> interviewDtoList = new ArrayList<>();
-        for (RecruitInterview interview : recruit.getInterviews()){
-            List<String> optionList = new ArrayList<>();
-            interviewDtoList.add(new RecruitInterviewDto(interview.getQuestion(), interview.getType(), interview.getOptions()));
-        }
         //TODO:DTO 항목 추가 필요
         return RecruitResponce.builder()
                 .title(recruit.getTitle())
@@ -216,7 +211,6 @@ public class RecruitService {
                 .leader_image(recruit.getWriter().getImageUrl())
                 .tagList(recruit.getTags())
                 .roleList(roleDtoList)
-                .interviewsList(interviewDtoList)
                 .build();
     }
 

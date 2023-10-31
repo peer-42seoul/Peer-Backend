@@ -29,5 +29,4 @@ public class RecruitResponce {
     private String leader_image;
     private List<String> tagList;
     private List<RecruitRoleDTO> roleList;
-    private List<RecruitInterviewDto> interviewsList;
 }
