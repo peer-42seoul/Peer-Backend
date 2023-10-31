@@ -65,7 +65,7 @@ public class SecurityConfig {
             .antMatchers("/admin/**").hasRole("ADMIN")
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
             .permitAll()
-            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+//            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             .anyRequest().authenticated()
 
             .and()
