@@ -1,10 +1,12 @@
 package peer.backend.controller.board;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
@@ -82,6 +84,12 @@ public class RecruitController {
     @GetMapping("/edit")
     public List<TagListResponse> getTagListForEdit(){
         return recruitService.getTagList();
+    }
+
+    @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")
+    @GetMapping("/interview/{post_id}")
+    public List<RecruitInterviewDto> getInterviewList(@PathVariable Long post_id){
+        return recruitService.getInterviewList(post_id);
     }
 
 }

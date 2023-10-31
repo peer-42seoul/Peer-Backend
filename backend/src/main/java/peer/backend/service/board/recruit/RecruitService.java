@@ -73,6 +73,21 @@ public class RecruitService {
         }
     }
 
+    public List<RecruitInterviewDto> getInterviewList(Long recruit_id){
+        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        List<RecruitInterviewDto> result = new ArrayList<>();
+        for (RecruitInterview question: recruit.getInterviews()) {
+            RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
+                    .question(question.getQuestion())
+                    .type(question.getType())
+                    .optionList(question.getOptions())
+                    .build();
+            result.add(recruitInterviewDto);
+        }
+
+        return result;
+    }
+
     public List<TeamApplicantListDto> getTeamApplicantList(Long user_id){
         //TODO:모듈화 리팩토링 필요
         User user = userRepository.findById(user_id).orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
