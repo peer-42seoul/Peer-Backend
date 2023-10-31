@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,12 @@ import peer.backend.oauth.PrincipalOauth2UserService;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    @Value("${url.front-base-url}")
+    private String FRONT_BASE_URL;
+
+    @Value("${url.dev-domain-url}")
+    private String DEV_DOMAIN_URL;
 
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -87,7 +94,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://133.186.153.113"));
+        configuration.setAllowedOrigins(Arrays.asList(FRONT_BASE_URL, DEV_DOMAIN_URL));
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));
         configuration.addExposedHeader("*");

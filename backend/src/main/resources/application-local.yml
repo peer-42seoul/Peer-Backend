@@ -97,7 +97,8 @@ logging:
   config: src/main/resources/log4j2/log4j2.xml
 
 url:
-  front-base-url: http://localhost:8080
+  front-base-url: http://localhost:3000
+  dev-domain-url: http://localhost:3000
 
 custom:
   filePath: "~/"
