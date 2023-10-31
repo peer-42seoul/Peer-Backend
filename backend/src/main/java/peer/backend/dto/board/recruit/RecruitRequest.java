@@ -21,7 +21,7 @@ public class RecruitRequest {
     private Long pageSize;
     private String keyword;
     private String due;
-    private String region;
+    private List<String> region;
     private String place;
     private List<String> tag;
 }

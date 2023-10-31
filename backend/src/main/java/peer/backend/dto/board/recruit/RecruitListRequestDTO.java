@@ -22,14 +22,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecruitListRequestDTO {
-    private Long userId;
     private String name;
     private String title;
     private String due;
     private String place;
     private String type;
     private String content;
-    private String region;
+    private List<String> region;
     private String link;
     private String status;
     private String thumbnailUrl;
