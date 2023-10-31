@@ -4,6 +4,7 @@ package peer.backend.service.board.recruit;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
@@ -11,6 +12,7 @@ import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
 import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
+import peer.backend.entity.board.recruit.enums.RecruitPlace;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
@@ -28,6 +30,7 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EnumType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
@@ -187,11 +190,13 @@ public class RecruitService {
             List<String> optionList = new ArrayList<>();
             interviewDtoList.add(new RecruitInterviewDto(interview.getQuestion(), interview.getType(), interview.getOptions()));
         }
+        List<String> regionList = new ArrayList<>();
+
         //TODO:DTO 항목 추가 필요
         return RecruitResponce.builder()
                 .title(recruit.getTitle())
                 .content(recruit.getContent())
-                .region(recruit.getRegion())
+                .region(new ArrayList<>(List.of(recruit.getRegion1(), recruit.getRegion2())))
                 .status(recruit.getStatus())
                 .totalNumber(recruit.getRoles().size())
                 .due(recruit.getDue())
@@ -233,9 +238,9 @@ public class RecruitService {
                 .status(TeamStatus.RECRUITING)
                 .teamMemberStatus(TeamMemberStatus.RECRUITING)
                 .isLock(false)
-                .region1(recruitListRequestDTO.getRegion())
-                .region2(recruitListRequestDTO.getRegion())
-                .region3(recruitListRequestDTO.getRegion())
+                .region1(recruitListRequestDTO.getRegion().get(0))
+                .region2(recruitListRequestDTO.getRegion().get(1))
+                .region3(null)
                 .build();
         teamRepository.save(team);
         // 리더 추가
@@ -272,7 +277,7 @@ public class RecruitService {
         return result;
     }
 
-    private Recruit createRecruitFromDto(RecruitListRequestDTO recruitListRequestDTO, Team team) throws IOException{
+    private Recruit createRecruitFromDto(RecruitListRequestDTO recruitListRequestDTO, Team team, User user) throws IOException{
         List<String> content = processMarkdownWithFormData(recruitListRequestDTO.getContent());
         Recruit recruit = Recruit.builder()
                 .team(team)
@@ -282,12 +287,13 @@ public class RecruitService {
                 .link(recruitListRequestDTO.getLink())
                 .content(content.get(1))
                 .place(TeamOperationFormat.from(recruitListRequestDTO.getPlace()))
-                .region(recruitListRequestDTO.getRegion())
+                .region1(recruitListRequestDTO.getPlace().equals("온라인") ? null : recruitListRequestDTO.getRegion().get(0))
+                .region2(recruitListRequestDTO.getPlace().equals("온라인") ? null : recruitListRequestDTO.getRegion().get(1))
                 .tags(recruitListRequestDTO.getTagList())
                 .status(RecruitStatus.ONGOING)
-                .thumbnailUrl((content.get(0).isBlank())?null : content.get(0))
-                .writerId(recruitListRequestDTO.getUserId())
-                .writer(userRepository.findById(recruitListRequestDTO.getUserId()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다.")))
+                .thumbnailUrl((content.get(0).isBlank()) ? null : content.get(0))
+                .writerId(user.getId())
+                .writer(user)
                 .hit(0L)
                 .build();
         //List 추가
@@ -298,22 +304,17 @@ public class RecruitService {
 
 
     @Transactional
-    public void createRecruit(RecruitListRequestDTO recruitListRequestDTO) throws IOException{
-        //TODO:첫번째이미지 대표 이미지 등록 필요
-        //유저 검사
-        User user = userRepository.findById(recruitListRequestDTO.getUserId()).orElseThrow(
-                () -> new NotFoundException("사용자를 찾을 수 없습니다.")
-        );
+    public void createRecruit(RecruitListRequestDTO recruitListRequestDTO, Authentication auth) throws IOException{
         //동일한 팀 이름 검사
         Optional<Team> findTeam = teamRepository.findByName(recruitListRequestDTO.getName());
         if (findTeam.isPresent())
             throw new IllegalArgumentException("이미 존재하는 팀 이름입니다.");
-
+        User user = User.authenticationToUser(auth);
         //팀 생성
         Team team = createTeam(user, recruitListRequestDTO);
 
         //모집게시글 생성
-        Recruit recruit = createRecruitFromDto(recruitListRequestDTO, team);
+        Recruit recruit = createRecruitFromDto(recruitListRequestDTO, team, user);
         System.out.println(recruit.getContent());
         recruitRepository.save(recruit);
     }

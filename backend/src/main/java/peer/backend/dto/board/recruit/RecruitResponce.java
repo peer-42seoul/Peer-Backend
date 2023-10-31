@@ -23,7 +23,7 @@ public class RecruitResponce {
     private String due;
     private String content;
     private Long leader_id;
-    private String region;
+    private List<String> region;
     private String link;
     private String leader_nickname;
     private String leader_image;
