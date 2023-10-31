@@ -1,5 +1,7 @@
 package peer.backend.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
 import peer.backend.config.jwt.JwtFilter;
@@ -56,7 +59,8 @@ public class SecurityConfig {
 //            .and()
             .httpBasic().disable()
             .csrf().disable()
-//            .cors(Customizer.withDefaults())
+            .cors(withDefaults())
+            .cors(Customizer.withDefaults())
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -65,10 +69,13 @@ public class SecurityConfig {
             .antMatchers("/admin/**").hasRole("ADMIN")
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
             .permitAll()
+            .antMatchers("/swagger-ui/**", "/v1/api-docs", "/v3/api-docs", "/swagger-resources/**")
+            .permitAll()
+//            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             .anyRequest().authenticated()
 
             .and()
-//            .addFilter(corsConfig.corsFilter())
+            .addFilter(corsConfig.corsFilter())
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .exceptionHandling()
             .accessDeniedHandler(jwtAccessDeniedHandler)
@@ -85,17 +92,19 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-//        configuration.setAllowedOrigins(Arrays.asList("*"));
-//        configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setAllowedMethods(Arrays.asList("*"));
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//
+////        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+//        configuration.setAllowedOrigins(Arrays.asList("http://133.186.153.113"));
+//        configuration.addAllowedHeader("*");
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));
+//        configuration.addExposedHeader("*");
 //        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 }
