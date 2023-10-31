@@ -55,7 +55,8 @@ public class SecurityConfig {
 //            .cors().configurationSource(corsConfigurationSource)
 //            .and()
             .httpBasic().disable()
-            .csrf().disable()
+            .csrf().disable().cors()
+            .and()
 //            .cors(Customizer.withDefaults())
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -66,23 +67,23 @@ public class SecurityConfig {
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error", "/api/v1/recruit")
             .permitAll()
 //            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .anyRequest().authenticated();
+            .anyRequest().authenticated()
 
-//            .and()
-//            .addFilter(corsConfig.corsFilter())
-//            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
-//            .exceptionHandling()
-//            .accessDeniedHandler(jwtAccessDeniedHandler)
-//            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            .and()
+            .addFilter(corsConfig.corsFilter())
+            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
+            .exceptionHandling()
+            .accessDeniedHandler(jwtAccessDeniedHandler)
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
 
-//            .and()
-//            .apply(new JwtSecurityConfig(tokenProvider))
+            .and()
+            .apply(new JwtSecurityConfig(tokenProvider))
 
-//            .and()
-//            .oauth2Login()
-//            .successHandler(oAuthAuthenticationSuccessHandler)
-//            .userInfoEndpoint()
-//            .userService(principalOauth2UserService);
+            .and()
+            .oauth2Login()
+            .successHandler(oAuthAuthenticationSuccessHandler)
+            .userInfoEndpoint()
+            .userService(principalOauth2UserService);
         return httpSecurity.build();
     }
 
@@ -90,10 +91,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-//        configuration.setAllowedOrigins(Arrays.asList("*"));
-//        configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setAllowedMethods(Arrays.asList("*"));
-//        configuration.setAllowCredentials(true);
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
