@@ -1,10 +1,12 @@
 package peer.backend.controller.board;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
@@ -79,9 +81,16 @@ public class RecruitController {
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요. 추후 글 생성, 수정이 어떻게 달라질지 몰라서 일단 동일한 기능이지만 api 분리해두었음.
     @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
-    @GetMapping("/edit")
-    public List<TagListResponse> getTagListForEdit(){
-        return recruitService.getTagList();
+    @GetMapping("/edit/{recruit_id}")
+    @AuthorCheck
+    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id){
+        return recruitService.getRecruitwithInterviewList(recruit_id);
+    }
+
+    @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")
+    @GetMapping("/interview/{post_id}")
+    public List<RecruitInterviewDto> getInterviewList(@PathVariable Long post_id){
+        return recruitService.getInterviewList(post_id);
     }
 
 }
