@@ -66,7 +66,7 @@ public class SecurityConfig {
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
             .permitAll()
 //            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().authenticated();
 
 //            .and()
 //            .addFilter(corsConfig.corsFilter())
