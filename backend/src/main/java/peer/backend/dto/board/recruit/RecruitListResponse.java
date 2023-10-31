@@ -11,19 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecruitListResponse {
-//    {
-//        "postList" :  {
-//        "post_id" : 10,
-//                "title":"제목",
-//                "image":"썸네일url",
-//                "user_id":40,
-//                "user_nickname":"jwee"
-//        "user_thumbnail":"유저썸네일url"
-//        "status":"before",
-//                "tagList":["java", "spring", "react"]
-//        "isFavorite":"true"
-//    }
-//    }
     private String title;
     private String image;
     private Long user_id;
