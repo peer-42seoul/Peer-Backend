@@ -56,7 +56,7 @@ public class SecurityConfig {
 //            .and()
             .httpBasic().disable()
             .csrf().disable()
-            .cors(Customizer.withDefaults())
+//            .cors(Customizer.withDefaults())
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
