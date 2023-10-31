@@ -1,5 +1,7 @@
 package peer.backend.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -56,8 +58,7 @@ public class SecurityConfig {
 //            .cors().configurationSource(corsConfigurationSource)
 //            .and()
             .httpBasic().disable()
-            .csrf().disable().cors()
-            .and()
+            .csrf().disable().cors(withDefaults())
 //            .cors(Customizer.withDefaults())
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
