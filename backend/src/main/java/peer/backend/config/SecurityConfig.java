@@ -70,23 +70,23 @@ public class SecurityConfig {
                 "/api/v1/recruit")
             .permitAll()
 //            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().authenticated();
 
-            .and()
+//            .and()
 //            .addFilter(corsConfig.corsFilter())
-            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
-            .exceptionHandling()
-            .accessDeniedHandler(jwtAccessDeniedHandler)
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-
-            .and()
-            .apply(new JwtSecurityConfig(tokenProvider))
-
-            .and()
-            .oauth2Login()
-            .successHandler(oAuthAuthenticationSuccessHandler)
-            .userInfoEndpoint()
-            .userService(principalOauth2UserService);
+//            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
+//            .exceptionHandling()
+//            .accessDeniedHandler(jwtAccessDeniedHandler)
+//            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//
+//            .and()
+//            .apply(new JwtSecurityConfig(tokenProvider))
+//
+//            .and()
+//            .oauth2Login()
+//            .successHandler(oAuthAuthenticationSuccessHandler)
+//            .userInfoEndpoint()
+//            .userService(principalOauth2UserService);
         return httpSecurity.build();
     }
 
