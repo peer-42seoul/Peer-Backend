@@ -1,11 +1,10 @@
 package peer.backend.service.board.recruit;
 
 
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
@@ -25,6 +24,7 @@ import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
@@ -48,6 +48,7 @@ public class RecruitService {
     private final TeamRepository teamRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
+    private final TeamUserRepository teamUserRepository;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -104,7 +105,7 @@ public class RecruitService {
         return result;
     }
 
-    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitRequest request, Long user_id) {
+    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitRequest request, Authentication auth) {
 
         //TODO:favorite 등
         //query 생성 준비
@@ -158,7 +159,6 @@ public class RecruitService {
         List<Recruit> recruits = em.createQuery(cq).getResultList();
         System.out.println(recruits.size());
 
-        // recruitResponseDto 매핑
         List<RecruitListResponse> results = recruits.stream()
                 .map(recruit2 -> new RecruitListResponse(
                         recruit2.getTitle(),
@@ -168,8 +168,11 @@ public class RecruitService {
                         recruit2.getWriter().getImageUrl(),
                         recruit2.getStatus().toString(),
                         recruit2.getTags(),
-                        (recruitFavoriteRepository.findById(new RecruitFavoritePK(user_id, recruit2.getId())).isPresent())
-                )).collect(Collectors.toList());
+                        ((auth != null) &&
+                                (recruitFavoriteRepository
+                                        .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit2.getId()))
+                                        .isPresent()))))
+                .collect(Collectors.toList());
 
         return  new PageImpl<>(results, pageable, results.size());
     }
@@ -184,7 +187,6 @@ public class RecruitService {
         }
         List<RecruitInterviewDto> interviewDtoList = new ArrayList<>();
         for (RecruitInterview interview : recruit.getInterviews()){
-            List<String> optionList = new ArrayList<>();
             interviewDtoList.add(new RecruitInterviewDto(interview.getQuestion(), interview.getType(), interview.getOptions()));
         }
         //TODO:DTO 항목 추가 필요
@@ -204,9 +206,6 @@ public class RecruitService {
                 .interviewsList(interviewDtoList)
                 .build();
     }
-
-
-
 
     private void addInterviewsToRecruit(Recruit recruit, List<RecruitInterview> interviewList) {
         if (interviewList != null && !interviewList.isEmpty()) {
@@ -237,13 +236,14 @@ public class RecruitService {
                 .region2(recruitListRequestDTO.getRegion())
                 .region3(recruitListRequestDTO.getRegion())
                 .build();
-        teamRepository.save(team);
-        // 리더 추가
+        teamRepository.save(team);// 리더 추가
         TeamUser teamUser = TeamUser.builder()
-                .team(team)
-                .user(user)
+                .teamId(team.getId())
+                .userId(user.getId())
                 .role(TeamUserRoleType.LEADER)
+                .job("Leader")
                 .build();
+        teamUserRepository.save(teamUser);
         return team;
     }
 
@@ -255,19 +255,17 @@ public class RecruitService {
         while (matcher.find()) {
             String formData = matcher.group().substring(26, matcher.group().length() - 1);
             byte[] imageBytes = Base64.getDecoder().decode(formData);
-            UUID uuid = UUID.randomUUID();
-            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID().toString() + ".png");
+            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID() + ".png");
             Files.write(path, imageBytes);
             if (result.isEmpty()) {
                 result.add(path.toString());
             }
-            matcher.appendReplacement(sb, "![image](" + path.toString() + ")");
+            matcher.appendReplacement(sb, "![image](" + path + ")");
         }
         if (result.isEmpty()){
             result.add("");
         }
         matcher.appendTail(sb);
-        System.out.println(sb.toString());
         result.add(sb.toString());
         return result;
     }
