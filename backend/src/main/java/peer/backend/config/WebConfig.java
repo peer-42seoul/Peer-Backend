@@ -11,7 +11,6 @@ import peer.backend.config.team.StringToTeamStatusConverter;
 import peer.backend.config.team.StringToTeamUserRoleTypeConverter;
 
 @Configuration
-@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
@@ -23,14 +22,4 @@ public class WebConfig implements WebMvcConfigurer {
             throw new RuntimeException();
         }
     }
-
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//            .allowedOrigins("*")
-//            .allowedMethods("*")
-//            .allowedHeaders("*")
-//            .allowCredentials(false)
-//            .maxAge(3000);
-//    }
 }

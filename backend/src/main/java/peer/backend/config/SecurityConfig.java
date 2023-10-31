@@ -2,7 +2,10 @@ package peer.backend.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +34,11 @@ import peer.backend.oauth.PrincipalOauth2UserService;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CorsConfig corsConfig;
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuthAuthenticationSuccessHandler oAuthAuthenticationSuccessHandler;
-//    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -50,17 +51,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
-//            .cors()
-//            .and()
-//            .authorizeRequests()
-//            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-//            .and()
-//            .cors().configurationSource(corsConfigurationSource)
-//            .and()
             .httpBasic().disable()
             .csrf().disable()
             .cors(withDefaults())
-//            .cors(Customizer.withDefaults())
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -71,7 +64,6 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers("/swagger-ui/**", "/v1/api-docs", "/v3/api-docs", "/swagger-resources/**")
             .permitAll()
-//            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             .anyRequest().authenticated()
 
             .and()
@@ -95,8 +87,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-//        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedOrigins(Arrays.asList("http://133.186.153.113"));
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));

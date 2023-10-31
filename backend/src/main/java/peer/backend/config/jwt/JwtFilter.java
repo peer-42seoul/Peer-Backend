@@ -23,9 +23,6 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
         String token = tokenProvider.resolveAccessToken(request);
-//        if (CorsUtils.isPreFlightRequest(request)) {
-//            filterChain.doFilter(request, response);
-//        }
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
