@@ -68,21 +68,21 @@ public class SecurityConfig {
 //            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             .anyRequest().authenticated()
 
-            .and()
+//            .and()
 //            .addFilter(corsConfig.corsFilter())
-            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
-            .exceptionHandling()
-            .accessDeniedHandler(jwtAccessDeniedHandler)
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//            .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
+//            .exceptionHandling()
+//            .accessDeniedHandler(jwtAccessDeniedHandler)
+//            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
 
-            .and()
-            .apply(new JwtSecurityConfig(tokenProvider))
+//            .and()
+//            .apply(new JwtSecurityConfig(tokenProvider))
 
-            .and()
-            .oauth2Login()
-            .successHandler(oAuthAuthenticationSuccessHandler)
-            .userInfoEndpoint()
-            .userService(principalOauth2UserService);
+//            .and()
+//            .oauth2Login()
+//            .successHandler(oAuthAuthenticationSuccessHandler)
+//            .userInfoEndpoint()
+//            .userService(principalOauth2UserService);
         return httpSecurity.build();
     }
 
