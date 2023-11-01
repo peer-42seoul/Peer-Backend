@@ -44,14 +44,14 @@ public class EmailAuthService {
         }
     }
 
-    public Message sendEmail(String email) {
+    public Message sendEmail(String email, String text) {
         Message message = new Message();
         EmailMessage emailMessage = new EmailMessage();
         try {
             emailMessage.setTo(email);
             emailMessage.setSubject("Peer 인증 코드");
             emailMessage.setText(
-                String.format("회원가입을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n", getAuthCode(email)));
+                String.format(text, getAuthCode(email)));
             this.send(emailMessage);
             message.setStatus(HttpStatus.OK);
         } catch (Exception e) {

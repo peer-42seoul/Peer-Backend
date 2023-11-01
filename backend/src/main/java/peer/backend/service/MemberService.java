@@ -74,4 +74,12 @@ public class MemberService {
         }
         return true;
     }
+
+    public boolean emailExistsCheck(String email) {
+        User user = this.userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return false;
+        }
+        return true;
+    }
 }
