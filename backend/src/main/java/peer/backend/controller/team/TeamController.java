@@ -112,7 +112,7 @@ public class TeamController {
     }
 
     @PostMapping("/setting/image/{teamId}")
-    public ResponseEntity<?> updateTeamImage(@PathVariable() Long teamId, @RequestBody() TeamImageDto teamImageDto, Authentication authentication) throws IOException {
+    public ResponseEntity<?> updateTeamImage(@PathVariable() Long teamId, @ModelAttribute TeamImageDto teamImageDto, Authentication authentication) throws IOException {
         User user = User.authenticationToUser(authentication);
         this.teamService.updateTeamImage(teamId, teamImageDto, user);
         return new ResponseEntity<>(HttpStatus.OK);
