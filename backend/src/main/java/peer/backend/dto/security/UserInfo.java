@@ -23,17 +23,18 @@ public class UserInfo {
 
     @NotBlank(message = "비밀번호는 필수항목입니다.")
     @Size(min = 8, max = 20, message = "비밀번호는 반드시 8자 이상이어야 합니다.")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,20}$")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,20}$",
+        message = "대소문자, 숫자, 특수문자를 포함해야 합니다!")
     private String password;
 
     @NotBlank(message = "닉네임은 필수항목입니다.")
-    @Size(min = 2, max = 7)
-    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,7}$")
+    @Size(min = 2, max = 7, message = "2글자 이상 7글자 이하여야 합니다!")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,7}$", message = "한글, 대소문자, 숫자로만 이루어져야 합니다!")
     private String nickname;
 
     @NotBlank(message = "이름은 필수항목입니다.")
-    @Size(min = 2, max = 4)
-    @Pattern(regexp = "^[가-힣]{2,4}$")
+    @Size(min = 2, max = 4, message = "2글자 이상 4글자 이하여야 합니다!")
+    @Pattern(regexp = "^[가-힣]{2,4}$", message = "한글로만 이루어져야 합니다!")
     private String name;
     //    @NotBlank(message = "생년월일은 필수항목입니다.")
 //    @Pattern(regexp = "^(\\d{4})-(?:[1-9]|\\d{2})-(?:[1-9]|\\d{2})$", message = "생년월일형식에 맞지 않습니다.")
