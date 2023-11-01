@@ -34,7 +34,7 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저의 쪽지 목록을 불러온다.")
 //    @ApiImplicitParam(name = "id", value = "사용자 아이디", required = true, dataType = "number", paramType = "Param", defaultValue = "None")
     @GetMapping("/list")
-    public ResponseEntity<List<MsgObjectDTO>> getAllLetters(Authentication auth, @RequestParam long userId) {
+    public ResponseEntity<List<MsgObjectDTO>> getAllLetters(Authentication auth) {
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {
@@ -80,8 +80,8 @@ public class MessaageController {
 //            }
 //    )
     @DeleteMapping("/delete-message")
-    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestParam long userId, @RequestBody List<TargetDTO> body) {
-        this.messageMainService.deleteLetterList(userId, body);
+    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody List<TargetDTO> body) {
+        this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
 
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
@@ -124,7 +124,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
-    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication auth, @RequestParam long userId, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication auth, @RequestBody MsgContentDTO body) {
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
@@ -166,7 +166,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록을 불러옵니다.")
     @PostMapping("/conversation-list")
-    public ResponseEntity<MsgListDTO> getSpecificLetters(Authentication auth, @RequestParam long userId, @RequestBody SpecificMsgDTO body) {
+    public ResponseEntity<MsgListDTO> getSpecificLetters(Authentication auth, @RequestBody SpecificMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
             wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(auth, body).get();
@@ -184,7 +184,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록의 과거 기록을 불러옵니다.")
     @PostMapping("/conversation-list/more")
-    public ResponseEntity<MsgListDTO> getSpecificLettersInHistory(Authentication auth, @RequestParam long userId, @RequestBody SpecificScrollMsgDTO body) {
+    public ResponseEntity<MsgListDTO> getSpecificLettersInHistory(Authentication auth, @RequestBody SpecificScrollMsgDTO body) {
         AsyncResult<MsgListDTO> wrappedData;
         try {
             wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(auth, body).get();
@@ -202,7 +202,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록에서 메시지를 전달합니다. ")
     @PostMapping("/back-message")
-    public ResponseEntity<Msg> sendBackInSpecificLetter(Authentication auth, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<Msg> sendBackInSpecificLetter(Authentication auth, @RequestBody @Valid MsgContentDTO body) {
         Msg ret = this.messageMainService.sendMessage(auth, body);
         if (ret == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
