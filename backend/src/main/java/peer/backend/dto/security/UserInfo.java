@@ -20,12 +20,20 @@ public class UserInfo {
     @NotBlank(message = "이메일은 필수항목입니다.")
     @Email(message = "이메일형식에 맞지 않습니다.")
     private String email;
+
     @NotBlank(message = "비밀번호는 필수항목입니다.")
     @Size(min = 8, max = 20, message = "비밀번호는 반드시 8자 이상이어야 합니다.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,20}$")
     private String password;
+
     @NotBlank(message = "닉네임은 필수항목입니다.")
+    @Size(min = 2, max = 7)
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,7}$")
     private String nickname;
+
     @NotBlank(message = "이름은 필수항목입니다.")
+    @Size(min = 2, max = 4)
+    @Pattern(regexp = "^[가-힣]{2,4}$")
     private String name;
     //    @NotBlank(message = "생년월일은 필수항목입니다.")
 //    @Pattern(regexp = "^(\\d{4})-(?:[1-9]|\\d{2})-(?:[1-9]|\\d{2})$", message = "생년월일형식에 맞지 않습니다.")
