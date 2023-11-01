@@ -35,11 +35,15 @@ import peer.backend.oauth.PrincipalOauth2UserService;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${url.front-base-url}")
-    private String FRONT_BASE_URL;
+    @Value("${url.front-server-url}")
+    private String FRONT_SERVER_URL;
+
+    @Value("${url.front-local-url}")
+    private String FRONT_LOCAL_URL;
 
     @Value("${url.dev-domain-url}")
     private String DEV_DOMAIN_URL;
+
 
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -94,7 +98,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(FRONT_BASE_URL, DEV_DOMAIN_URL));
+        configuration.setAllowedOrigins(
+            Arrays.asList(FRONT_SERVER_URL, FRONT_LOCAL_URL, DEV_DOMAIN_URL));
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));
         configuration.addExposedHeader("*");
