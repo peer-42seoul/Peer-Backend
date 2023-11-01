@@ -1,4 +1,4 @@
-package peer.backend.dto.Board.Recruit;
+package peer.backend.dto.board.recruit;
 
 import lombok.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
