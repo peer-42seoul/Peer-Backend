@@ -15,6 +15,10 @@ import javax.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalControllerAdvice {
 
+    public ResponseEntity methodArgumentNotValidException(peer.backend.exception.MethodArgumentNotValidException e){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
     @ExceptionHandler
     public ResponseEntity indexOutOfBoundsException(java.lang.IndexOutOfBoundsException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
