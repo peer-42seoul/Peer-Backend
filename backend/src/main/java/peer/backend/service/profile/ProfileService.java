@@ -1,7 +1,6 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,9 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.file.FileService;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,64 +28,13 @@ import java.util.List;
 public class ProfileService {
     private final UserRepository userRepository;
     private final UserLinkRepository userLinkRepository;
-    private final Tika tika;
+    private final FileService fileService;
 
     @Value("${custom.filePath}")
     private String filepath;
 
-    private boolean isFileEmpty(MultipartFile imageFile) {
-        return imageFile == null || imageFile.isEmpty();
-    }
-
-    private void deleteUserImage(User user) throws IOException {
-        String imagePath = user.getImageUrl();
-        if (imagePath == null) {
-            return;
-        }
-        imagePath = imagePath.substring(7);
-        File file = new File(imagePath);
-        if (!file.exists()) {
-            user.setImageUrl(null);
-            return;
-        }
-        else if (!file.delete()) {
-            throw new IOException("파일 삭제에 실패했습니다.");
-        }
-        user.setImageUrl(null);
-    }
-
-    private Path saveImageFilePath(User user, MultipartFile file) throws IOException {
-        String fileType = tika.detect(file.getInputStream());
-        if (!fileType.startsWith("image")) {
-            throw new IllegalArgumentException("image 타입이 아닙니다.");
-        }
-        StringBuilder builder = new StringBuilder();
-        String folderPath = builder
-                .append(filepath)
-                .append(File.separator)
-                .append("upload")
-                .append(File.separator)
-                .append("profiles")
-                .append(File.separator)
-                .append(user.getId().toString())
-                .toString();
-        File folder = new File(folderPath);
-        System.out.println(folder.getPath());
-        if (folder.mkdirs()) {
-            if (!folder.exists()) {
-                throw new IOException("폴더 생성에 실패했습니다.");
-            }
-        }
-        String originalName = file.getOriginalFilename();
-        assert originalName != null;
-        String filePath = builder
-                .append(File.separator)
-                .append("profile")
-                .append(originalName.substring(originalName.lastIndexOf(".")))
-                .toString();
-        Path path = Paths.get(filePath);
-        file.transferTo(path.toFile());
-        return path;
+    private boolean isFileNotEmpty(MultipartFile imageFile) {
+        return imageFile != null && !imageFile.isEmpty();
     }
 
     @Transactional(readOnly = true)
@@ -161,14 +107,23 @@ public class ProfileService {
     @Transactional
     public void editProfile(Authentication auth, EditProfileRequest profile) throws IOException {
         User user = User.authenticationToUser(auth);
-        if (isFileEmpty(profile.getProfileImage()) && profile.isImageChange()) {
-            deleteUserImage(user);
+        // 기존 이미지가 있는 경우
+        //     요청한 이미지가 있는 경우 -> 업로드
+        //     요청한 이미지가 없고, 변경을 원하는 경우 -> 삭제
+        // 기존 이미지가 없고, 요청한 이미지가 있는 경우 -> 저장
+        if (user.getImageUrl() != null) {
+            if (isFileNotEmpty(profile.getProfileImage())) {
+                String newImage = fileService.updateFile(profile.getProfileImage(), user.getImageUrl(), "image");
+                user.setImageUrl(newImage);
+            }
+            else if (profile.isImageChange()) {
+                fileService.deleteFile(user.getImageUrl());
+                user.setImageUrl(null);
+            }
         }
-        else if (!isFileEmpty(profile.getProfileImage())) {
-            deleteUserImage(user);
-            user.setImageUrl(
-                    saveImageFilePath(user, profile.getProfileImage()).toUri().toString()
-            );
+        else if (isFileNotEmpty(profile.getProfileImage())){
+            String newImage = fileService.saveFile(profile.getProfileImage(), filepath, "image");
+            user.setImageUrl(newImage);
         }
         user.setNickname(profile.getNickname());
         user.setIntroduce(profile.getIntroduction());

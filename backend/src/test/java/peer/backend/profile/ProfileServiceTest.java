@@ -1,6 +1,5 @@
 package peer.backend.profile;
 
-import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,9 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.util.FieldUtils;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
@@ -23,12 +25,14 @@ import peer.backend.entity.user.UserLink;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.file.FileService;
 import peer.backend.service.profile.ProfileService;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -42,17 +46,17 @@ class ProfileServiceTest {
     @Mock
     private UserLinkRepository userLinkRepository;
     @Mock
-    private Tika tika;
+    private FileService fileService;
     @InjectMocks
     private ProfileService profileService;
 
-    @Value("${custom.filePath}")
-    private String filePath;
+    private String filepath;
 
     String email;
     String nickname;
     String name;
     String imagePath;
+    String imageName;
     List<UserLink> linkList = new ArrayList<>();
     User user;
     Authentication auth;
@@ -74,13 +78,14 @@ class ProfileServiceTest {
                 .email(email)
                 .nickname(nickname)
                 .address("test address")
-                .imageUrl("test image")
                 .company("test company")
                 .userLinks(linkList)
                 .build();
         imagePath = "src/test/java/peer/backend/profile/image";
+        imageName = UUID.randomUUID().toString();
         PrincipalDetails details = new PrincipalDetails(user);
         auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(), details.getAuthorities());
+        ReflectionTestUtils.setField(profileService, "filepath", "/Users/juhyelee/profile/image");
     }
 
     @Test
@@ -140,10 +145,11 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Edit profile Test")
     void editProfileTest() throws IOException {
-        when(tika.detect(any(InputStream.class))).thenReturn("image");
-        // 없는 상태 에서 추가
-        FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");
-        MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", fileInputStream);
+        when(fileService.saveFile(any(MultipartFile.class), anyString(), anyString())).thenReturn(filepath + "/" + imageName + ".png");
+        when(fileService.updateFile(any(MultipartFile.class), anyString(), anyString())).thenReturn(filepath + "/" + imageName + ".png");
+        // 추가
+        FileInputStream newInputStream = new FileInputStream(imagePath + "/test1.png");
+        MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", newInputStream);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(multipartFile)
                 .imageChange(false)
@@ -151,13 +157,10 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(auth, profile);
-        String imageUrl = user.getImageUrl();
-        int index = imageUrl.indexOf("/backend/");
-        imageUrl = imageUrl.substring(index + 9);
-        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
-        // 있는 상태 에서 변경
-        fileInputStream = new FileInputStream(imagePath + "/test2.png");
-        multipartFile = new MockMultipartFile("test2", "test2.png", "image", fileInputStream);
+        assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
+        // 변경
+        FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");
+        multipartFile = new MockMultipartFile("test1", "test1.png", "image", fileInputStream);
         profile = EditProfileRequest.builder()
                 .profileImage(multipartFile)
                 .imageChange(false)
@@ -165,11 +168,8 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(auth, profile);
-        imageUrl = user.getImageUrl();
-        index = imageUrl.indexOf("/backend/");
-        imageUrl = imageUrl.substring(index + 9);
-        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
-        // 있는 상태 에서 변경 하지 않음
+        assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
+        // 변경 안함
         MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
         profile = EditProfileRequest.builder()
                 .profileImage(emptyFile)
@@ -178,10 +178,7 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(auth, profile);
-        imageUrl = user.getImageUrl();
-        index = imageUrl.indexOf("/backend/");
-        imageUrl = imageUrl.substring(index + 9);
-        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
+        assertThat(user.getImageUrl()).isNotNull();
         // 삭제
         profile = EditProfileRequest.builder()
                 .profileImage(emptyFile)
