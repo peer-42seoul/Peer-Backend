@@ -202,7 +202,6 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록에서 메시지를 전달합니다. ")
     @PostMapping("/back-message")
-    public ResponseEntity<Void> sendBackInSpecificLetter(Authentication auth, @RequestParam long userId, @RequestBody MsgContentDTO body) {
     public ResponseEntity<Msg> sendBackInSpecificLetter(Authentication auth, @RequestBody MsgContentDTO body) {
         Msg ret = this.messageMainService.sendMessage(auth, body);
         if (ret == null)
