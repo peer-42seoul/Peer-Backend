@@ -217,7 +217,7 @@ public class TeamService {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        fileService.deleteFile(team.getTeamPicturePath());
+        fileService.deleteFile(team.getTeamLogoPath());
     }
 
     @Transactional
