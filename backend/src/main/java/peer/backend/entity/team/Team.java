@@ -76,13 +76,13 @@ public class Team extends BaseEntity {
     @Column()
     Integer maxMember;
 
-    @Column(length = 10, nullable = false)
+    @Column(length = 10)
     String region1;
 
-    @Column(length = 10, nullable = false)
+    @Column(length = 10)
     String region2;
 
-    @Column(length = 10, nullable = false)
+    @Column(length = 10)
     String region3;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)

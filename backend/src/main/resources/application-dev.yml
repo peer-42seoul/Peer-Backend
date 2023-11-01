@@ -97,7 +97,10 @@ logging:
   config: resources/log4j2/log4j2.xml
 
 url:
-  front-base-url: http://localhost:8080
+  front-server-url: http://133.186.153.113
+  front-local-url: http://localhost:3000
+  dev-domain-url: http://peer-test.co.kr
+
 
 custom:
   filePath: "/Users"
