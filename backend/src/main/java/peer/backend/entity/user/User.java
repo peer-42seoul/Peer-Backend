@@ -49,32 +49,46 @@ public class User extends BaseEntity {
 
     @Column(length = 100, unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
+    @Size(min = 8, max = 20)
     private String password;
+
     @Column(nullable = false)
     @Size(min = 2, max = 4)
     private String name;
+
     @Column(unique = true, nullable = false)
     @Size(min = 2, max = 7)
     private String nickname;
+
     @Column//(nullable = false)
     private boolean isAlarm;
+
     @Column//(nullable = false)
     private String address;
+
     @Column
     private String imageUrl;
+
     @Column//(nullable = false)
     private boolean certification;
+
     @Column//(nullable = false)
     private String company;
+
     @Column//(nullable = false)
     private String introduce;
+
     @Column//(nullable = false)
     private Long peerLevel;
+
     @Column//(nullable = false)
     private String representAchievement;
+
     @Column
     private String keywordAlarm;
+
     @Column(columnDefinition = "varchar(255) not null default 'ROLE_USER'")
     @Enumerated(EnumType.STRING)
     private Role role;
