@@ -102,4 +102,4 @@ url:
   dev-domain-url: http://localhost:3000
 
 custom:
-  filePath: "~/"
+  filePath: "/Users"
