@@ -11,8 +11,10 @@ import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.UUID;
 
 @Slf4j
@@ -37,6 +39,13 @@ public class FileService {
             if (!folder.mkdirs())
                 throw new IOException("폴더 생성에 실패했습니다.");
         return folder.getPath();
+    }
+
+
+    public void stringToFormdataAndSave(String data, String pathString) throws IOException{
+        byte[] imageBytes = Base64.getDecoder().decode(data);
+        Path path = Paths.get(pathString);
+        Files.write(path, imageBytes);
     }
 
     @Transactional
