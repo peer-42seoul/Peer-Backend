@@ -13,8 +13,6 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.board.recruit.RecruitService;
-import peer.backend.service.file.FileService;
-
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -25,7 +23,6 @@ import java.util.List;
 public class RecruitController {
     private final RecruitService recruitService;
     private final UserRepository userRepository;
-    private final FileService fileService;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -43,7 +40,7 @@ public class RecruitController {
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
-    @PostMapping("")
+    @PostMapping("/write")
     public void createRecruit(@RequestBody RecruitListRequestDTO recruitListRequestDTO, Authentication auth) throws IOException{
         recruitService.createRecruit(recruitListRequestDTO, auth);
     }
