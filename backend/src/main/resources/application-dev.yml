@@ -18,16 +18,16 @@ spring:
       client:
         registration:
           ft:
-            client-id: u-s4t2ud-878c3954e7ce03154571d30d7499ec4e8880ccdba220c8a2c8cf4a4b71ea1d51
-            client-secret: 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
+            client-id: u-s4t2ud-860b1f7593e59ea7fb49e1ace690c9c8bdc70759714bad5570b986aa971455d0
+            client-secret: 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
             client-name: ft
             scope:
               - public
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/ft
+            redirect-uri: http://133.186.150.49/login/oauth2/code/ft
           google:
-            client-id: 889460259597-ggticgamsbbn2p930vaur19sqobqmus8.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 889460259597-5ctg1s6l4cph0tq4lfcfj2o8rpe469d7.apps.googleusercontent.com
+            client-secret: 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
             scope:
               - profile
               - email
