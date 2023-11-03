@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.security.Message;
 import peer.backend.dto.security.request.EmailAddress;
+import peer.backend.dto.security.request.EmailCode;
 import peer.backend.dto.security.request.LogoutRequest;
 import peer.backend.dto.security.request.ToReissueToken;
 import peer.backend.dto.security.request.UserLoginRequest;

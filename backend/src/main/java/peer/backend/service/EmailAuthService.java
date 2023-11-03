@@ -28,7 +28,7 @@ public class EmailAuthService {
             .limit(7)
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
-        this.redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
+        this.putRedisEmailCode(email, code);
         return code;
     }
 
@@ -68,5 +68,9 @@ public class EmailAuthService {
         if (!redisCode.equals(code)) {
             throw new UnauthorizedException("잘못된 인증 코드입니다!");
         }
+    }
+
+    private void putRedisEmailCode(String email, String code) {
+        this.redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
     }
 }
