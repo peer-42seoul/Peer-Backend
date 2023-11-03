@@ -1,11 +1,13 @@
 package peer.backend.service.team;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.team.*;
@@ -25,6 +27,7 @@ import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.file.FileService;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,9 @@ public class TeamService {
     private final TeamUserRepository teamUserRepository;
     private final RecruitRepository recruitRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
+    private final FileService fileService;
+    @Value("${custom.filePath}")
+    private String filePath;
 
     @Transactional
     public List<TeamListResponse> getTeamList(TeamStatus teamStatus, User user) {
@@ -203,6 +209,31 @@ public class TeamService {
         else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
+    }
+
+    @Transactional
+    public void deleteTeamImage(Long teamId, User user) throws IOException {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
+        fileService.deleteFile(team.getTeamLogoPath());
+    }
+
+    @Transactional
+    public void updateTeamImage(Long teamId, TeamImageDto teamImageDto, User user) throws IOException {
+        String newFilePath;
+        Team team = this.teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
+        String oldFilePath = team.getTeamLogoPath();
+        if (oldFilePath == null) {
+            newFilePath = fileService.saveFile(teamImageDto.getTeamImage(), filePath, "image");
+        } else {
+            newFilePath = fileService.updateFile(teamImageDto.getTeamImage(), oldFilePath, "image");
+        }
+        team.addImage(newFilePath);
     }
 
     private TeamUser getTeamUserByName(Long teamId, String userName) throws NotFoundException, ForbiddenException {
