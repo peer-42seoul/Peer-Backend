@@ -116,7 +116,7 @@ public class ProfileService {
                 String newImage = fileService.updateFile(profile.getProfileImage(), user.getImageUrl(), "image");
                 user.setImageUrl(newImage);
             }
-            else if (profile.isImageChange()) {
+            else if (profile.getImageChange()) {
                 fileService.deleteFile(user.getImageUrl());
                 user.setImageUrl(null);
             }

@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class EditProfileRequest {
     private MultipartFile profileImage;
-    private boolean imageChange;
+    private Boolean imageChange;
     private String nickname;
     private String introduction;
 }
