@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
     Optional<User> findByNickname(String nickname);
+
     Optional<User> findByEmail(String email);
+
     Optional<User> findByName(String name);
 
     Optional<User> findById(Long id);
@@ -18,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<List<User>> findByKeyWord(String keyword);
 
     Optional<List<User>> findByEmailOrNickname(String email, String nickname);
+
+    boolean existsByEmail(String email);
 }
