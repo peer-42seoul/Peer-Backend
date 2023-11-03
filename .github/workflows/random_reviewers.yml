@@ -12,8 +12,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: pick_random_reviwer
-      id: pick_random_reviwer
+    - name: pick_random_reviwer_feature
+      if: ${{ github.event.label.name != 'bug' }}
+      id: pick_random_reviwer_feature
       uses: actions/github-script@v3
       with:
         github-token: ${{secrets.TOKEN}}
@@ -30,18 +31,31 @@ jobs:
           core.setOutput('comment2', comment2)
           core.setOutput('reviewer1', randomReviewer1)
           core.setOutput('reviewer2', randomReviewer2)
+
+    - name: pick_random_reviwer_hotfix
+      if: ${{ github.event.label.name == 'bug' }}
+      id: pick_random_reviwer_pick_random_reviwer_hotfix
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{secrets.TOKEN}}
+        script: |
+          const team1 = ['sinryuji', 'Paul2021-R', 'weejihye', 'perman0519', 'juhyeonlee134', 'wochae'];
+          const candidate1 = team1.filter((e) => e != '${{ github.event.pull_request.user.login }}');
+          const randomReviewer1 = candidate1[Math.floor(Math.random() * candidate1.length)];
+          const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
+          core.setOutput('comment1', comment1)
+          core.setOutput('reviewer1', randomReviewer1)
     
     - name: comment PR
       uses: mshick/add-pr-comment@v1
       with:
         message: |
           ${{ steps.pick_random_reviwer.outputs.comment1 }}
-          ${{ steps.pick_random_reviwer.outputs.comment2 }}
         repo-token: ${{ secrets.TOKEN }}
         repo-token-user-login: 'github-actions[bot]'
       
     - name: Add Pull Request Reviewer
       uses: madrapps/add-reviewers@v1
       with:
-        reviewers: ${{ steps.pick_random_reviwer.outputs.reviewer1 }},${{ steps.pick_random_reviwer.outputs.reviewer2 }}
+        reviewers: ${{ steps.pick_random_reviwer.outputs.reviewer1 }}}
         token: ${{ secrets.TOKEN }}
