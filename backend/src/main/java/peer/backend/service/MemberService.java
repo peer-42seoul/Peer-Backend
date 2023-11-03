@@ -65,11 +65,10 @@ public class MemberService {
 
     public boolean emailDuplicationCheck(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
+        if (this.userRepository.existsByEmail(email)) {
             return false;
         }
-        SocialLogin socialLogin = this.socialLoginRepository.findByEmail(email).orElse(null);
-        if (socialLogin == null) {
+        if (this.socialLoginRepository.existsByEmail(email)) {
             return false;
         }
         return true;
