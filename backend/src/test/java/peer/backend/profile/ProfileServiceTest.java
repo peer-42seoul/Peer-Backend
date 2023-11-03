@@ -95,8 +95,8 @@ class ProfileServiceTest {
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
         assertThat(ret.getNickname()).isEqualTo(user.getNickname());
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());
-        assertThat(ret.getCompany()).isEqualTo(user.getCompany());
-        assertThat(ret.getIntroduction()).isEqualTo(user.getIntroduce());
+        assertThat(ret.getAssociation()).isEqualTo(user.getCompany());
+        assertThat(ret.getIntroduction()).isEqualTo(user.getIntroduce() == null ? "" : user.getIntroduce());
     }
 
     @Test
