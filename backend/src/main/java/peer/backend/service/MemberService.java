@@ -30,11 +30,11 @@ public class MemberService {
     public User signUp(UserInfo info) {
         Optional<User> checkUser = this.userRepository.findByNickname(info.getNickname());
         if (checkUser.isPresent()) {
-            throw new UnauthorizedException("이미 존재하는 닉네임입니다.");
+            throw new ConflictException("이미 존재하는 닉네임입니다.");
         }
         checkUser = this.userRepository.findByEmail(info.getEmail());
         if (checkUser.isPresent()) {
-            throw new UnauthorizedException("이미 존재하는 이메일입니다.");
+            throw new ConflictException("이미 존재하는 이메일입니다.");
         }
         User user = info.convertUser();
         User savedUser = this.userRepository.save(user);
