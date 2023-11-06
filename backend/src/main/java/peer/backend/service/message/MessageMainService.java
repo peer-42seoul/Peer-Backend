@@ -232,7 +232,7 @@ public class MessageMainService {
      */
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public boolean sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) {
+    public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) {
         User msgOwner = User.authenticationToUser(auth);
 
         MessagePiece letter = MessagePiece.builder().
@@ -243,10 +243,11 @@ public class MessageMainService {
                 index(index).
                 build();
 
+        MessagePiece rawRet = null;
         try {
-            this.pieceRepository.save(letter);
+            rawRet = this.pieceRepository.save(letter);
         } catch (OptimisticLockingFailureException e) {
-            return false;
+            return null;
         }
 
         try {
@@ -264,10 +265,26 @@ public class MessageMainService {
             }
             this.indexRepository.save(index);
         } catch (OptimisticLockingFailureException e) {
-            return false;
+            return null;
         }
 
-        return true;
+//        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :msgId ORDER BY created_at DESC LIMIT 2";
+//        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", index.getConversationId(), "msgId", rawRet.getMsgId()));
+//        boolean isEnd;
+//        if (talks.size() == 0) {
+//            isEnd = true;
+//        }
+//        else {
+//            isEnd = false;
+//        }
+        Msg ret = Msg.builder().msgId(rawRet.getMsgId()).
+                end(false).
+                content(rawRet.getText()).
+                date(this.subService.makeFormattedDate(rawRet.getCreatedAt())).
+                userId(rawRet.getSenderId()).
+                build();
+
+        return ret;
     }
 
     /**
@@ -277,14 +294,14 @@ public class MessageMainService {
      * @return
      */
     @Transactional(readOnly = false)
-    public boolean sendMessage(Authentication auth, MsgContentDTO message) {
+    public Msg sendMessage(Authentication auth, MsgContentDTO message) {
         long targetId = message.getTargetId();
         MessageIndex index;
         try {
             index = this.indexRepository.findByUserIdx(User.authenticationToUser(auth).getId(), targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
         } catch (NoSuchElementException e)
         {
-            return false;
+            return null;
         }
         return this.sendMessage(index, auth, message);
     }

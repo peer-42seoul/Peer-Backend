@@ -32,7 +32,7 @@ public class SignUpController {
     public ResponseEntity<Object> sendEmail(@Valid @RequestBody EmailAddress address) {
         String email = address.getEmail();
 
-        if (this.memberService.emailDuplicationCheck(email)) {
+        if (!this.memberService.emailDuplicationCheck(email)) {
             throw new ConflictException("이미 존재하는 이메일입니다!");
         }
 

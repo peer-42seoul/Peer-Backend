@@ -11,7 +11,7 @@ public class MyProfileResponse {
     private String profileImageUrl;
     private String nickname;
     private String email;
-    private String company;
+    private String association;
     private String introduction;
     private List<UserLinkResponse> linkList;
 }

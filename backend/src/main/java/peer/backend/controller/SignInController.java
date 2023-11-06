@@ -25,6 +25,7 @@ import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
+
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.service.EmailAuthService;
 import peer.backend.service.LoginService;
@@ -53,13 +54,6 @@ public class SignInController {
         maps.put("accessToken", jwtDto.getAccessToken());
         maps.put("refreshToken", jwtDto.getRefreshToken());
         return ResponseEntity.ok(maps);
-    }
-
-    @ApiOperation(value = "C-SIGN-00", notes = "로그아웃.")
-    @GetMapping("/logout")
-    public ResponseEntity<?> userLogout(Authentication authentication,
-        @Valid @RequestBody LogoutRequest logoutRequest) {
-        return loginService.logout(logoutRequest, authentication);
     }
 
     @ApiOperation(value = "C-SIGN-09", notes = "accessToken 만료시에 다시 accessToken을 발급받습니다.")

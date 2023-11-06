@@ -32,11 +32,11 @@ public class MemberService {
     public User signUp(UserInfo info) {
         Optional<User> checkUser = this.userRepository.findByNickname(info.getNickname());
         if (checkUser.isPresent()) {
-            throw new UnauthorizedException("이미 존재하는 닉네임입니다.");
+            throw new ConflictException("이미 존재하는 닉네임입니다.");
         }
         checkUser = this.userRepository.findByEmail(info.getEmail());
         if (checkUser.isPresent()) {
-            throw new UnauthorizedException("이미 존재하는 이메일입니다.");
+            throw new ConflictException("이미 존재하는 이메일입니다.");
         }
         User user = info.convertUser();
         User savedUser = this.userRepository.save(user);
@@ -70,11 +70,10 @@ public class MemberService {
     @Transactional
     public boolean emailDuplicationCheck(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
+        if (this.userRepository.existsByEmail(email)) {
             return false;
         }
-        SocialLogin socialLogin = this.socialLoginRepository.findByEmail(email).orElse(null);
-        if (socialLogin == null) {
+        if (this.socialLoginRepository.existsByEmail(email)) {
             return false;
         }
         return true;

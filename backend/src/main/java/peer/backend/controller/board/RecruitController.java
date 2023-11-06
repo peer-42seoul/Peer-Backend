@@ -1,6 +1,5 @@
 package peer.backend.controller.board;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -8,17 +7,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
-import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.user.User;
-import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.board.recruit.RecruitService;
-import peer.backend.service.file.FileService;
-
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -29,7 +23,6 @@ import java.util.List;
 public class RecruitController {
     private final RecruitService recruitService;
     private final UserRepository userRepository;
-    private final FileService fileService;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -47,7 +40,7 @@ public class RecruitController {
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
-    @PostMapping("")
+    @PostMapping("/write")
     public void createRecruit(@RequestBody RecruitListRequestDTO recruitListRequestDTO, Authentication auth) throws IOException{
         recruitService.createRecruit(recruitListRequestDTO, auth);
     }

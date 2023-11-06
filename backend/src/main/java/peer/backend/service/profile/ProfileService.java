@@ -54,8 +54,8 @@ public class ProfileService {
                 .profileImageUrl(user.getImageUrl())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
-                .company(user.getCompany())
-                .introduction(user.getIntroduce())
+                .association(user.getCompany())
+                .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
                 .linkList(links)
                 .build();
     }

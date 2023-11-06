@@ -7,4 +7,6 @@ import peer.backend.entity.user.SocialLogin;
 public interface SocialLoginRepository extends JpaRepository<SocialLogin, Long> {
 
     Optional<SocialLogin> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
