@@ -28,7 +28,7 @@ public class EmailAuthService {
             .limit(7)
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
-        this.redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
+        this.putRedisEmailCode(email, code);
         return code;
     }
 
@@ -44,20 +44,22 @@ public class EmailAuthService {
         }
     }
 
-    public Message sendEmail(String email) {
+    public void sendAuthCode(String email, String text) {
+        this.sendEmail(email, "Peer 인증 코드", String.format(text, getAuthCode(email)));
+    }
+
+    public void sendEmail(String email, String subject, String text) {
         Message message = new Message();
         EmailMessage emailMessage = new EmailMessage();
         try {
             emailMessage.setTo(email);
             emailMessage.setSubject("Peer 인증 코드");
-            emailMessage.setText(
-                String.format("회원가입을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n", getAuthCode(email)));
+            emailMessage.setText(text);
             this.send(emailMessage);
             message.setStatus(HttpStatus.OK);
         } catch (Exception e) {
             throw new ForbiddenException("Failed to send E-mail");
         }
-        return message;
     }
 
     public void emailCodeVerification(String email, String code) {
@@ -68,5 +70,10 @@ public class EmailAuthService {
         if (!redisCode.equals(code)) {
             throw new UnauthorizedException("잘못된 인증 코드입니다!");
         }
+        this.redisTemplate.delete(email);
+    }
+
+    private void putRedisEmailCode(String email, String code) {
+        this.redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
     }
 }

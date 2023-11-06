@@ -36,8 +36,11 @@ public class SignUpController {
             throw new ConflictException("이미 존재하는 이메일입니다!");
         }
 
-        Message message = emailService.sendEmail(address.getEmail());
-        return new ResponseEntity<Object>(message.getStatus());
+//        Message message = emailService.sendEmail(address.getEmail(),
+//            "회원가입을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n");
+        this.emailService.sendAuthCode(address.getEmail(),
+            "회원가입을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n");
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/code")
