@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.KeywordRequest;
 import peer.backend.dto.profile.KeywordResponse;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.KeywordAlarmService;
@@ -27,14 +28,14 @@ public class KeywordAlarmController {
             newKeyword.getNewKeyword().isBlank()) {
             throw new BadRequestException("잘못된 문자열 입니다.");
         }
-        keywordAlarmService.addKeyword((PrincipalDetails) auth.getPrincipal() , newKeyword.getNewKeyword());
+        keywordAlarmService.addKeyword(auth , newKeyword.getNewKeyword());
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "C-MYPAGE-30", notes = "알람 키워드 조회 하기")
     @GetMapping("/alarm")
     public ResponseEntity<Object> getKeywords(Authentication auth) {
-        KeywordResponse keyword = keywordAlarmService.getKeyword((PrincipalDetails) auth.getPrincipal());
+        KeywordResponse keyword = keywordAlarmService.getKeyword(auth);
         return new ResponseEntity<> (keyword, HttpStatus.OK);
     }
 
@@ -42,14 +43,14 @@ public class KeywordAlarmController {
     @DeleteMapping("/alarm/delete")
     public ResponseEntity<Object> deleteKeyword(Authentication auth,
                                                 @RequestParam(value = "keyword", required = true)String keyword) {
-        keywordAlarmService.deleteKeyword((PrincipalDetails) auth.getPrincipal(), keyword);
+        keywordAlarmService.deleteKeyword(auth, keyword);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "C-MYPAGE-31", notes = "알람 키워드 전체 삭제 하기")
     @DeleteMapping("/alarm/delete/all")
     public ResponseEntity<Object> deleteAll(Authentication auth) {
-        keywordAlarmService.deleteAll((PrincipalDetails) auth.getPrincipal());
+        keywordAlarmService.deleteAll(auth);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

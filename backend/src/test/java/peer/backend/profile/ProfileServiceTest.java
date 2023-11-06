@@ -1,7 +1,5 @@
 package peer.backend.profile;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
-import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,10 +7,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
@@ -23,15 +22,19 @@ import peer.backend.entity.user.UserLink;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.file.FileService;
 import peer.backend.service.profile.ProfileService;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,20 +45,20 @@ class ProfileServiceTest {
     @Mock
     private UserLinkRepository userLinkRepository;
     @Mock
-    private Tika tika;
+    private FileService fileService;
     @InjectMocks
     private ProfileService profileService;
 
-    @Value("${custom.filePath}")
-    private String filePath;
+    private String filepath;
 
     String email;
     String nickname;
     String name;
     String imagePath;
+    String imageName;
     List<UserLink> linkList = new ArrayList<>();
     User user;
-    PrincipalDetails principal;
+    Authentication auth;
     @BeforeEach
     void beforeEach() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -74,23 +77,26 @@ class ProfileServiceTest {
                 .email(email)
                 .nickname(nickname)
                 .address("test address")
-                .imageUrl("test image")
                 .company("test company")
                 .userLinks(linkList)
                 .build();
         imagePath = "src/test/java/peer/backend/profile/image";
-        principal = new PrincipalDetails(user);
+        imageName = UUID.randomUUID().toString();
+        filepath = "/Users/juhyelee/profile/image";
+        PrincipalDetails details = new PrincipalDetails(user);
+        auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(), details.getAuthorities());
+        ReflectionTestUtils.setField(profileService, "filepath", filepath);
     }
 
     @Test
     @DisplayName("Get profile Test")
     void getProfileTest() {
-        MyProfileResponse ret = profileService.getProfile(principal);
+        MyProfileResponse ret = profileService.getProfile(auth);
         assertThat(ret.getProfileImageUrl()).isEqualTo(user.getImageUrl());
         assertThat(ret.getNickname()).isEqualTo(user.getNickname());
         assertThat(ret.getEmail()).isEqualTo(user.getEmail());
-        assertThat(ret.getCompany()).isEqualTo(user.getCompany());
-        assertThat(ret.getIntroduction()).isEqualTo(user.getIntroduce());
+        assertThat(ret.getAssociation()).isEqualTo(user.getCompany());
+        assertThat(ret.getIntroduction()).isEqualTo(user.getIntroduce() == null ? "" : user.getIntroduce());
     }
 
     @Test
@@ -109,7 +115,7 @@ class ProfileServiceTest {
                         .linkUrl("new link 2")
                         .build()
         );
-        profileService.editLinks(principal, newList);
+        profileService.editLinks(auth, newList);
         assertThat(user.getUserLinks().get(0).getLinkName()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(0).getLinkUrl()).isEqualTo("new link 1");
         assertThat(user.getUserLinks().get(1).getLinkName()).isEqualTo("new link 2");
@@ -137,10 +143,26 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("Edit profile Test")
-    void editProfileTest() throws IOException {
-        when(tika.detect(any(InputStream.class))).thenReturn("image");
-        // 없는 상태 에서 추가
+    @DisplayName("Edit profile Test add")
+    void editProfileTestAdd() throws IOException {
+        when(fileService.saveFile(any(MultipartFile.class), anyString(), anyString())).thenReturn(filepath + "/" + imageName + ".png");
+        FileInputStream newInputStream = new FileInputStream(imagePath + "/test1.png");
+        MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", newInputStream);
+        EditProfileRequest profile = EditProfileRequest.builder()
+                .profileImage(multipartFile)
+                .imageChange(false)
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduce())
+                .build();
+        profileService.editProfile(auth, profile);
+        assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
+    }
+
+    @Test
+    @DisplayName("Edit profile Test update 1")
+    void editProfileTestUpdate1() throws IOException {
+        user.setImageUrl("test image");
+        when(fileService.updateFile(any(MultipartFile.class), anyString(), anyString())).thenReturn(filepath + "/" + imageName + ".png");
         FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");
         MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", fileInputStream);
         EditProfileRequest profile = EditProfileRequest.builder()
@@ -149,46 +171,36 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
-        String imageUrl = user.getImageUrl();
-        int index = imageUrl.indexOf("/backend/");
-        imageUrl = imageUrl.substring(index + 9);
-        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
-        // 있는 상태 에서 변경
-        fileInputStream = new FileInputStream(imagePath + "/test2.png");
-        multipartFile = new MockMultipartFile("test2", "test2.png", "image", fileInputStream);
-        profile = EditProfileRequest.builder()
-                .profileImage(multipartFile)
-                .imageChange(false)
-                .nickname(user.getNickname())
-                .introduction(user.getIntroduce())
-                .build();
-        profileService.editProfile(principal, profile);
-        imageUrl = user.getImageUrl();
-        index = imageUrl.indexOf("/backend/");
-        imageUrl = imageUrl.substring(index + 9);
-        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
-        // 있는 상태 에서 변경 하지 않음
+        profileService.editProfile(auth, profile);
+        assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
+    }
+
+    @Test
+    @DisplayName("Edit profile Test update 2")
+    void editProfileUpdate2() throws IOException {
+        user.setImageUrl("test image");
         MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
-        profile = EditProfileRequest.builder()
+        EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(emptyFile)
                 .imageChange(false)
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
-        imageUrl = user.getImageUrl();
-        index = imageUrl.indexOf("/backend/");
-        imageUrl = imageUrl.substring(index + 9);
-        assertThat(imageUrl).isEqualTo(filePath + "/upload/profiles/" + user.getId() + "/profile.png");
-        // 삭제
-        profile = EditProfileRequest.builder()
+        profileService.editProfile(auth, profile);
+        assertThat(user.getImageUrl()).isEqualTo("test image");
+    }
+
+    @Test
+    @DisplayName("Edit profile Test delete")
+    void editProfileDelete() throws IOException {
+        MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
+        EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(emptyFile)
                 .imageChange(true)
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(principal, profile);
+        profileService.editProfile(auth, profile);
         assertThat(user.getImageUrl()).isNull();
     }
 }

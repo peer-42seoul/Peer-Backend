@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import peer.backend.dto.Board.Recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
@@ -60,7 +60,9 @@ public class Recruit extends BaseEntity {
     @Column
     private String content;
     @Column
-    private String region;
+    private String region1;
+    @Column
+    private String region2;
     @Column
     private String link;
     @Enumerated(EnumType.STRING)
@@ -72,7 +74,7 @@ public class Recruit extends BaseEntity {
     @Column
     private String thumbnailUrl;
     @ElementCollection
-    private List<String> tags;
+    private List<String> tags = new ArrayList<>();
     @Column
     private Long writerId;
 
@@ -83,7 +85,8 @@ public class Recruit extends BaseEntity {
         this.due = request.getDue();
         this.content = content.get(1);
         this.status = request.getStatus();
-        this.region = request.getRegion();
+        this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion().get(0));
+        this.region2 = (request.getPlace().equals("온라인") ? null : request.getRegion().get(1));
         this.link = request.getLink();
         this.thumbnailUrl = content.get(0);
         this.tags.clear();

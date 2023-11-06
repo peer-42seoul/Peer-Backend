@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -53,20 +54,12 @@ public class MessageMainService {
      * 3-1. Index를 통해 target 대상의 정보도 발견하고 받아낸다.(targetId, Nickname, profile URL)
      * 3-2. MessagePiece에서 ConversationId를 가지고 latestContent를 확인하고, 전달 일자를 conversion해서 추가한다.(msgId, latestContent(Text), latestSendDate)
      * 3-3. 최종적으로 데이터를 MsgObjectDTO로 반환 된 것을 받아서 추가해준다.
-     * @param userId
+     * @param msgOwner : 구체적으로 Letter 목록을 요청하는 대상
      * @return
      */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(long userId) {
-        Optional<User> msgOwnerData = userRepository.findById(userId);
-        User msgOwner = new User();
-        try {
-            // Owner Get
-            msgOwner = msgOwnerData.orElseThrow(() -> new NoSuchElementException("User Not found"));
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-        }
+    public CompletableFuture<AsyncResult<List<MsgObjectDTO>>> getLetterListByUserId(User msgOwner) {
 
         List<MessageIndex> msgList = null;
         try {
@@ -79,9 +72,6 @@ public class MessageMainService {
         List<MsgObjectDTO> retList = new ArrayList<>();
         User target = null;
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-//        System.out.println("MSG List Size : "+ msgList.size());
-//        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // Index 기준으로 반복문으로 MsgObject 작성 시작
         for (MessageIndex msg : msgList) {
@@ -114,8 +104,8 @@ public class MessageMainService {
      * 2-1. 양쪽 다 삭제 처리가 true가 된 index에 대해서는 DB에서 삭제를 진행한다.
      * 3. 개수를 반환한다.
      * 4. DB 상 에러 발생 시 에러 처리를 진행 한다.
-     * @param userId
-     * @param list
+     * @param userId : 삭제하려는 당사자
+     * @param list : 삭제할 대화 목록
      * @return
      */
     @Async
@@ -166,7 +156,7 @@ public class MessageMainService {
      * 1. keyword 를 받는다.
      * 2. UserRepository 를 활용해서 데이터를 간추려낸다.
      * 3. 에러 핸들링 이후 DTO 에 담아 전달한다.
-     * @param keyword
+     * @param keyword : 검색할 키워드
      * @return
      */
     @Async
@@ -201,19 +191,19 @@ public class MessageMainService {
      * 3-1. 데이터 조건을 통해 데이터 저장 여부 확인
      * 3-2. getMessageIndex 로 index 객체 반환 받기
      * 4. sendMessage 메소드 실행하기
-     * @param userId : 사용자의 userID
+     * @param auth : 사용자의 userID
      * @param message : 대상이 되는 대상에게 메시지를 보내는 경우
      * @return : 성공 여부에 따라 messageIndex 객체를 반환 받는다.
      */
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(long userId, MsgContentDTO message) {
+    public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(Authentication auth, MsgContentDTO message) {
+        User owner = User.authenticationToUser(auth);
         try {
-            this.subService.checkMessageIndexExistOrNot(userId, message.getTargetId());
+            this.subService.checkMessageIndexExistOrNot(owner.getId(), message.getTargetId());
         } catch (Exception e){
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        User owner;
         User target;
         Optional<User> data = this.userRepository.findById(message.getTargetId());
         try {
@@ -222,33 +212,7 @@ public class MessageMainService {
 //            System.out.println("Check to here2" + e.getMessage());
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
-        Optional<User> dataUser = this.userRepository.findById(userId);
-        try {
-            owner = dataUser.orElseThrow(() -> new Exception("User not found"));
-        } catch (Exception e) {
-//            System.out.println("Check to here3" + e.getMessage());
-            return CompletableFuture.completedFuture(AsyncResult.failure(e));
-        }
-//        MessageIndex newData = MessageIndex.builder().
-//                userIdx1(owner.getId()).
-//                userIdx2(target.getId()).
-//                unreadMessageNumber1(0L).
-//                unreadMessageNumber2(0L).
-//                user1(owner).
-//                user2(target).
-//                build();
-
-
-
-        System.out.println("Check to here4" );
-
         MessageIndex saved = this.subService.saveNewData(owner, target);
-//        try {
-//            saved = this.indexRepository.save(newData);
-//            System.out.println("Saved ConversationId : " + saved.getConversationId());
-//        } catch (Exception e) {
-//            return CompletableFuture.completedFuture(AsyncResult.failure(e));
-//        }
         return CompletableFuture.completedFuture(AsyncResult.success(saved));
     }
 
@@ -262,20 +226,15 @@ public class MessageMainService {
      * 3. 해당 메시지의 index의 값도 성공적으로 저장한다.
      * 3. 성공적인 저장 여부를 판단하고 반환한다.
      * @param index : 메시지 index 객체입니다.
-     * @param userId
-     * @param message
+     * @param auth : 당사자
+     * @param message : 보낼 메시지를 담고 있다.
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public boolean sendMessage(MessageIndex index, long userId, MsgContentDTO message) {
-        User user1 = index.getUser1();
-        User user2 = index.getUser2();
-//        User user1 = this.userRepository.findById(index.getUserIdx1()).get();
-//        User user2 = this.userRepository.findById(index.getUserIdx2()).get();
-        User msgOwner = null;
+    public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) {
+        User msgOwner = User.authenticationToUser(auth);
 
-        msgOwner = user1.getId().equals(userId) ? user1 : user2;
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
@@ -284,20 +243,21 @@ public class MessageMainService {
                 index(index).
                 build();
 
+        MessagePiece rawRet = null;
         try {
-            this.pieceRepository.save(letter);
+            rawRet = this.pieceRepository.save(letter);
         } catch (OptimisticLockingFailureException e) {
-            return false;
+            return null;
         }
 
         try {
-           if (index.getUserIdx1().equals(userId))
+           if (index.getUserIdx1().equals(msgOwner.getId()))
             {
                 long unread = index.getUnreadMessageNumber2();
                 unread += 1;
                 index.setUnreadMessageNumber2(unread);
             }
-            else if (index.getUserIdx2().equals(userId))
+            else if (index.getUserIdx2().equals(msgOwner.getId()))
             {
                 long unread = index.getUnreadMessageNumber1();
                 unread += 1;
@@ -305,23 +265,45 @@ public class MessageMainService {
             }
             this.indexRepository.save(index);
         } catch (OptimisticLockingFailureException e) {
-            return false;
+            return null;
         }
 
-        return true;
+//        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :msgId ORDER BY created_at DESC LIMIT 2";
+//        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", index.getConversationId(), "msgId", rawRet.getMsgId()));
+//        boolean isEnd;
+//        if (talks.size() == 0) {
+//            isEnd = true;
+//        }
+//        else {
+//            isEnd = false;
+//        }
+        Msg ret = Msg.builder().msgId(rawRet.getMsgId()).
+                end(false).
+                content(rawRet.getText()).
+                date(this.subService.makeFormattedDate(rawRet.getCreatedAt())).
+                userId(rawRet.getSenderId()).
+                build();
+
+        return ret;
     }
 
+    /**
+     * 메시지가 존재하며, 구체적인 대화 목록에서 대화를 진행하면 사용하는 메소드
+     * @param auth : 메시지를 보낸 당사자
+     * @param message : 메시지 내용
+     * @return
+     */
     @Transactional(readOnly = false)
-    public boolean sendMessage(long userId, MsgContentDTO message) {
+    public Msg sendMessage(Authentication auth, MsgContentDTO message) {
         long targetId = message.getTargetId();
         MessageIndex index;
         try {
-            index = this.indexRepository.findByUserIdx(userId, targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
+            index = this.indexRepository.findByUserIdx(User.authenticationToUser(auth).getId(), targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
         } catch (NoSuchElementException e)
         {
-            return false;
+            return null;
         }
-        return this.sendMessage(index, userId, message);
+        return this.sendMessage(index, auth, message);
     }
 
     /**
@@ -330,15 +312,17 @@ public class MessageMainService {
      * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
      * 1. targetId, Conversation Id를 통해 쪽지 데이터를 전체 들고옴.
      * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
-     * @param userId
-     * @param target
+     * @param auth : 당사자
+     * @param target : 구체적인 대화 목록을 불러 온다.
      * @return
      */
     @Async
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(long userId, SpecificMsgDTO target) {
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterListByUserIdAndTargetId(Authentication auth, SpecificMsgDTO target) {
         // MessageIndex 찾기
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationalId()).orElseGet(() -> null);
+        User requestingUser = User.authenticationToUser(auth);
+        long userId = requestingUser.getId();
         try {
             if (targetIndex == null)
                 throw new NoSuchElementException("There is no talks");
@@ -371,13 +355,6 @@ public class MessageMainService {
         // MessagePiece의 List 찾기
         String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at DESC LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
-//        for (MessagePiece talk : talks) {
-//            System.out.println("대화 목록" + talk.getCreatedAt());
-//        }
-//        talks.sort(new MessagePieceComparator());
-//        for (MessagePiece talk : talks) {
-//            System.out.println("대화 목록" + talk.getCreatedAt());
-//        }
 
         // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();
@@ -385,23 +362,19 @@ public class MessageMainService {
         innerData = this.subService.makeMsgDataWithMessagePiece(talks);
 
         // User 객체들 찾기
-        User owner = null;
         User targetUser = null;
-        Optional<User> rawOwner;
         Optional<User> rawTarget;
         try {
-            rawOwner = this.userRepository.findById(userId);
             rawTarget = this.userRepository.findById(target.getTargetId());
-            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+            if (rawTarget.isEmpty())
                 throw new NotFoundException("There is no a specific user");
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        owner = rawOwner.get();
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
@@ -412,15 +385,17 @@ public class MessageMainService {
      * 0. msgIndex에서 해당 유저가 이미 삭제 처리를 한 상태인지 체크한다(했으면 반환하지 않는다)
      * 1. ConversationId, earlyMsgId 를 통해 쪽지 데이터를 전체 들고옴.
      * 2. 데이터를 MsgDTO 에 맞춰 가공 처리한다.
-     * @param userId
-     * @param target
+     * @param auth : 당사자
+     * @param target :
      * @return
      */
     @Async
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterUpByUserIdAndTargetId(long userId, SpecificScrollMsgDTO target) {
+    public CompletableFuture<AsyncResult<MsgListDTO>> getSpecificLetterUpByUserIdAndTargetId(Authentication auth, SpecificScrollMsgDTO target) {
         // MessageIndex 찾기
         MessageIndex targetIndex = this.indexRepository.findTopByConversationId(target.getConversationId()).orElseGet(() -> null);
+        User requestingUser = User.authenticationToUser(auth);
+        long userId = requestingUser.getId();
         try {
             if (targetIndex == null)
                 throw new NoSuchElementException("There is no Talks");
@@ -445,23 +420,19 @@ public class MessageMainService {
         innerData = this.subService.makeMsgDataWithMessagePiece(talks);
 
         // User 객체들 찾기
-        User owner = null;
         User targetUser = null;
-        Optional<User> rawOwner;
         Optional<User> rawTarget;
         try {
-            rawOwner = this.userRepository.findById(userId);
             rawTarget = this.userRepository.findById(target.getTargetId());
-            if (rawOwner.isEmpty() || rawTarget.isEmpty())
+            if (rawTarget.isEmpty())
                 throw new NotFoundException("There is no a specific user");
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
-        owner = rawOwner.get();
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(owner, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }

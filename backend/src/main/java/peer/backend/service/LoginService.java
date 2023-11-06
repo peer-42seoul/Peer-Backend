@@ -51,22 +51,15 @@ public class LoginService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<?> logout(LogoutRequest logoutRequest, Authentication authentication) {
-        try {
-            if (tokenProvider.validateToken(logoutRequest.getAccessToken())) {
-                throw new UnauthorizedException("잘못된 토큰으로 로그아웃을 시도했습니다.");
-            }
-        } catch (Exception e) {
-            throw new UnauthorizedException("잘못된 토큰으로 로그아웃을 시도했습니다.");
-        }
-        if (redisTemplate.opsForValue().get("refreshToken:" + authentication.getName()) != null) {
-            redisTemplate.delete("refreshToken:" + authentication.getName());
+    public ResponseEntity<?> logout(User user) {
+        if (redisTemplate.opsForValue().get("refreshToken:" + user.getEmail()) != null) {
+            redisTemplate.delete("refreshToken:" + user.getEmail());
         }
         //redis에 만료되지 않은 accessToken 추가
-        Long expiration = tokenProvider.getExpiration(logoutRequest.getAccessToken());
-        redisTemplate.opsForValue()
-            .set(logoutRequest.getAccessToken(), "unexpiredAccessToken", expiration,
-                TimeUnit.MILLISECONDS);
+//        Long expiration = tokenProvider.getExpiration(logoutRequest.getAccessToken());
+//        redisTemplate.opsForValue()
+//            .set(logoutRequest.getAccessToken(), "unexpiredAccessToken", expiration,
+//                TimeUnit.MILLISECONDS);
         return ResponseEntity.ok("logout success.");
     }
 

@@ -1,4 +1,4 @@
-package peer.backend.dto.Board.Recruit;
+package peer.backend.dto.board.recruit;
 
 import lombok.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
@@ -18,9 +18,10 @@ public class RecruitUpdateRequestDTO {
     private RecruitStatus status;
     private String due;
     private String content;
-    private String region;
+    private List<String> region;
     private String link;
     private List<String> tagList;
+    private String place;
     private List<RecruitRole> roleList;
     private List<RecruitInterview> interviewList;
 }

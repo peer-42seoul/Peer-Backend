@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.FavoritePage;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.FavoriteService;
@@ -33,7 +34,7 @@ public class FavoriteController {
                                               @RequestParam(value = "page") int page,
                                               @RequestParam(value = "pagesize") int pageSize) {
         checkType(type);
-        FavoritePage ret = favoriteService.getFavorite((PrincipalDetails) auth.getPrincipal(), type, page, pageSize);
+        FavoritePage ret = favoriteService.getFavorite(auth, type, page, pageSize);
         return new ResponseEntity<> (ret, HttpStatus.OK);
     }
 
@@ -42,7 +43,7 @@ public class FavoriteController {
     public ResponseEntity<Object> deleteAll(Authentication auth,
                                             @RequestParam(value = "type") String type) {
         checkType(type);
-        favoriteService.deleteAll((PrincipalDetails) auth.getPrincipal(), type);
+        favoriteService.deleteAll(auth, type);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

@@ -44,6 +44,9 @@ public class TeamUser {
     @Enumerated(EnumType.STRING)
     private TeamUserRoleType role;
 
+    @Column(nullable = true)
+    private String job;
+
     public void grantLeader(TeamUserRoleType teamUserRoleType) {
         this.role = teamUserRoleType;
     }

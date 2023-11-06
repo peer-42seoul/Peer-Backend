@@ -1,6 +1,7 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +20,8 @@ public class PersonalInfoService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public PersonalInfoResponse getPersonalInfo(PrincipalDetails principalDetails) {
-        User user = principalDetails.getUser();
+    public PersonalInfoResponse getPersonalInfo(Authentication auth) {
+        User user = User.authenticationToUser(auth);
         return PersonalInfoResponse.builder()
                 .name(user.getName())
                 .email(user.getEmail())
@@ -30,9 +31,9 @@ public class PersonalInfoService {
     }
 
     @Transactional
-    public void changePassword(PrincipalDetails principalDetails, PasswordRequest passwords) {
+    public void changePassword(Authentication auth, PasswordRequest passwords) {
+        User user = User.authenticationToUser(auth);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        User user = principalDetails.getUser();
         if (!encoder.matches(passwords.getPresentPassword(), user.getPassword())) {
             throw new ForbiddenException("현재 비밀번호가 올바르지 않습니다..");
         }

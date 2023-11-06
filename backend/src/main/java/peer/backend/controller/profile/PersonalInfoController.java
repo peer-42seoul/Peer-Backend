@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import peer.backend.dto.profile.request.PasswordRequest;
+import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.PersonalInfoService;
 
@@ -22,13 +23,13 @@ public class PersonalInfoController {
     @ApiOperation(value = "C-MYPAGE-09", notes = "사용자 개인정보 조회하기")
     @GetMapping("/info")
     public ResponseEntity<Object> getPersonalInfo(Authentication auth) {
-        return new ResponseEntity<> (personalInfoService.getPersonalInfo((PrincipalDetails) auth.getPrincipal()), HttpStatus.OK);
+        return new ResponseEntity<> (personalInfoService.getPersonalInfo(auth), HttpStatus.OK);
     }
 
     @ApiOperation(value = "C-MYPAGE-11", notes = "사용자 개인정보 비밀번호 변경하기")
     @PutMapping("/info/password")
     public ResponseEntity<Object> changePassword(Authentication auth, @RequestBody PasswordRequest passwords) {
-        personalInfoService.changePassword((PrincipalDetails) auth.getPrincipal(), passwords);
+        personalInfoService.changePassword(auth, passwords);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
 }

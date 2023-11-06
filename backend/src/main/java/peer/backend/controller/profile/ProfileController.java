@@ -1,7 +1,6 @@
 package peer.backend.controller.profile;
 
 import io.swagger.annotations.ApiOperation;
-import java.util.ConcurrentModificationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.ProfileService;
 
 import java.io.IOException;
@@ -33,7 +31,7 @@ public class ProfileController {
     @GetMapping("/profile")
     public ResponseEntity<Object> getProfile(Authentication auth) {
         return new ResponseEntity<>(
-            profileService.getProfile((PrincipalDetails) auth.getPrincipal()), HttpStatus.OK);
+            profileService.getProfile(auth), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")
@@ -50,6 +48,9 @@ public class ProfileController {
     public ResponseEntity<Object> editLinks(Authentication auth,
         @RequestBody LinkListRequest linkList) {
         List<UserLinkRequest> links = linkList.getLinkList();
+        if (links.size() > 3) {
+            throw new BadRequestException("링크는 3개만 등록할 수 있습니다.");
+        }
         for (UserLinkRequest link : links) {
             if (link.getLinkName().isBlank() || link.getLinkName().isEmpty()) {
                 throw new BadRequestException("링크 이름이 없습니다.");
@@ -61,7 +62,7 @@ public class ProfileController {
                 throw new BadRequestException("링크 글자 수가 너무 많습니다.");
             }
         }
-        profileService.editLinks((PrincipalDetails) auth.getPrincipal(), linkList.getLinkList());
+        profileService.editLinks(auth, linkList.getLinkList());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -102,7 +103,7 @@ public class ProfileController {
         if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        profileService.editProfile((PrincipalDetails) auth.getPrincipal(), profile);
+        profileService.editProfile(auth, profile);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

@@ -42,10 +42,10 @@ public class TeamUserRepositoryTest {
     @BeforeEach
     void beforeEach() {
         User user = User.builder()
-            .name("test")
+            .name("아구매")
             .email("test@test.com")
             .nickname("test")
-            .password("test")
+            .password("test1234")
             .isAlarm(false)
             .address("test")
             .certification(false)

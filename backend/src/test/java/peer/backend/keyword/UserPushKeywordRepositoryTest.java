@@ -35,9 +35,9 @@ public class UserPushKeywordRepositoryTest {
     @BeforeEach
     void beforeEach() {
         User user = User.builder()
-            .name("test")
+            .name("아무개")
             .email("test@test.com")
-            .password("test")
+            .password("test1234")
             .nickname("test")
             .isAlarm(false)
             .address("test")

@@ -3,6 +3,7 @@ package peer.backend.service.profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.FavoritePage;
@@ -36,8 +37,8 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public FavoritePage getFavorite(PrincipalDetails principalDetails, String type, int pageIndex, int pageSize) {
-        User user = principalDetails.getUser();
+    public FavoritePage getFavorite(Authentication auth, String type, int pageIndex, int pageSize) {
+        User user = User.authenticationToUser(auth);
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
@@ -65,8 +66,8 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteAll(PrincipalDetails principalDetails, String type) {
-        User user = principalDetails.getUser();
+    public void deleteAll(Authentication auth, String type) {
+        User user = User.authenticationToUser(auth);
         List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
         List<RecruitFavorite> toDelete = new ArrayList<>();
         for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
