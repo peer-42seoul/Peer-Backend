@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitPlace {
-    ONLINE("온라인"),
-    OFFLINE("오프라인"),
-    MIX("혼합")
+    ONLINE("ONLINE"),
+    OFFLINE("OFFLINE"),
+    MIX("MIX")
     ;
     private final String place;
 }

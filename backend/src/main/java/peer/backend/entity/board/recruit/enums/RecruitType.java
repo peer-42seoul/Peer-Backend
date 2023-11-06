@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitType {
-    STUDY("스터디"),
-    PROJECT("프로젝트")
+    STUDY("STUDY"),
+    PROJECT("PROJECT")
     ;
+
     private final String type;
 }
