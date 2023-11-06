@@ -1,8 +1,6 @@
 package peer.backend.dto.board.recruit;
 
 import lombok.*;
-import org.aspectj.weaver.ast.Literal;
-import peer.backend.entity.board.recruit.enums.RecruitType;
 
 import java.util.List;
 
