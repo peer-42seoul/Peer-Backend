@@ -24,7 +24,7 @@ public class RecruitUpdateResponse {
     private String link;
     private String leader_nickname;
     private String leader_image;
-    private List<String> tagList;
+    private List<TagListResponse> tagList;
     private List<RecruitRoleDTO> roleList;
     private List<RecruitInterviewDto> interviewList;
 }
