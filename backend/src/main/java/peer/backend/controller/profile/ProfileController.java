@@ -68,9 +68,8 @@ public class ProfileController {
 
     @ApiOperation(value = "C-MYPAGE-09", notes = "다른 사용자 프로필 정보 조회하기")
     @GetMapping("/profile/other")
-    public ResponseEntity<Object> getOtherProfile(Authentication auth,
-        @RequestParam(value = "userId", required = true) Long userId,
-        @RequestParam(value = "infoList", required = true) List<String> infoList) {
+    public ResponseEntity<Object> getOtherProfile(@RequestParam(value = "userId") Long userId,
+                                                  @RequestParam(value = "infoList") List<String> infoList) {
         OtherProfileResponse otherProfile = profileService.getOtherProfile(userId, infoList);
         if (infoList.size() == 1) {
             if (otherProfile.getNickname() == null) {
