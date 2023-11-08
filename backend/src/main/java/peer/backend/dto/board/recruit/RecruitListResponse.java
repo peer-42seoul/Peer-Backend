@@ -18,5 +18,6 @@ public class RecruitListResponse {
     private String user_thumbnail;
     private String status;
     private List<String> tagList;
+    private Long recruit_id;
     private boolean isFavorite;
 }
