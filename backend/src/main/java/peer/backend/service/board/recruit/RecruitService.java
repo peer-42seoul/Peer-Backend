@@ -185,6 +185,7 @@ public class RecruitService {
                         recruit2.getWriter().getImageUrl(),
                         recruit2.getStatus().toString(),
                         recruit2.getTags(),
+                        recruit2.getId(),
                         ((auth != null) &&
                                 (recruitFavoriteRepository
                                         .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit2.getId()))
