@@ -1,37 +1,30 @@
 package peer.backend.controller;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.security.Message;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
-import peer.backend.dto.security.request.LogoutRequest;
 import peer.backend.dto.security.request.ToReissueToken;
 import peer.backend.dto.security.request.UserLoginRequest;
 import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.User;
-import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
-
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.service.EmailAuthService;
 import peer.backend.service.LoginService;
-
-import javax.validation.Valid;
-import java.util.*;
 import peer.backend.service.MemberService;
 
 @RequiredArgsConstructor
@@ -101,7 +94,7 @@ public class SignInController {
         String randomPassword = this.memberService.getRandomPassword();
         this.memberService.changePassword(user, randomPassword);
         this.emailService.sendEmail(code.getEmail(), "Peer 임시 비밀번호",
-            "임시 비밀번호입니다.\n\nrandomPassword");
+            "임시 비밀번호입니다.\n\n" + randomPassword + "\n");
         return ResponseEntity.ok().build();
     }
 }
