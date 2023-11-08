@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitInterviewType {
-    CLOSE("객관식"),
-    OPEN("주관식"),
-    MULTIPLE("다중선택"),
-    RATIO("선형배율")
+    CLOSE("CLOSE"),
+    OPEN("OPEN"),
+    MULTIPLE("MULTIPLE"),
+    RATIO("RATIO")
     ;
     private final String type;
 }

@@ -2,6 +2,7 @@ package peer.backend.service.board.recruit;
 
 
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -259,11 +260,12 @@ public class RecruitService {
     }
 
     private Team createTeam(User user, RecruitListRequestDTO recruitListRequestDTO){
+        System.out.println(TeamType.valueOf(recruitListRequestDTO.getType()));
         Team team = Team.builder()
                 .name(recruitListRequestDTO.getName())
-                .type(TeamType.from(recruitListRequestDTO.getType()))
+                .type(recruitListRequestDTO.getType().equals("STUDY")?TeamType.STUDY : TeamType.PROJECT)
                 .dueTo(recruitListRequestDTO.getDue())
-                .operationFormat(TeamOperationFormat.from(recruitListRequestDTO.getPlace()))
+                .operationFormat((recruitListRequestDTO.getPlace().equals("ONLINE") ? TeamOperationFormat.ONLINE : (recruitListRequestDTO.getPlace().equals("OFFLINE")?TeamOperationFormat.OFFLINE : TeamOperationFormat.MIX)))
                 .status(TeamStatus.RECRUITING)
                 .teamMemberStatus(TeamMemberStatus.RECRUITING)
                 .isLock(false)
@@ -309,12 +311,12 @@ public class RecruitService {
         List<String> content = processMarkdownWithFormData(recruitListRequestDTO.getContent());
         Recruit recruit = Recruit.builder()
                 .team(team)
-                .type(TeamType.from(recruitListRequestDTO.getType()))
+                .type(TeamType.valueOf(recruitListRequestDTO.getType()))
                 .title(recruitListRequestDTO.getTitle())
                 .due(recruitListRequestDTO.getDue())
                 .link(recruitListRequestDTO.getLink())
                 .content(content.get(1))
-                .place(TeamOperationFormat.from(recruitListRequestDTO.getPlace()))
+                .place(TeamOperationFormat.valueOf(recruitListRequestDTO.getPlace()))
                 .region1(recruitListRequestDTO.getPlace().equals("온라인") ? null : recruitListRequestDTO.getRegion().get(0))
                 .region2(recruitListRequestDTO.getPlace().equals("온라인") ? null : recruitListRequestDTO.getRegion().get(1))
                 .tags(recruitListRequestDTO.getTagList())
