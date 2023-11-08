@@ -218,6 +218,7 @@ public class RecruitService {
                 .leader_image(recruit.getWriter().getImageUrl())
                 .tagList(TagListManager.getRecruitTags(recruit.getTags()))
                 .roleList(roleDtoList)
+                .place(recruit.getPlace())
                 .build();
     }
 
