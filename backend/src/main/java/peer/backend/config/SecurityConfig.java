@@ -74,6 +74,8 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/recruit/*")
             .permitAll()
+            .antMatchers(HttpMethod.GET, "/api/v1/profile/other")
+            .permitAll()
             .antMatchers("/login")
             .permitAll()
             .anyRequest().authenticated()
