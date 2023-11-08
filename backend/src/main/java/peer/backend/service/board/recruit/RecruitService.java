@@ -211,11 +211,12 @@ public class RecruitService {
                 .totalNumber(recruit.getRoles().size())
                 .due(recruit.getDue())
                 .link(recruit.getLink())
-                .leader_id(recruit.getWriter().getId())
-                .leader_nickname(recruit.getWriter().getNickname())
-                .leader_image(recruit.getWriter().getImageUrl())
+                .user_id(recruit.getWriter().getId())
+                .user_nickname(recruit.getWriter().getNickname())
+                .user_image(recruit.getWriter().getImageUrl())
                 .tagList(tagListManager.getRecruitTagList(recruit.getTags()))
                 .roleList(roleDtoList)
+                .place(recruit.getPlace())
                 .build();
     }
 
