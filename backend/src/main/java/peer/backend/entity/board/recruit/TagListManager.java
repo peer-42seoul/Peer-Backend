@@ -19,4 +19,15 @@ public class TagListManager {
         predefinedTags.add(new Tag("SpringBoot", "#FE2EC8"));
     }
 
+    public static List<TagListResponse> getRecruitTags(List<String> tags) {
+        List<TagListResponse> result = new ArrayList<>();
+        for (String tagName : tags) {
+            for (Tag tag : predefinedTags) {
+                if (tagName.equals(tag.getName())) {
+                    result.add(new TagListResponse(tag.getName(), tag.getColor()));
+                }
+            }
+        }
+        return result;
+    }
 }

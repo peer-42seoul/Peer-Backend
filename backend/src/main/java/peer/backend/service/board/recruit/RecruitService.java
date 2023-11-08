@@ -186,7 +186,7 @@ public class RecruitService {
                         recruit2.getWriter().getNickname(),
                         recruit2.getWriter().getImageUrl(),
                         recruit2.getStatus().toString(),
-                        recruit2.getTags(),
+                        TagListManager.getRecruitTags(recruit2.getTags()),
                         recruit2.getId(),
                         ((auth != null) &&
                                 (recruitFavoriteRepository
@@ -216,7 +216,7 @@ public class RecruitService {
                 .leader_id(recruit.getWriter().getId())
                 .leader_nickname(recruit.getWriter().getNickname())
                 .leader_image(recruit.getWriter().getImageUrl())
-                .tagList(recruit.getTags())
+                .tagList(TagListManager.getRecruitTags(recruit.getTags()))
                 .roleList(roleDtoList)
                 .build();
     }
@@ -240,7 +240,7 @@ public class RecruitService {
                 .leader_id(recruit.getWriter().getId())
                 .leader_nickname(recruit.getWriter().getNickname())
                 .leader_image(recruit.getWriter().getImageUrl())
-                .tagList(recruit.getTags())
+                .tagList(TagListManager.getRecruitTags(recruit.getTags()))
                 .roleList(roleDtoList)
                 .interviewList(getInterviewList(recruit_id))
                 .build();
