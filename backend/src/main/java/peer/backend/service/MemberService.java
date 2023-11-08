@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.security.SecureRandom;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
+import peer.backend.exception.NotFoundException;
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.SocialLoginRepository;
 import peer.backend.repository.user.UserRepository;
@@ -52,6 +54,7 @@ public class MemberService {
         return savedUser;
     }
 
+    @Transactional
     public boolean verificationPassword(String input, String password) {
         if (!encoder.matches(input, password)) {
             return false;
@@ -59,10 +62,12 @@ public class MemberService {
         return true;
     }
 
+    @Transactional
     public void deleteUser(User user) {
         this.userRepository.delete(user);
     }
 
+    @Transactional
     public boolean emailDuplicationCheck(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
         if (this.userRepository.existsByEmail(email)) {
@@ -72,5 +77,42 @@ public class MemberService {
             return false;
         }
         return true;
+    }
+
+    @Transactional
+    public boolean emailExistsCheck(String email) {
+        User user = this.userRepository.findByEmail(email).orElse(null);
+        if (!this.userRepository.existsByEmail(email)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Transactional
+    public User getUserByEmail(String email) {
+        User user = this.userRepository.findByEmail(email)
+            .orElseThrow(() -> new NotFoundException("해당 이메일의 유저가 없습니다!"));
+        return user;
+    }
+
+    @Transactional
+    public void changePassword(User user, String password) {
+        user.setPassword(encoder.encode(password));
+    }
+
+    public String getRandomPassword() {
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        SecureRandom rm = new SecureRandom();
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < 10; i++) {
+            //무작위로 문자열의 인덱스 반환
+            int index = rm.nextInt(chars.length());
+            //index의 위치한 랜덤값
+            sb.append(chars.charAt(index));
+        }
+
+        return sb.toString();
     }
 }
