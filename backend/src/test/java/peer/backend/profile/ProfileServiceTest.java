@@ -154,7 +154,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(auth, profile);
+        profileService.editProfile(auth, profile, false);
         assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
     }
 
@@ -171,7 +171,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(auth, profile);
+        profileService.editProfile(auth, profile, false);
         assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
     }
 
@@ -186,7 +186,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(auth, profile);
+        profileService.editProfile(auth, profile, false);
         assertThat(user.getImageUrl()).isEqualTo("test image");
     }
 
@@ -200,7 +200,7 @@ class ProfileServiceTest {
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
-        profileService.editProfile(auth, profile);
+        profileService.editProfile(auth, profile, true);
         assertThat(user.getImageUrl()).isNull();
     }
 }
