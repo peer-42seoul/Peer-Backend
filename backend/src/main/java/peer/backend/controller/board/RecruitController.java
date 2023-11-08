@@ -73,7 +73,7 @@ public class RecruitController {
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
     @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
-    @GetMapping("/write")
+    @GetMapping("/allTags")
     public List<Tag> getTagListForWrite(){
         return recruitService.getTagList();
     }
