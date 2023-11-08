@@ -51,6 +51,7 @@ public class RecruitService {
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
     private final TeamUserRepository teamUserRepository;
+    private final TagListManager tagListManager;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -184,7 +185,7 @@ public class RecruitService {
                         recruit2.getWriter().getNickname(),
                         recruit2.getWriter().getImageUrl(),
                         recruit2.getStatus().toString(),
-                        recruit2.getTags(),
+                        tagListManager.getRecruitTagList(recruit2.getTags()),
                         ((auth != null) &&
                                 (recruitFavoriteRepository
                                         .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit2.getId()))
@@ -213,7 +214,7 @@ public class RecruitService {
                 .leader_id(recruit.getWriter().getId())
                 .leader_nickname(recruit.getWriter().getNickname())
                 .leader_image(recruit.getWriter().getImageUrl())
-                .tagList(recruit.getTags())
+                .tagList(tagListManager.getRecruitTagList(recruit.getTags()))
                 .roleList(roleDtoList)
                 .build();
     }
@@ -382,12 +383,7 @@ public class RecruitService {
         recruit.update(recruitUpdateRequestDTO, content);
     }
 
-    public List<TagListResponse> getTagList(){
-        List<TagListResponse> result = new ArrayList<>();
-        result.add(new TagListResponse("Java", "#9AFE2E"));
-        result.add(new TagListResponse("JavaScript", "#045FB4"));
-        result.add(new TagListResponse("React", "#FF8000"));
-        result.add(new TagListResponse("SpringBoot", "#FE2EC8"));
-        return result;
+    public List<Tag> getTagList(){
+        return tagListManager.getPredefinedTags();
     }
 }
