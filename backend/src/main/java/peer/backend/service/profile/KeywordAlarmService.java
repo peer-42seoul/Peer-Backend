@@ -25,7 +25,7 @@ public class KeywordAlarmService {
         }
         keyword = keywordList.get(0);
         for (int index = 1; index < keywordList.size(); index++) {
-            keyword = String.format("%s\\^&%%%s", keyword, keywordList.get(index));
+            keyword = String.format("%s^&%%%s", keyword, keywordList.get(index));
         }
         return keyword;
     }
