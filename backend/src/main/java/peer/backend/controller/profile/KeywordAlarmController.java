@@ -44,13 +44,13 @@ public class KeywordAlarmController {
     public ResponseEntity<Object> deleteKeyword(Authentication auth,
                                                 @RequestParam(value = "keyword", required = true)String keyword) {
         keywordAlarmService.deleteKeyword(auth, keyword);
-        return new ResponseEntity<> (HttpStatus.CREATED);
+        return new ResponseEntity<> (HttpStatus.NO_CONTENT);
     }
 
     @ApiOperation(value = "C-MYPAGE-31", notes = "알람 키워드 전체 삭제 하기")
     @DeleteMapping("/alarm/delete/all")
     public ResponseEntity<Object> deleteAll(Authentication auth) {
         keywordAlarmService.deleteAll(auth);
-        return new ResponseEntity<> (HttpStatus.CREATED);
+        return new ResponseEntity<> (HttpStatus.NO_CONTENT);
     }
 }
