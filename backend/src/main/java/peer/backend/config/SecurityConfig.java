@@ -100,8 +100,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-            Arrays.asList(FRONT_SERVER_URL, FRONT_LOCAL_URL, DEV_DOMAIN_URL,
-                "http://redirect.peer-test.co.kr"));
+            Arrays.asList(FRONT_SERVER_URL, FRONT_LOCAL_URL, DEV_DOMAIN_URL));
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));
         configuration.addExposedHeader("*");
