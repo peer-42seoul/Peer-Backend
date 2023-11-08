@@ -56,6 +56,8 @@ public class RecruitService {
     @PersistenceContext
     private EntityManager em;
 
+    private List<Tag> preDefinedTagList = TagListManager.getPredefinedTags();
+
     //Markdown에서 form-data를 추출하기 위한 패턴 ![](*)
     private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
@@ -383,12 +385,7 @@ public class RecruitService {
         recruit.update(recruitUpdateRequestDTO, content);
     }
 
-    public List<TagListResponse> getTagList(){
-        List<TagListResponse> result = new ArrayList<>();
-        result.add(new TagListResponse("Java", "#9AFE2E"));
-        result.add(new TagListResponse("JavaScript", "#045FB4"));
-        result.add(new TagListResponse("React", "#FF8000"));
-        result.add(new TagListResponse("SpringBoot", "#FE2EC8"));
-        return result;
+    public List<Tag> getTagList(){
+        return preDefinedTagList;
     }
 }

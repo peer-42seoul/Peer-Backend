@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
+import peer.backend.entity.board.recruit.Tag;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
@@ -73,7 +74,7 @@ public class RecruitController {
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
     @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
     @GetMapping("/write")
-    public List<TagListResponse> getTagListForWrite(){
+    public List<Tag> getTagListForWrite(){
         return recruitService.getTagList();
     }
 
