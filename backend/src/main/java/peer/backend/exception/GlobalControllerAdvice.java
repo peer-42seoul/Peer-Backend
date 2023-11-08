@@ -7,6 +7,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,12 +15,12 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
-
-    public ResponseEntity methodArgumentNotValidException(peer.backend.exception.MethodArgumentNotValidException e){
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    public ResponseEntity missingServletRequestParameterException(MissingServletRequestParameterException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(value = IndexOutOfBoundsException.class)
     public ResponseEntity indexOutOfBoundsException(java.lang.IndexOutOfBoundsException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
@@ -86,7 +87,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity exception(Exception e) {
-        //		e.printStackTrace(); 디버깅용 코드
+//        		e.printStackTrace(); //코드
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 }
