@@ -140,10 +140,10 @@ public class RecruitService {
             predicates.add(tagList.in(request.getTag()));
         }
         if (request.getType() != null && !request.getType().isEmpty()){
-            predicates.add(cb.equal(recruit.get("type"), TeamType.from(request.getType())));
+            predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.from(request.getPlace())));
+            predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.valueOf(request.getPlace())));
         }
         if (request.getRegion() != null && !request.getRegion().isEmpty()) {
             predicates.add(cb.equal(recruit.get("region"), request.getRegion()));
@@ -263,9 +263,9 @@ public class RecruitService {
         System.out.println(TeamType.valueOf(recruitListRequestDTO.getType()));
         Team team = Team.builder()
                 .name(recruitListRequestDTO.getName())
-                .type(recruitListRequestDTO.getType().equals("STUDY")?TeamType.STUDY : TeamType.PROJECT)
+                .type(TeamType.valueOf(recruitListRequestDTO.getType()))
                 .dueTo(recruitListRequestDTO.getDue())
-                .operationFormat((recruitListRequestDTO.getPlace().equals("ONLINE") ? TeamOperationFormat.ONLINE : (recruitListRequestDTO.getPlace().equals("OFFLINE")?TeamOperationFormat.OFFLINE : TeamOperationFormat.MIX)))
+                .operationFormat(TeamOperationFormat.valueOf(recruitListRequestDTO.getPlace()))
                 .status(TeamStatus.RECRUITING)
                 .teamMemberStatus(TeamMemberStatus.RECRUITING)
                 .isLock(false)
