@@ -15,6 +15,8 @@ import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.PersonalInfoService;
 
+import javax.validation.Valid;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -28,7 +30,7 @@ public class PersonalInfoController {
 
     @ApiOperation(value = "C-MYPAGE-11", notes = "사용자 개인정보 비밀번호 변경하기")
     @PutMapping("/info/password")
-    public ResponseEntity<Object> changePassword(Authentication auth, @RequestBody PasswordRequest passwords) {
+    public ResponseEntity<Object> changePassword(Authentication auth, @RequestBody @Valid PasswordRequest passwords) {
         personalInfoService.changePassword(auth, passwords);
         return new ResponseEntity<> (HttpStatus.CREATED);
     }
