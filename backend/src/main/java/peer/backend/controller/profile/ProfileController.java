@@ -91,17 +91,11 @@ public class ProfileController {
     @PutMapping("/profile/introduction/edit")
     public ResponseEntity<Object> editProfile(Authentication auth,
         @ModelAttribute EditProfileRequest profile) throws IOException {
-        if (profile.getIntroduction().length() > 150) {
-            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
-        }
-        if (profile.getNickname().isEmpty()) {
-            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
-        }
-        if (profile.getNickname().isBlank()) {
-            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
-        }
         if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
+        }
+        if (profile.getIntroduction() != null && profile.getIntroduction().length() > 150) {
+            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
         }
         profileService.editProfile(auth, profile);
         return new ResponseEntity<>(HttpStatus.CREATED);

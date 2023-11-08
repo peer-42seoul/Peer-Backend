@@ -150,7 +150,7 @@ class ProfileServiceTest {
         MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", newInputStream);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(multipartFile)
-                .imageChange(false)
+                .imageChange("FALSE")
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
@@ -167,7 +167,7 @@ class ProfileServiceTest {
         MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", fileInputStream);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(multipartFile)
-                .imageChange(false)
+                .imageChange("FALSE")
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
@@ -182,7 +182,7 @@ class ProfileServiceTest {
         MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(emptyFile)
-                .imageChange(false)
+                .imageChange("FALSE")
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
@@ -196,7 +196,7 @@ class ProfileServiceTest {
         MockMultipartFile emptyFile = new MockMultipartFile("empty", "empty.png", "image", new byte[0]);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(emptyFile)
-                .imageChange(true)
+                .imageChange("TRUE")
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce())
                 .build();
