@@ -2,6 +2,7 @@ package peer.backend.controller.profile;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,15 +18,26 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@EnableAspectJAutoProxy
 public class ProfileController {
 
     private final ProfileService profileService;
+
+    private boolean convertBoolean(String boolString) throws BadRequestException{
+        if (boolString.equals("TRUE"))
+            return true;
+        else if (boolString.equals("FALSE"))
+            return false;
+        else
+            throw new BadRequestException("올바른 Bool값이 아닙니다.");
+    }
 
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 조회하기")
     @GetMapping("/profile")
@@ -89,20 +101,17 @@ public class ProfileController {
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
     @PutMapping("/profile/introduction/edit")
     public ResponseEntity<Object> editProfile(Authentication auth,
-        @ModelAttribute EditProfileRequest profile) throws IOException {
-        if (profile.getIntroduction().length() > 150) {
-            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
-        }
-        if (profile.getNickname().isEmpty()) {
+        @ModelAttribute @Valid EditProfileRequest profile) throws IOException {
+        if (profile.getNickname().isEmpty() || profile.getNickname().isBlank()) {
             throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
         }
-        if (profile.getNickname().isBlank()) {
-            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
-        }
-        if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
+        else if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        profileService.editProfile(auth, profile);
+        if (profile.getIntroduction() != null && profile.getIntroduction().length() > 150) {
+            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
+        }
+        profileService.editProfile(auth, profile, convertBoolean(profile.getImageChange()));
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
