@@ -109,17 +109,18 @@ public class MessageMainService {
      * @return
      */
     @Async
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
-    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetDTO> list){
+    @Transactional
+    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, TargetDTO list){
         Long ret;
         ret = 0L;
-
-        List<MessageIndex> targetsData = this.indexRepository.findByUserId(userId).orElseGet(() -> null);
-        if (targetsData == null)
-            return CompletableFuture.completedFuture(AsyncResult.success(0L));
+        Optional<List<MessageIndex>> rawTargetsData = this.indexRepository.findByUserId(userId);
+        List<MessageIndex> targetData = rawTargetsData.get();
+//        if (rawTargetsData == null)
+//            return CompletableFuture.completedFuture(AsyncResult.success(0L));
         boolean check = false;
-        for (TargetDTO target : list) {
-            for (MessageIndex data : targetsData) {
+        List<TargetForDelete> targetUserIds = list.getTarget();
+        for (TargetForDelete target : targetUserIds) {
+            for (MessageIndex data : targetData) {
                 if (data.getUserIdx1().equals(target.getTargetId())) {
                     data.setUser2delete(true);
                     check = true;
@@ -133,13 +134,13 @@ public class MessageMainService {
                     if (data.isUser1delete() && data.isUser2delete()) {
                         this.indexRepository.delete(data);
                         ret++;
-                        targetsData.remove(data);
+//                        targetsData.remove(data);
                         break ;
                     }
                     else {
                         this.indexRepository.save(data);
                         ret++;
-                        targetsData.remove(data);
+//                        targetsData.remove(data);
                         break ;
                     }
                     // TODO: check CASCADE so you need to check is MessagePieces deleted or not
