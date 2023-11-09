@@ -213,17 +213,6 @@ public class MessageSubService {
 
     @Transactional(readOnly = false)
     public MessageIndex saveNewData(User owner, User target) {
-//        MessageIndex newData = new MessageIndex();
-//        newData.setUserIdx1(owner.getId());
-//        newData.setUserIdx2(target.getId());
-//        newData.setUnreadMessageNumber1(0L);
-//        newData.setUnreadMessageNumber2(0L);
-//        newData.setUser1delete(false);
-//        newData.setUser2delete(false);
-//        newData.setUser1(owner);
-//        newData.setUser2(target);
-//        newData.setUser1(owner);
-//        newData.setUser2(target);
         MessageIndex newData = MessageIndex.builder().
                 userIdx1(owner.getId()).
                 userIdx2(target.getId()).
