@@ -24,7 +24,7 @@ spring:
             scope:
               - public
             authorization-grant-type: authorization_code
-            redirect-uri: http://133.186.150.49/login/oauth2/code/ft
+            redirect-uri: http://redirect.peer-test.co.kr/login/oauth2/code/google
           google:
             client-id: 889460259597-5ctg1s6l4cph0tq4lfcfj2o8rpe469d7.apps.googleusercontent.com
             client-secret: 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
