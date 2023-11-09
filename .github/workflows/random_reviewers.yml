@@ -19,7 +19,7 @@ jobs:
         github-token: ${{secrets.TOKEN}}
         script: |
           const review_team = ['sinryuji', 'Paul2021-R', 'weejihye', 'perman0519', 'juhyeonlee134', 'wochae'];
-          const candidate = review.filter((e) => e != '${{ github.event.pull_request.user.login }}');
+          const candidate = review_team.filter((e) => e != '${{ github.event.pull_request.user.login }}');
           const randomReviewer = candidate[Math.floor(Math.random() * candidate1.length)];
           const comment = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
           core.setOutput('comment', comment1)
