@@ -150,10 +150,10 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.valueOf(request.getPlace())));
         }
         if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("region"), request.getRegion1()));
+            predicates.add(cb.equal(recruit.get("region1"), request.getRegion1()));
         }
         if (request.getRegion2() != null && !request.getRegion2().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("region"), request.getRegion2()));
+            predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
             int index = Arrays.asList(dues).indexOf(request.getDue());
@@ -165,20 +165,20 @@ public class RecruitService {
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
         }
-//        //sort 기준 설정
-//        List<Order> orders = new ArrayList<>();
-//        switch (request.getSort()) {
-//            case "latest":
-//                orders.add(cb.desc(recruit.get("createdAt")));
-//                break;
-//            case "hit":
-//                orders.add(cb.desc(recruit.get("hit")));
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Invalid sort value");
-//        }
+        //sort 기준 설정
+        List<Order> orders = new ArrayList<>();
+        switch (request.getSort()) {
+            case "latest":
+                orders.add(cb.desc(recruit.get("createdAt")));
+                break;
+            case "hit":
+                orders.add(cb.desc(recruit.get("hit")));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort value");
+        }
         //query 전송
-        cq.where(predicates.toArray(new Predicate[0]));
+        cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
         List<Recruit> recruits = em.createQuery(cq).getResultList();
         System.out.println(recruits.size());
 
