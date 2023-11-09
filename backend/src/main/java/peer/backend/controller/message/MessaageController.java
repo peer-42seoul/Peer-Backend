@@ -106,8 +106,9 @@ public class MessaageController {
     public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Authentication data, @RequestBody @Valid KeywordDTO keyword) {
         AsyncResult<List<LetterTargetDTO>> wrappedRet= new AsyncResult<>();
         List<LetterTargetDTO> ret;
+        User user = User.authenticationToUser(data);
         try {
-            wrappedRet = this.messageMainService.findUserListByUserNickname(keyword).get();
+            wrappedRet = this.messageMainService.findUserListByUserNickname(keyword, user).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
@@ -134,7 +135,7 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-//            System.out.println("여기 어떰?!" + e);
+            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -153,7 +154,7 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-//            System.out.println("여기 어떰?!");
+            System.out.println("여기 어떰?!");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -173,6 +174,7 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();

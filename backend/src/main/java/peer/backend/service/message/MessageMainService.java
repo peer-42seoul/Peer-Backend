@@ -161,12 +161,14 @@ public class MessageMainService {
      */
     @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword) {
+    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword, User userData) {
         List<User> raw = this.userRepository.findByKeyWord(keyword.getKeyword()).orElseGet(() -> null);
         if (raw == null)
             return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = new ArrayList<>();
         for (User candidate: raw) {
+            if (candidate.getId().equals(userData.getId()))
+                continue ;
             LetterTargetDTO data = new LetterTargetDTO();
             try {
                 data = LetterTargetDTO.builder().
