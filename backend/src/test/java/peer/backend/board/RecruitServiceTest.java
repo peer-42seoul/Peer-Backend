@@ -1,37 +1,8 @@
 package peer.backend.board;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.dto.board.recruit.RecruitListRequestDTO;
-import peer.backend.entity.board.recruit.Recruit;
-import peer.backend.entity.team.Team;
-import peer.backend.entity.team.enums.TeamMemberStatus;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamStatus;
-import peer.backend.entity.team.enums.TeamType;
-import peer.backend.entity.user.User;
-import peer.backend.repository.board.recruit.RecruitApplicantRepository;
-import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
-import peer.backend.repository.board.recruit.RecruitRepository;
-import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.user.UserRepository;
-import peer.backend.service.board.recruit.RecruitService;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RecruitService Test")

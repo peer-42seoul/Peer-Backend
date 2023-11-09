@@ -124,7 +124,7 @@ public class RecruitService {
         return result;
     }
 
-    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitRequest request, Authentication auth) {
+    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable, RecruitListRequest request, Authentication auth) {
 
         //TODO:favorite 등
         //query 생성 준비
@@ -136,19 +136,24 @@ public class RecruitService {
         List<Predicate> predicates = new ArrayList<>();
 
         // query 생성
-        predicates.add(cb.equal(recruit.get("status"), RecruitStatus.ONGOING));
+        if (request.getStatus() != null && !request.getStatus().isEmpty())
+            predicates.add(cb.equal(recruit.get("status"), RecruitStatus.from(request.getStatus())));
         if (request.getTag() != null && !request.getTag().isEmpty()) {
             Join<Recruit, String> tagList = recruit.join("tags");
             predicates.add(tagList.in(request.getTag()));
         }
+        System.out.println(request.getType());
         if (request.getType() != null && !request.getType().isEmpty()){
             predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
             predicates.add(cb.equal(recruit.get("place"), TeamOperationFormat.valueOf(request.getPlace())));
         }
-        if (request.getRegion() != null && !request.getRegion().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("region"), request.getRegion()));
+        if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
+            predicates.add(cb.equal(recruit.get("region"), request.getRegion1()));
+        }
+        if (request.getRegion2() != null && !request.getRegion2().isEmpty()) {
+            predicates.add(cb.equal(recruit.get("region"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
             int index = Arrays.asList(dues).indexOf(request.getDue());
@@ -160,21 +165,20 @@ public class RecruitService {
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
         }
-
-        //sort 기준 설정
-        List<Order> orders = new ArrayList<>();
-        switch (request.getSort()) {
-            case "latest":
-                orders.add(cb.desc(recruit.get("createdAt")));
-                break;
-            case "hit":
-                orders.add(cb.desc(recruit.get("hit")));
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid sort value");
-        }
+//        //sort 기준 설정
+//        List<Order> orders = new ArrayList<>();
+//        switch (request.getSort()) {
+//            case "latest":
+//                orders.add(cb.desc(recruit.get("createdAt")));
+//                break;
+//            case "hit":
+//                orders.add(cb.desc(recruit.get("hit")));
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Invalid sort value");
+//        }
         //query 전송
-        cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
+        cq.where(predicates.toArray(new Predicate[0]));
         List<Recruit> recruits = em.createQuery(cq).getResultList();
         System.out.println(recruits.size());
 
@@ -263,18 +267,18 @@ public class RecruitService {
         }
     }
 
-    private Team createTeam(User user, RecruitListRequestDTO recruitListRequestDTO){
-        System.out.println(TeamType.valueOf(recruitListRequestDTO.getType()));
+    private Team createTeam(User user, RecruitCreateRequest request){
+        System.out.println(TeamType.valueOf(request.getType()));
         Team team = Team.builder()
-                .name(recruitListRequestDTO.getName())
-                .type(TeamType.valueOf(recruitListRequestDTO.getType()))
-                .dueTo(recruitListRequestDTO.getDue())
-                .operationFormat(TeamOperationFormat.valueOf(recruitListRequestDTO.getPlace()))
+                .name(request.getName())
+                .type(TeamType.valueOf(request.getType()))
+                .dueTo(request.getDue())
+                .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
                 .status(TeamStatus.RECRUITING)
                 .teamMemberStatus(TeamMemberStatus.RECRUITING)
                 .isLock(false)
-                .region1(recruitListRequestDTO.getRegion().get(0))
-                .region2(recruitListRequestDTO.getRegion().get(1))
+                .region1(request.getRegion().get(0))
+                .region2(request.getRegion().get(1))
                 .region3(null)
                 .build();
         teamRepository.save(team);// 리더 추가
@@ -311,19 +315,19 @@ public class RecruitService {
         return result;
     }
 
-    private Recruit createRecruitFromDto(RecruitListRequestDTO recruitListRequestDTO, Team team, User user) throws IOException{
-        List<String> content = processMarkdownWithFormData(recruitListRequestDTO.getContent());
+    private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user) throws IOException{
+        List<String> content = processMarkdownWithFormData(request.getContent());
         Recruit recruit = Recruit.builder()
                 .team(team)
-                .type(TeamType.valueOf(recruitListRequestDTO.getType()))
-                .title(recruitListRequestDTO.getTitle())
-                .due(recruitListRequestDTO.getDue())
-                .link(recruitListRequestDTO.getLink())
+                .type(TeamType.valueOf(request.getType()))
+                .title(request.getTitle())
+                .due(request.getDue())
+                .link(request.getLink())
                 .content(content.get(1))
-                .place(TeamOperationFormat.valueOf(recruitListRequestDTO.getPlace()))
-                .region1(recruitListRequestDTO.getPlace().equals("온라인") ? null : recruitListRequestDTO.getRegion().get(0))
-                .region2(recruitListRequestDTO.getPlace().equals("온라인") ? null : recruitListRequestDTO.getRegion().get(1))
-                .tags(recruitListRequestDTO.getTagList())
+                .place(TeamOperationFormat.valueOf(request.getPlace()))
+                .region1(request.getPlace().equals("온라인") ? null : request.getRegion().get(0))
+                .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
+                .tags(request.getTagList())
                 .status(RecruitStatus.ONGOING)
                 .thumbnailUrl((content.get(0).isBlank()) ? null : content.get(0))
                 .writerId(user.getId())
@@ -331,24 +335,24 @@ public class RecruitService {
                 .hit(0L)
                 .build();
         //List 추가
-        addInterviewsToRecruit(recruit, recruitListRequestDTO.getInterviewList());
-        addRolesToRecruit(recruit, recruitListRequestDTO.getRoleList());
+        addInterviewsToRecruit(recruit, request.getInterviewList());
+        addRolesToRecruit(recruit, request.getRoleList());
         return recruit;
     }
 
 
     @Transactional
-    public void createRecruit(RecruitListRequestDTO recruitListRequestDTO, Authentication auth) throws IOException{
+    public void createRecruit(RecruitCreateRequest request, Authentication auth) throws IOException{
         //동일한 팀 이름 검사
-        Optional<Team> findTeam = teamRepository.findByName(recruitListRequestDTO.getName());
+        Optional<Team> findTeam = teamRepository.findByName(request.getName());
         if (findTeam.isPresent())
             throw new IllegalArgumentException("이미 존재하는 팀 이름입니다.");
         User user = User.authenticationToUser(auth);
         //팀 생성
-        Team team = createTeam(user, recruitListRequestDTO);
+        Team team = createTeam(user, request);
 
         //모집게시글 생성
-        Recruit recruit = createRecruitFromDto(recruitListRequestDTO, team, user);
+        Recruit recruit = createRecruitFromDto(request, team, user);
         System.out.println(recruit.getContent());
         recruitRepository.save(recruit);
     }

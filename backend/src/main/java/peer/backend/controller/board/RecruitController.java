@@ -33,8 +33,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(@RequestParam int page, @RequestParam int pageSize, @ModelAttribute("request") RecruitRequest request, Authentication auth) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request, Authentication auth) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize());
 
 
         return recruitService.getRecruitSearchList(pageable, request, auth);
@@ -42,8 +42,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestBody RecruitListRequestDTO recruitListRequestDTO, Authentication auth) throws IOException{
-        recruitService.createRecruit(recruitListRequestDTO, auth);
+    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+        recruitService.createRecruit(request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
