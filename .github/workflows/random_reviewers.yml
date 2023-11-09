@@ -18,30 +18,43 @@ jobs:
       with:
         github-token: ${{secrets.TOKEN}}
         script: |
-          const team1 = ['sinryuji', 'Paul2021-R', 'weejihye'];
-          const team2 = ['perman0519', 'juhyeonlee134', 'wochae'];
-          const candidate1 = team1.filter((e) => e != '${{ github.event.pull_request.user.login }}');
-          const candidate2 = team2.filter((e) => e != '${{ github.event.pull_request.user.login }}');
-          const randomReviewer1 = candidate1[Math.floor(Math.random() * candidate1.length)];
-          const randomReviewer2 = candidate2[Math.floor(Math.random() * candidate2.length)];
-          const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
-          const comment2 = `🎉 @${randomReviewer2} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
-          core.setOutput('comment1', comment1)
-          core.setOutput('comment2', comment2)
-          core.setOutput('reviewer1', randomReviewer1)
-          core.setOutput('reviewer2', randomReviewer2)
+          const review_team = ['sinryuji', 'Paul2021-R', 'weejihye', 'perman0519', 'juhyeonlee134', 'wochae'];
+          const candidate = review.filter((e) => e != '${{ github.event.pull_request.user.login }}');
+          const randomReviewer = candidate[Math.floor(Math.random() * candidate1.length)];
+          const comment = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
+          core.setOutput('comment', comment1)
+          core.setOutput('reviewer', randomReviewer1)
     
     - name: comment PR
       uses: mshick/add-pr-comment@v1
       with:
         message: |
-          ${{ steps.pick_random_reviwer.outputs.comment1 }}
-          ${{ steps.pick_random_reviwer.outputs.comment2 }}
+          ${{ steps.pick_random_reviwer.outputs.comment }}
         repo-token: ${{ secrets.TOKEN }}
         repo-token-user-login: 'github-actions[bot]'
       
     - name: Add Pull Request Reviewer
       uses: madrapps/add-reviewers@v1
       with:
-        reviewers: ${{ steps.pick_random_reviwer.outputs.reviewer1 }},${{ steps.pick_random_reviwer.outputs.reviewer2 }}
+        reviewers: ${{ steps.pick_random_reviwer.outputs.reviewer }}
         token: ${{ secrets.TOKEN }}
+
+
+# - name: pick_random_reviwer
+#       id: pick_random_reviwer
+#       uses: actions/github-script@v3
+#       with:
+#         github-token: ${{secrets.TOKEN}}
+#         script: |
+#           const team1 = ['sinryuji', 'Paul2021-R', 'weejihye', 'perman0519', 'juhyeonlee134', 'wochae'];
+#           const team2 = ['perman0519', 'juhyeonlee134', 'wochae'];
+#           const candidate1 = team1.filter((e) => e != '${{ github.event.pull_request.user.login }}');
+#           const candidate2 = team2.filter((e) => e != '${{ github.event.pull_request.user.login }}');
+#           const randomReviewer1 = candidate1[Math.floor(Math.random() * candidate1.length)];
+#           const randomReviewer2 = candidate2[Math.floor(Math.random() * candidate2.length)];
+#           const comment1 = `🎉 @${randomReviewer1} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
+#           const comment2 = `🎉 @${randomReviewer2} 님 랜덤 리뷰어로 당첨되셨습니다! 리뷰를 부탁드립니다. 🙏`
+#           core.setOutput('comment1', comment1)
+#           core.setOutput('comment2', comment2)
+#           core.setOutput('reviewer1', randomReviewer1)
+#           core.setOutput('reviewer2', randomReviewer2)
