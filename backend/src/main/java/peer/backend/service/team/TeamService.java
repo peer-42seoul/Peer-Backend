@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitListRequestDTO;
 import peer.backend.dto.team.*;
@@ -277,13 +278,14 @@ public class TeamService {
             == TeamUserRoleType.LEADER;
     }
 
+    @TeamCreateTracking
     @Transactional
     public Team createTeam(User user, RecruitListRequestDTO recruitListRequestDTO) {
         Team team = Team.builder()
             .name(recruitListRequestDTO.getName())
-            .type(TeamType.from(recruitListRequestDTO.getType()))
+            .type(TeamType.valueOf(recruitListRequestDTO.getType()))
             .dueTo(recruitListRequestDTO.getDue())
-            .operationFormat(TeamOperationFormat.from(recruitListRequestDTO.getPlace()))
+            .operationFormat(TeamOperationFormat.valueOf(recruitListRequestDTO.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
