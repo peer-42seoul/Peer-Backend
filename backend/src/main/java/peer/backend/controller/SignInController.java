@@ -4,11 +4,14 @@ import io.swagger.annotations.ApiOperation;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import javax.servlet.http.Cookie;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +39,9 @@ public class SignInController {
     private final MemberService memberService;
     private final EmailAuthService emailService;
 
+    @Value("${jwt.token.validity-in-seconds-refresh}")
+    private long refreshExpirationTime;
+
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
     @PostMapping()
     public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
@@ -45,8 +51,12 @@ public class SignInController {
         maps.put("isLogin", "true");
         maps.put("userId", jwtDto.getUserId());
         maps.put("accessToken", jwtDto.getAccessToken());
-        maps.put("refreshToken", jwtDto.getRefreshToken());
-        return ResponseEntity.ok(maps);
+        Cookie cookie = new Cookie("refreshToken", jwtDto.getRefreshToken());
+        cookie.setMaxAge((int) refreshExpirationTime / 1000);
+        cookie.setHttpOnly(true);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(maps);
     }
 
     @ApiOperation(value = "C-SIGN-09", notes = "accessToken 만료시에 다시 accessToken을 발급받습니다.")
