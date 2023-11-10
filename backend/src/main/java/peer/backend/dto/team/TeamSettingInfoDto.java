@@ -1,6 +1,7 @@
 package peer.backend.dto.team;
 
 import lombok.*;
+import peer.backend.entity.team.Team;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -25,4 +26,19 @@ public class TeamSettingInfoDto {
     private String operationForm;
 //    @NotBlank(message = "팀 지역은 필수입니다.")
     private String[] region;
+
+    public TeamSettingInfoDto(Team team) {
+        this.id = team.getId().toString();
+        this.name = team.getName();
+        this.dueTo = team.getDueTo();
+        this.status = team.getStatus().toString();
+        this.operationForm = team.getOperationFormat().toString();
+        this.type = team.getType().toString();
+        this.region = new String[]{
+                team.getRegion1(),
+                team.getRegion2(),
+                team.getRegion3()
+        };
+        this.maxMember = team.getMaxMember().toString();
+    }
 }
