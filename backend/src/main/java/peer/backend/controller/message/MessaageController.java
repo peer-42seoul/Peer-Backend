@@ -80,9 +80,8 @@ public class MessaageController {
 //            }
 //    )
     @DeleteMapping("/delete-message")
-    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody  @Valid List<TargetDTO> body) {
+    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody TargetDTO body) {
         this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
-
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {
