@@ -3,7 +3,6 @@ package peer.backend.controller.team;
 import io.swagger.annotations.ApiOperation;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +24,15 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 @RequestMapping(TeamController.TEAM_URL)
 public class TeamController {
-
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/list")
-    public List<TeamListResponse> getTeamList(@RequestParam("teamStatus") TeamStatus teamStatus, Authentication authentication) {
+    public List<TeamListResponse> getTeamList(@RequestParam("teamStatus") String teamStatus, Authentication authentication) {
+        TeamStatus teamStatus1 = TeamStatus.valueOf(teamStatus.toUpperCase());
         User thisUser = User.authenticationToUser(authentication);
-        return this.teamService.getTeamList(teamStatus, thisUser);
+        return this.teamService.getTeamList(teamStatus1, thisUser);
     }
 
     @GetMapping("/setting/{teamId}")
