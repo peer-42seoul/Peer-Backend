@@ -14,7 +14,7 @@ import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
-import peer.backend.exception.UnauthorizedException;
+import peer.backend.exception.ForbiddenException;
 import peer.backend.service.EmailAuthService;
 import peer.backend.service.MemberService;
 
@@ -59,7 +59,7 @@ public class SignUpController {
         Authentication authentication) {
         User user = User.authenticationToUser(authentication);
         if (!this.memberService.verificationPassword(password, user.getPassword())) {
-            throw new UnauthorizedException("비밀번호가 잘못되었습니다!");
+            throw new ForbiddenException("비밀번호가 잘못되었습니다!");
         }
         this.memberService.deleteUser(user);
         return ResponseEntity.ok().build();
