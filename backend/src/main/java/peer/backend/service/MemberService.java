@@ -8,13 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import peer.backend.annotation.tracking.UserRegistrationTracking;
+import peer.backend.annotation.tracking.UserWithdrawalTracking;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
-import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.SocialLoginRepository;
 import peer.backend.repository.user.UserRepository;
 
@@ -66,8 +65,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteUser(User user) {
+    @UserWithdrawalTracking
+    public User deleteUser(User user) {
         this.userRepository.delete(user);
+        return user;
     }
 
     @Transactional

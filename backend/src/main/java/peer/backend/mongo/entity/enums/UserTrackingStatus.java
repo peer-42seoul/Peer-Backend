@@ -13,7 +13,8 @@ public enum UserTrackingStatus {
     BLACKHOLE("블랙홀"),
     OUTER("아우터"),
     TEMPORARY_BAN("임시 밴"),
-    NORMAL("통상 상태");
+    NORMAL("통상 상태"),
+    WITHDRAWAL("탈퇴");
 
     private final String value;
 
