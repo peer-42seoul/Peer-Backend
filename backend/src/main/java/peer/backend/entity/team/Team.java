@@ -93,12 +93,12 @@ public class Team extends BaseEntity {
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
         this.dueTo = teamSettingInfoDto.getDueTo();
-        this.status = TeamStatus.from(teamSettingInfoDto.getStatus());
+        this.status = TeamStatus.valueOf(teamSettingInfoDto.getStatus());
         String[] regions = teamSettingInfoDto.getRegion();
         this.region1 = regions.length > 0 ? regions[0] : "";
         this.region2 = regions.length > 1 ? regions[1] : "";
         this.region3 = regions.length > 2 ? regions[2] : "";
-        this.operationFormat = TeamOperationFormat.from(teamSettingInfoDto.getOperationForm());
+        this.operationFormat = TeamOperationFormat.valueOf(teamSettingInfoDto.getOperationForm());
         this.maxMember = Integer.valueOf(teamSettingInfoDto.getMaxMember());
     }
 
