@@ -223,7 +223,6 @@ public class MessageMainService {
     }
 
 
-
     /**
      * OutLine : 전달 받은 대화 내용을 저장합니다.
      * Logic :
