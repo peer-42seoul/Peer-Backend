@@ -10,6 +10,7 @@ import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.response.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
@@ -51,14 +52,14 @@ public class FavoriteService {
                 if (teamType.equals(type)) {
                     User leader = getLeader(recruit);
                     FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                            .postId(recruit.getId())
+                            .recruit_id(recruit.getId())
                             .title(recruit.getTitle())
                             .image(recruit.getThumbnailUrl())
                             .userId(leader != null ? leader.getId() : -1)
                             .userNickname(leader != null ? leader.getNickname() : null)
                             .userImage(leader != null ? leader.getImageUrl() : null)
                             .status(recruit.getStatus().getStatus())
-                            .tagList(recruit.getTags())
+                            .tagList(TagListManager.getRecruitTags(recruit.getTags()))
                             .build();
                     favoriteResponseList.add(favoriteResponse);
                 }
