@@ -13,7 +13,6 @@ import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
-import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.SocialLoginRepository;
 import peer.backend.repository.user.UserRepository;
 
@@ -56,10 +55,7 @@ public class MemberService {
 
     @Transactional
     public boolean verificationPassword(String input, String password) {
-        if (!encoder.matches(input, password)) {
-            return false;
-        }
-        return true;
+        return encoder.matches(input, password);
     }
 
     @Transactional
