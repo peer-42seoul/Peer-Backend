@@ -1,9 +1,6 @@
 package peer.backend.dto.board.recruit;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.RecruitRole;
 
@@ -11,6 +8,7 @@ import java.util.List;
 
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

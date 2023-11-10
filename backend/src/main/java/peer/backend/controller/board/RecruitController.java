@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Tag;
@@ -42,8 +43,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
-        recruitService.createRecruit(request, auth);
+    public void createRecruit(@RequestPart("image") MultipartFile image, @ModelAttribute RecruitCreateRequest request, Authentication auth) throws IOException{
+        recruitService.createRecruit(image, request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
