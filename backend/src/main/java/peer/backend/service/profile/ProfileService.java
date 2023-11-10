@@ -72,6 +72,10 @@ public class ProfileService {
         userLinks.clear();
         userLinks = new ArrayList<>();
         for (UserLinkRequest linkRequest : links) {
+            if (linkRequest.getLinkName().isBlank() || linkRequest.getLinkName().isEmpty())
+                continue;
+            if (linkRequest.getLinkUrl().isBlank() || linkRequest.getLinkUrl().isEmpty())
+                continue;
             UserLink userLink = UserLink.builder()
                     .user(user)
                     .linkName(linkRequest.getLinkName())
