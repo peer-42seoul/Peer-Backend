@@ -143,7 +143,6 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -162,7 +161,6 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            System.out.println("여기 어떰?!");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
