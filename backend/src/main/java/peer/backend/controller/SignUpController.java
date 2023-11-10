@@ -2,6 +2,7 @@ package peer.backend.controller;
 
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import peer.backend.dto.PasswordDTO;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
@@ -21,6 +23,7 @@ import peer.backend.service.MemberService;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/signup")
+@Slf4j
 public class SignUpController {
 
     private final MemberService memberService;
@@ -55,10 +58,10 @@ public class SignUpController {
     }
 
     @DeleteMapping("/withdrawal")
-    public ResponseEntity<Object> withdrawal(@RequestBody String password,
+    public ResponseEntity<Object> withdrawal(@RequestBody PasswordDTO password,
         Authentication authentication) {
         User user = User.authenticationToUser(authentication);
-        if (!this.memberService.verificationPassword(password, user.getPassword())) {
+        if (!this.memberService.verificationPassword(password.getPassword(), user.getPassword())) {
             throw new ForbiddenException("비밀번호가 잘못되었습니다!");
         }
         this.memberService.deleteUser(user);
