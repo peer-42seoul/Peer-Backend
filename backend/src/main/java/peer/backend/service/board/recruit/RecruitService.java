@@ -32,6 +32,7 @@ import peer.backend.service.file.FileService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -180,9 +181,19 @@ public class RecruitService {
                 throw new IllegalArgumentException("Invalid sort value");
         }
         //query 전송
-        cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
-        List<Recruit> recruits = em.createQuery(cq).getResultList();
-        System.out.println(recruits.size());
+// Pageable 적용
+        cq.orderBy(orders);
+
+// Predicate 적용
+        if (!predicates.isEmpty()) {
+            cq.where(predicates.toArray(new Predicate[0]));
+        }
+
+// 쿼리 실행 부분
+        TypedQuery<Recruit> query = em.createQuery(cq);
+        query.setFirstResult((pageable.getPageNumber() - 1) * pageable.getPageSize());
+        query.setMaxResults(pageable.getPageSize());
+        List<Recruit> recruits = query.getResultList();
 
         List<RecruitListResponse> results = recruits.stream()
                 .map(recruit2 -> new RecruitListResponse(
