@@ -23,12 +23,14 @@ import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
+import peer.backend.exception.AlreadyDeletedException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.swing.text.html.Option;
+import java.io.IOException;
 import java.net.SocketOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -164,12 +166,14 @@ public class MessageMainService {
      */
     @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword) {
+    public CompletableFuture<AsyncResult<List<LetterTargetDTO>>> findUserListByUserNickname(KeywordDTO keyword, User userData) {
         List<User> raw = this.userRepository.findByKeyWord(keyword.getKeyword()).orElseGet(() -> null);
         if (raw == null)
             return CompletableFuture.completedFuture(AsyncResult.success(null));
         List<LetterTargetDTO> ret = new ArrayList<>();
         for (User candidate: raw) {
+            if (candidate.getId().equals(userData.getId()))
+                continue ;
             LetterTargetDTO data = new LetterTargetDTO();
             try {
                 data = LetterTargetDTO.builder().
@@ -235,9 +239,14 @@ public class MessageMainService {
      */
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) {
+    public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         User msgOwner = User.authenticationToUser(auth);
-
+        if (index.getUserIdx1().equals(msgOwner.getId())) {
+            if (index.isUser2delete())
+                throw new AlreadyDeletedException("Already user2 is delete this index.");
+        } else if (index.getUserIdx2().equals(msgOwner.getId()))
+            if (index.isUser1delete())
+                throw new AlreadyDeletedException("Already user2 is delete this index.");
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
@@ -271,15 +280,6 @@ public class MessageMainService {
             return null;
         }
 
-//        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :msgId ORDER BY created_at DESC LIMIT 2";
-//        List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", index.getConversationId(), "msgId", rawRet.getMsgId()));
-//        boolean isEnd;
-//        if (talks.size() == 0) {
-//            isEnd = true;
-//        }
-//        else {
-//            isEnd = false;
-//        }
         Msg ret = Msg.builder().msgId(rawRet.getMsgId()).
                 end(false).
                 content(rawRet.getText()).
@@ -297,15 +297,10 @@ public class MessageMainService {
      * @return
      */
     @Transactional(readOnly = false)
-    public Msg sendMessage(Authentication auth, MsgContentDTO message) {
+    public Msg sendMessage(Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         long targetId = message.getTargetId();
         MessageIndex index;
-        try {
-            index = this.indexRepository.findByUserIdx(User.authenticationToUser(auth).getId(), targetId).orElseThrow(() ->new NoSuchElementException("There is no talks"));
-        } catch (NoSuchElementException e)
-        {
-            return null;
-        }
+        index = this.indexRepository.findByUserIdx(User.authenticationToUser(auth).getId(), targetId).orElseThrow(() -> new NoSuchElementException("There is no talks"));
         return this.sendMessage(index, auth, message);
     }
 
