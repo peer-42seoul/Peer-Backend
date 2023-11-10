@@ -64,12 +64,6 @@ public class ProfileController {
             throw new BadRequestException("링크는 3개만 등록할 수 있습니다.");
         }
         for (UserLinkRequest link : links) {
-            if (link.getLinkName().isBlank() || link.getLinkName().isEmpty()) {
-                throw new BadRequestException("링크 이름이 없습니다.");
-            }
-            if (link.getLinkUrl().isBlank() || link.getLinkUrl().isEmpty()) {
-                throw new BadRequestException("링크 URL이 없습니다.");
-            }
             if (link.getLinkName().length() > 20 || link.getLinkUrl().length() > 300) {
                 throw new BadRequestException("링크 글자 수가 너무 많습니다.");
             }
