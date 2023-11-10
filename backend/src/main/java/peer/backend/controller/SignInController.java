@@ -63,7 +63,6 @@ public class SignInController {
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@CookieValue("refreshToken") String refreshToken) {
         try {
-//            String token = refreshToken.getRefreshToken();
             Base64.Decoder decoder = Base64.getUrlDecoder();
             String rowBody = refreshToken.split("\\.")[1];
             String body = new String(decoder.decode(rowBody));
