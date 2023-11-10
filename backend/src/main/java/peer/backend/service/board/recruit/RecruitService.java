@@ -358,16 +358,18 @@ public class RecruitService {
     }
 
     @Transactional
-    public void applyRecruit(Long recruit_id, ApplyRecruitRequest request){
+    public void applyRecruit(Long recruit_id, ApplyRecruitRequest request, Authentication auth){
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        Optional <RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(new RecruitApplicantPK(recruit_id, request.getUser_id()));
+        User user = User.authenticationToUser(auth);
+        Optional <RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(new RecruitApplicantPK(recruit_id, user.getId()));
+
         if (optRecruitApplicant.isPresent()){
             throw new ConflictException("이미 지원한 팀입니다.");
         }
         RecruitApplicant recruitApplicant = RecruitApplicant.builder()
                 .recruitId(recruit_id)
-                .userId(request.getUser_id())
-                .nickname(userRepository.findById(request.getUser_id()).get().getNickname())
+                .userId(user.getId())
+                .nickname(user.getNickname())
                 .status(RecruitApplicantStatus.PENDING)
                 .answerList(request.getAnswerList())
                 .build();

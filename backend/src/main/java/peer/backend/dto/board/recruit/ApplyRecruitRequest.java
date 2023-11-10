@@ -10,7 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplyRecruitRequest {
-    private Long user_id;
     private String role;
     private List<String> answerList;
 }
