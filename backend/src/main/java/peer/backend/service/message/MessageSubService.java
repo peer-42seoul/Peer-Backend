@@ -191,24 +191,24 @@ public class MessageSubService {
         this.indexRepository.save(targetIndex);
     }
 
+    @Transactional
     public boolean checkMessageIndexExistOrNot(long ownId, long userId) throws Exception {
         Optional<MessageIndex> rawIndex = this.indexRepository.findByUserIdx(ownId, userId);
+        if (rawIndex.isEmpty())
+            return false;
         MessageIndex index = rawIndex.orElseThrow(() -> new Exception("Database Error is happened."));
         if (index.getUserIdx1().equals(ownId)) {
             if (index.isUser1delete()) {
-                this.recoveryMessageIndex(index, 1l);
+                this.recoveryMessageIndex(index, 1);
                 return false;
             }
         } else if (index.getUserIdx2().equals(ownId)) {
             if (index.isUser2delete()) {
-                this.recoveryMessageIndex(index, 2l);
+                this.recoveryMessageIndex(index, 2);
                 return false;
             }
         }
-        if (rawIndex.isEmpty())
-            return false;
-        else
-            throw new DataIntegrityViolationException("There is already message");
+        throw new DataIntegrityViolationException("There is already message");
     }
 
     @Transactional(readOnly = false)

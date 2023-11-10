@@ -209,6 +209,7 @@ public class MessageMainService {
         try {
             this.subService.checkMessageIndexExistOrNot(owner.getId(), message.getTargetId());
         } catch (Exception e){
+            e.printStackTrace();
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
         User target;
@@ -216,7 +217,7 @@ public class MessageMainService {
         try {
             target = data.orElseThrow(() -> new Exception("User not found"));
         } catch (Exception e) {
-//            System.out.println("Check to here2" + e.getMessage());
+            e.printStackTrace();
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
         MessageIndex saved = this.subService.saveNewData(owner, target);
