@@ -14,13 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
-import peer.backend.dto.security.request.ToReissueToken;
 import peer.backend.dto.security.request.UserLoginRequest;
 import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.User;
@@ -61,16 +61,16 @@ public class SignInController {
 
     @ApiOperation(value = "C-SIGN-09", notes = "accessToken 만료시에 다시 accessToken을 발급받습니다.")
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissueToken(@RequestBody ToReissueToken refreshToken) {
+    public ResponseEntity<?> reissueToken(@CookieValue("refreshToken") String refreshToken) {
         try {
-            String token = refreshToken.getRefreshToken();
+//            String token = refreshToken.getRefreshToken();
             Base64.Decoder decoder = Base64.getUrlDecoder();
-            String rowBody = token.split("\\.")[1];
+            String rowBody = refreshToken.split("\\.")[1];
             String body = new String(decoder.decode(rowBody));
             JSONParser parser = new JSONParser();
             JSONObject jsonBody = (JSONObject) parser.parse(body);
             Long userId = (Long) jsonBody.get("sub");
-            String accessToken = loginService.reissue(userId, refreshToken.getRefreshToken());
+            String accessToken = loginService.reissue(userId, refreshToken);
             HashMap<String, String> maps = new HashMap<>();
             maps.put("accessToken", accessToken);
             return new ResponseEntity<Object>(maps, HttpStatus.OK);
