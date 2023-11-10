@@ -22,7 +22,7 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     private void checkType(String type) {
-        if (!type.equals("project") && !type.equals("study")) {
+        if (!type.equals("PROJECT") && !type.equals("STUDY")) {
             throw new BadRequestException("잘못된 type입니다.");
         }
     }

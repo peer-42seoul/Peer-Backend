@@ -16,6 +16,7 @@ import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.oauth.PrincipalDetails;
+import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FavoriteService {
     private final UserRepository userRepository;
+    private final RecruitFavoriteRepository recruitFavoriteRepository;
 
     private User getLeader(Recruit recruit) {
         List<TeamUser> teamUserList = recruit.getTeam().getTeamUsers();
@@ -40,12 +42,12 @@ public class FavoriteService {
     public FavoritePage getFavorite(Authentication auth, String type, int pageIndex, int pageSize) {
         User user = User.authenticationToUser(auth);
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
-        List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
+        List<RecruitFavorite> recruitFavoriteList = recruitFavoriteRepository.findAllByUserId(user.getId());
         List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
         if (recruitFavoriteList != null) {
             for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
                 Recruit recruit = recruitFavorite.getRecruit();
-                String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "project" : "study";
+                String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "PROJECT" : "STUDY";
                 if (teamType.equals(type)) {
                     User leader = getLeader(recruit);
                     FavoriteResponse favoriteResponse = FavoriteResponse.builder()
@@ -68,11 +70,11 @@ public class FavoriteService {
     @Transactional
     public void deleteAll(Authentication auth, String type) {
         User user = User.authenticationToUser(auth);
-        List<RecruitFavorite> recruitFavoriteList = user.getRecruitFavorites();
+        List<RecruitFavorite> recruitFavoriteList = recruitFavoriteRepository.findAllByUserId(user.getId());
         List<RecruitFavorite> toDelete = new ArrayList<>();
         for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
             Recruit recruit = recruitFavorite.getRecruit();
-            String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "project" : "study";
+            String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "PROJECT" : "STUDY";
             if (teamType.equals(type)) {
                 toDelete.add(recruitFavorite);
             }
