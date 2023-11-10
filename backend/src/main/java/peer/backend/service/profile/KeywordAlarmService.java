@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.profile.KeywordResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
-import peer.backend.exception.NotFoundException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserRepository;
 
 import java.util.ArrayList;
@@ -19,6 +17,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KeywordAlarmService {
     private final UserRepository userRepository;
+
+    private String resetKeyword(List<String> keywordList) {
+        String keyword;
+        if (keywordList.isEmpty()) {
+            return null;
+        }
+        keyword = keywordList.get(0);
+        for (int index = 1; index < keywordList.size(); index++) {
+            keyword = String.format("%s^&%%%s", keyword, keywordList.get(index));
+        }
+        return keyword;
+    }
 
     @Transactional
     public void addKeyword(Authentication auth, String newKeyword) {
@@ -56,11 +66,7 @@ public class KeywordAlarmService {
                     Arrays.asList(user.getKeywordAlarm().split("\\^&%"))
             );
             keywordList.remove(keyword);
-            userKeyword = keywordList.get(0);
-            for (int index = 1; index < keywordList.size(); index++) {
-                userKeyword = String.format("%s^&%%%s", userKeyword, keywordList.get(index));
-            }
-            user.setKeywordAlarm(userKeyword);
+            user.setKeywordAlarm(resetKeyword(keywordList));
             userRepository.save(user);
         }
     }

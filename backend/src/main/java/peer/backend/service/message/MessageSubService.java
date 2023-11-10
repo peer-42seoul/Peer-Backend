@@ -181,27 +181,38 @@ public class MessageSubService {
         return ret;
     }
 
-    public boolean checkMessageIndexExistOrNot(long ownId, long userId) throws DataIntegrityViolationException {
+    @Transactional
+    public void recoveryMessageIndex(MessageIndex targetIndex, long who) {
+        if (who == 1) {
+            targetIndex.setUser1delete(false);
+        } else {
+            targetIndex.setUser2delete(false);
+        }
+        this.indexRepository.save(targetIndex);
+    }
+
+    @Transactional
+    public boolean checkMessageIndexExistOrNot(long ownId, long userId) throws Exception {
         Optional<MessageIndex> rawIndex = this.indexRepository.findByUserIdx(ownId, userId);
         if (rawIndex.isEmpty())
             return false;
-        else
-            throw new DataIntegrityViolationException("There is already message");
+        MessageIndex index = rawIndex.orElseThrow(() -> new Exception("Database Error is happened."));
+        if (index.getUserIdx1().equals(ownId)) {
+            if (index.isUser1delete()) {
+                this.recoveryMessageIndex(index, 1);
+                return false;
+            }
+        } else if (index.getUserIdx2().equals(ownId)) {
+            if (index.isUser2delete()) {
+                this.recoveryMessageIndex(index, 2);
+                return false;
+            }
+        }
+        throw new DataIntegrityViolationException("There is already message");
     }
 
     @Transactional(readOnly = false)
     public MessageIndex saveNewData(User owner, User target) {
-//        MessageIndex newData = new MessageIndex();
-//        newData.setUserIdx1(owner.getId());
-//        newData.setUserIdx2(target.getId());
-//        newData.setUnreadMessageNumber1(0L);
-//        newData.setUnreadMessageNumber2(0L);
-//        newData.setUser1delete(false);
-//        newData.setUser2delete(false);
-//        newData.setUser1(owner);
-//        newData.setUser2(target);
-//        newData.setUser1(owner);
-//        newData.setUser2(target);
         MessageIndex newData = MessageIndex.builder().
                 userIdx1(owner.getId()).
                 userIdx2(target.getId()).

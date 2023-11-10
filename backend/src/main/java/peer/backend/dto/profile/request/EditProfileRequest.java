@@ -10,7 +10,8 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class EditProfileRequest {
     private MultipartFile profileImage;
-    private boolean imageChange;
+    private String imageChange;
+    @NotNull(message = "닉네임은 반드시 입력해야 합니다.")
     private String nickname;
     private String introduction;
 }

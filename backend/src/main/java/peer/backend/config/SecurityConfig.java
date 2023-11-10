@@ -2,17 +2,13 @@ package peer.backend.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,9 +17,7 @@ import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationF
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import peer.backend.config.jwt.JwtAccessDeniedHandler;
 import peer.backend.config.jwt.JwtAuthenticationEntryPoint;
 import peer.backend.config.jwt.JwtFilter;
@@ -79,6 +73,10 @@ public class SecurityConfig {
             .antMatchers(HttpMethod.GET, "/api/v1/recruit")
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/recruit/*")
+            .permitAll()
+            .antMatchers(HttpMethod.GET, "/api/v1/profile/other")
+            .permitAll()
+            .antMatchers("/login")
             .permitAll()
             .anyRequest().authenticated()
 

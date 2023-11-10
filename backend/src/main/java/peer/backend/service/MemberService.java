@@ -58,10 +58,7 @@ public class MemberService {
 
     @Transactional
     public boolean verificationPassword(String input, String password) {
-        if (!encoder.matches(input, password)) {
-            return false;
-        }
-        return true;
+        return encoder.matches(input, password);
     }
 
     @Transactional

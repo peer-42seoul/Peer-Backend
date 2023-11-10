@@ -1,37 +1,33 @@
 package peer.backend.controller;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import javax.servlet.http.Cookie;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.security.Message;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
-import peer.backend.dto.security.request.LogoutRequest;
-import peer.backend.dto.security.request.ToReissueToken;
 import peer.backend.dto.security.request.UserLoginRequest;
 import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.User;
-import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
-
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.service.EmailAuthService;
 import peer.backend.service.LoginService;
-
-import javax.validation.Valid;
-import java.util.*;
 import peer.backend.service.MemberService;
 
 @RequiredArgsConstructor
@@ -43,6 +39,9 @@ public class SignInController {
     private final MemberService memberService;
     private final EmailAuthService emailService;
 
+    @Value("${jwt.token.validity-in-seconds-refresh}")
+    private long refreshExpirationTime;
+
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
     @PostMapping()
     public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
@@ -52,22 +51,25 @@ public class SignInController {
         maps.put("isLogin", "true");
         maps.put("userId", jwtDto.getUserId());
         maps.put("accessToken", jwtDto.getAccessToken());
-        maps.put("refreshToken", jwtDto.getRefreshToken());
-        return ResponseEntity.ok(maps);
+        Cookie cookie = new Cookie("refreshToken", jwtDto.getRefreshToken());
+        cookie.setMaxAge((int) refreshExpirationTime / 1000);
+        cookie.setHttpOnly(true);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(maps);
     }
 
     @ApiOperation(value = "C-SIGN-09", notes = "accessToken 만료시에 다시 accessToken을 발급받습니다.")
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissueToken(@RequestBody ToReissueToken refreshToken) {
+    public ResponseEntity<?> reissueToken(@CookieValue("refreshToken") String refreshToken) {
         try {
-            String token = refreshToken.getRefreshToken();
             Base64.Decoder decoder = Base64.getUrlDecoder();
-            String rowBody = token.split("\\.")[1];
+            String rowBody = refreshToken.split("\\.")[1];
             String body = new String(decoder.decode(rowBody));
             JSONParser parser = new JSONParser();
             JSONObject jsonBody = (JSONObject) parser.parse(body);
             Long userId = (Long) jsonBody.get("sub");
-            String accessToken = loginService.reissue(userId, refreshToken.getRefreshToken());
+            String accessToken = loginService.reissue(userId, refreshToken);
             HashMap<String, String> maps = new HashMap<>();
             maps.put("accessToken", accessToken);
             return new ResponseEntity<Object>(maps, HttpStatus.OK);
@@ -101,7 +103,7 @@ public class SignInController {
         String randomPassword = this.memberService.getRandomPassword();
         this.memberService.changePassword(user, randomPassword);
         this.emailService.sendEmail(code.getEmail(), "Peer 임시 비밀번호",
-            "임시 비밀번호입니다.\n\nrandomPassword");
+            "임시 비밀번호입니다.\n\n" + randomPassword + "\n");
         return ResponseEntity.ok().build();
     }
 }

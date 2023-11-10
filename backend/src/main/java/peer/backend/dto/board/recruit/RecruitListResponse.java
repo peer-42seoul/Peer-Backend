@@ -17,6 +17,7 @@ public class RecruitListResponse {
     private String user_nickname;
     private String user_thumbnail;
     private String status;
-    private List<String> tagList;
+    private List<TagListResponse> tagList;
+    private Long recruit_id;
     private boolean isFavorite;
 }

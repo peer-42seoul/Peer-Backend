@@ -14,12 +14,15 @@ import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.user.User;
+import peer.backend.exception.AlreadyDeletedException;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.message.MessageMainService;
 
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -80,9 +83,14 @@ public class MessaageController {
 //            }
 //    )
     @DeleteMapping("/delete-message")
-    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody  @Valid List<TargetDTO> body) {
-        this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
-
+    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody TargetDTO body) {
+        CompletableFuture<AsyncResult<Long>> deleted;
+        deleted = this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
+        try {
+            Long finished = deleted.get().getResult();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {
@@ -106,8 +114,9 @@ public class MessaageController {
     public ResponseEntity<List<LetterTargetDTO>> searchNicknameInNewWindow(Authentication data, @RequestBody @Valid KeywordDTO keyword) {
         AsyncResult<List<LetterTargetDTO>> wrappedRet= new AsyncResult<>();
         List<LetterTargetDTO> ret;
+        User user = User.authenticationToUser(data);
         try {
-            wrappedRet = this.messageMainService.findUserListByUserNickname(keyword).get();
+            wrappedRet = this.messageMainService.findUserListByUserNickname(keyword, user).get();
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
@@ -134,7 +143,7 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-//            System.out.println("여기 어떰?!" + e);
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -153,7 +162,7 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-//            System.out.println("여기 어떰?!");
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -173,6 +182,7 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
@@ -203,9 +213,14 @@ public class MessaageController {
     @ApiOperation(value = "", notes = "유저가 특정 대상과의 대화목록에서 메시지를 전달합니다. ")
     @PostMapping("/back-message")
     public ResponseEntity<Msg> sendBackInSpecificLetter(Authentication auth, @RequestBody @Valid MsgContentDTO body) {
-        Msg ret = this.messageMainService.sendMessage(auth, body);
-        if (ret == null)
+        Msg ret;
+        try {
+            ret = this.messageMainService.sendMessage(auth, body);
+        } catch (AlreadyDeletedException e) {
+            return new ResponseEntity<>(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+        } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(ret, HttpStatus.CREATED);
     }
 }

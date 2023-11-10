@@ -72,6 +72,10 @@ public class ProfileService {
         userLinks.clear();
         userLinks = new ArrayList<>();
         for (UserLinkRequest linkRequest : links) {
+            if (linkRequest.getLinkName().isBlank() || linkRequest.getLinkName().isEmpty())
+                continue;
+            if (linkRequest.getLinkUrl().isBlank() || linkRequest.getLinkUrl().isEmpty())
+                continue;
             UserLink userLink = UserLink.builder()
                     .user(user)
                     .linkName(linkRequest.getLinkName())
@@ -105,7 +109,7 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editProfile(Authentication auth, EditProfileRequest profile) throws IOException {
+    public void editProfile(Authentication auth, EditProfileRequest profile, boolean isChange) throws IOException {
         User user = User.authenticationToUser(auth);
         // 기존 이미지가 있는 경우
         //     요청한 이미지가 있는 경우 -> 업로드
@@ -116,7 +120,7 @@ public class ProfileService {
                 String newImage = fileService.updateFile(profile.getProfileImage(), user.getImageUrl(), "image");
                 user.setImageUrl(newImage);
             }
-            else if (profile.isImageChange()) {
+            else if (isChange) {
                 fileService.deleteFile(user.getImageUrl());
                 user.setImageUrl(null);
             }

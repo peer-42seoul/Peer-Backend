@@ -33,7 +33,7 @@
     <RollingFile name="error_appender"
       fileName="${log_dir}/error.log" filePattern="${log_dir}/%d{yyyy}/%d{MM}/%d{dd}/error_%i.log">
       <PatternLayout pattern="${file_pattern}"/>
-      <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+      <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
       <Policies>
         <SizeBasedTriggeringPolicy size="10MB"/>
         <TimeBasedTriggeringPolicy interval="1"/>

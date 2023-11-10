@@ -2,6 +2,7 @@ package peer.backend.controller.profile;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,15 +18,26 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@EnableAspectJAutoProxy
 public class ProfileController {
 
     private final ProfileService profileService;
+
+    private boolean convertBoolean(String boolString) throws BadRequestException{
+        if (boolString.equals("TRUE"))
+            return true;
+        else if (boolString.equals("FALSE"))
+            return false;
+        else
+            throw new BadRequestException("올바른 Bool값이 아닙니다.");
+    }
 
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 조회하기")
     @GetMapping("/profile")
@@ -52,12 +64,6 @@ public class ProfileController {
             throw new BadRequestException("링크는 3개만 등록할 수 있습니다.");
         }
         for (UserLinkRequest link : links) {
-            if (link.getLinkName().isBlank() || link.getLinkName().isEmpty()) {
-                throw new BadRequestException("링크 이름이 없습니다.");
-            }
-            if (link.getLinkUrl().isBlank() || link.getLinkUrl().isEmpty()) {
-                throw new BadRequestException("링크 URL이 없습니다.");
-            }
             if (link.getLinkName().length() > 20 || link.getLinkUrl().length() > 300) {
                 throw new BadRequestException("링크 글자 수가 너무 많습니다.");
             }
@@ -68,9 +74,8 @@ public class ProfileController {
 
     @ApiOperation(value = "C-MYPAGE-09", notes = "다른 사용자 프로필 정보 조회하기")
     @GetMapping("/profile/other")
-    public ResponseEntity<Object> getOtherProfile(Authentication auth,
-        @RequestParam(value = "userId", required = true) Long userId,
-        @RequestParam(value = "infoList", required = true) List<String> infoList) {
+    public ResponseEntity<Object> getOtherProfile(@RequestParam(value = "userId") Long userId,
+                                                  @RequestParam(value = "infoList") List<String> infoList) {
         OtherProfileResponse otherProfile = profileService.getOtherProfile(userId, infoList);
         if (infoList.size() == 1) {
             if (otherProfile.getNickname() == null) {
@@ -90,20 +95,17 @@ public class ProfileController {
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 수정 하기")
     @PutMapping("/profile/introduction/edit")
     public ResponseEntity<Object> editProfile(Authentication auth,
-        @ModelAttribute EditProfileRequest profile) throws IOException {
-        if (profile.getIntroduction().length() > 150) {
-            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
-        }
-        if (profile.getNickname().isEmpty()) {
+        @ModelAttribute @Valid EditProfileRequest profile) throws IOException {
+        if (profile.getNickname().isEmpty() || profile.getNickname().isBlank()) {
             throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
         }
-        if (profile.getNickname().isBlank()) {
-            throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
-        }
-        if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
+        else if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
-        profileService.editProfile(auth, profile);
+        if (profile.getIntroduction() != null && profile.getIntroduction().length() > 150) {
+            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
+        }
+        profileService.editProfile(auth, profile, convertBoolean(profile.getImageChange()));
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

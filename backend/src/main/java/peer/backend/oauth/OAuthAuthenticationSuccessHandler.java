@@ -59,7 +59,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
                 .build()
                 .toUriString();
         } else {
-            redirectUrl += "/profile/MyPage";
+            redirectUrl += "/my-page/profile";
             log.info("연동된 경우니 마이페이지로 리다이렉트");
         }
 

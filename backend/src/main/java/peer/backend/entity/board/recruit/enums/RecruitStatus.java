@@ -8,9 +8,9 @@ import peer.backend.entity.team.enums.TeamOperationFormat;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitStatus {
-    BEFORE("모집전"),
-    ONGOING("모집중"),
-    DONE("모집완료")
+    BEFORE("BEFORE"),
+    ONGOING("ONGOING"),
+    DONE("DONE")
     ;
     private final String status;
 

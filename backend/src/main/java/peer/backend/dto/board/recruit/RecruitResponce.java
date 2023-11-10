@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.RecruitRole;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.user.enums.Role;
 
 import javax.swing.*;
@@ -27,6 +28,7 @@ public class RecruitResponce {
     private String link;
     private String leader_nickname;
     private String leader_image;
-    private List<String> tagList;
+    private List<TagListResponse> tagList;
     private List<RecruitRoleDTO> roleList;
+    private TeamOperationFormat place;
 }

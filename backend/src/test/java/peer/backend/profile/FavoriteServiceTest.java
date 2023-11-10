@@ -23,6 +23,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
+import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.FavoriteService;
 
@@ -40,6 +41,8 @@ public class FavoriteServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private RecruitFavoriteRepository recruitFavoriteRepository;
     @InjectMocks
     private FavoriteService favoriteService;
 
@@ -111,7 +114,8 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("test get favorite")
     public void getFavoriteTest() {
-        FavoritePage ret = favoriteService.getFavorite(auth, "project", 1, 10);
+        when(recruitFavoriteRepository.findAllByUserId(anyLong())).thenReturn(recruitFavoriteList);
+        FavoritePage ret = favoriteService.getFavorite(auth, "PROJECT", 1, 10);
         String json;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -163,7 +167,8 @@ public class FavoriteServiceTest {
     @Test
     @DisplayName("Test delete all")
     public void deleteAllTest() {
-        favoriteService.deleteAll(auth, "project");
+        when(recruitFavoriteRepository.findAllByUserId(anyLong())).thenReturn(recruitFavoriteList);
+        favoriteService.deleteAll(auth, "PROJECT");
         assertThat(user.getRecruitFavorites().size()).isEqualTo(1);
     }
 }
