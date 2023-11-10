@@ -20,6 +20,7 @@ import peer.backend.service.message.MessageMainService;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -81,7 +82,13 @@ public class MessaageController {
 //    )
     @DeleteMapping("/delete-message")
     public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody TargetDTO body) {
-        this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
+        CompletableFuture<AsyncResult<Long>> deleted;
+        deleted = this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
+        try {
+            Long finished = deleted.get().getResult();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
         List<MsgObjectDTO> ret;
         try {

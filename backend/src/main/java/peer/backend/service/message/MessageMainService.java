@@ -80,18 +80,22 @@ public class MessageMainService {
               MessagePiece conversation = data.getContent().get(0);
             // 상대방 확인
             if (msg.getUserIdx1().equals(msgOwner.getId())) {
-                if (msg.isUser1delete())
+                if (msg.isUser1delete()){
                     continue;
-                else
+                }
+                else {
                     target = this.userRepository.findById(msg.getUserIdx2()).get();
+                    retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+                }
             } else if (msg.getUserIdx2().equals(msgOwner.getId())) {
-                if (msg.isUser2delete())
+                if (msg.isUser2delete()){
                     continue;
-                else
+                }
+                else {
                     target = this.userRepository.findById(msg.getUserIdx1()).get();
+                    retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+                }
             }
-
-            retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
         }
         return CompletableFuture.completedFuture(AsyncResult.success(retList));
     }
@@ -114,9 +118,9 @@ public class MessageMainService {
         Long ret;
         ret = 0L;
         Optional<List<MessageIndex>> rawTargetsData = this.indexRepository.findByUserId(userId);
-        List<MessageIndex> targetData = rawTargetsData.get();
-//        if (rawTargetsData == null)
-//            return CompletableFuture.completedFuture(AsyncResult.success(0L));
+        List<MessageIndex> targetData = rawTargetsData.orElseGet(() -> null);
+        if (rawTargetsData == null)
+            return CompletableFuture.completedFuture(AsyncResult.success(0L));
         boolean check = false;
         List<TargetForDelete> targetUserIds = list.getTarget();
         for (TargetForDelete target : targetUserIds) {
@@ -134,13 +138,11 @@ public class MessageMainService {
                     if (data.isUser1delete() && data.isUser2delete()) {
                         this.indexRepository.delete(data);
                         ret++;
-//                        targetsData.remove(data);
                         break ;
                     }
                     else {
                         this.indexRepository.save(data);
                         ret++;
-//                        targetsData.remove(data);
                         break ;
                     }
                     // TODO: check CASCADE so you need to check is MessagePieces deleted or not
