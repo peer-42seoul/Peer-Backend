@@ -1,6 +1,29 @@
 package peer.backend.service.board.recruit;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -8,16 +31,35 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.board.recruit.ApplyRecruitRequest;
+import peer.backend.dto.board.recruit.RecruitAnswerDto;
+import peer.backend.dto.board.recruit.RecruitCreateRequest;
+import peer.backend.dto.board.recruit.RecruitInterviewDto;
+import peer.backend.dto.board.recruit.RecruitListRequest;
+import peer.backend.dto.board.recruit.RecruitListResponse;
+import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.RecruitRoleDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.dto.team.TeamApplicantListDto;
-import peer.backend.entity.board.recruit.*;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.RecruitApplicant;
+import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.recruit.RecruitInterview;
+import peer.backend.entity.board.recruit.RecruitRole;
+import peer.backend.entity.board.recruit.Tag;
+import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
-import peer.backend.entity.team.enums.*;
+import peer.backend.entity.team.enums.TeamMemberStatus;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamStatus;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
@@ -29,20 +71,6 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.FileService;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import peer.backend.service.team.TeamService;
 
 @Service
@@ -56,6 +84,7 @@ public class RecruitService {
     private final RecruitApplicantRepository recruitApplicantRepository;
     private final TeamUserRepository teamUserRepository;
     private final FileService fileService;
+    private final TeamService teamService;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -294,31 +323,6 @@ public class RecruitService {
         }
     }
 
-    private Team createTeam(User user, RecruitCreateRequest request) {
-        System.out.println(TeamType.valueOf(request.getType()));
-        Team team = Team.builder()
-            .name(request.getName())
-            .type(TeamType.valueOf(request.getType()))
-            .dueTo(request.getDue())
-            .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
-            .status(TeamStatus.RECRUITING)
-            .teamMemberStatus(TeamMemberStatus.RECRUITING)
-            .isLock(false)
-            .region1(request.getRegion().get(0))
-            .region2(request.getRegion().get(1))
-            .region3(null)
-            .build();
-        teamRepository.save(team);// 리더 추가
-        TeamUser teamUser = TeamUser.builder()
-            .teamId(team.getId())
-            .userId(user.getId())
-            .role(TeamUserRoleType.LEADER)
-            .job("Leader")
-            .build();
-        teamUserRepository.save(teamUser);
-        return team;
-    }
-
     private List<String> processMarkdownWithFormData(String markdown) throws IOException {
         //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
         Matcher matcher = IMAGE_PATTERN.matcher(markdown);
@@ -380,7 +384,7 @@ public class RecruitService {
         }
         User user = User.authenticationToUser(auth);
         //팀 생성
-        Team team = createTeam(user, request);
+        Team team = this.teamService.createTeam(user, request);
 
         //모집게시글 생성
         Recruit recruit = createRecruitFromDto(image, request, team, user);

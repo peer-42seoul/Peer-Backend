@@ -5,14 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
-import peer.backend.dto.board.recruit.RecruitListRequestDTO;
-import peer.backend.dto.team.*;
+import peer.backend.dto.board.recruit.RecruitCreateRequest;
+import peer.backend.dto.team.TeamApplicantListDto;
+import peer.backend.dto.team.TeamImageDto;
+import peer.backend.dto.team.TeamInfoResponse;
+import peer.backend.dto.team.TeamListResponse;
+import peer.backend.dto.team.TeamMemberDto;
+import peer.backend.dto.team.TeamSettingDto;
+import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
@@ -280,17 +285,18 @@ public class TeamService {
 
     @TeamCreateTracking
     @Transactional
-    public Team createTeam(User user, RecruitListRequestDTO recruitListRequestDTO) {
+    public Team createTeam(User user, RecruitCreateRequest request) {
+        System.out.println(TeamType.valueOf(request.getType()));
         Team team = Team.builder()
-            .name(recruitListRequestDTO.getName())
-            .type(TeamType.valueOf(recruitListRequestDTO.getType()))
-            .dueTo(recruitListRequestDTO.getDue())
-            .operationFormat(TeamOperationFormat.valueOf(recruitListRequestDTO.getPlace()))
+            .name(request.getName())
+            .type(TeamType.valueOf(request.getType()))
+            .dueTo(request.getDue())
+            .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
-            .region1(recruitListRequestDTO.getRegion().get(0))
-            .region2(recruitListRequestDTO.getRegion().get(1))
+            .region1(request.getRegion().get(0))
+            .region2(request.getRegion().get(1))
             .region3(null)
             .build();
         teamRepository.save(team);// 리더 추가
