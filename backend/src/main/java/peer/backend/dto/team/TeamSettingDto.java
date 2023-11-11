@@ -11,29 +11,11 @@ import java.util.SplittableRandom;
 
 @Getter
 public class TeamSettingDto {
-    private String id;
-    private String name;
-    private String status;
-    private String maxMember;
-    private String type;
-    private String dueTo;
-    private String operationForm;
-    private String[] region;
+    private TeamSettingInfoDto team;
     private ArrayList<TeamMemberDto> member;
 
     public TeamSettingDto(Team team) {
-        this.id = team.getId().toString();
-        this.name = team.getName();
-        this.dueTo = team.getDueTo();
-        this.status = team.getStatus().toString();
-        this.operationForm = team.getOperationFormat().toString();
-        this.type = team.getType().toString();
-        this.region = new String[]{
-                team.getRegion1(),
-                team.getRegion2(),
-                team.getRegion3()
-        };
-        this.maxMember = team.getMaxMember().toString();
+        this.team = new TeamSettingInfoDto(team);
         this.member = new ArrayList<>();
         for (TeamUser teamUser: team.getTeamUsers()) {
             this.member.add(new TeamMemberDto(teamUser));

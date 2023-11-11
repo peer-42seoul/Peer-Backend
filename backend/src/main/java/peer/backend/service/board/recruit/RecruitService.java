@@ -2,12 +2,12 @@ package peer.backend.service.board.recruit;
 
 
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
 import peer.backend.entity.board.recruit.*;
@@ -28,9 +28,11 @@ import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.file.FileService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -53,7 +55,7 @@ public class RecruitService {
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
     private final TeamUserRepository teamUserRepository;
-    private final TeamService teamService;
+    private final FileService fileService;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -190,9 +192,19 @@ public class RecruitService {
                 throw new IllegalArgumentException("Invalid sort value");
         }
         //query 전송
-        cq.where(predicates.toArray(new Predicate[0])).orderBy(orders);
-        List<Recruit> recruits = em.createQuery(cq).getResultList();
-        System.out.println(recruits.size());
+// Pageable 적용
+        cq.orderBy(orders);
+
+// Predicate 적용
+        if (!predicates.isEmpty()) {
+            cq.where(predicates.toArray(new Predicate[0]));
+        }
+
+// 쿼리 실행 부분
+        TypedQuery<Recruit> query = em.createQuery(cq);
+        query.setFirstResult((pageable.getPageNumber() - 1) * pageable.getPageSize());
+        query.setMaxResults(pageable.getPageSize());
+        List<Recruit> recruits = query.getResultList();
 
         List<RecruitListResponse> results = recruits.stream()
             .map(recruit2 -> new RecruitListResponse(
@@ -330,8 +342,8 @@ public class RecruitService {
         return result;
     }
 
-    private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user)
-        throws IOException {
+    private Recruit createRecruitFromDto(MultipartFile image, RecruitCreateRequest request,
+        Team team, User user) throws IOException {
         List<String> content = processMarkdownWithFormData(request.getContent());
         Recruit recruit = Recruit.builder()
             .team(team)
@@ -349,6 +361,7 @@ public class RecruitService {
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
+            .thumbnailUrl(fileService.saveFile(image, "/Users/jwee", "image"))
             .build();
         //List 추가
         addInterviewsToRecruit(recruit, request.getInterviewList());
@@ -358,8 +371,8 @@ public class RecruitService {
 
 
     @Transactional
-    public void createRecruit(RecruitCreateRequest request, Authentication auth)
-        throws IOException {
+    public void createRecruit(MultipartFile image, RecruitCreateRequest request,
+        Authentication auth) throws IOException {
         //동일한 팀 이름 검사
         Optional<Team> findTeam = teamRepository.findByName(request.getName());
         if (findTeam.isPresent()) {
@@ -370,8 +383,7 @@ public class RecruitService {
         Team team = createTeam(user, request);
 
         //모집게시글 생성
-        Recruit recruit = createRecruitFromDto(request, team, user);
-        System.out.println(recruit.getContent());
+        Recruit recruit = createRecruitFromDto(image, request, team, user);
         recruitRepository.save(recruit);
     }
 

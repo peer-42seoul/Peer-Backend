@@ -3,6 +3,7 @@ package peer.backend.dto.profile.response;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import peer.backend.dto.board.recruit.TagListResponse;
 
 import java.util.List;
 
@@ -10,12 +11,12 @@ import java.util.List;
 @Setter
 @Builder
 public class FavoriteResponse {
-    Long postId;
+    Long recruit_id;
     String title;
     String image;
     Long userId;
     String userNickname;
     String userImage;
     String status;
-    List<String> tagList;
+    List<TagListResponse> tagList;
 }

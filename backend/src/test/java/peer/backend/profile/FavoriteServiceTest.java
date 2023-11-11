@@ -16,6 +16,7 @@ import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.response.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
@@ -29,7 +30,6 @@ import peer.backend.service.profile.FavoriteService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -50,6 +50,7 @@ public class FavoriteServiceTest {
     User user;
     List<RecruitFavorite> recruitFavoriteList;
     List<TeamUser> teamUserList;
+    List<String> tagList;
     Authentication auth;
     @BeforeEach
     void beforeEach() {
@@ -80,6 +81,9 @@ public class FavoriteServiceTest {
                 .build();
             teamUserList.add(teamUser);
         }
+        tagList = new ArrayList<>();
+        tagList.add("Java");
+        tagList.add("React");
         for (int index = 0; index < 3; index++) {
             Team team = Team.builder()
                 .teamUsers(teamUserList.subList(index * 4, index * 4 + 3))
@@ -96,10 +100,12 @@ public class FavoriteServiceTest {
             Recruit recruit = Recruit.builder()
                 .id((long) index + 1)
                 .team(team)
+                .writer(teamUserList.get(index).getUser())
                 .title("test title " + index)
                 .link("test link " + index)
                 .thumbnailUrl("test image " + index)
                 .status(status)
+                .tags(tagList)
                 .build();
             RecruitFavorite recruitFavorite = new RecruitFavorite(
                 user.getId(), recruit.getId(), user, recruit
@@ -135,20 +141,20 @@ public class FavoriteServiceTest {
             }
             if (recruit.getTeam().getType().equals(TeamType.PROJECT)) {
                 FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                    .postId(recruit.getId())
+                    .recruit_id(recruit.getId())
                     .title(recruit.getTitle())
                     .image(recruit.getThumbnailUrl())
                     .userId(leader != null ? leader.getId() : -1)
                     .userNickname(leader != null ? leader.getNickname() : null)
                     .userImage(leader != null ? leader.getImageUrl() : null)
-                    .tagList(recruit.getTags())
+                    .tagList(TagListManager.getRecruitTags(recruit.getTags()))
                     .build();
                 favoriteResponseList.add(favoriteResponse);
             }
         }
         for (int index = 0; index < ret.getPostList().size(); index++) {
-            assertThat(ret.getPostList().get(index).getPostId()).isEqualTo(
-                favoriteResponseList.get(index).getPostId());
+            assertThat(ret.getPostList().get(index).getRecruit_id()).isEqualTo(
+                favoriteResponseList.get(index).getRecruit_id());
             assertThat(ret.getPostList().get(index).getTitle()).isEqualTo(
                 favoriteResponseList.get(index).getTitle());
             assertThat(ret.getPostList().get(index).getImage()).isEqualTo(
@@ -159,8 +165,10 @@ public class FavoriteServiceTest {
                 favoriteResponseList.get(index).getUserNickname());
             assertThat(ret.getPostList().get(index).getUserImage()).isEqualTo(
                 favoriteResponseList.get(index).getUserImage());
-            assertThat(ret.getPostList().get(index).getTagList()).isEqualTo(
-                favoriteResponseList.get(index).getTagList());
+            for (int tagIndex = 0; tagIndex < tagList.size(); tagIndex++) {
+                assertThat(ret.getPostList().get(index).getTagList().get(tagIndex).getName())
+                        .isEqualTo(tagList.get(tagIndex));
+            }
         }
     }
 
