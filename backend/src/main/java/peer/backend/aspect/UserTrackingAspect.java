@@ -1,5 +1,7 @@
 package peer.backend.aspect;
 
+import java.time.LocalDate;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -29,6 +31,10 @@ public class UserTrackingAspect {
     public void userFtLink() {
     }
 
+    @Pointcut("@annotation(peer.backend.annotation.tracking.UserWithdrawalTracking)")
+    public void userWithdrawal() {
+    }
+
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
         UserTracking userTracking = UserTracking.builder()
@@ -51,5 +57,14 @@ public class UserTrackingAspect {
             userTracking.setFtOAuthRegistered(true);
             this.userTrackingRepository.save(userTracking);
         }
+    }
+
+    @Transactional
+    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userWithdrawal()", returning = "user")
+    public void userWithdrawalTracking(User user) {
+        UserTracking userTracking = this.userTrackingRepository.findByUserId(user.getId());
+        userTracking.setUnRegistrationDate(LocalDate.now());
+        userTracking.setStatus(UserTrackingStatus.WITHDRAWAL);
+        this.userTrackingRepository.save(userTracking);
     }
 }

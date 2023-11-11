@@ -69,7 +69,9 @@ public class ExcelService {
             bodyCell = bodyRow.createCell(2);
             bodyCell.setCellValue(userTracking.getRegistrationDate().toString());
             bodyCell = bodyRow.createCell(3);
-            bodyCell.setCellValue(userTracking.getUnRegistrationDate());
+            if (userTracking.getUnRegistrationDate() != null) {
+                bodyCell.setCellValue(userTracking.getUnRegistrationDate().toString());
+            }
             bodyCell = bodyRow.createCell(4);
             bodyCell.setCellValue(userTracking.getIntraId());
             bodyCell = bodyRow.createCell(5);

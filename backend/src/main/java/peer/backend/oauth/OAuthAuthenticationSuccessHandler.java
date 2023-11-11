@@ -34,7 +34,6 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-//        User user = principalDetails.getUser();
         User user = User.authenticationToUser(authentication);
         LoginStatus loginStatus = principalDetails.getLoginStatus();
         String redirectUrl = REDIRECT_URL;
