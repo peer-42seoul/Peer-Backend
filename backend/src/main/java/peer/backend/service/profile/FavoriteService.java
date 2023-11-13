@@ -15,15 +15,15 @@ import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
-import peer.backend.exception.NotFoundException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -58,33 +58,22 @@ public class FavoriteService {
                 .getResultList();
     }
 
+    private List<Recruit> pagingBy(List<Recruit> retFind, int pageIndex, int pageSize) {
+        if (retFind.size() < pageSize) {
+            return retFind;
+        }
+         return retFind.subList((pageIndex - 1) * pageSize, pageIndex * pageSize);
+    }
+
     @Transactional(readOnly = true)
     public FavoritePage getFavorite(Authentication auth, String type, int pageIndex, int pageSize) {
         User user = User.authenticationToUser(auth);
-        Pageable pageable = PageRequest.of(pageIndex, pageSize);
-        List<RecruitFavorite> recruitFavoriteList = recruitFavoriteRepository.findAllByUserId(user.getId());
-        List<FavoriteResponse> favoriteResponseList = new ArrayList<>();
-        if (recruitFavoriteList != null) {
-            for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
-                Recruit recruit = recruitFavorite.getRecruit();
-                String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "PROJECT" : "STUDY";
-                if (teamType.equals(type)) {
-                    User leader = getLeader(recruit);
-                    FavoriteResponse favoriteResponse = FavoriteResponse.builder()
-                            .recruit_id(recruit.getId())
-                            .title(recruit.getTitle())
-                            .image(recruit.getThumbnailUrl())
-                            .userId(leader != null ? leader.getId() : -1)
-                            .userNickname(leader != null ? leader.getNickname() : null)
-                            .userImage(leader != null ? leader.getImageUrl() : null)
-                            .status(recruit.getStatus().getStatus())
-                            .tagList(TagListManager.getRecruitTags(recruit.getTags()))
-                            .build();
-                    favoriteResponseList.add(favoriteResponse);
-                }
-            }
+        List<Recruit> retFind = findAllBy(user.getId(), TeamType.valueOf(type));
+        List<Recruit> retPage = pagingBy(retFind, pageIndex, pageSize);
+        for (Recruit recruit : retPage) {
+            System.out.printf("%s %s\n%n", recruit.getTitle(), recruit.getWriter().getNickname());
         }
-        return new FavoritePage(favoriteResponseList, pageable);
+        return null;
     }
 
     @Transactional
