@@ -1,13 +1,11 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import peer.backend.dto.board.recruit.RecruitListResponse;
 import peer.backend.dto.profile.FavoritePage;
-import peer.backend.dto.profile.response.FavoriteResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.recruit.TagListManager;
@@ -21,9 +19,7 @@ import peer.backend.repository.user.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -59,10 +55,15 @@ public class FavoriteService {
     }
 
     private List<Recruit> pagingBy(List<Recruit> retFind, int pageIndex, int pageSize) {
+        int first = (pageIndex - 1) * pageSize;
+        int last = pageIndex * pageSize;
+        if (retFind.size() < first) {
+            return new ArrayList<>();
+        }
         if (retFind.size() < pageSize) {
             return retFind;
         }
-         return retFind.subList((pageIndex - 1) * pageSize, pageIndex * pageSize);
+        return retFind.subList(first, last);
     }
 
     @Transactional(readOnly = true)
@@ -70,10 +71,24 @@ public class FavoriteService {
         User user = User.authenticationToUser(auth);
         List<Recruit> retFind = findAllBy(user.getId(), TeamType.valueOf(type));
         List<Recruit> retPage = pagingBy(retFind, pageIndex, pageSize);
+        List<RecruitListResponse> ret = new ArrayList<>();
         for (Recruit recruit : retPage) {
-            System.out.printf("%s %s\n%n", recruit.getTitle(), recruit.getWriter().getNickname());
+            RecruitListResponse recruitListResponse = RecruitListResponse.builder()
+                    .title(recruit.getTitle())
+                    .image(recruit.getThumbnailUrl())
+                    .user_id(recruit.getWriter() != null ? recruit.getWriterId() : -1)
+                    .user_nickname(recruit.getWriter() != null ? recruit.getWriter().getNickname() : "")
+                    .user_thumbnail(recruit.getWriter() != null ? recruit.getWriter().getImageUrl() : null)
+                    .status(recruit.getStatus().getStatus())
+                    .tagList(TagListManager.getRecruitTags(recruit.getTags()))
+                    .isFavorite(true)
+                    .build();
+            ret.add(recruitListResponse);
         }
-        return null;
+        return FavoritePage.builder()
+                .postList(ret)
+                .isLast(ret.isEmpty())
+                .build();
     }
 
     @Transactional
