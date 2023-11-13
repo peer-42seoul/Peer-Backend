@@ -20,6 +20,8 @@ import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.user.UserRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,8 @@ import java.util.List;
 public class FavoriteService {
     private final UserRepository userRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     private User getLeader(Recruit recruit) {
         List<TeamUser> teamUserList = recruit.getTeam().getTeamUsers();
@@ -37,6 +41,21 @@ public class FavoriteService {
             }
         }
         return null;
+    }
+
+    private List<Recruit> findAllBy(Long userId, TeamType type) {
+        // SELECT * FROM user
+        // JOIN recruit_favorite ON user.id = recruit_favorite.user_id
+        // JOIN recruit ON recruit_favorite.recruit_id = recruit.recruit_id
+        // WHERE user.id = ? AND recruit.type = ?
+        return em.createQuery(
+                "SELECT r FROM User u " +
+                        "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
+                        "JOIN Recruit r ON rf.recruit.id = r.id " +
+                        "WHERE u.id = :userId AND r.type = :teamType", Recruit.class)
+                .setParameter("userId", userId)
+                .setParameter("teamType", type)
+                .getResultList();
     }
 
     @Transactional(readOnly = true)
