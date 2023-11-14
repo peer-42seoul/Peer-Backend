@@ -9,12 +9,8 @@ import peer.backend.dto.profile.FavoritePage;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.recruit.TagListManager;
-import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamType;
-import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
-import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
-import peer.backend.repository.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,20 +20,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
-    private final UserRepository userRepository;
-    private final RecruitFavoriteRepository recruitFavoriteRepository;
     @PersistenceContext
     private EntityManager em;
-
-    private User getLeader(Recruit recruit) {
-        List<TeamUser> teamUserList = recruit.getTeam().getTeamUsers();
-        for (TeamUser teamUser : teamUserList) {
-            if (teamUser.getRole().equals(TeamUserRoleType.LEADER)) {
-                return teamUser.getUser();
-            }
-        }
-        return null;
-    }
 
     private List<Recruit> findAllBy(Long userId, TeamType type) {
         // SELECT * FROM user
@@ -94,18 +78,16 @@ public class FavoriteService {
     @Transactional
     public void deleteAll(Authentication auth, String type) {
         User user = User.authenticationToUser(auth);
-        List<RecruitFavorite> recruitFavoriteList = recruitFavoriteRepository.findAllByUserId(user.getId());
-        List<RecruitFavorite> toDelete = new ArrayList<>();
-        for (RecruitFavorite recruitFavorite : recruitFavoriteList) {
-            Recruit recruit = recruitFavorite.getRecruit();
-            String teamType = recruit.getTeam().getType().equals(TeamType.PROJECT) ? "PROJECT" : "STUDY";
-            if (teamType.equals(type)) {
-                toDelete.add(recruitFavorite);
-            }
-        }
+        List<RecruitFavorite> toDelete = em.createQuery(
+                        "SELECT rf FROM User u " +
+                                "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
+                                "JOIN Recruit r ON rf.recruit.id = r.id " +
+                                "WHERE u.id = :userId AND r.type = :teamType", RecruitFavorite.class)
+                .setParameter("userId", user.getId())
+                .setParameter("teamType", TeamType.valueOf(type))
+                .getResultList();
         for (RecruitFavorite recruitFavorite : toDelete) {
-            recruitFavoriteList.remove(recruitFavorite);
+            em.remove(recruitFavorite);
         }
-        userRepository.save(user);
     }
 }
