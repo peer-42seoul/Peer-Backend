@@ -57,8 +57,6 @@ public class SignInController {
         Cookie cookie = new Cookie("refreshToken", jwtDto.getRefreshToken());
         cookie.setMaxAge((int) refreshExpirationTime / 1000);
         cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setDomain(DEV_DOMAIN_URL);
         response.addCookie(cookie);
         return ResponseEntity.ok()
             .body(maps);
