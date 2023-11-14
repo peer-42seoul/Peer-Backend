@@ -24,14 +24,14 @@ spring:
             scope:
               - public
             authorization-grant-type: authorization_code
-            redirect-uri: http://redirect.peer-test.co.kr/login/oauth2/code/ft
+            redirect-uri: http://back.peer-test.co.kr/login/oauth2/code/ft
           google:
             client-id: 889460259597-5ctg1s6l4cph0tq4lfcfj2o8rpe469d7.apps.googleusercontent.com
             client-secret: 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
             scope:
               - profile
               - email
-            redirect-uri: http://redirect.peer-test.co.kr/login/oauth2/code/google
+            redirect-uri: http://back.peer-test.co.kr/login/oauth2/code/google
           github:
             client-id: 6805bbb9c0e8503d21f8
             client-secret: b691ccc384cee514de82c241e1c39cacd5f457fe
