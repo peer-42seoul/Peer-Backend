@@ -22,7 +22,6 @@ import peer.backend.oauth.enums.SocialLoginProvider;
 public class UserTrackingAspect {
 
     private final UserTrackingRepository userTrackingRepository;
-
     @Pointcut("@annotation(peer.backend.annotation.tracking.UserRegistrationTracking)")
     public void userRegistration() {
     }
