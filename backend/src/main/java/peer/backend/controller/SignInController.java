@@ -42,6 +42,9 @@ public class SignInController {
     @Value("${jwt.token.validity-in-seconds-refresh}")
     private long refreshExpirationTime;
 
+    @Value("${url.dev-domain-url}")
+    private String DEV_DOMAIN_URL;
+
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
     @PostMapping()
     public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest,
@@ -56,6 +59,7 @@ public class SignInController {
         cookie.setMaxAge((int) refreshExpirationTime / 1000);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setDomain(DEV_DOMAIN_URL);
         response.addCookie(cookie);
         return ResponseEntity.ok()
             .body(maps);
