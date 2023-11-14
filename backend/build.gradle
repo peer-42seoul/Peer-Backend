@@ -75,6 +75,9 @@ dependencies {
     // excel
     implementation 'org.apache.poi:poi:5.2.2'
     implementation 'org.apache.poi:poi-ooxml:5.2.2'
+
+    // socket
+    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.3'
 }
 
 tasks.named('test') {

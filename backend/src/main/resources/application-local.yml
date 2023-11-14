@@ -103,3 +103,7 @@ url:
 
 custom:
   filePath: "/Users"
+
+socket.io:
+  host: localhost
+  port: 8080
