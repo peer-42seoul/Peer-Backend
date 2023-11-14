@@ -72,9 +72,6 @@ public class ProfileService {
     public void editLinks(Authentication auth, List<UserLinkRequest> links) {
         User user = User.authenticationToUser(auth);
         user.setUserLinks(userLinkRepository.findAllByUserId(user.getId()));
-        for (UserLink userLink : user.getUserLinks()) {
-            userLink.setUser(null);
-        }
         user.getUserLinks().clear();
         for (UserLinkRequest userLinkRequest : links) {
             if (userLinkRequest.getLinkName().isEmpty() || userLinkRequest.getLinkName().isBlank() ||
