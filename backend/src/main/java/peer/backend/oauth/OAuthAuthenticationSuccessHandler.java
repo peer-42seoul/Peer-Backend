@@ -21,7 +21,7 @@ import peer.backend.oauth.enums.LoginStatus;
 @Slf4j
 public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${url.dev-domain-url")
+    @Value("${url.dev-domain-url}")
     private String REDIRECT_URL;
 
 
