@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TeamOperationFormat {
-    ONLINE("온라인"),
-    OFFLINE("오프라인"),
+    ONLINE("ONLINE"),
+    OFFLINE("OFFLINE"),
     MIX("혼합");
 
     private final String value;
