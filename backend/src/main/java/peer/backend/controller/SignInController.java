@@ -5,13 +5,13 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -44,7 +44,8 @@ public class SignInController {
 
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
     @PostMapping()
-    public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
+    public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest,
+        HttpServletResponse response) {
         LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
         JwtDto jwtDto = loginService.login(userLoginRequest.getUserEmail(),
             userLoginRequest.getPassword());
@@ -54,8 +55,8 @@ public class SignInController {
         Cookie cookie = new Cookie("refreshToken", jwtDto.getRefreshToken());
         cookie.setMaxAge((int) refreshExpirationTime / 1000);
         cookie.setHttpOnly(true);
+        response.addCookie(cookie);
         return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(maps);
     }
 
