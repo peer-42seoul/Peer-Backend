@@ -2,13 +2,14 @@ package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.request.EditProfileRequest;
-import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.request.UserLinkRequest;
+import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.UserLinkResponse;
 import peer.backend.entity.user.User;
@@ -19,6 +20,8 @@ import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.FileService;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,22 +71,20 @@ public class ProfileService {
     @Transactional
     public void editLinks(Authentication auth, List<UserLinkRequest> links) {
         User user = User.authenticationToUser(auth);
-        List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
-        userLinks.clear();
-        userLinks = new ArrayList<>();
-        for (UserLinkRequest linkRequest : links) {
-            if (linkRequest.getLinkName().isBlank() || linkRequest.getLinkName().isEmpty())
+        user.setUserLinks(userLinkRepository.findAllByUserId(user.getId()));
+        user.getUserLinks().clear();
+        for (UserLinkRequest userLinkRequest : links) {
+            if (userLinkRequest.getLinkName().isEmpty() || userLinkRequest.getLinkName().isBlank() ||
+            userLinkRequest.getLinkUrl().isEmpty() || userLinkRequest.getLinkUrl().isBlank()) {
                 continue;
-            if (linkRequest.getLinkUrl().isBlank() || linkRequest.getLinkUrl().isEmpty())
-                continue;
-            UserLink userLink = UserLink.builder()
+            }
+            UserLink newLink = UserLink.builder()
                     .user(user)
-                    .linkName(linkRequest.getLinkName())
-                    .linkUrl(linkRequest.getLinkUrl())
+                    .linkName(userLinkRequest.getLinkName())
+                    .linkUrl(userLinkRequest.getLinkUrl())
                     .build();
-            userLinks.add(userLink);
+            user.getUserLinks().add(newLink);
         }
-        user.setUserLinks(userLinks);
         userRepository.save(user);
     }
 
