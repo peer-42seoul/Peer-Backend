@@ -180,8 +180,7 @@ public class RecruitService {
             Join<Recruit, String> tagList = recruit.join("tags");
             predicates.add(tagList.in(request.getTag()));
         }
-        System.out.println(request.getType());
-        if (request.getType() != null && !request.getType().isEmpty()) {
+        if (request.getType() != null && !request.getType().isEmpty()){
             predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
@@ -227,28 +226,27 @@ public class RecruitService {
 
 // 쿼리 실행 부분
         TypedQuery<Recruit> query = em.createQuery(cq);
-        query.setFirstResult((pageable.getPageNumber() - 1) * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
         List<Recruit> recruits = query.getResultList();
 
         List<RecruitListResponse> results = recruits.stream()
-            .map(recruit2 -> new RecruitListResponse(
-                recruit2.getTitle(),
-                recruit2.getThumbnailUrl(),
-                recruit2.getWriterId(),
-                recruit2.getWriter().getNickname(),
-                recruit2.getWriter().getImageUrl(),
-                recruit2.getStatus().toString(),
-                TagListManager.getRecruitTags(recruit2.getTags()),
-                recruit2.getId(),
-                ((auth != null) &&
-                    (recruitFavoriteRepository
-                        .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(),
-                            recruit2.getId()))
-                        .isPresent()))))
-            .collect(Collectors.toList());
+                .map(recruit2 -> new RecruitListResponse(
+                        recruit2.getTitle(),
+                        recruit2.getThumbnailUrl(),
+                        recruit2.getWriterId(),
+                        recruit2.getWriter().getNickname(),
+                        recruit2.getWriter().getImageUrl(),
+                        recruit2.getStatus().toString(),
+                        TagListManager.getRecruitTags(recruit2.getTags()),
+                        recruit2.getId(),
+                        ((auth != null) &&
+                                (recruitFavoriteRepository
+                                        .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit2.getId()))
+                                        .isPresent()))))
+                .collect(Collectors.toList());
 
-        return new PageImpl<>(results, pageable, results.size());
+        int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
+
+        return  new PageImpl<>(results.subList(fromIndex, fromIndex + pageable.getPageSize()), pageable, results.size());
     }
 
     @Transactional
