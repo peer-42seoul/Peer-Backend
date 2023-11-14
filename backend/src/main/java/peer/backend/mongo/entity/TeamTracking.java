@@ -27,7 +27,7 @@ public class TeamTracking {
     private String teamName;
     private LocalDate actionDate;
     private TeamType actionType;
-    private String type;
+    private String tag;
     private LocalDate actionFinishedDate;
     private LocalDate actionUnproperFinishedDate;
     private TeamStatus teamStatus;
