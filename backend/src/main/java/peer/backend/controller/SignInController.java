@@ -42,8 +42,7 @@ public class SignInController {
     @Value("${jwt.token.validity-in-seconds-refresh}")
     private long refreshExpirationTime;
 
-    @Value("${url.dev-domain-url}")
-    private String DEV_DOMAIN_URL;
+    private static final String DEV_DOMAIN_URL = "peer-test.co.kr";
 
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
     @PostMapping()
