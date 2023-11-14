@@ -190,8 +190,6 @@ public class RecruitService {
 
 // 쿼리 실행 부분
         TypedQuery<Recruit> query = em.createQuery(cq);
-//        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-//        query.setMaxResults(pageable.getPageSize());
         List<Recruit> recruits = query.getResultList();
 
         List<RecruitListResponse> results = recruits.stream()
