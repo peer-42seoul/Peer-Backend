@@ -39,6 +39,6 @@ public class FavoriteController {
                                             @RequestParam(value = "type") String type) {
         checkType(type);
         favoriteService.deleteAll(auth, type);
-        return new ResponseEntity<> (HttpStatus.CREATED);
+        return new ResponseEntity<> (HttpStatus.NO_CONTENT);
     }
 }
