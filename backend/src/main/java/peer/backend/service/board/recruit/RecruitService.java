@@ -246,7 +246,7 @@ public class RecruitService {
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
 
-        return  new PageImpl<>(results.subList(fromIndex, fromIndex + pageable.getPageSize()), pageable, results.size());
+        return  new PageImpl<>(results.subList(fromIndex, Math.min(fromIndex + pageable.getPageSize(), results.size())), pageable, results.size());
     }
 
     @Transactional
