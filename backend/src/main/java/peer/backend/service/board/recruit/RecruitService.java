@@ -25,6 +25,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +60,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
+import peer.backend.exception.IndexOutOfBoundsException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
@@ -173,8 +175,10 @@ public class RecruitService {
 
         // query 생성
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
-            predicates.add(
-                cb.equal(recruit.get("status"), RecruitStatus.from(request.getStatus())));
+            List<RecruitStatus> statuses = request.getStatus().stream()
+                            .map(RecruitStatus::from)
+                            .collect(Collectors.toList());
+            predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
             Join<Recruit, String> tagList = recruit.join("tags");
@@ -184,8 +188,10 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
-            predicates.add(
-                cb.equal(recruit.get("place"), TeamOperationFormat.valueOf(request.getPlace())));
+            List<TeamOperationFormat> places = request.getPlace().stream()
+                    .map(TeamOperationFormat::valueOf)
+                    .collect(Collectors.toList());
+            predicates.add(recruit.get("place").in(places));
         }
         if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
             predicates.add(cb.equal(recruit.get("region1"), request.getRegion1()));
@@ -245,7 +251,8 @@ public class RecruitService {
                 .collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
-
+        if (fromIndex > results.size())
+                throw new IndexOutOfBoundsException("존재하지 않는 페이지입니다");
         return  new PageImpl<>(results.subList(fromIndex, Math.min(fromIndex + pageable.getPageSize(), results.size())), pageable, results.size());
     }
 
