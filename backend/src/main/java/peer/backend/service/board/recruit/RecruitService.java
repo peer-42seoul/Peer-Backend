@@ -200,11 +200,7 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
-            int index = Arrays.asList(dues).indexOf(request.getDue());
-            if (index != -1) {
-                List<String> validDues = Arrays.asList(dues).subList(0, index + 1);
-                predicates.add(recruit.get("due").in(validDues));
-            }
+            predicates.add(cb.equal(recruit.get("due"), request.getDue()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
