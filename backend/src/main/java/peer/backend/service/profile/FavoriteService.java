@@ -58,6 +58,7 @@ public class FavoriteService {
         List<RecruitListResponse> ret = new ArrayList<>();
         for (Recruit recruit : retPage) {
             RecruitListResponse recruitListResponse = RecruitListResponse.builder()
+                    .recruit_id(recruit.getId())
                     .title(recruit.getTitle())
                     .image(recruit.getThumbnailUrl())
                     .user_id(recruit.getWriter() != null ? recruit.getWriterId() : -1)
