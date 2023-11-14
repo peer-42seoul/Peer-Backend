@@ -4,10 +4,11 @@ import java.security.SecureRandom;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import peer.backend.annotation.tracking.UserRegistrationTracking;
+import peer.backend.annotation.tracking.UserWithdrawalTracking;
 import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
@@ -18,15 +19,17 @@ import peer.backend.repository.user.UserRepository;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
+    private final SocialLoginService socialLoginService;
     private final RedisTemplate<String, SocialLogin> redisTemplate;
+    private final UserService userService;
 
     private final BCryptPasswordEncoder encoder;
 
-    @UserRegistrationTracking
     @Transactional
     public User signUp(UserInfo info) {
         Optional<User> checkUser = this.userRepository.findByNickname(info.getNickname());
@@ -38,13 +41,13 @@ public class MemberService {
             throw new ConflictException("이미 존재하는 이메일입니다.");
         }
         User user = info.convertUser();
-        User savedUser = this.userRepository.save(user);
+        User savedUser = this.userService.saveUser(user);
         String socialEmail = info.getSocialEmail();
         if (socialEmail != null) {
             SocialLogin socialLogin = this.redisTemplate.opsForValue().get(socialEmail);
             if (socialLogin != null) {
                 socialLogin.setUser(savedUser);
-                this.socialLoginRepository.save(socialLogin);
+                this.socialLoginService.save(socialLogin);
                 this.redisTemplate.delete(socialEmail);
             } else {
                 throw new ConflictException("잘못된 소셜 로그인 이메일입니다!");
@@ -59,8 +62,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteUser(User user) {
+    @UserWithdrawalTracking
+    public User deleteUser(User user) {
         this.userRepository.delete(user);
+        return user;
     }
 
     @Transactional

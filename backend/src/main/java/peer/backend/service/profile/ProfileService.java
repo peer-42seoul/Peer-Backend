@@ -45,7 +45,7 @@ public class ProfileService {
         for (UserLink link : userLinks) {
             UserLinkResponse userLink = UserLinkResponse.builder()
                     .id(link.getId())
-                    .link(link.getLinkUrl())
+                    .linkUrl(link.getLinkUrl())
                     .linkName(link.getLinkName())
                     .build();
             links.add(userLink);
