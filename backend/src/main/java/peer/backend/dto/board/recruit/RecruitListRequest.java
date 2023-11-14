@@ -30,6 +30,6 @@ public class RecruitListRequest{
     private String region1;
     private String region2;
     private List<String> place;
-    private String status;
+    private List<String> status;
     private List<String> tag;
 }

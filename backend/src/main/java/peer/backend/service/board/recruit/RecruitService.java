@@ -175,8 +175,10 @@ public class RecruitService {
 
         // query 생성
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
-            predicates.add(
-                cb.equal(recruit.get("status"), RecruitStatus.from(request.getStatus())));
+            List<RecruitStatus> statuses = request.getStatus().stream()
+                            .map(RecruitStatus::from)
+                            .collect(Collectors.toList());
+            predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
             Join<Recruit, String> tagList = recruit.join("tags");
