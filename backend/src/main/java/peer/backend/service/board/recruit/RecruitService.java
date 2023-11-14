@@ -186,8 +186,10 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
-            predicates.add(
-                cb.equal(recruit.get("place"), TeamOperationFormat.valueOf(request.getPlace())));
+            List<TeamOperationFormat> places = request.getPlace().stream()
+                    .map(TeamOperationFormat::valueOf)
+                    .collect(Collectors.toList());
+            predicates.add(recruit.get("place").in(places));
         }
         if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
             predicates.add(cb.equal(recruit.get("region1"), request.getRegion1()));
