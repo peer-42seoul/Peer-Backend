@@ -145,7 +145,6 @@ public class RecruitService {
             Join<Recruit, String> tagList = recruit.join("tags");
             predicates.add(tagList.in(request.getTag()));
         }
-        System.out.println(request.getType());
         if (request.getType() != null && !request.getType().isEmpty()){
             predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
@@ -191,8 +190,8 @@ public class RecruitService {
 
 // 쿼리 실행 부분
         TypedQuery<Recruit> query = em.createQuery(cq);
-        query.setFirstResult((pageable.getPageNumber() - 1) * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
+//        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+//        query.setMaxResults(pageable.getPageSize());
         List<Recruit> recruits = query.getResultList();
 
         List<RecruitListResponse> results = recruits.stream()
@@ -211,7 +210,9 @@ public class RecruitService {
                                         .isPresent()))))
                 .collect(Collectors.toList());
 
-        return  new PageImpl<>(results, pageable, results.size());
+        int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
+
+        return  new PageImpl<>(results.subList(fromIndex, fromIndex + pageable.getPageSize()), pageable, results.size());
     }
 
     @Transactional
