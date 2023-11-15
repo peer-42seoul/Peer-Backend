@@ -6,4 +6,5 @@ import peer.backend.mongo.entity.TeamTracking;
 
 public interface TeamTrackingRepository extends MongoRepository<TeamTracking, ObjectId> {
 
+    TeamTracking findByTeamId(Long id);
 }
