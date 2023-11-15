@@ -102,7 +102,7 @@ public class ProfileController {
         if (profile.getNickname().isEmpty() || profile.getNickname().isBlank()) {
             throw new BadRequestException("닉네임은 반드시 입력해야 합니다.");
         }
-        else if (profile.getNickname().length() > 7 || profile.getNickname().length() < 3) {
+        else if (profile.getNickname().length() > 7 || profile.getNickname().length() < 2) {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
         if (profile.getIntroduction() != null && profile.getIntroduction().length() > 150) {
