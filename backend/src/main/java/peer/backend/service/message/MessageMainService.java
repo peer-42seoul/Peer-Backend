@@ -349,7 +349,8 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
-        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at DESC LIMIT 21";
+        //TODO: 로직 수정, 거꾸로 들어오는지 확인 필요
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
 
         // Msg 객체 덩어리로 만들기
@@ -406,7 +407,8 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
-        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :earlyMsgId ORDER BY created_at DESC LIMIT 21";
+        //TODO: 로직 수정, 거꾸로 들어오는지 확인 필요
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :earlyMsgId ORDER BY created_at LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationId(), "earlyMsgId", target.getEarlyMsgId()));
 //        talks.sort(new MessagePieceComparator());
 
