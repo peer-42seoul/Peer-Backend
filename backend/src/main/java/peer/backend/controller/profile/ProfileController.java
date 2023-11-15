@@ -106,7 +106,7 @@ public class ProfileController {
             throw new BadRequestException("닉네임은 7자 이내여야 합니다.");
         }
         if (profile.getIntroduction() != null && profile.getIntroduction().length() > 150) {
-            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
+            throw new BadRequestException("닉네임은 2자 이상, 7자 이하여야 합니다.");
         }
         profileService.editProfile(auth, profile, convertBoolean(profile.getImageChange()));
         return new ResponseEntity<>(HttpStatus.CREATED);
