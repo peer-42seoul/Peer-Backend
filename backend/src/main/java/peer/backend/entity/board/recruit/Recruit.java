@@ -6,8 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import peer.backend.dto.board.recruit.RecruitInterviewDto;
+import peer.backend.dto.board.recruit.RecruitRoleDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamOperationFormat;
@@ -80,42 +83,48 @@ public class Recruit extends BaseEntity {
 
 
 
-    public void update(RecruitUpdateRequestDTO request, List<String> content){
+    public void update(RecruitUpdateRequestDTO request, String filePath){
         this.title = request.getTitle();
         this.due = request.getDue();
-        this.content = content.get(1);
+        this.content = request.getContent();
         this.status = request.getStatus();
         this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion().get(0));
         this.region2 = (request.getPlace().equals("온라인") ? null : request.getRegion().get(1));
         this.link = request.getLink();
-        this.thumbnailUrl = content.get(0);
+        this.thumbnailUrl = filePath;
         this.tags.clear();
         this.tags = request.getTagList();
         this.interviews.clear();
         if (!request.getInterviewList().isEmpty()) {
-            for (RecruitInterview interview : request.getInterviewList()) {
+            for (RecruitInterviewDto interview : request.getInterviewList()) {
                 this.addInterview(interview);
             }
         }
         this.roles.clear();
         if (!request.getInterviewList().isEmpty()) {
-            for (RecruitRole role : request.getRoleList()) {
+            for (RecruitRoleDTO role : request.getRoleList()) {
                 this.addRole(role);
             }
         }
     }
 
-    public void addInterview(RecruitInterview interview) {
+    public void addInterview(RecruitInterviewDto interview) {
         if (this.getInterviews() == null)
             this.interviews = new ArrayList<>();
-        this.interviews.add(interview);
-        interview.setRecruit(this);
+        this.interviews.add(RecruitInterview.builder()
+                .question(interview.getQuestion())
+                .type(RecruitInterviewType.valueOf(interview.getType()))
+                .options(interview.getOptionList())
+                .recruit(this)
+                .build());
     }
-    public void addRole(RecruitRole role) {
+    public void addRole(RecruitRoleDTO role) {
         if (this.getRoles() == null)
             this.roles = new ArrayList<>();
-        this.roles.add(role);
-        role.setRecruit(this);
+        this.roles.add(RecruitRole.builder()
+                        .name(role.getName())
+                        .number(role.getNumber())
+                        .recruit(this).build());
     }
 
     public void setHit(Long hit) {
