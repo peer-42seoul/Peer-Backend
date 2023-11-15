@@ -21,7 +21,7 @@ import peer.backend.oauth.enums.LoginStatus;
 @Slf4j
 public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${url.front-server-url}")
+    @Value("${url.dev-domain-url}")
     private String REDIRECT_URL;
 
 
@@ -54,7 +54,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             response.addCookie(cookie);
         } else if (loginStatus == LoginStatus.REGISTER) {
             log.info("회원가입 화면으로 리다이렉트");
-            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/signup")
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/privacy")
                 .queryParam("social-email", principalDetails.getSocialEmail())
                 .build()
                 .toUriString();

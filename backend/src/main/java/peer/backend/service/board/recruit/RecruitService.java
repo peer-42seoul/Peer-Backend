@@ -25,6 +25,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +60,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
+import peer.backend.exception.IndexOutOfBoundsException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
@@ -173,20 +175,23 @@ public class RecruitService {
 
         // query 생성
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
-            predicates.add(
-                cb.equal(recruit.get("status"), RecruitStatus.from(request.getStatus())));
+            List<RecruitStatus> statuses = request.getStatus().stream()
+                            .map(RecruitStatus::from)
+                            .collect(Collectors.toList());
+            predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
             Join<Recruit, String> tagList = recruit.join("tags");
             predicates.add(tagList.in(request.getTag()));
         }
-        System.out.println(request.getType());
-        if (request.getType() != null && !request.getType().isEmpty()) {
+        if (request.getType() != null && !request.getType().isEmpty()){
             predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
-            predicates.add(
-                cb.equal(recruit.get("place"), TeamOperationFormat.valueOf(request.getPlace())));
+            List<TeamOperationFormat> places = request.getPlace().stream()
+                    .map(TeamOperationFormat::valueOf)
+                    .collect(Collectors.toList());
+            predicates.add(recruit.get("place").in(places));
         }
         if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
             predicates.add(cb.equal(recruit.get("region1"), request.getRegion1()));
@@ -195,11 +200,7 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
-            int index = Arrays.asList(dues).indexOf(request.getDue());
-            if (index != -1) {
-                List<String> validDues = Arrays.asList(dues).subList(0, index + 1);
-                predicates.add(recruit.get("due").in(validDues));
-            }
+            predicates.add(cb.equal(recruit.get("due"), request.getDue()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
@@ -227,28 +228,28 @@ public class RecruitService {
 
 // 쿼리 실행 부분
         TypedQuery<Recruit> query = em.createQuery(cq);
-        query.setFirstResult((pageable.getPageNumber() - 1) * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
         List<Recruit> recruits = query.getResultList();
 
         List<RecruitListResponse> results = recruits.stream()
-            .map(recruit2 -> new RecruitListResponse(
-                recruit2.getTitle(),
-                recruit2.getThumbnailUrl(),
-                recruit2.getWriterId(),
-                recruit2.getWriter().getNickname(),
-                recruit2.getWriter().getImageUrl(),
-                recruit2.getStatus().toString(),
-                TagListManager.getRecruitTags(recruit2.getTags()),
-                recruit2.getId(),
-                ((auth != null) &&
-                    (recruitFavoriteRepository
-                        .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(),
-                            recruit2.getId()))
-                        .isPresent()))))
-            .collect(Collectors.toList());
+                .map(recruit2 -> new RecruitListResponse(
+                        recruit2.getTitle(),
+                        recruit2.getThumbnailUrl(),
+                        recruit2.getWriterId(),
+                        recruit2.getWriter().getNickname(),
+                        recruit2.getWriter().getImageUrl(),
+                        recruit2.getStatus().toString(),
+                        TagListManager.getRecruitTags(recruit2.getTags()),
+                        recruit2.getId(),
+                        ((auth != null) &&
+                                (recruitFavoriteRepository
+                                        .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit2.getId()))
+                                        .isPresent()))))
+                .collect(Collectors.toList());
 
-        return new PageImpl<>(results, pageable, results.size());
+        int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
+        if (fromIndex > results.size())
+                throw new IndexOutOfBoundsException("존재하지 않는 페이지입니다");
+        return  new PageImpl<>(results.subList(fromIndex, Math.min(fromIndex + pageable.getPageSize(), results.size())), pageable, results.size());
     }
 
     @Transactional

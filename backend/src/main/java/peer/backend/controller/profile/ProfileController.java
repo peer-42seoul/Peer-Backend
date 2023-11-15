@@ -3,6 +3,7 @@ package peer.backend.controller.profile;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
 
+import javax.persistence.LockModeType;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -55,6 +57,7 @@ public class ProfileController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @ApiOperation(value = "C-MYPAGE-20", notes = "사용자 프로필 정보 링크 수정하기")
     @PutMapping("/profile/link")
     public ResponseEntity<Object> editLinks(Authentication auth,

@@ -5,15 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.FavoritePage;
-import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.profile.FavoriteService;
-
-import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +39,6 @@ public class FavoriteController {
                                             @RequestParam(value = "type") String type) {
         checkType(type);
         favoriteService.deleteAll(auth, type);
-        return new ResponseEntity<> (HttpStatus.CREATED);
+        return new ResponseEntity<> (HttpStatus.NO_CONTENT);
     }
 }

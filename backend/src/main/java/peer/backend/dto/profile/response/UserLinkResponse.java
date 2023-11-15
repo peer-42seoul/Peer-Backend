@@ -7,6 +7,6 @@ import lombok.Getter;
 @Builder
 public class UserLinkResponse {
     private Long id;
-    private String link;
+    private String linkUrl;
     private String linkName;
 }

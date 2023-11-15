@@ -35,9 +35,7 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
     public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request, Authentication auth) {
-        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize());
-
-
+        Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
         return recruitService.getRecruitSearchList(pageable, request, auth);
     }
 

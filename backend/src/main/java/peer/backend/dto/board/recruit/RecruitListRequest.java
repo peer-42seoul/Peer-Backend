@@ -29,7 +29,7 @@ public class RecruitListRequest{
     private String due;
     private String region1;
     private String region2;
-    private String place;
-    private String status;
+    private List<String> place;
+    private List<String> status;
     private List<String> tag;
 }

@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TeamMemberStatus {
-    CONFIRMED("확정"),
-    RECRUITING("모집 중");
+    CONFIRMED("CONFIRMED"),
+    RECRUITING("RECRUITING");
 
     private final String value;
 
