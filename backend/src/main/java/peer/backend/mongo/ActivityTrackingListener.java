@@ -8,13 +8,13 @@ import peer.backend.mongo.entity.ActivityTracking;
 
 @RequiredArgsConstructor
 @Component
-public class ActivityTrackingListner extends AbstractMongoEventListener<ActivityTracking> {
+public class ActivityTrackingListener extends AbstractMongoEventListener<ActivityTracking> {
 
     private final SequenceGeneratorService sequenceGeneratorService;
 
     @Override
     public void onBeforeConvert(BeforeConvertEvent<ActivityTracking> event) {
         event.getSource()
-            .set_id(sequenceGeneratorService.generateSequence(ActivityTracking.SEQUENCE_NAME));
+            .setActId(sequenceGeneratorService.generateSequence(ActivityTracking.SEQUENCE_NAME));
     }
 }

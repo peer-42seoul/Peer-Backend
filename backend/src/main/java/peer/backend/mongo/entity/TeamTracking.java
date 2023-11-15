@@ -22,7 +22,6 @@ import peer.backend.entity.team.enums.TeamType;
 @Document(collection = "team_tracking")
 public class TeamTracking {
 
-    private Long _id;
     private Long teamId;
     private String teamName;
     private LocalDate actionDate;

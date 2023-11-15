@@ -20,7 +20,6 @@ import peer.backend.mongo.entity.enums.UserTrackingStatus;
 @Document(collection = "user_tracking")
 public class UserTracking {
 
-    private Long _id;
     private Long userId;
     private String userEmail;
     private LocalDate registrationDate;
