@@ -370,7 +370,7 @@ public class MessageMainService {
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(targetIndex, requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
@@ -428,7 +428,7 @@ public class MessageMainService {
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(targetIndex, requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
