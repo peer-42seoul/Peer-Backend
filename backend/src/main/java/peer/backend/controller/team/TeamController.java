@@ -42,8 +42,8 @@ public class TeamController {
     }
 
     @PostMapping("/setting/{teamId}")
-    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto team, Authentication authentication) {
-        this.teamService.updateTeamSetting(teamId, team, User.authenticationToUser(authentication));
+    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) {
+        this.teamService.updateTeamSetting(teamId, teamSettingInfoDto, User.authenticationToUser(authentication));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

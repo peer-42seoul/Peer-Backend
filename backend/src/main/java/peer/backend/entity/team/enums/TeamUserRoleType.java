@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TeamUserRoleType {
-    LEADER("리더"),
-    MEMBER("멤버");
+    LEADER("LEADER"),
+    MEMBER("MEMBER");
 
     private final String value;
 
