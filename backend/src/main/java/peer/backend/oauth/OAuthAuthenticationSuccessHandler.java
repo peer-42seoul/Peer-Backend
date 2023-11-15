@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -51,7 +53,16 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             Cookie cookie = new Cookie("refreshToken", refreshToken);
             cookie.setMaxAge((int) refreshExpirationTime / 1000);
             cookie.setHttpOnly(true);
-            response.addCookie(cookie);
+            ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(false)
+                .maxAge((int) refreshExpirationTime / 1000)
+                .build();
+
+//            response.addCookie(cookie);
+            response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
         } else if (loginStatus == LoginStatus.REGISTER) {
             log.info("회원가입 화면으로 리다이렉트");
             redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/privacy")
