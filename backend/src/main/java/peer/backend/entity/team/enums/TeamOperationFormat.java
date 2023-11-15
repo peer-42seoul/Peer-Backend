@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public enum TeamOperationFormat {
     ONLINE("ONLINE"),
     OFFLINE("OFFLINE"),
-    MIX("혼합");
+    MIX("MIX");
 
     private final String value;
 
