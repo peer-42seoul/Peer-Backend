@@ -14,6 +14,6 @@ import java.util.List;
 @Builder
 public class RecruitInterviewDto {
     private String question;
-    private RecruitInterviewType type;
+    private String type;
     private List<String> optionList;
 }
