@@ -132,18 +132,27 @@ public class MessageSubService {
             if (rawData.isEmpty())
                 continue;
             data = rawData.get();
-
-            if (talks.size() > 20) {
-                if (size == 20)
-                    break ;
-            }
-            else {
-                if (size + 1 == talks.size())
+            if (size == 0) {
+                if (talks.size() > 20) {
+                    isEnd = false;
+                    size++;
+                    continue;
+                } else if (talks.size() < 20) {
                     isEnd = true;
-                else if (size > talks.size()) {
-                    break ;
                 }
             }
+
+//            if (talks.size() > 20) {
+//                if (size == 20)
+//                    break ;
+//            }
+//            else {
+//                if (size + 1 == talks.size())
+//                    isEnd = true;
+//                else if (size > talks.size()) {
+//                    break ;
+//                }
+//            }
             Msg talkBubble =  Msg.builder().
                     userId(piece.getSenderId()).
                     msgId(piece.getMsgId()).
