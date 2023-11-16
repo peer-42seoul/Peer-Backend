@@ -18,12 +18,13 @@ public class TempDnDController {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody TeamDnD data) {
+        TeamDnD ret;
         try {
-            this.tempDnDService.createDnD(data);
+            ret = this.tempDnDService.createDnD(data);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<TeamDnD>(ret,HttpStatus.CREATED);
     }
 
     @GetMapping("/read")
@@ -41,12 +42,13 @@ public class TempDnDController {
 
     @PostMapping("/update")
     public ResponseEntity<?> update(@RequestBody TeamDnD data) {
+        TeamDnD ret;
         try{
-            this.tempDnDService.updateDnD(data);
+            ret = this.tempDnDService.updateDnD(data);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<TeamDnD>(ret, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete")

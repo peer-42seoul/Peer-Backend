@@ -348,7 +348,7 @@ public class RecruitService {
             .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
             .tags(request.getTagList().stream().map(TagListResponse::getName).collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
-            .thumbnailUrl(fileService.saveFile(request.getImage(), "/Users/jwee", "image"))
+            .thumbnailUrl(fileService.saveFile(request.getImage(), "/Users/ryuhansol/workspace/Peer-Backend/backend/temp", "image"))
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
