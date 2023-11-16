@@ -8,6 +8,7 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import java.util.List;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,6 +23,6 @@ public class RecruitUpdateRequestDTO {
     private String link;
     private List<String> tagList;
     private String place;
-    private List<RecruitRole> roleList;
-    private List<RecruitInterview> interviewList;
+    private List<RecruitRoleDTO> roleList;
+    private List<RecruitInterviewDto> interviewList;
 }

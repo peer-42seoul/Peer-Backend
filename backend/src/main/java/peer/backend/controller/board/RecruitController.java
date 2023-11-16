@@ -41,16 +41,18 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestPart("image") MultipartFile image, @ModelAttribute RecruitCreateRequest request, Authentication auth) throws IOException{
-        recruitService.createRecruit(image, request, auth);
+    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+        request.setType(request.getType().toUpperCase());
+//        request.setPlace(request.getPlace().toUpperCase());
+//        System.out.println(request.getPlace());
+        recruitService.createRecruit(request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
-
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id, @RequestBody RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
-        recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
+    public void updateRecruit(@PathVariable Long recruit_id, @RequestPart("image") MultipartFile image, @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
+        recruitService.updateRecruit(recruit_id, image, recruitUpdateRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")

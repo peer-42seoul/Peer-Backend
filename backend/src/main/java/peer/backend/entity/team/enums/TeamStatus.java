@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TeamStatus {
-    RECRUITING("모집중"),
-    BEFORE("시작전"),
-    ONGOING("진행중"),
-    COMPLETE("진행완료");
+    RECRUITING("RECRUITING"),
+    BEFORE("BEFORE"),
+    ONGOING("ONGOING"),
+    COMPLETE("COMPLETE");
 
     private final String value;
 
