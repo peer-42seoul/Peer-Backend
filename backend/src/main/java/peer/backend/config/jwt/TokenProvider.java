@@ -44,7 +44,7 @@ public class TokenProvider {
         claims.put("sub", user.getId());
         claims.put("role", "ROLE_USER");
 
-        return Jwts.builder()
+        String ret = Jwts.builder()
             .setHeaderParam("typ", "accessToken")
             .setClaims(claims)
             .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -52,6 +52,9 @@ public class TokenProvider {
             .signWith(this.key, SignatureAlgorithm.HS256)
             .compact()
             ;
+//        String redisKey = "redis_" + user.getId().toString();
+//        redisTemplate.opsForValue().set(redisKey, ret);
+        return ret;
     }
 
     public String createRefreshToken(User user) {
@@ -114,6 +117,18 @@ public class TokenProvider {
             }
         }
         return true;
+    }
+
+    public boolean validateToken2(String accessToken) {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+//        log.info("key value : " + redisTemplate.opsForValue().get(key));
+
+        try {
+            Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean validRefreshToken(String refreshToken) {
