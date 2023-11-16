@@ -27,6 +27,10 @@ public class RecruitApplicant extends BaseEntity {
     @Column(name = "recruit_id")
     private Long recruitId;
 
+    @Id
+    @Column(name = "role")
+    private String role;
+
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
