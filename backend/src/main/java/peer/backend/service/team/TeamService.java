@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
+import peer.backend.annotation.tracking.TeamUpdateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.TeamApplicantListDto;
@@ -80,6 +81,7 @@ public class TeamService {
     }
 
     @Transactional
+    @TeamUpdateTracking
     public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
