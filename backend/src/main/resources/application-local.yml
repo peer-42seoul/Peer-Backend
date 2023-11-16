@@ -19,7 +19,7 @@ spring:
         registration:
           ft:
             client-id: u-s4t2ud-878c3954e7ce03154571d30d7499ec4e8880ccdba220c8a2c8cf4a4b71ea1d51
-            client-secret: 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
+            client-secret: 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
             client-name: ft
             scope:
               - public
@@ -56,8 +56,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: juhyelee134@gmail.com
-    password: qstrpngbbmmgnyeg
+    username: 42peer@gmail.com
+    password: ENC(DP+YbG1APQcGVpMrg9tVqHL/KpkSB/ESWds1XFsRypE=)
     properties:
       mail:
         smtp:
@@ -103,3 +103,7 @@ url:
 
 custom:
   filePath: "/Users"
+
+socket.io:
+  host: localhost
+  port: 8081

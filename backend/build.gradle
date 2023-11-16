@@ -49,6 +49,7 @@ dependencies {
 
     // Mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5' // peer 비밀번호 안전하게 저장
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -75,6 +76,9 @@ dependencies {
     // excel
     implementation 'org.apache.poi:poi:5.2.2'
     implementation 'org.apache.poi:poi-ooxml:5.2.2'
+
+    // socket
+    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.3'
 }
 
 tasks.named('test') {
