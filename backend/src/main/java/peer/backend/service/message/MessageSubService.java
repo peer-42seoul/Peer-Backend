@@ -163,9 +163,14 @@ public class MessageSubService {
         return innerData;
     }
 
-    public MsgListDTO makeMsgDTO(User owner, User targetUser, List<Msg>innerData)
+    public MsgListDTO makeMsgDTO(MessageIndex targetIndex, User owner, User targetUser, List<Msg>innerData)
     {
         MsgListDTO ret = new MsgListDTO();
+        boolean targetDeleted;
+        if (owner.getId().equals(targetIndex.getUserIdx1())) {
+            targetDeleted = targetIndex.isUser2delete();
+        } else targetDeleted = targetIndex.isUser1delete();
+
         MsgOwner user = MsgOwner.builder().
                 userId(owner.getId()).
                 userNickname(owner.getNickname()).
@@ -173,7 +178,8 @@ public class MessageSubService {
         MsgTarget msgTarget = MsgTarget.builder().
                 userId(targetUser.getId()).
                 userNickname(targetUser.getNickname()).
-                userProfile(targetUser.getImageUrl()).build();
+                userProfile(targetUser.getImageUrl()).
+                deleted(targetDeleted).build();
 
         ret.setMsgOwner(user);
         ret.setMsgTarget(msgTarget);

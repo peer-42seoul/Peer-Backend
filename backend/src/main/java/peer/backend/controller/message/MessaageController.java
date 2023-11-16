@@ -181,8 +181,16 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (!wrappedData.isSuccess())
+        {
+            if (wrappedData.getException().getMessage().equals("target user deleted message")) {
+                return new ResponseEntity<>(HttpStatus.GONE);
+            }
+            else if (wrappedData.getException().getMessage().equals("Messages are deleted")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
