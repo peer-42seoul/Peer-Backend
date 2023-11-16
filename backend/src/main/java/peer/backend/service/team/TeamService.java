@@ -286,7 +286,6 @@ public class TeamService {
     @TeamCreateTracking
     @Transactional
     public Team createTeam(User user, RecruitCreateRequest request) {
-        System.out.println(TeamType.valueOf(request.getType()));
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))

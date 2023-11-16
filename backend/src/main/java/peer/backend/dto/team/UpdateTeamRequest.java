@@ -19,7 +19,6 @@ public class UpdateTeamRequest {
     @NotBlank(message = "이름이 비어있습니다!")
     private String name;
 
-    @NotNull(message = "팀 타입이 비어있습니다!")
     @ValidEnum(enumClass = TeamType.class)
     private TeamType type;
 
@@ -28,17 +27,14 @@ public class UpdateTeamRequest {
 
     private String teamPicturePath;
 
-    @NotNull(message = "팀 활동 방식이 비어있습니다!")
     @ValidEnum(enumClass = TeamOperationFormat.class)
     private TeamOperationFormat operationFormat;
 
     private String teamLogoPath;
 
-    @NotNull(message = "팀 상태가 비어있습니다!")
     @ValidEnum(enumClass = TeamStatus.class)
     private TeamStatus status;
 
-    @NotNull(message = "팀 모집 현황이 비어있습니다!")
     @ValidEnum(enumClass = TeamMemberStatus.class)
     private TeamMemberStatus teamMemberStatus;
 
@@ -53,6 +49,5 @@ public class UpdateTeamRequest {
     @NotBlank(message = "지역2가 비어있습니다!")
     private String region2;
 
-    @NotBlank(message = "지역3이 비어있습니다!")
     private String region3;
 }

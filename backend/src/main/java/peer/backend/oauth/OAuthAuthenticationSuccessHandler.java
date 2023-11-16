@@ -6,8 +6,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -51,6 +51,8 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             Cookie cookie = new Cookie("refreshToken", refreshToken);
             cookie.setMaxAge((int) refreshExpirationTime / 1000);
             cookie.setHttpOnly(true);
+            cookie.setPath("/");
+
             response.addCookie(cookie);
         } else if (loginStatus == LoginStatus.REGISTER) {
             log.info("회원가입 화면으로 리다이렉트");
