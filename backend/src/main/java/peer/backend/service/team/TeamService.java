@@ -80,11 +80,21 @@ public class TeamService {
     }
 
     @Transactional
-    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) {
-        Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) &&
-            isLeader(teamId, user)) {
+    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) throws IOException {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
+            if (team.getTeamLogoPath() != null) {
+                if (!teamSettingInfoDto.getTeamImage().isEmpty()) {
+//                    String newImage = fileService.updateFile(teamSettingInfoDto.getTeamImage(), user.getImageUrl(), "image");
+                } else {
+                    fileService.deleteFile(team.getTeamLogoPath());
+                    team.setTeamLogoPath(null);
+                }
+            }
+            else if (teamSettingInfoDto.getTeamImage().isEmpty()) {
+//                String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
+//                team.setTeamLogoPath(newImage);
+            }
             team.update(teamSettingInfoDto);
         } else {
             throw new ForbiddenException("팀장이 아니거나 팀 아이디가 일치하지 않습니다.");
@@ -130,7 +140,7 @@ public class TeamService {
         if (!team.deleteTeamUser(teamUser.getUserId())) {
             throw new NotFoundException("탈퇴할 수 없습니다.");
         } else {
-            if (team.getTeamUsers().size() == 0) {
+            if (team.getTeamUsers().isEmpty()) {
                 teamRepository.delete(team);
             } else {
                 team.grantLeaderPermission(team.getTeamUsers().get(0).getUserId(),
