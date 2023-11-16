@@ -25,6 +25,7 @@ public class TeamTrackingAspect {
     @AfterReturning(pointcut = "peer.backend.aspect.TeamTrackingAspect.teamCreate()", returning = "team")
     public void teamCreateTracking(Team team) {
         TeamTracking teamTracking = TeamTracking.builder()
+            ._id(team.getId())
             .teamId(team.getId())
             .teamName(team.getName())
             .actionDate(team.getCreatedAt().toLocalDate())

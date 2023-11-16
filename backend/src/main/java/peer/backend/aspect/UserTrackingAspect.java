@@ -38,6 +38,7 @@ public class UserTrackingAspect {
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
         UserTracking userTracking = UserTracking.builder()
+            ._id(user.getId())
             .userId(user.getId())
             .userEmail(user.getEmail())
             .registrationDate(user.getCreatedAt().toLocalDate())
