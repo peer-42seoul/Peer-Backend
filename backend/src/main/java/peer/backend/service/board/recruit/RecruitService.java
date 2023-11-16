@@ -374,7 +374,7 @@ public class RecruitService {
         //모집게시글 생성
         Recruit recruit = createRecruitFromDto(request, team, user);
         System.out.println(recruit.getThumbnailUrl());
-//        recruitRepository.save(recruit);
+        recruitRepository.save(recruit);
     }
 
     @Transactional

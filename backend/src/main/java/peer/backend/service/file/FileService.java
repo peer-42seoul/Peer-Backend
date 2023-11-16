@@ -90,6 +90,8 @@ public class FileService {
     @Transactional
     public String saveFile(String base64String, String folderPath, String typeCheck) throws IOException {
         //base64 디코딩
+        if (base64String == null)
+            return null;
         byte[] fileData = Base64.getDecoder().decode(base64String);
 
         //파일 타입 확인
