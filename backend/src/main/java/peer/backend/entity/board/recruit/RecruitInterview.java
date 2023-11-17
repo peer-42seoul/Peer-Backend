@@ -1,9 +1,6 @@
 package peer.backend.entity.board.recruit;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 
 import javax.persistence.*;
@@ -12,9 +9,9 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "recruit_interview")
 public class RecruitInterview {
     @Id
