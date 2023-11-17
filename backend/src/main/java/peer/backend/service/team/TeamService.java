@@ -12,7 +12,6 @@ import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.TeamApplicantListDto;
-import peer.backend.dto.team.TeamImageDto;
 import peer.backend.dto.team.TeamInfoResponse;
 import peer.backend.dto.team.TeamListResponse;
 import peer.backend.dto.team.TeamMemberDto;
@@ -91,7 +90,7 @@ public class TeamService {
                     team.setTeamLogoPath(null);
                 }
             }
-            else if (teamSettingInfoDto.getTeamImage().isEmpty()) {
+            else if (!teamSettingInfoDto.getTeamImage().isEmpty()) {
 //                String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
 //                team.setTeamLogoPath(newImage);
             }
@@ -102,8 +101,7 @@ public class TeamService {
     }
 
     @Transactional
-    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, Long deletingToUserId,
-        User user) {
+    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, Long deletingToUserId, User user) {
         if (deletingToUserId.equals(user.getId())) {
             throw new ForbiddenException("자기 자신을 팀에서 추방할 수 없습니다.");
         }
@@ -122,8 +120,7 @@ public class TeamService {
 
     //TODO: Auth 해야됨
     @Transactional
-    public void grantRole(Long teamId, Long grantingUserId, User user,
-        TeamUserRoleType teamUserRoleType) {
+    public void grantRole(Long teamId, Long grantingUserId, User user, TeamUserRoleType teamUserRoleType) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
@@ -247,45 +244,6 @@ public class TeamService {
         } else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
-    }
-
-    @Transactional
-    public void deleteTeamImage(Long teamId, User user) throws IOException {
-        Team team = this.teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
-        if (!isLeader(teamId, user)) {
-            throw new ForbiddenException("팀장이 아닙니다.");
-        }
-        fileService.deleteFile(team.getTeamLogoPath());
-    }
-
-    @Transactional
-    public void updateTeamImage(Long teamId, TeamImageDto teamImageDto, User user)
-        throws IOException {
-        String newFilePath;
-        Team team = this.teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
-        if (!isLeader(teamId, user)) {
-            throw new ForbiddenException("팀장이 아닙니다.");
-        }
-        String oldFilePath = team.getTeamLogoPath();
-        if (oldFilePath == null) {
-            newFilePath = fileService.saveFile(teamImageDto.getTeamImage(), filePath, "image");
-        } else {
-            newFilePath = fileService.updateFile(teamImageDto.getTeamImage(), oldFilePath, "image");
-        }
-        team.addImage(newFilePath);
-    }
-
-    private TeamUser getTeamUserByName(Long teamId, String userName)
-        throws NotFoundException, ForbiddenException {
-        TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(
-            this.userRepository.findByName(userName)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 유저 아이디 입니다.")).getId(), teamId);
-        if (teamUser.getRole() != TeamUserRoleType.LEADER) {
-            throw new ForbiddenException("팀장이 아닙니다.");
-        }
-        return teamUser;
     }
 
     private boolean isLeader(Long teamId, User user) {
