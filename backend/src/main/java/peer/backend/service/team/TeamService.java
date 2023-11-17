@@ -83,8 +83,8 @@ public class TeamService {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
             if (team.getTeamLogoPath() != null) {
-                if (!teamSettingInfoDto.getTeamImage().isEmpty()) {
-                    String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), user.getImageUrl(), "image");
+                if (teamSettingInfoDto.getTeamImage() != null) {
+                    String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
                     fileService.deleteFile(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
                 } else {
@@ -92,7 +92,7 @@ public class TeamService {
                     team.setTeamLogoPath(null);
                 }
             }
-            else if (!teamSettingInfoDto.getTeamImage().isEmpty()) {
+            else if (teamSettingInfoDto.getTeamImage() != null) {
                 String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
                 team.setTeamLogoPath(newImage);
             }
@@ -120,7 +120,6 @@ public class TeamService {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    //TODO: Auth 해야됨
     @Transactional
     public void grantRole(Long teamId, Long grantingUserId, User user, TeamUserRoleType teamUserRoleType) {
         if (!isLeader(teamId, user)) {
