@@ -1,13 +1,10 @@
 package peer.backend.dto.team;
 
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 
 import java.util.ArrayList;
-import java.util.SplittableRandom;
 
 @Getter
 public class TeamSettingDto {
