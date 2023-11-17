@@ -132,18 +132,27 @@ public class MessageSubService {
             if (rawData.isEmpty())
                 continue;
             data = rawData.get();
-
-            if (talks.size() > 20) {
-                if (size == 20)
-                    break ;
-            }
-            else {
-                if (size + 1 == talks.size())
+            if (size == 0) {
+                if (talks.size() > 20) {
+                    isEnd = false;
+                    size++;
+                    continue;
+                } else if (talks.size() < 20) {
                     isEnd = true;
-                else if (size > talks.size()) {
-                    break ;
                 }
             }
+
+//            if (talks.size() > 20) {
+//                if (size == 20)
+//                    break ;
+//            }
+//            else {
+//                if (size + 1 == talks.size())
+//                    isEnd = true;
+//                else if (size > talks.size()) {
+//                    break ;
+//                }
+//            }
             Msg talkBubble =  Msg.builder().
                     userId(piece.getSenderId()).
                     msgId(piece.getMsgId()).
@@ -163,9 +172,14 @@ public class MessageSubService {
         return innerData;
     }
 
-    public MsgListDTO makeMsgDTO(User owner, User targetUser, List<Msg>innerData)
+    public MsgListDTO makeMsgDTO(MessageIndex targetIndex, User owner, User targetUser, List<Msg>innerData)
     {
         MsgListDTO ret = new MsgListDTO();
+        boolean targetDeleted;
+        if (owner.getId().equals(targetIndex.getUserIdx1())) {
+            targetDeleted = targetIndex.isUser2delete();
+        } else targetDeleted = targetIndex.isUser1delete();
+
         MsgOwner user = MsgOwner.builder().
                 userId(owner.getId()).
                 userNickname(owner.getNickname()).
@@ -173,7 +187,8 @@ public class MessageSubService {
         MsgTarget msgTarget = MsgTarget.builder().
                 userId(targetUser.getId()).
                 userNickname(targetUser.getNickname()).
-                userProfile(targetUser.getImageUrl()).build();
+                userProfile(targetUser.getImageUrl()).
+                deleted(targetDeleted).build();
 
         ret.setMsgOwner(user);
         ret.setMsgTarget(msgTarget);
@@ -192,20 +207,20 @@ public class MessageSubService {
     }
 
     @Transactional
-    public boolean checkMessageIndexExistOrNot(long ownId, long userId) throws Exception {
+    public void checkMessageIndexExistOrNot(long ownId, long userId) throws Exception {
         Optional<MessageIndex> rawIndex = this.indexRepository.findByUserIdx(ownId, userId);
         if (rawIndex.isEmpty())
-            return false;
+            return;
         MessageIndex index = rawIndex.orElseThrow(() -> new Exception("Database Error is happened."));
         if (index.getUserIdx1().equals(ownId)) {
-            if (index.isUser1delete()) {
-                this.recoveryMessageIndex(index, 1);
-                return false;
+            if (index.isUser1delete() || index.isUser2delete()) {
+//                this.recoveryMessageIndex(index, 1);
+                return;
             }
         } else if (index.getUserIdx2().equals(ownId)) {
-            if (index.isUser2delete()) {
-                this.recoveryMessageIndex(index, 2);
-                return false;
+            if (index.isUser2delete() || index.isUser1delete()) {
+//                this.recoveryMessageIndex(index, 2);
+                return;
             }
         }
         throw new DataIntegrityViolationException("There is already message");

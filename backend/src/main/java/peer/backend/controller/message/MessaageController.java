@@ -133,6 +133,7 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
+    //TODO: 동작 여부 확인 필요
     public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication auth, @RequestBody MsgContentDTO body) {
         // Message Index Create
         AsyncResult<MessageIndex> wrappedIndex;
@@ -143,7 +144,6 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -162,7 +162,6 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -182,8 +181,16 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (!wrappedData.isSuccess())
+        {
+            if (wrappedData.getException().getMessage().equals("target user deleted message")) {
+                return new ResponseEntity<>(HttpStatus.GONE);
+            }
+            else if (wrappedData.getException().getMessage().equals("Messages are deleted")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
