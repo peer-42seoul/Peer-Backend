@@ -147,7 +147,6 @@ public class MessageMainService {
                         ret++;
                         break ;
                     }
-                    // TODO: check CASCADE so you need to check is MessagePieces deleted or not
                 }
             }
         }
@@ -325,15 +324,9 @@ public class MessageMainService {
             if (targetIndex.getUserIdx1().equals(userId)) {
                 if (targetIndex.isUser1delete())
                     throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
-                else if (targetIndex.isUser2delete()) {
-                    throw new AlreadyDeletedException("target user deleted message");
-                }
             } else if (targetIndex.getUserIdx2().equals(userId)) {
                 if (targetIndex.isUser2delete())
                     throw new ObjectDeletedException("Messages are deleted", MessageIndex.class, "MessageIndex");
-                else if (targetIndex.isUser1delete()) {
-                    throw new AlreadyDeletedException("target user deleted message");
-                }
             }
         } catch (Exception e) {
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
