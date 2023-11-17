@@ -117,4 +117,8 @@ public class Team extends BaseEntity {
     public void addImage(String filePath) {
         this.teamLogoPath = filePath;
     }
+
+    public void setTeamLogoPath(String teamLogoPath) {
+        this.teamLogoPath = teamLogoPath;
+    }
 }
