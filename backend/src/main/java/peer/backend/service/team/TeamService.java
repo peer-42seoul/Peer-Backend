@@ -84,15 +84,17 @@ public class TeamService {
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
             if (team.getTeamLogoPath() != null) {
                 if (!teamSettingInfoDto.getTeamImage().isEmpty()) {
-//                    String newImage = fileService.updateFile(teamSettingInfoDto.getTeamImage(), user.getImageUrl(), "image");
+                    String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), user.getImageUrl(), "image");
+                    fileService.deleteFile(team.getTeamLogoPath());
+                    team.setTeamLogoPath(newImage);
                 } else {
                     fileService.deleteFile(team.getTeamLogoPath());
                     team.setTeamLogoPath(null);
                 }
             }
             else if (!teamSettingInfoDto.getTeamImage().isEmpty()) {
-//                String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
-//                team.setTeamLogoPath(newImage);
+                String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
+                team.setTeamLogoPath(newImage);
             }
             team.update(teamSettingInfoDto);
         } else {
