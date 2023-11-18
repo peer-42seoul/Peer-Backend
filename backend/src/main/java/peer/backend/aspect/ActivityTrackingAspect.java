@@ -1,7 +1,6 @@
 package peer.backend.aspect;
 
 
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +34,6 @@ public class ActivityTrackingAspect {
             .userId(user.getId())
             .intraId(this.getIntraId(user))
             .actionType(ActionType.REGISTRATION)
-            .actDate(LocalDate.now())
             .build();
 
         activityTrackingRepository.save(activityTracking);

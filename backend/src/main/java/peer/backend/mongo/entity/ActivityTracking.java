@@ -2,6 +2,7 @@ package peer.backend.mongo.entity;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,11 +33,12 @@ public class ActivityTracking {
     private TeamType teamType;
     private ActionType actionType;
     private String toolboxSubKey;
+    @CreatedDate
     private LocalDate actDate;
     private double wallet;
-    private boolean handled;
+    private boolean handled = false;
     @CreatedDate
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     @LastModifiedDate
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 }
