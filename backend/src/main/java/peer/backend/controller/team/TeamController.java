@@ -42,7 +42,7 @@ public class TeamController {
     }
 
     @PostMapping("/setting/{teamId}")
-    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) {
+    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) throws IOException {
         this.teamService.updateTeamSetting(teamId, teamSettingInfoDto, User.authenticationToUser(authentication));
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -101,19 +101,5 @@ public class TeamController {
     public List<TeamMemberDto> getTeamMember(@PathVariable() Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
         return this.teamService.getTeamMemberList(teamId, user);
-    }
-
-    @DeleteMapping("/setting/image/{teamId}")
-    public ResponseEntity<?> deleteTeamImage(@PathVariable() Long teamId, Authentication authentication) throws IOException {
-        User user = User.authenticationToUser(authentication);
-        this.teamService.deleteTeamImage(teamId, user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping("/setting/image/{teamId}")
-    public ResponseEntity<?> updateTeamImage(@PathVariable() Long teamId, @ModelAttribute TeamImageDto teamImageDto, Authentication authentication) throws IOException {
-        User user = User.authenticationToUser(authentication);
-        this.teamService.updateTeamImage(teamId, teamImageDto, user);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -3,6 +3,7 @@ package peer.backend.service.message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectDeletedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -147,7 +148,6 @@ public class MessageMainService {
                         ret++;
                         break ;
                     }
-                    // TODO: check CASCADE so you need to check is MessagePieces deleted or not
                 }
             }
         }
@@ -349,8 +349,10 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
-        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY created_at DESC LIMIT 21";
+        //TODO: 로직 수정, 거꾸로 들어오는지 확인 필요
+        String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId ORDER BY msg_id DESC LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationalId()));
+        talks.sort(new MessagePieceComparator());
 
         // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();
@@ -370,7 +372,7 @@ public class MessageMainService {
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(targetIndex, requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
@@ -406,9 +408,10 @@ public class MessageMainService {
         }
 
         // MessagePiece의 List 찾기
+        //TODO: 로직 수정, 거꾸로 들어오는지 확인 필요
         String sql = "SELECT * FROM message_piece WHERE target_conversation_id = :conversationId AND msg_id < :earlyMsgId ORDER BY created_at DESC LIMIT 21";
         List<MessagePiece> talks = this.subService.executeNativeSQLQueryForMessagePiece(sql, Map.of("conversationId", target.getConversationId(), "earlyMsgId", target.getEarlyMsgId()));
-//        talks.sort(new MessagePieceComparator());
+        talks.sort(new MessagePieceComparator());
 
         // Msg 객체 덩어리로 만들기
         MsgListDTO ret = new MsgListDTO();
@@ -428,7 +431,7 @@ public class MessageMainService {
         targetUser = rawTarget.get();
 
         // User 객체, List<Msg> 객체로 MsgListDTO 만들기
-        ret = this.subService.makeMsgDTO(requestingUser, targetUser, innerData);
+        ret = this.subService.makeMsgDTO(targetIndex, requestingUser, targetUser, innerData);
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }

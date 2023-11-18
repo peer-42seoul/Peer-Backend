@@ -32,16 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import peer.backend.dto.board.recruit.ApplyRecruitRequest;
-import peer.backend.dto.board.recruit.RecruitAnswerDto;
-import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitListRequest;
-import peer.backend.dto.board.recruit.RecruitListResponse;
-import peer.backend.dto.board.recruit.RecruitResponce;
-import peer.backend.dto.board.recruit.RecruitRoleDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateResponse;
+import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamApplicantListDto;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitApplicant;
@@ -51,6 +42,7 @@ import peer.backend.entity.board.recruit.RecruitRole;
 import peer.backend.entity.board.recruit.Tag;
 import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
+import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
@@ -120,7 +112,7 @@ public class RecruitService {
         for (RecruitInterview question : recruit.getInterviews()) {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
-                .type(question.getType())
+//                .type(RecruitInterviewType.valueOf(question.getType()))
                 .optionList(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
@@ -304,65 +296,62 @@ public class RecruitService {
             .build();
     }
 
-    private void addInterviewsToRecruit(Recruit recruit, List<RecruitInterview> interviewList) {
+    private void addInterviewsToRecruit(Recruit recruit, List<RecruitInterviewDto> interviewList) {
         if (interviewList != null && !interviewList.isEmpty()) {
-            for (RecruitInterview interview : interviewList) {
+            for (RecruitInterviewDto interview : interviewList) {
                 recruit.addInterview(interview);
             }
         }
     }
 
-    private void addRolesToRecruit(Recruit recruit, List<RecruitRole> roleList) {
+    private void addRolesToRecruit(Recruit recruit, List<RecruitRoleDTO> roleList) {
         if (roleList != null && !roleList.isEmpty()) {
-            for (RecruitRole role : roleList) {
+            for (RecruitRoleDTO role : roleList) {
                 recruit.addRole(role);
             }
         }
     }
+// TODO: 2스텝에서 에디터 변경시 적용 필요
+//    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
+//        //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
+//        Matcher matcher = IMAGE_PATTERN.matcher(markdown);
+//        StringBuilder sb = new StringBuilder();
+//        List<String> result = new ArrayList<>();
+//        while (matcher.find()) {
+//            String formData = matcher.group().substring(26, matcher.group().length() - 1);
+//            byte[] imageBytes = Base64.getDecoder().decode(formData);
+//            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID() + ".png");
+//            Files.write(path, imageBytes);
+//            if (result.isEmpty()) {
+//                result.add(path.toString());
+//            }
+//            matcher.appendReplacement(sb, "![image](" + path + ")");
+//        }
+//        if (result.isEmpty()) {
+//            result.add("");
+//        }
+//        matcher.appendTail(sb);
+//        result.add(sb.toString());
+//        return result;
+//    }
 
-    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
-        //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
-        Matcher matcher = IMAGE_PATTERN.matcher(markdown);
-        StringBuilder sb = new StringBuilder();
-        List<String> result = new ArrayList<>();
-        while (matcher.find()) {
-            String formData = matcher.group().substring(26, matcher.group().length() - 1);
-            byte[] imageBytes = Base64.getDecoder().decode(formData);
-            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID() + ".png");
-            Files.write(path, imageBytes);
-            if (result.isEmpty()) {
-                result.add(path.toString());
-            }
-            matcher.appendReplacement(sb, "![image](" + path + ")");
-        }
-        if (result.isEmpty()) {
-            result.add("");
-        }
-        matcher.appendTail(sb);
-        result.add(sb.toString());
-        return result;
-    }
-
-    private Recruit createRecruitFromDto(MultipartFile image, RecruitCreateRequest request,
-        Team team, User user) throws IOException {
-        List<String> content = processMarkdownWithFormData(request.getContent());
+    private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user) throws IOException {
         Recruit recruit = Recruit.builder()
             .team(team)
             .type(TeamType.valueOf(request.getType()))
             .title(request.getTitle())
             .due(request.getDue())
             .link(request.getLink())
-            .content(content.get(1))
+            .content(request.getContent())
             .place(TeamOperationFormat.valueOf(request.getPlace()))
             .region1(request.getPlace().equals("온라인") ? null : request.getRegion().get(0))
             .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
-            .tags(request.getTagList())
+            .tags(request.getTagList().stream().map(TagListResponse::getName).collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
-            .thumbnailUrl((content.get(0).isBlank()) ? null : content.get(0))
+            .thumbnailUrl(fileService.saveFile(request.getImage(), "/Users/ryuhansol/workspace/Peer-Backend/backend/temp", "image"))
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
-            .thumbnailUrl(fileService.saveFile(image, "/Users/jwee", "image"))
             .build();
         //List 추가
         addInterviewsToRecruit(recruit, request.getInterviewList());
@@ -372,8 +361,7 @@ public class RecruitService {
 
 
     @Transactional
-    public void createRecruit(MultipartFile image, RecruitCreateRequest request,
-        Authentication auth) throws IOException {
+    public void createRecruit(RecruitCreateRequest request, Authentication auth) throws IOException {
         //동일한 팀 이름 검사
         Optional<Team> findTeam = teamRepository.findByName(request.getName());
         if (findTeam.isPresent()) {
@@ -384,7 +372,8 @@ public class RecruitService {
         Team team = this.teamService.createTeam(user, request);
 
         //모집게시글 생성
-        Recruit recruit = createRecruitFromDto(image, request, team, user);
+        Recruit recruit = createRecruitFromDto(request, team, user);
+        System.out.println(recruit.getThumbnailUrl());
         recruitRepository.save(recruit);
     }
 
@@ -394,7 +383,7 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
         Optional<RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(
-            new RecruitApplicantPK(recruit_id, user.getId()));
+            new RecruitApplicantPK(recruit_id, user.getId(), request.getRole()));
 
         if (optRecruitApplicant.isPresent()) {
             throw new ConflictException("이미 지원한 팀입니다.");
@@ -417,13 +406,11 @@ public class RecruitService {
     }
 
     @Transactional
-    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO)
+    public void updateRecruit(Long recruit_id, MultipartFile image, RecruitUpdateRequestDTO recruitUpdateRequestDTO)
         throws IOException {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
-
-        List<String> content = processMarkdownWithFormData(recruitUpdateRequestDTO.getContent());
-        recruit.update(recruitUpdateRequestDTO, content);
+        recruit.update(recruitUpdateRequestDTO, fileService.updateFile(image, "/Users/jwee", "image"));
     }
 
     public List<Tag> getTagList() {

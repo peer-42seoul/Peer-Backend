@@ -133,9 +133,9 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저가 새로운 대상에게 메시지를 처음 보냅니다.")
     @PostMapping("/new-message")
-    public ResponseEntity<List<MsgObjectDTO>> sendLetterInNewWindow(Authentication auth, @RequestBody MsgContentDTO body) {
+    public ResponseEntity<?> sendLetterInNewWindow(Authentication auth, @RequestBody MsgContentDTO body) {
         // Message Index Create
-        AsyncResult<MessageIndex> wrappedIndex;
+        AsyncResult<MessageIndex> wrappedIndex = new AsyncResult<>();
         MessageIndex index;
         try {
             wrappedIndex = this.messageMainService.makeNewMessageIndex(auth, body).get();
@@ -143,8 +143,7 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         if (!wrappedIndex.isSuccess())
@@ -162,7 +161,6 @@ public class MessaageController {
         catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -182,8 +180,16 @@ public class MessaageController {
         } catch (InterruptedException e) {
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            System.out.println("여기 어떰?!" + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (!wrappedData.isSuccess())
+        {
+            if (wrappedData.getException().getMessage().equals("target user deleted message")) {
+                return new ResponseEntity<>(HttpStatus.GONE);
+            }
+            else if (wrappedData.getException().getMessage().equals("Messages are deleted")) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
@@ -217,7 +223,7 @@ public class MessaageController {
         try {
             ret = this.messageMainService.sendMessage(auth, body);
         } catch (AlreadyDeletedException e) {
-            return new ResponseEntity<>(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+            return new ResponseEntity<>(HttpStatus.GONE);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

@@ -11,4 +11,5 @@ public class MsgTarget {
     private long userId;
     private String userNickname;
     private String userProfile;
+    private boolean deleted;
 };
