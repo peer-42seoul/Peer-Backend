@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
-import peer.backend.mongo.SequenceGeneratorService;
 import peer.backend.mongo.entity.ActivityTracking;
 import peer.backend.mongo.entity.enums.ActionType;
 import peer.backend.mongo.repository.ActivityTrackingRepository;
@@ -23,13 +23,13 @@ import peer.backend.mongo.repository.ActivityTrackingRepository;
 public class ActivityTrackingAspect {
 
     private final ActivityTrackingRepository activityTrackingRepository;
-    private final SequenceGeneratorService sequenceGeneratorService;
 
     @Pointcut("@annotation(peer.backend.annotation.tracking.UserRegistrationTracking)")
     public void userRegistration() {
     }
 
-    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
+    @Order(0)
+    @AfterReturning(pointcut = "peer.backend.aspect.ActivityTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
         ActivityTracking activityTracking = ActivityTracking.builder()
             .userId(user.getId())

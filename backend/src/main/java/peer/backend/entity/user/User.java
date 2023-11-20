@@ -20,10 +20,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.ObjectUtils;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
@@ -127,5 +127,12 @@ public class User extends BaseEntity {
 
     public static User authenticationToUser(Authentication authentication) {
         return ((PrincipalDetails) authentication.getPrincipal()).getUser();
+    }
+
+    public void addSocialLogin(SocialLogin socialLogin) {
+        if (ObjectUtils.isEmpty(this.socialLogins)) {
+            this.socialLogins = new ArrayList<>();
+        }
+        this.socialLogins.add(socialLogin);
     }
 }

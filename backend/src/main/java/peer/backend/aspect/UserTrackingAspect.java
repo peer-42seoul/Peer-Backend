@@ -1,13 +1,16 @@
 package peer.backend.aspect;
 
 import java.time.LocalDate;
+import java.util.List;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.UserTracking;
@@ -35,6 +38,7 @@ public class UserTrackingAspect {
     public void userWithdrawal() {
     }
 
+    @Order(2)
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
         UserTracking userTracking = UserTracking.builder()
@@ -48,14 +52,23 @@ public class UserTrackingAspect {
         this.userTrackingRepository.save(userTracking);
     }
 
-    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userFtLink()", returning = "socialLogin")
-    public void userOAuthTacking(SocialLogin socialLogin) {
-        if (socialLogin.getProvider() == SocialLoginProvider.FT) {
-            UserTracking userTracking = this.userTrackingRepository.findByUserId(
-                socialLogin.getUser().getId());
-            userTracking.setIntraId(socialLogin.getIntraId());
-            userTracking.setFtOAuthRegistered(true);
-            this.userTrackingRepository.save(userTracking);
+    @Order(1)
+    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
+    public void userOAuthTacking(User user) {
+        List<SocialLogin> socialLoginList = user.getSocialLogins();
+
+        if (ObjectUtils.isEmpty(socialLoginList)) {
+            return;
+        }
+
+        for (SocialLogin socialLogin : socialLoginList) {
+            if (socialLogin.getProvider() == SocialLoginProvider.FT) {
+                UserTracking userTracking = this.userTrackingRepository.findByUserId(
+                    socialLogin.getUser().getId());
+                userTracking.setIntraId(socialLogin.getIntraId());
+                userTracking.setFtOAuthRegistered(true);
+                this.userTrackingRepository.save(userTracking);
+            }
         }
     }
 
