@@ -1,8 +1,8 @@
 package peer.backend.aspect;
 
 
-import java.time.LocalDate;
 import java.util.List;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -10,11 +10,14 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.team.Team;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.ActivityTracking;
 import peer.backend.mongo.entity.enums.ActionType;
 import peer.backend.mongo.repository.ActivityTrackingRepository;
+import peer.backend.service.UserService;
 
 @Component
 @Aspect
@@ -23,9 +26,14 @@ import peer.backend.mongo.repository.ActivityTrackingRepository;
 public class ActivityTrackingAspect {
 
     private final ActivityTrackingRepository activityTrackingRepository;
+    private final UserService userService;
 
     @Pointcut("@annotation(peer.backend.annotation.tracking.UserRegistrationTracking)")
     public void userRegistration() {
+    }
+
+    @Pointcut("@annotation(peer.backend.annotation.tracking.RecruitWritingTracking)")
+    public void recruitWriting() {
     }
 
     @Order(0)
@@ -35,7 +43,24 @@ public class ActivityTrackingAspect {
             .userId(user.getId())
             .intraId(this.getIntraId(user))
             .actionType(ActionType.REGISTRATION)
-            .actDate(LocalDate.now())
+            .build();
+
+        activityTrackingRepository.save(activityTracking);
+    }
+
+    @Transactional
+    @AfterReturning(pointcut = "peer.backend.aspect.ActivityTrackingAspect.recruitWriting()", returning = "recruit")
+    public void recruitWriting(Recruit recruit) throws Throwable {
+        User user = this.userService.findByEmail(recruit.getWriter().getEmail());
+
+        Team team = recruit.getTeam();
+
+        ActivityTracking activityTracking = ActivityTracking.builder()
+            .userId(user.getId())
+            .intraId(this.getIntraId(user))
+            .registeredTeamId(team.getId())
+            .teamType(team.getType())
+            .actionType(ActionType.WRITING)
             .build();
 
         activityTrackingRepository.save(activityTracking);

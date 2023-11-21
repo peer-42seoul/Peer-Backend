@@ -23,59 +23,67 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/recruit")
 public class RecruitController {
+
     private final RecruitService recruitService;
     private final UserRepository userRepository;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
-    public RecruitResponce getRecruit(@PathVariable Long recruit_id){
-        return  recruitService.getRecruit(recruit_id);
+    public RecruitResponce getRecruit(@PathVariable Long recruit_id) {
+        return recruitService.getRecruit(recruit_id);
     }
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request, Authentication auth) {
+    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request,
+        Authentication auth) {
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
         return recruitService.getRecruitSearchList(pageable, request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth)
+        throws IOException {
         request.setType(request.getType().toUpperCase());
 //        request.setPlace(request.getPlace().toUpperCase());
 //        System.out.println(request.getPlace());
-        recruitService.createRecruit(request, auth);
+        recruitService.createRecruit(request, User.authenticationToUser(auth));
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id, @RequestPart("image") MultipartFile image, @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
+    public void updateRecruit(@PathVariable Long recruit_id,
+        @RequestPart("image") MultipartFile image,
+        @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
         recruitService.updateRecruit(recruit_id, image, recruitUpdateRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")
     @DeleteMapping("/{recruit_id}")
-    public void deleteRecruit(@PathVariable Long recruit_id){
+    public void deleteRecruit(@PathVariable Long recruit_id) {
         recruitService.deleteRecruit(recruit_id);
     }
 
     @ApiOperation(value = "", notes = "모집에 지원한다.")
     @PostMapping("/interview/{recruit_id}")
-    public void applyRecruit(@PathVariable Long recruit_id, @RequestBody ApplyRecruitRequest request, Authentication auth){
+    public void applyRecruit(@PathVariable Long recruit_id,
+        @RequestBody ApplyRecruitRequest request, Authentication auth) {
         recruitService.applyRecruit(recruit_id, request, auth);
     }
+
     @PostMapping("/favorite/{recruit_id}")
-    public void goFavorite(@PathVariable Long recruit_id, Principal principal){
-        User user = userRepository.findByName(principal.getName()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
-        recruitService.changeRecruitFavorite(user.getId(), recruit_id );
+    public void goFavorite(@PathVariable Long recruit_id, Principal principal) {
+        User user = userRepository.findByName(principal.getName())
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+        recruitService.changeRecruitFavorite(user.getId(), recruit_id);
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
     @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
     @GetMapping("/allTags")
-    public List<Tag> getTagListForWrite(){
+    public List<Tag> getTagListForWrite() {
         return recruitService.getTagList();
     }
 
@@ -83,13 +91,13 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
-    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id){
+    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id) {
         return recruitService.getRecruitwithInterviewList(recruit_id);
     }
 
     @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")
     @GetMapping("/interview/{post_id}")
-    public List<RecruitInterviewDto> getInterviewList(@PathVariable Long post_id){
+    public List<RecruitInterviewDto> getInterviewList(@PathVariable Long post_id) {
         return recruitService.getInterviewList(post_id);
     }
 
