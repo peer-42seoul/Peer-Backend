@@ -92,6 +92,10 @@ dependencies {
 
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
 task copyGitSubmodule(type: Copy) {
     copy {
         from './private-resources'
