@@ -105,8 +105,13 @@ public class TokenProvider {
     public boolean validateToken(String accessToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         try {
-            return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
+            boolean val = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration().after(new Date());
+            Date exp = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration();
+//            log.info("exp : " + exp);
+//            log.info("system 시간 : " + new Date(System.currentTimeMillis()));
+//            log.info("걍 시간 : " + new Date());
+            return val;
+        } catch (JwtException e) {
             return false;
         }
     }
