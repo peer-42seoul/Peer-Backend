@@ -112,7 +112,7 @@ public class RecruitService {
         for (RecruitInterview question : recruit.getInterviews()) {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
-//                .type(RecruitInterviewType.valueOf(question.getType()))
+                .type(question.getType().toString())
                 .optionList(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
