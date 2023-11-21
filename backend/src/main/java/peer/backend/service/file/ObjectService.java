@@ -1,9 +1,7 @@
 package peer.backend.service.file;
 
-import com.nimbusds.oauth2.sdk.TokenRequest;
 import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.IOUtils;
@@ -23,6 +21,7 @@ import peer.backend.exception.IllegalArgumentException;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -54,6 +53,7 @@ public class ObjectService {
         }
     }
     private String tokenId = null;
+    private OffsetDateTime tokenExpireTime = null;
     @Value("${nhn.objectStorage.storageUrl}")
     private String storageUrl;
     @Value("${nhn.objectStorage.authUrl}")
@@ -82,6 +82,7 @@ public class ObjectService {
         ResponseEntity<String> response = this.restTemplate.exchange(identityUrl, HttpMethod.POST, httpEntity, String.class);
         String body = response.getBody();
         this.tokenId = body.substring(body.indexOf("id") + 5, body.indexOf("expires") - 3);
+        this.tokenExpireTime = OffsetDateTime.parse(body.substring(body.indexOf("expires") + 10, body.indexOf("tenant") - 3));
     }
 
     private String getUrl(@NotNull String folderName, @NotNull String objectName) {
@@ -99,7 +100,7 @@ public class ObjectService {
 
 
     public String uploadObject(String folderName, final String base64String, String typeCheck) {
-        if (this.tokenId == null) {
+        if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
         byte[] fileData = Base64.getDecoder().decode(base64String);
@@ -133,7 +134,7 @@ public class ObjectService {
     }
 
     public void deleteObject(String imageUrl) {
-        if (this.tokenId == null) {
+        if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
 
