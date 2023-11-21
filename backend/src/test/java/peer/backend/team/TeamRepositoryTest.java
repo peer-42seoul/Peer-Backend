@@ -50,9 +50,10 @@ public class TeamRepositoryTest {
     @Test
     @DisplayName("Team Repository insert test")
     void insertTest() {
-        assertEquals(teamRepository.count(), 1);
+        teamRepository.deleteAll();
+        assertEquals(teamRepository.count(), 0);
         teamRepository.save(team);
-        assertEquals(teamRepository.count(), 2);
+        assertEquals(teamRepository.count(), 1);
     }
 
     @Test
