@@ -5,7 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -16,6 +19,7 @@ import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
+import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
 import javax.validation.Valid;
 
@@ -26,6 +30,12 @@ import javax.validation.Valid;
 public class TeamController {
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
+    private final ObjectService objectService;
+//
+//    public TeamController(TeamService teamService, ObjectService objectService) {
+//        this.teamService = teamService;
+//        this.objectService = objectService;
+//    }
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/list")
@@ -102,4 +112,14 @@ public class TeamController {
         User user = User.authenticationToUser(authentication);
         return this.teamService.getTeamMemberList(teamId, user);
     }
+
+//    @PostMapping("/uploadImage")
+//    public ResponseEntity<?> uploadImage(@RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) throws IOException {
+//        objectService.requestToken();
+//        System.out.println("TOKENID = " + objectService.getTokenId());
+//        String uploadurl = objectService.uploadObject("TeamImage", teamSettingInfoDto.getTeamImage(), "image");
+//        System.out.println("uploadurl = " + uploadurl);
+////        objectService.deleteObject(uploadurl);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 }
