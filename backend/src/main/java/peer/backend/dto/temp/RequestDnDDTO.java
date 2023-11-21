@@ -9,7 +9,6 @@ import org.bson.types.ObjectId;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestDnDDTO {
-    private ObjectId mongoId;
     private Long teamId;
     private String type;
 }
