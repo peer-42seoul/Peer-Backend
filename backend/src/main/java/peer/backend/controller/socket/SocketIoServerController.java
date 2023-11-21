@@ -56,7 +56,7 @@ public class SocketIoServerController {
         public void onConnect(SocketIOClient client) {
             log.info("Socket is Connected : " + client.getSessionId());
             List<String> token = client.getHandshakeData().getUrlParams().get("token");
-            if (!tokenProvider.validateToken2(token.get(0))) {
+            if (!tokenProvider.validateToken(token.get(0))) {
                 log.info("Wrong Token! Connection is closed!");
                 client.disconnect();
             }
