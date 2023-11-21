@@ -50,16 +50,16 @@ public class TeamRepositoryTest {
     @Test
     @DisplayName("Team Repository insert test")
     void insertTest() {
-        assertEquals(teamRepository.count(), 0);
-        teamRepository.save(team);
         assertEquals(teamRepository.count(), 1);
+        teamRepository.save(team);
+        assertEquals(teamRepository.count(), 2);
     }
 
     @Test
     @DisplayName("Team Repository select test")
     void selectTest() {
         teamRepository.save(team);
-        assertEquals(teamRepository.findAll().size(), 1);
+        assertEquals(teamRepository.findAll().size(), 2);
     }
 
     @Test

@@ -104,6 +104,15 @@ url:
 custom:
   filePath: "/Users"
 
+nhn:
+  objectStorage:
+    authUrl: "https://api-identity-infrastructure.nhncloudservice.com/v2.0"
+    storageUrl: "https://kr1-api-object-storage.nhncloudservice.com/v1/AUTH_ad016d3302b840af94a1946c5784d85a"
+    tenantId: "ad016d3302b840af94a1946c5784d85a"
+    username: "songpil10117@naver.com"
+    password: "peerpeer42!"
+    containerName: "PeerStorage"
+
 socket.io:
   host: localhost
   port: 8081
