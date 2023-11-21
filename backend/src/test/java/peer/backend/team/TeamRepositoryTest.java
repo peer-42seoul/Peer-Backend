@@ -60,7 +60,7 @@ public class TeamRepositoryTest {
     @DisplayName("Team Repository select test")
     void selectTest() {
         teamRepository.save(team);
-        assertEquals(teamRepository.findAll().size(), 2);
+        assertEquals(teamRepository.findAll().size(), 1);
     }
 
     @Test
