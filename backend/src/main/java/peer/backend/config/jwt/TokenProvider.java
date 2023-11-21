@@ -102,30 +102,10 @@ public class TokenProvider {
         return null;
     }
 
-    /**
-     * Access 토큰을 검증
-     */
     public boolean validateToken(String accessToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        if (ObjectUtils.isEmpty(redisTemplate.opsForValue().get(accessToken))) {
-            // 기존의 인증 인증 로직
-            try {
-                return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken)
-                        .getBody().getExpiration().before(new Date());
-            } catch (JwtException e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean validateToken2(String accessToken) {
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-//        log.info("key value : " + redisTemplate.opsForValue().get(key));
-
         try {
-            Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken);
-            return true;
+            return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
         }

@@ -47,4 +47,8 @@ public class TeamSettingInfoDto {
         };
         this.maxMember = team.getMaxMember().toString();
     }
+
+    public void setTeamImage(String teamImage) {
+        this.teamImage = teamImage;
+    }
 }

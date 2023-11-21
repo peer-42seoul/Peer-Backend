@@ -27,7 +27,7 @@ public class TempDnDController {
         return new ResponseEntity<TeamDnD>(ret,HttpStatus.CREATED);
     }
 
-    @GetMapping("/read")
+    @PostMapping("/read")
     public ResponseEntity<?> read(@RequestBody RequestDnDDTO data) {
         TeamDnD ret;
         try {

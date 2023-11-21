@@ -83,7 +83,8 @@ dependencies {
     implementation 'com.corundumstudio.socketio:netty-socketio:2.0.3'
 
     // json createdAt
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.3' // 사용 가능한 최신 버전 사용
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.3'
+    // 사용 가능한 최신 버전 사용
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpcore:4.4.14'
@@ -91,6 +92,10 @@ dependencies {
 
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+task copyGitSubmodule(type: Copy) {
+    copy {
+        from './private-resources'
+        include "**/**"
+        into 'src/main/resources'
+    }
 }

@@ -25,6 +25,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     
     - name: Set up JDK 11
       uses: actions/setup-java@v3
@@ -52,6 +54,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
 
     - name: Docker build & push
       run: |
@@ -71,6 +75,6 @@ jobs:
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker rm -f $(docker ps -qa)
-          docker run -d -p 80:8080 -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+          docker run -d -p 80:8080 -p 8081-8082:8081-8082 -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker container prune -f
           docker image prune -f
