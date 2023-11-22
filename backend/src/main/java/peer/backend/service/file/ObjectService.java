@@ -11,7 +11,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpMessageConverterExtractor;
@@ -31,7 +30,7 @@ import java.util.UUID;
 @Service
 public class ObjectService {
     @Data
-    public class TokenRequest {
+    public static class TokenRequest {
         public TokenRequest(String tenantId, String username, String password) {
             this.auth.setTenantId(tenantId);
             this.auth.getPasswordCredentials().setUsername(username);
@@ -41,13 +40,13 @@ public class ObjectService {
         private Auth auth = new Auth();
 
         @Data
-        public class Auth {
+        public static class Auth {
             private String tenantId;
             private PasswordCredentials passwordCredentials = new PasswordCredentials();
         }
 
         @Data
-        public class PasswordCredentials {
+        public static class PasswordCredentials {
             private String username;
             private String password;
         }
@@ -66,8 +65,8 @@ public class ObjectService {
     private String password;
     @Value("${nhn.objectStorage.containerName}")
     private String containerName;
-    private Tika tika = new Tika();
-    private RestTemplate restTemplate = new RestTemplate();
+    private final Tika tika = new Tika();
+    private final RestTemplate restTemplate;
 
     public void requestToken() {
         String identityUrl = this.authUrl + "/tokens";
@@ -76,7 +75,7 @@ public class ObjectService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
 
-        HttpEntity<TokenRequest> httpEntity = new HttpEntity<TokenRequest>(tokenRequest, headers);
+        HttpEntity<TokenRequest> httpEntity = new HttpEntity<>(tokenRequest, headers);
 
         // 토큰 요청
         ResponseEntity<String> response = this.restTemplate.exchange(identityUrl, HttpMethod.POST, httpEntity, String.class);
@@ -103,9 +102,10 @@ public class ObjectService {
         if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
+        System.out.println(base64String);
         byte[] fileData = Base64.getDecoder().decode(base64String);
         String contentType = mimeTypeCheck(fileData, typeCheck);
-        String objectName = UUID.randomUUID().toString() + "." + FileService.getExtensionFromMimeType(contentType);
+        String objectName = UUID.randomUUID() + "." + FileService.getExtensionFromMimeType(contentType);
         String url = this.getUrl(folderName, objectName);
         if (base64String == null) {
             return null;
@@ -113,11 +113,9 @@ public class ObjectService {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
 
         // InputStream을 요청 본문에 추가할 수 있도록 RequestCallback 오버라이드
-        final RequestCallback requestCallback = new RequestCallback() {
-            public void doWithRequest(final ClientHttpRequest request) throws IOException {
-                request.getHeaders().add("X-Auth-Token", tokenId);
-                IOUtils.copy(inputStream, request.getBody());
-            }
+        final RequestCallback requestCallback = request -> {
+            request.getHeaders().add("X-Auth-Token", tokenId);
+            IOUtils.copy(inputStream, request.getBody());
         };
 
         // 오버라이드한 RequestCallback을 사용할 수 있도록 설정
@@ -125,7 +123,7 @@ public class ObjectService {
         requestFactory.setBufferRequestBody(false);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
 
-        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<String>(String.class, restTemplate.getMessageConverters());
+        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(String.class, restTemplate.getMessageConverters());
 
         // API 호출
         restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
@@ -141,10 +139,9 @@ public class ObjectService {
         // 헤더 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Auth-Token", tokenId);
-        HttpEntity<String> requestHttpEntity = new HttpEntity<String>(null, headers);
+        HttpEntity<String> requestHttpEntity = new HttpEntity<>(null, headers);
 
         // API 호출
         this.restTemplate.exchange(imageUrl, HttpMethod.DELETE, requestHttpEntity, String.class);
     }
-
 }
