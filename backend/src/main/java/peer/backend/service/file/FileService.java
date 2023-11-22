@@ -49,7 +49,7 @@ public class FileService {
         return folder.getPath();
     }
 
-    private static String getExtensionFromMimeType(String mimeType) {
+    public static String getExtensionFromMimeType(String mimeType) {
         // MIME 타입을 기반으로 파일 확장자를 매핑
         switch (mimeType.toLowerCase()) {
             case "image/jpeg":

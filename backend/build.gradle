@@ -86,6 +86,10 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.3'
     // 사용 가능한 최신 버전 사용
 
+//    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+//    implementation 'org.apache.httpcomponents:httpcore:4.4.14'
+
+
 }
 
 tasks.named('test') {

@@ -59,6 +59,7 @@ public class SocketIoServerController {
             if (!tokenProvider.validateToken(token.get(0))) {
                 log.info("Wrong Token! Connection is closed!");
                 client.disconnect();
+                return;
             }
             Authentication userJwt = tokenProvider.getAuthentication(token.get(0));
             User user = User.authenticationToUser(userJwt);
