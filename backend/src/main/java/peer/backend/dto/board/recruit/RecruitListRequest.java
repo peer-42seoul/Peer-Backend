@@ -1,6 +1,7 @@
 package peer.backend.dto.board.recruit;
 
 import lombok.*;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 
 import java.util.List;
 
@@ -26,7 +27,9 @@ public class RecruitListRequest{
     private String type;
     private String sort;
     private String keyword;
-    private String due;
+    private List<String> due;
+    private RecruitDueEnum start = RecruitDueEnum.from(due.get(0));
+    private RecruitDueEnum end = RecruitDueEnum.from(due.get(1));
     private String region1;
     private String region2;
     private List<String> place;

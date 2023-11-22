@@ -43,8 +43,6 @@ public class RecruitController {
     @PostMapping("/write")
     public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
         request.setType(request.getType().toUpperCase());
-//        request.setPlace(request.getPlace().toUpperCase());
-//        System.out.println(request.getPlace());
         recruitService.createRecruit(request, auth);
     }
 
@@ -67,9 +65,8 @@ public class RecruitController {
         recruitService.applyRecruit(recruit_id, request, auth);
     }
     @PostMapping("/favorite/{recruit_id}")
-    public void goFavorite(@PathVariable Long recruit_id, Principal principal){
-        User user = userRepository.findByName(principal.getName()).orElseThrow( () -> new NotFoundException("존재하지 않는 유저입니다."));
-        recruitService.changeRecruitFavorite(user.getId(), recruit_id );
+    public void goFavorite(@PathVariable Long recruit_id, Authentication auth){
+        recruitService.changeRecruitFavorite(auth, recruit_id );
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요

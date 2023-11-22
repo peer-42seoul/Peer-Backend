@@ -2,6 +2,7 @@ package peer.backend.service.board.recruit;
 
 
 import lombok.RequiredArgsConstructor;
+import org.apache.tika.utils.AnnotationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
@@ -65,20 +67,19 @@ public class RecruitService {
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
-    public void changeRecruitFavorite(Long user_id, Long recruit_id) {
-        User user = userRepository.findById(user_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+    public void changeRecruitFavorite(Authentication auth, Long recruit_id) {
+        User user = User.authenticationToUser(auth);
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         Optional<RecruitFavorite> optFavorite = recruitFavoriteRepository.findById(
-            new RecruitFavoritePK(user_id, recruit_id));
+            new RecruitFavoritePK(user.getId(), recruit_id));
         if (optFavorite.isPresent()) {
             recruitFavoriteRepository.delete(optFavorite.get());
         } else {
             RecruitFavorite favorite = new RecruitFavorite();
             favorite.setUser(user);
             favorite.setRecruit(recruit);
-            favorite.setUserId(user_id);
+            favorite.setUserId(user.getId());
             favorite.setRecruitId(recruit_id);
             recruitFavoriteRepository.save(favorite);
         }
@@ -137,7 +138,10 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("due"), request.getDue()));
+            predicates.add(cb.and(
+                    cb.greaterThanOrEqualTo(recruit.get("start").get("value"), request.getStart().getValue()),
+                    cb.lessThanOrEqualTo(recruit.get("duration").get("value"), request.getEnd().getValue()))
+            );
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
@@ -294,7 +298,7 @@ public class RecruitService {
             .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
             .tags(request.getTagList().stream().map(TagListResponse::getName).collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
-            .thumbnailUrl(objectService.uploadObject("recruit/" + team.getId().toString(), request.getImage(), "image"))
+            .thumbnailUrl(request.getImage() == null ? null : objectService.uploadObject("recruit/" + team.getId().toString(), request.getImage(), "image"))
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
@@ -329,14 +333,14 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
         Optional<RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(
-            new RecruitApplicantPK(recruit_id, user.getId(), request.getRole()));
-
+            new RecruitApplicantPK(user.getId(), recruit_id, (request.getRole() == null ? "" : request.getRole())));
         if (optRecruitApplicant.isPresent()) {
             throw new ConflictException("이미 지원한 팀입니다.");
         }
         RecruitApplicant recruitApplicant = RecruitApplicant.builder()
             .recruitId(recruit_id)
             .userId(user.getId())
+            .role(request.getRole() == null ? "" : request.getRole())
             .nickname(user.getNickname())
             .status(RecruitApplicantStatus.PENDING)
             .answerList(request.getAnswerList())
