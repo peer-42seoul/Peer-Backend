@@ -9,26 +9,31 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.dto.profile.request.PasswordRequest;
 import peer.backend.dto.profile.response.PersonalInfoResponse;
+import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
+import peer.backend.oauth.enums.SocialLoginProvider;
+import peer.backend.repository.user.SocialLoginRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.profile.PersonalInfoService;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Test PersonalInfoService")
 public class PersonalInfoServiceTest {
     @Mock
     UserRepository userRepository;
+    @Mock
+    SocialLoginRepository socialLoginRepository;
     @InjectMocks
     PersonalInfoService personalInfoService;
     String name;
@@ -37,6 +42,7 @@ public class PersonalInfoServiceTest {
     PasswordRequest newPassword;
     Authentication auth;
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    List<SocialLogin> socialLogins;
     @BeforeEach
     void beforeEach() {
         name = "test name";
@@ -56,16 +62,29 @@ public class PersonalInfoServiceTest {
         );
         PrincipalDetails details = new PrincipalDetails(user);
         auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(), details.getAuthorities());
+        socialLogins = new ArrayList<>();
+        SocialLogin socialLogin1 = SocialLogin.builder()
+                .user(user)
+                .provider(SocialLoginProvider.FT)
+                .build();
+        SocialLogin socialLogin2 = SocialLogin.builder()
+                .user(user)
+                .provider(SocialLoginProvider.GOOGLE)
+                .build();
+        socialLogins.add(socialLogin1);
+        socialLogins.add(socialLogin2);
     }
 
     @Test
     @DisplayName("개인 정보 조회 테스트")
     public void getPersonalInfoTest() {
+        when(socialLoginRepository.findAllByUserId(anyLong())).thenReturn(socialLogins);
         PersonalInfoResponse info = personalInfoService.getPersonalInfo(auth);
         assertThat(info.getEmail()).isEqualTo(user.getEmail());
         assertThat(info.getName()).isEqualTo(user.getName());
         assertThat(info.getLocal()).isEqualTo(user.getAddress());
-        assertThat(info.getAuthentication()).isEqualTo(user.getCompany());
+        assertThat(info.getAuthenticationFt()).isEqualTo("ft");
+        assertThat(info.getAuthenticationGoogle()).isEqualTo("google");
     }
 
     @Test
