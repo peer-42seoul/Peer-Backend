@@ -97,6 +97,9 @@ public class TeamService {
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
             if (team.getTeamLogoPath() != null) {
                 if (teamSettingInfoDto.getTeamImage() != null) {
+                    if (team.getTeamLogoPath().equals(teamSettingInfoDto.getTeamImage())) {
+                        return;
+                    }
                     String newImage = objectService.uploadObject(this.filePath + "/" + team.getId().toString(), teamSettingInfoDto.getTeamImage(), "image");
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
