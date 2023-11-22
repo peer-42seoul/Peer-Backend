@@ -72,7 +72,6 @@ public class ActivityTrackingAspect {
     public void userWithdrawalTracking(User user) {
         ActivityTracking activityTracking = ActivityTracking.builder()
             .userId(user.getId())
-//            .intraId(this.getIntraId(user))
             .actionType(ActionType.WITHDRAWAL)
             .build();
         this.activityTrackingRepository.save(activityTracking);
