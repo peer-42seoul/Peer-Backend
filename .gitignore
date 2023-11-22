@@ -46,4 +46,5 @@ logs/
 ### upload ###
 upload
 
+temp/
 resources/

@@ -8,8 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.UserRegistrationTracking;
 import peer.backend.annotation.tracking.UserWithdrawalTracking;
 import peer.backend.dto.security.UserInfo;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
@@ -31,6 +33,7 @@ public class MemberService {
     private final BCryptPasswordEncoder encoder;
 
     @Transactional
+    @UserRegistrationTracking
     public User signUp(UserInfo info) {
         Optional<User> checkUser = this.userRepository.findByNickname(info.getNickname());
         if (checkUser.isPresent()) {
@@ -49,6 +52,7 @@ public class MemberService {
                 socialLogin.setUser(savedUser);
                 this.socialLoginService.save(socialLogin);
                 this.redisTemplate.delete(socialEmail);
+                savedUser.addSocialLogin(socialLogin);
             } else {
                 throw new ConflictException("잘못된 소셜 로그인 이메일입니다!");
             }
@@ -64,7 +68,12 @@ public class MemberService {
     @Transactional
     @UserWithdrawalTracking
     public User deleteUser(User user) {
-        this.userRepository.delete(user);
+        User findUser = userService.findByEmail(user.getEmail());
+        for (Recruit recruit : findUser.getRecruitList()) {
+            recruit.setWriter(null);
+            recruit.setWriterId(null);
+        }
+        this.userRepository.delete(findUser);
         return user;
     }
 

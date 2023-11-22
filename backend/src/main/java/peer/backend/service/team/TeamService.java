@@ -35,7 +35,6 @@ import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.file.FileService;
 import peer.backend.service.file.ObjectService;
 
 @Service
@@ -78,7 +77,8 @@ public class TeamService {
     }
 
     @Transactional
-    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) throws IOException {
+    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user)
+        throws IOException {
         String teamImage = teamSettingInfoDto.getTeamImage();
         if (teamImage != null) {
             if (teamImage.startsWith("data:image/png;base64")) {
@@ -93,23 +93,27 @@ public class TeamService {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
             if (team.getTeamLogoPath() != null) {
                 if (teamSettingInfoDto.getTeamImage() != null) {
                     if (team.getTeamLogoPath().equals(teamSettingInfoDto.getTeamImage())) {
                         return;
                     }
-                    String newImage = objectService.uploadObject(this.filePath + "/" + team.getId().toString(), teamSettingInfoDto.getTeamImage(), "image");
+                    String newImage = objectService.uploadObject(
+                        this.filePath + "/" + team.getId().toString(),
+                        teamSettingInfoDto.getTeamImage(), "image");
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
                 } else {
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(null);
                 }
-            }
-            else if (teamSettingInfoDto.getTeamImage() != null) {
-                String newImage = objectService.uploadObject(this.filePath + "/" + team.getId().toString(), teamSettingInfoDto.getTeamImage(), "image");
+            } else if (teamSettingInfoDto.getTeamImage() != null) {
+                String newImage = objectService.uploadObject(
+                    this.filePath + "/" + team.getId().toString(),
+                    teamSettingInfoDto.getTeamImage(), "image");
                 team.setTeamLogoPath(newImage);
             }
             team.update(teamSettingInfoDto);
@@ -119,7 +123,8 @@ public class TeamService {
     }
 
     @Transactional
-    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, Long deletingToUserId, User user) {
+    public ArrayList<TeamMemberDto> deleteTeamMember(Long teamId, Long deletingToUserId,
+        User user) {
         if (deletingToUserId.equals(user.getId())) {
             throw new ForbiddenException("자기 자신을 팀에서 추방할 수 없습니다.");
         }
@@ -137,7 +142,8 @@ public class TeamService {
     }
 
     @Transactional
-    public void grantRole(Long teamId, Long grantingUserId, User user, TeamUserRoleType teamUserRoleType) {
+    public void grantRole(Long teamId, Long grantingUserId, User user,
+        TeamUserRoleType teamUserRoleType) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }

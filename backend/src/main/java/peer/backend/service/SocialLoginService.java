@@ -5,12 +5,7 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import peer.backend.annotation.tracking.UserFtLinkTracking;
 import peer.backend.entity.user.SocialLogin;
-import peer.backend.entity.user.User;
-import peer.backend.oauth.enums.SocialLoginProvider;
-import peer.backend.oauth.provider.FortyTwoUserInfo;
-import peer.backend.oauth.provider.OAuth2UserInfo;
 import peer.backend.repository.user.SocialLoginRepository;
 
 @RequiredArgsConstructor
@@ -25,7 +20,6 @@ public class SocialLoginService {
         return this.socialLoginRepository.findByEmail(email).orElse(null);
     }
 
-    @UserFtLinkTracking
     public SocialLogin save(SocialLogin socialLogin) {
         return this.socialLoginRepository.save(socialLogin);
     }

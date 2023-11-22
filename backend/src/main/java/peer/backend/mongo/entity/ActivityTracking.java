@@ -10,29 +10,33 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamType;
+import peer.backend.mongo.entity.enums.ActionType;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "team_tracking")
-public class TeamTracking {
+@Document(collection = "activity_tracking")
+public class ActivityTracking {
 
-    private Long _id;
-    private Long teamId;
-    private String teamName;
-    private LocalDate actionDate;
-    private TeamType actionType;
-    private String tag;
-    private LocalDate actionFinishedDate;
-    private LocalDate actionUnproperFinishedDate;
-    private TeamStatus teamStatus;
-    private boolean ftSubject;
-    private int in42;
+    @Transient
+    public static final String SEQUENCE_NAME = "activity_tracking_sequence";
+
+    private Long actId;
+    private Long userId;
+    private String intraId;
+    private Long registeredTeamId;
+    private TeamType teamType;
+    private ActionType actionType;
+    private String toolboxSubKey;
+    @CreatedDate
+    private LocalDate actDate;
+    private double wallet;
+    private boolean handled = false;
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
