@@ -39,10 +39,10 @@ public class PersonalInfoService {
         for (SocialLogin socialLogin : socialLoginList) {
             switch (socialLogin.getProvider().getValue()) {
                 case "ft" :
-                    info.setAuthenticationFt("ft");
+                    info.setAuthenticationFt(socialLogin.getIntraId());
                     break;
                 case "google" :
-                    info.setAuthenticationGoogle("google");
+                    info.setAuthenticationGoogle(socialLogin.getEmail());
                     break;
                 case "github" :
                     break;

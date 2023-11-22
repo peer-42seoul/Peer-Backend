@@ -65,10 +65,12 @@ public class PersonalInfoServiceTest {
         socialLogins = new ArrayList<>();
         SocialLogin socialLogin1 = SocialLogin.builder()
                 .user(user)
+                .intraId("intraId")
                 .provider(SocialLoginProvider.FT)
                 .build();
         SocialLogin socialLogin2 = SocialLogin.builder()
                 .user(user)
+                .email("gmail")
                 .provider(SocialLoginProvider.GOOGLE)
                 .build();
         socialLogins.add(socialLogin1);
@@ -83,8 +85,8 @@ public class PersonalInfoServiceTest {
         assertThat(info.getEmail()).isEqualTo(user.getEmail());
         assertThat(info.getName()).isEqualTo(user.getName());
         assertThat(info.getLocal()).isEqualTo(user.getAddress());
-        assertThat(info.getAuthenticationFt()).isEqualTo("ft");
-        assertThat(info.getAuthenticationGoogle()).isEqualTo("google");
+        assertThat(info.getAuthenticationFt()).isEqualTo("intraId");
+        assertThat(info.getAuthenticationGoogle()).isEqualTo("gmail");
     }
 
     @Test
