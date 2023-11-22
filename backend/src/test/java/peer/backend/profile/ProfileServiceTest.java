@@ -23,6 +23,7 @@ import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.FileService;
+import peer.backend.service.file.ObjectService;
 import peer.backend.service.profile.ProfileService;
 
 import java.io.FileInputStream;
@@ -45,17 +46,13 @@ class ProfileServiceTest {
     @Mock
     private UserLinkRepository userLinkRepository;
     @Mock
-    private FileService fileService;
+    private ObjectService objectService;
     @InjectMocks
     private ProfileService profileService;
-
-    private String filepath;
 
     String email;
     String nickname;
     String name;
-    String imagePath;
-    String imageName;
     List<UserLink> linkList = new ArrayList<>();
     User user;
     Authentication auth;
@@ -80,12 +77,8 @@ class ProfileServiceTest {
                 .company("test company")
                 .userLinks(linkList)
                 .build();
-        imagePath = "src/test/java/peer/backend/profile/image";
-        imageName = UUID.randomUUID().toString();
-        filepath = "/Users/juhyelee/profile/image";
         PrincipalDetails details = new PrincipalDetails(user);
         auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(), details.getAuthorities());
-        ReflectionTestUtils.setField(profileService, "filepath", filepath);
     }
 
     @Test
@@ -145,8 +138,8 @@ class ProfileServiceTest {
     @Test
     @DisplayName("Edit profile Test add")
     void editProfileTestAdd() throws IOException {
-        when(fileService.saveFile(any(MultipartFile.class), anyString(), anyString())).thenReturn(filepath + "/" + imageName + ".png");
-        FileInputStream newInputStream = new FileInputStream(imagePath + "/test1.png");
+        when(objectService.uploadObject(anyString(), anyString(), anyString())).thenReturn("new image");
+        FileInputStream newInputStream = new FileInputStream("src/test/java/peer/backend/profile/image/test1.png");
         MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", newInputStream);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(multipartFile)
@@ -155,15 +148,15 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(auth, profile, false);
-        assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
+        assertThat(user.getImageUrl()).isEqualTo("new image");
     }
 
     @Test
     @DisplayName("Edit profile Test update 1")
     void editProfileTestUpdate1() throws IOException {
         user.setImageUrl("test image");
-        when(fileService.updateFile(any(MultipartFile.class), anyString(), anyString())).thenReturn(filepath + "/" + imageName + ".png");
-        FileInputStream fileInputStream = new FileInputStream(imagePath + "/test1.png");
+        when(objectService.uploadObject(anyString(), anyString(), anyString())).thenReturn("other image");
+        FileInputStream fileInputStream = new FileInputStream("src/test/java/peer/backend/profile/image/test1.png");
         MultipartFile multipartFile = new MockMultipartFile("test1", "test1.png", "image", fileInputStream);
         EditProfileRequest profile = EditProfileRequest.builder()
                 .profileImage(multipartFile)
@@ -172,7 +165,7 @@ class ProfileServiceTest {
                 .introduction(user.getIntroduce())
                 .build();
         profileService.editProfile(auth, profile, false);
-        assertThat(user.getImageUrl()).isEqualTo(filepath + "/" + imageName + ".png");
+        assertThat(user.getImageUrl()).isEqualTo("other image");
     }
 
     @Test
