@@ -102,7 +102,6 @@ public class ObjectService {
         if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
-        System.out.println(base64String);
         byte[] fileData = Base64.getDecoder().decode(base64String);
         String contentType = mimeTypeCheck(fileData, typeCheck);
         String objectName = UUID.randomUUID() + "." + FileService.getExtensionFromMimeType(contentType);

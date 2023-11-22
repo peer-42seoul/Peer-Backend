@@ -1,8 +1,7 @@
 package peer.backend.service.profile;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.Lock;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +17,8 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.file.FileService;
+import peer.backend.service.file.ObjectService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +28,7 @@ import java.util.List;
 public class ProfileService {
     private final UserRepository userRepository;
     private final UserLinkRepository userLinkRepository;
-    private final FileService fileService;
-
-    @Value("${custom.filePath}")
-    private String filepath;
+    private final ObjectService objectService;
 
     private boolean isFileNotEmpty(MultipartFile imageFile) {
         return imageFile != null && !imageFile.isEmpty();
@@ -113,21 +107,24 @@ public class ProfileService {
     public void editProfile(Authentication auth, EditProfileRequest profile, boolean isChange) throws IOException {
         User user = User.authenticationToUser(auth);
         // 기존 이미지가 있는 경우
-        //     요청한 이미지가 있는 경우 -> 업로드
+        //     요청한 이미지가 있는 경우 -> 변경
         //     요청한 이미지가 없고, 변경을 원하는 경우 -> 삭제
         // 기존 이미지가 없고, 요청한 이미지가 있는 경우 -> 저장
         if (user.getImageUrl() != null) {
             if (isFileNotEmpty(profile.getProfileImage())) {
-                String newImage = fileService.updateFile(profile.getProfileImage(), user.getImageUrl(), "image");
+                byte[] binary = Base64.encodeBase64(profile.getProfileImage().getBytes());
+                objectService.deleteObject(user.getImageUrl());
+                String newImage = objectService.uploadObject("profile/image", new String(binary), "image");
                 user.setImageUrl(newImage);
             }
             else if (isChange) {
-                fileService.deleteFile(user.getImageUrl());
+                objectService.deleteObject(user.getImageUrl());
                 user.setImageUrl(null);
             }
         }
         else if (isFileNotEmpty(profile.getProfileImage())){
-            String newImage = fileService.saveFile(profile.getProfileImage(), filepath, "image");
+            byte[] binary = Base64.encodeBase64(profile.getProfileImage().getBytes());
+            String newImage = objectService.uploadObject("profile/image", new String(binary), "image");
             user.setImageUrl(newImage);
         }
         user.setNickname(profile.getNickname());
