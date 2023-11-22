@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
@@ -37,6 +36,7 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.FileService;
+import peer.backend.service.file.ObjectService;
 
 @Service
 @RequiredArgsConstructor
@@ -47,9 +47,8 @@ public class TeamService {
     private final TeamUserRepository teamUserRepository;
     private final RecruitRepository recruitRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
-    private final FileService fileService;
-    @Value("${custom.filePath}")
-    private String filePath;
+    private final ObjectService objectService;
+    private String filePath = "TeamImage";
 
     @Transactional
     public List<TeamListResponse> getTeamList(TeamStatus teamStatus, User user) {
@@ -98,16 +97,16 @@ public class TeamService {
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
             if (team.getTeamLogoPath() != null) {
                 if (teamSettingInfoDto.getTeamImage() != null) {
-                    String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
-                    fileService.deleteFile(team.getTeamLogoPath());
+                    String newImage = objectService.uploadObject(this.filePath + "/" + team.getId().toString(), teamSettingInfoDto.getTeamImage(), "image");
+                    objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
                 } else {
-                    fileService.deleteFile(team.getTeamLogoPath());
+                    objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(null);
                 }
             }
             else if (teamSettingInfoDto.getTeamImage() != null) {
-                String newImage = fileService.saveFile(teamSettingInfoDto.getTeamImage(), this.filePath, "image");
+                String newImage = objectService.uploadObject(this.filePath + "/" + team.getId().toString(), teamSettingInfoDto.getTeamImage(), "image");
                 team.setTeamLogoPath(newImage);
             }
             team.update(teamSettingInfoDto);
