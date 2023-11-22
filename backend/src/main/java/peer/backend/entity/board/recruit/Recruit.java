@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitInterviewDto;
 import peer.backend.dto.board.recruit.RecruitRoleDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.TagListResponse;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -20,6 +21,7 @@ import peer.backend.entity.user.User;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -88,12 +90,12 @@ public class Recruit extends BaseEntity {
         this.due = request.getDue();
         this.content = request.getContent();
         this.status = request.getStatus();
-        this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion().get(0));
-        this.region2 = (request.getPlace().equals("온라인") ? null : request.getRegion().get(1));
+        this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion1());
+        this.region2 = (request.getPlace().equals("온라인") ? null : request.getRegion2());
         this.link = request.getLink();
         this.thumbnailUrl = filePath;
         this.tags.clear();
-        this.tags = request.getTagList();
+        this.tags = request.getTagList().stream().map(TagListResponse::getName).collect(Collectors.toList());
         this.interviews.clear();
         if (!request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {
