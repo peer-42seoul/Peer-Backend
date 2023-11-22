@@ -30,7 +30,7 @@ import java.util.UUID;
 @Service
 public class ObjectService {
     @Data
-    public static class TokenRequest {
+    private static class TokenRequest {
         public TokenRequest(String tenantId, String username, String password) {
             this.auth.setTenantId(tenantId);
             this.auth.getPasswordCredentials().setUsername(username);
@@ -68,7 +68,7 @@ public class ObjectService {
     private final Tika tika = new Tika();
     private final RestTemplate restTemplate;
 
-    public void requestToken() {
+    private void requestToken() {
         String identityUrl = this.authUrl + "/tokens";
         TokenRequest tokenRequest = new TokenRequest(tenantId, username, password);
         // 헤더 생성
@@ -102,7 +102,6 @@ public class ObjectService {
         if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
-        System.out.println(base64String);
         byte[] fileData = Base64.getDecoder().decode(base64String);
         String contentType = mimeTypeCheck(fileData, typeCheck);
         String objectName = UUID.randomUUID() + "." + FileService.getExtensionFromMimeType(contentType);

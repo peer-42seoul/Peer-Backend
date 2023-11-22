@@ -1,31 +1,7 @@
 package peer.backend.service.board.recruit;
 
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.math3.exception.OutOfRangeException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,16 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.board.recruit.*;
-import peer.backend.dto.team.TeamApplicantListDto;
-import peer.backend.entity.board.recruit.Recruit;
-import peer.backend.entity.board.recruit.RecruitApplicant;
-import peer.backend.entity.board.recruit.RecruitFavorite;
-import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.RecruitRole;
-import peer.backend.entity.board.recruit.Tag;
-import peer.backend.entity.board.recruit.TagListManager;
+import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
-import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
@@ -58,10 +26,21 @@ import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.FileService;
+import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,18 +51,18 @@ public class RecruitService {
     private final TeamRepository teamRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
-    private final TeamUserRepository teamUserRepository;
-    private final FileService fileService;
     private final TeamService teamService;
+    private final ObjectService objectService;
 
     //query 생성 및 주입
     @PersistenceContext
     private EntityManager em;
 
-    private List<Tag> preDefinedTagList = TagListManager.getPredefinedTags();
+    private final List<Tag> preDefinedTagList = TagListManager.getPredefinedTags();
 
     //Markdown에서 form-data를 추출하기 위한 패턴 ![](*)
-    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
+    //TODO: toast에디터로 바뀔 경우 사용
+//    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
     public void changeRecruitFavorite(Long user_id, Long recruit_id) {
@@ -121,44 +100,10 @@ public class RecruitService {
         return result;
     }
 
-    public List<TeamApplicantListDto> getTeamApplicantList(Long user_id) {
-        //TODO:모듈화 리팩토링 필요
-        User user = userRepository.findById(user_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
-        List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByUserId(
-            user_id);
-        List<TeamApplicantListDto> result = new ArrayList<>();
-
-        //questionList 이터레이트 하면서 dtoList만들기
-        for (RecruitApplicant recruitApplicant : recruitApplicantList) {
-            ArrayList<RecruitAnswerDto> answerDtoList = new ArrayList<>();
-            List<String> answerList = recruitApplicant.getAnswerList();
-            List<RecruitInterview> questionList = recruitApplicant.getRecruit().getInterviews();
-            int index = 0;
-            for (RecruitInterview question : questionList) {
-                RecruitAnswerDto answerDto = RecruitAnswerDto.builder()
-                    .question(question.getQuestion())
-                    .answer(answerList.get(index))
-                    .type(question.getType().toString())
-                    .option(question.getOptions())
-                    .build();
-                index++;
-                answerDtoList.add(answerDto);
-            }
-            result.add(TeamApplicantListDto.builder()
-                .answers(answerDtoList)
-                .name(user.getNickname())
-                .userId(recruitApplicant.getRecruitId())
-                .build());
-        }
-        return result;
-    }
-
     public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable,
         RecruitListRequest request, Authentication auth) {
         //TODO:favorite 등
         //query 생성 준비
-        String[] dues = {"1주일", "2주일", "3주일", "1달", "2달", "3달"};
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class).distinct(true);
@@ -311,6 +256,7 @@ public class RecruitService {
             }
         }
     }
+
 // TODO: 2스텝에서 에디터 변경시 적용 필요
 //    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
 //        //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
@@ -348,7 +294,7 @@ public class RecruitService {
             .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
             .tags(request.getTagList().stream().map(TagListResponse::getName).collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
-            .thumbnailUrl(fileService.saveFile(request.getImage(), "/Users/ryuhansol/workspace/Peer-Backend/backend/temp", "image"))
+            .thumbnailUrl(objectService.uploadObject("recruit/" + team.getId().toString(), request.getImage(), "image"))
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
@@ -410,7 +356,10 @@ public class RecruitService {
         throws IOException {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
-        recruit.update(recruitUpdateRequestDTO, fileService.updateFile(image, "/Users/jwee", "image"));
+        if (recruitUpdateRequestDTO.getImage() != null) {
+            objectService.deleteObject(recruit.getThumbnailUrl());
+            recruit.update(recruitUpdateRequestDTO, objectService.uploadObject(recruitUpdateRequestDTO.getImage(), "recruit/" + recruit_id, "image"));
+        }
     }
 
     public List<Tag> getTagList() {
