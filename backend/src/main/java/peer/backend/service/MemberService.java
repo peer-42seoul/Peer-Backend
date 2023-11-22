@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.UserRegistrationTracking;
 import peer.backend.annotation.tracking.UserWithdrawalTracking;
 import peer.backend.dto.security.UserInfo;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
@@ -67,7 +68,12 @@ public class MemberService {
     @Transactional
     @UserWithdrawalTracking
     public User deleteUser(User user) {
-        this.userRepository.delete(user);
+        User findUser = userService.findByEmail(user.getEmail());
+        for (Recruit recruit : findUser.getRecruitList()) {
+            recruit.setWriter(null);
+            recruit.setWriterId(null);
+        }
+        this.userRepository.delete(findUser);
         return user;
     }
 

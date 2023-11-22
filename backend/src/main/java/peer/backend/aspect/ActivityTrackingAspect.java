@@ -2,7 +2,6 @@ package peer.backend.aspect;
 
 
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -36,6 +35,10 @@ public class ActivityTrackingAspect {
     public void recruitWriting() {
     }
 
+    @Pointcut("@annotation(peer.backend.annotation.tracking.UserWithdrawalTracking)")
+    public void userWithdrawal() {
+    }
+
     @Order(0)
     @AfterReturning(pointcut = "peer.backend.aspect.ActivityTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
@@ -48,7 +51,6 @@ public class ActivityTrackingAspect {
         activityTrackingRepository.save(activityTracking);
     }
 
-    @Transactional
     @AfterReturning(pointcut = "peer.backend.aspect.ActivityTrackingAspect.recruitWriting()", returning = "recruit")
     public void recruitWriting(Recruit recruit) throws Throwable {
         User user = this.userService.findByEmail(recruit.getWriter().getEmail());
@@ -64,6 +66,16 @@ public class ActivityTrackingAspect {
             .build();
 
         activityTrackingRepository.save(activityTracking);
+    }
+
+    @AfterReturning(pointcut = "userWithdrawal()", returning = "user")
+    public void userWithdrawalTracking(User user) {
+        ActivityTracking activityTracking = ActivityTracking.builder()
+            .userId(user.getId())
+//            .intraId(this.getIntraId(user))
+            .actionType(ActionType.WITHDRAWAL)
+            .build();
+        this.activityTrackingRepository.save(activityTracking);
     }
 
     private String getIntraId(User user) {

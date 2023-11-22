@@ -2,7 +2,6 @@ package peer.backend.aspect;
 
 import java.time.LocalDate;
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -72,7 +71,6 @@ public class UserTrackingAspect {
         }
     }
 
-    @Transactional
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userWithdrawal()", returning = "user")
     public void userWithdrawalTracking(User user) {
         UserTracking userTracking = this.userTrackingRepository.findByUserId(user.getId());
