@@ -3,6 +3,7 @@ package peer.backend.service.board.recruit;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.utils.AnnotationUtils;
+import org.aspectj.weaver.ast.Expr;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -140,8 +141,8 @@ public class RecruitService {
             RecruitDueEnum start = RecruitDueEnum.from(request.getDue().get(0));
             RecruitDueEnum end = RecruitDueEnum.from(request.getDue().get(1));
             predicates.add(cb.and(
-                    cb.greaterThanOrEqualTo(recruit.get("due").get("value"), start),
-                    cb.lessThanOrEqualTo(recruit.get("due").get("value"), end)));
+                    cb.greaterThanOrEqualTo(recruit.get("dueValue"), start.getValue()),
+                    cb.lessThanOrEqualTo(recruit.get("dueValue"), end.getValue())));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));

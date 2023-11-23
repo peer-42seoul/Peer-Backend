@@ -63,6 +63,7 @@ public class Recruit extends BaseEntity {
     private String title;
     @Enumerated(EnumType.STRING)
     private RecruitDueEnum due;
+    private int dueValue;
     @Column
     private String content;
     @Column
@@ -85,6 +86,13 @@ public class Recruit extends BaseEntity {
     private Long writerId;
 
 
+    @PrePersist
+    @PreUpdate
+    private void updateDueValue() {
+        if (this.due != null) {
+            this.dueValue = this.due.getValue();
+        }
+    }
 
     public void update(RecruitUpdateRequestDTO request, String filePath){
         this.title = request.getTitle();
