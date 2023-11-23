@@ -11,13 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Tag;
-import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
-import peer.backend.entity.user.User;
-import peer.backend.exception.NotFoundException;
-import peer.backend.repository.user.UserRepository;
 import peer.backend.service.board.recruit.RecruitService;
+
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -43,17 +39,15 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
-        recruitService.createRecruit(request, auth);
+    public String createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+        return recruitService.createRecruit(request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id,
-        @RequestPart("image") MultipartFile image,
-        @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
-        recruitService.updateRecruit(recruit_id, image, recruitUpdateRequestDTO);
+    public void updateRecruit(@PathVariable Long recruit_id, @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
+        recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")

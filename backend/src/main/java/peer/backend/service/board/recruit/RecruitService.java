@@ -1,52 +1,15 @@
 package peer.backend.service.board.recruit;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.tika.utils.AnnotationUtils;
-import org.aspectj.weaver.ast.Expr;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
-import peer.backend.dto.board.recruit.ApplyRecruitRequest;
-import peer.backend.dto.board.recruit.RecruitAnswerDto;
-import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitListRequest;
-import peer.backend.dto.board.recruit.RecruitListResponse;
-import peer.backend.dto.board.recruit.RecruitResponce;
-import peer.backend.dto.board.recruit.RecruitRoleDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateResponse;
-import peer.backend.dto.board.recruit.TagListResponse;
-import peer.backend.dto.team.TeamApplicantListDto;
-import peer.backend.entity.board.recruit.Recruit;
-import peer.backend.entity.board.recruit.RecruitApplicant;
-import peer.backend.entity.board.recruit.RecruitFavorite;
-import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.RecruitRole;
-import peer.backend.entity.board.recruit.Tag;
-import peer.backend.entity.board.recruit.TagListManager;
+import peer.backend.dto.board.recruit.*;
+import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -64,16 +27,23 @@ import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.user.UserRepository;
-import peer.backend.service.file.FileService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecruitService {
 
-    private final UserRepository userRepository;
     private final RecruitRepository recruitRepository;
     private final TeamRepository teamRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
@@ -310,10 +280,7 @@ public class RecruitService {
 //        return result;
 //    }
 
-    private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user)
-        throws IOException {
-        File file = new File(".");
-
+    private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user) {
         Recruit recruit = Recruit.builder()
             .team(team)
             .type(TeamType.valueOf(request.getType()))
@@ -343,8 +310,7 @@ public class RecruitService {
 
     @Transactional
     @RecruitWritingTracking
-    public Recruit createRecruit(RecruitCreateRequest request, Authentication auth)
-        throws IOException {
+    public String createRecruit(RecruitCreateRequest request, Authentication auth) {
         //동일한 팀 이름 검사
         Optional<Team> findTeam = teamRepository.findByName(request.getName());
         if (findTeam.isPresent()) {
@@ -356,8 +322,8 @@ public class RecruitService {
 
         //모집게시글 생성
         Recruit recruit = createRecruitFromDto(request, team, user);
-        System.out.println(recruit.getThumbnailUrl());
-        return recruitRepository.save(recruit);
+        recruitRepository.save(recruit);
+        return recruit.getId().toString();
     }
 
     @Transactional
@@ -389,9 +355,7 @@ public class RecruitService {
     }
 
     @Transactional
-    public void updateRecruit(Long recruit_id, MultipartFile image,
-        RecruitUpdateRequestDTO recruitUpdateRequestDTO)
-        throws IOException {
+    public void updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO) {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
         if (recruitUpdateRequestDTO.getImage() != null) {
