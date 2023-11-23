@@ -1,9 +1,28 @@
 package peer.backend.entity.board.recruit;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitInterviewDto;
@@ -18,14 +37,11 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,6 +49,7 @@ import java.util.stream.Collectors;
 @DynamicUpdate
 @Table(name = "Recruit")
 public class Recruit extends BaseEntity {
+
     @Id
     @Column(name = "recruit_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -85,7 +102,6 @@ public class Recruit extends BaseEntity {
     @Column
     private Long writerId;
 
-
     @PrePersist
     @PreUpdate
     private void updateDueValue() {
@@ -104,7 +120,8 @@ public class Recruit extends BaseEntity {
         this.link = request.getLink();
         this.thumbnailUrl = filePath;
         this.tags.clear();
-        this.tags = request.getTagList().stream().map(TagListResponse::getName).collect(Collectors.toList());
+        this.tags = request.getTagList().stream().map(TagListResponse::getName)
+            .collect(Collectors.toList());
         this.interviews.clear();
         if (!request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {
@@ -120,22 +137,25 @@ public class Recruit extends BaseEntity {
     }
 
     public void addInterview(RecruitInterviewDto interview) {
-        if (this.getInterviews() == null)
+        if (this.getInterviews() == null) {
             this.interviews = new ArrayList<>();
+        }
         this.interviews.add(RecruitInterview.builder()
-                .question(interview.getQuestion())
-                .type(RecruitInterviewType.valueOf(interview.getType()))
-                .options(interview.getOptionList())
-                .recruit(this)
-                .build());
+            .question(interview.getQuestion())
+            .type(RecruitInterviewType.valueOf(interview.getType()))
+            .options(interview.getOptionList())
+            .recruit(this)
+            .build());
     }
+
     public void addRole(RecruitRoleDTO role) {
-        if (this.getRoles() == null)
+        if (this.getRoles() == null) {
             this.roles = new ArrayList<>();
+        }
         this.roles.add(RecruitRole.builder()
-                        .name(role.getName())
-                        .number(role.getNumber())
-                        .recruit(this).build());
+            .name(role.getName())
+            .number(role.getNumber())
+            .recruit(this).build());
     }
 
     public void setHit(Long hit) {

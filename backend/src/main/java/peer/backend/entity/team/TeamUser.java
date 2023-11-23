@@ -1,12 +1,19 @@
 package peer.backend.entity.team;
 
-import javax.persistence.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.composite.TeamUserPK;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 
@@ -15,26 +22,25 @@ import peer.backend.entity.user.User;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(TeamUserPK.class)
 @Table(name = "team_user")
 public class TeamUser {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "user_id")
     private Long userId;
 
-    @Id
     @Column(name = "team_id")
     private Long teamId;
 
-    @MapsId("userId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
-    @MapsId("teamId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
+    @ManyToOne
+    @JoinColumn(name = "team_id", insertable = false, updatable = false)
     private Team team;
 
     @Column(columnDefinition = "TEXT")
