@@ -2,22 +2,8 @@ package peer.backend.entity.board.recruit;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +16,7 @@ import peer.backend.dto.board.recruit.RecruitRoleDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.TagListResponse;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
@@ -62,23 +49,24 @@ public class Recruit extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User writer;
 
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitFavorite> favorites = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitApplicant> applicants = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitRole> roles = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitInterview> interviews = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitFile> files = new ArrayList<>();
 
     @Column
     private Long hit = 0L;
     @Column
     private String title;
-    @Column
-    private String due;
+    @Enumerated(EnumType.STRING)
+    private RecruitDueEnum due;
+    private int dueValue;
     @Column
     private String content;
     @Column
@@ -100,10 +88,17 @@ public class Recruit extends BaseEntity {
     @Column
     private Long writerId;
 
+    @PrePersist
+    @PreUpdate
+    private void updateDueValue() {
+        if (this.due != null) {
+            this.dueValue = this.due.getValue();
+        }
+    }
 
-    public void update(RecruitUpdateRequestDTO request, String filePath) {
+    public void update(RecruitUpdateRequestDTO request, String filePath){
         this.title = request.getTitle();
-        this.due = request.getDue();
+        this.due = RecruitDueEnum.from(request.getDue());
         this.content = request.getContent();
         this.status = request.getStatus();
         this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion1());

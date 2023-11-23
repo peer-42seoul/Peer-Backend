@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Tag;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
@@ -25,7 +26,6 @@ import java.util.List;
 public class RecruitController {
 
     private final RecruitService recruitService;
-    private final UserRepository userRepository;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -43,12 +43,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth)
-        throws IOException {
-        request.setType(request.getType().toUpperCase());
-//        request.setPlace(request.getPlace().toUpperCase());
-//        System.out.println(request.getPlace());
-        recruitService.createRecruit(request, User.authenticationToUser(auth));
+    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+        recruitService.createRecruit(request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
@@ -74,10 +70,8 @@ public class RecruitController {
     }
 
     @PostMapping("/favorite/{recruit_id}")
-    public void goFavorite(@PathVariable Long recruit_id, Principal principal) {
-        User user = userRepository.findByName(principal.getName())
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
-        recruitService.changeRecruitFavorite(user.getId(), recruit_id);
+    public void goFavorite(@PathVariable Long recruit_id, Authentication auth){
+        recruitService.changeRecruitFavorite(auth, recruit_id );
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요

@@ -19,6 +19,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.tika.utils.AnnotationUtils;
+import org.aspectj.weaver.ast.Expr;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +48,7 @@ import peer.backend.entity.board.recruit.RecruitRole;
 import peer.backend.entity.board.recruit.Tag;
 import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
@@ -89,20 +92,19 @@ public class RecruitService {
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
-    public void changeRecruitFavorite(Long user_id, Long recruit_id) {
-        User user = userRepository.findById(user_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+    public void changeRecruitFavorite(Authentication auth, Long recruit_id) {
+        User user = User.authenticationToUser(auth);
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         Optional<RecruitFavorite> optFavorite = recruitFavoriteRepository.findById(
-            new RecruitFavoritePK(user_id, recruit_id));
+            new RecruitFavoritePK(user.getId(), recruit_id));
         if (optFavorite.isPresent()) {
             recruitFavoriteRepository.delete(optFavorite.get());
         } else {
             RecruitFavorite favorite = new RecruitFavorite();
             favorite.setUser(user);
             favorite.setRecruit(recruit);
-            favorite.setUserId(user_id);
+            favorite.setUserId(user.getId());
             favorite.setRecruitId(recruit_id);
             recruitFavoriteRepository.save(favorite);
         }
@@ -128,7 +130,6 @@ public class RecruitService {
         RecruitListRequest request, Authentication auth) {
         //TODO:favorite 등
         //query 생성 준비
-
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class).distinct(true);
         Root<Recruit> recruit = cq.from(Recruit.class);
@@ -161,7 +162,7 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("due"), request.getDue()));
+            predicates.add(cb.between(recruit.get("dueValue"), request.getStart(), request.getEnd()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
@@ -179,7 +180,7 @@ public class RecruitService {
                 throw new IllegalArgumentException("Invalid sort value");
         }
         //query 전송
-// Pageable 적용
+// order 적용
         cq.orderBy(orders);
 
 // Predicate 적용
@@ -232,7 +233,7 @@ public class RecruitService {
             .region(new ArrayList<>(List.of(recruit.getRegion1(), recruit.getRegion2())))
             .status(recruit.getStatus())
             .totalNumber(recruit.getRoles().size())
-            .due(recruit.getDue())
+            .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter().getNickname())
@@ -258,7 +259,7 @@ public class RecruitService {
             .region2(recruit.getRegion2())
             .status(recruit.getStatus())
             .totalNumber(recruit.getRoles().size())
-            .due(recruit.getDue())
+            .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter().getNickname())
@@ -317,7 +318,7 @@ public class RecruitService {
             .team(team)
             .type(TeamType.valueOf(request.getType()))
             .title(request.getTitle())
-            .due(request.getDue())
+            .due(RecruitDueEnum.from(request.getDue()))
             .link(request.getLink())
             .content(request.getContent())
             .place(TeamOperationFormat.valueOf(request.getPlace()))
@@ -342,13 +343,14 @@ public class RecruitService {
 
     @Transactional
     @RecruitWritingTracking
-    public Recruit createRecruit(RecruitCreateRequest request, User user)
+    public Recruit createRecruit(RecruitCreateRequest request, Authentication auth)
         throws IOException {
         //동일한 팀 이름 검사
         Optional<Team> findTeam = teamRepository.findByName(request.getName());
         if (findTeam.isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 팀 이름입니다.");
         }
+        User user = User.authenticationToUser(auth);
         //팀 생성
         Team team = this.teamService.createTeam(user, request);
 
@@ -364,14 +366,14 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
         Optional<RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(
-            new RecruitApplicantPK(recruit_id, user.getId(), request.getRole()));
-
+            new RecruitApplicantPK(user.getId(), recruit_id, (request.getRole() == null ? "" : request.getRole())));
         if (optRecruitApplicant.isPresent()) {
             throw new ConflictException("이미 지원한 팀입니다.");
         }
         RecruitApplicant recruitApplicant = RecruitApplicant.builder()
             .recruitId(recruit_id)
             .userId(user.getId())
+            .role(request.getRole() == null ? "" : request.getRole())
             .nickname(user.getNickname())
             .status(RecruitApplicantStatus.PENDING)
             .answerList(request.getAnswerList())
