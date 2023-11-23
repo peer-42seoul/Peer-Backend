@@ -138,9 +138,7 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
-            RecruitDueEnum start = RecruitDueEnum.from(request.getDue().get(0));
-            RecruitDueEnum end = RecruitDueEnum.from(request.getDue().get(1));
-            predicates.add(cb.between(recruit.get("dueValue"), start.getValue(), end.getValue()));
+            predicates.add(cb.between(recruit.get("dueValue"), request.getStart(), request.getEnd()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));

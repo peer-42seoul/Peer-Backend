@@ -46,5 +46,5 @@ public enum RecruitDueEnum {
         }
         throw new IllegalArgumentException("잘못된 기간입니다.");
     }
-    }
+}
 
