@@ -140,9 +140,7 @@ public class RecruitService {
         if (request.getDue() != null && !request.getDue().isEmpty()) {
             RecruitDueEnum start = RecruitDueEnum.from(request.getDue().get(0));
             RecruitDueEnum end = RecruitDueEnum.from(request.getDue().get(1));
-            predicates.add(cb.and(
-                    cb.greaterThanOrEqualTo(recruit.get("dueValue"), start.getValue()),
-                    cb.lessThanOrEqualTo(recruit.get("dueValue"), end.getValue())));
+            predicates.add(cb.between(recruit.get("dueValue"), start.getValue(), end.getValue()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
@@ -160,7 +158,7 @@ public class RecruitService {
                 throw new IllegalArgumentException("Invalid sort value");
         }
         //query 전송
-// Pageable 적용
+// order 적용
         cq.orderBy(orders);
 
 // Predicate 적용
