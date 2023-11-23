@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Tag;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.UserRepository;
@@ -24,7 +25,6 @@ import java.util.List;
 @RequestMapping("/api/v1/recruit")
 public class RecruitController {
     private final RecruitService recruitService;
-    private final UserRepository userRepository;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -42,7 +42,6 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
     public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
-        request.setType(request.getType().toUpperCase());
         recruitService.createRecruit(request, auth);
     }
 

@@ -11,6 +11,7 @@ import peer.backend.dto.board.recruit.RecruitRoleDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.TagListResponse;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
@@ -60,8 +61,8 @@ public class Recruit extends BaseEntity {
     private Long hit = 0L;
     @Column
     private String title;
-    @Column
-    private String due;
+    @Enumerated(EnumType.STRING)
+    private RecruitDueEnum due;
     @Column
     private String content;
     @Column
@@ -87,7 +88,7 @@ public class Recruit extends BaseEntity {
 
     public void update(RecruitUpdateRequestDTO request, String filePath){
         this.title = request.getTitle();
-        this.due = request.getDue();
+        this.due = RecruitDueEnum.from(request.getDue());
         this.content = request.getContent();
         this.status = request.getStatus();
         this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion1());

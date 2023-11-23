@@ -28,8 +28,6 @@ public class RecruitListRequest{
     private String sort;
     private String keyword;
     private List<String> due;
-    private RecruitDueEnum start = RecruitDueEnum.from(due.get(0));
-    private RecruitDueEnum end = RecruitDueEnum.from(due.get(1));
     private String region1;
     private String region2;
     private List<String> place;

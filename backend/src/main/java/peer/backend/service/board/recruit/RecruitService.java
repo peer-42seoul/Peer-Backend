@@ -105,7 +105,6 @@ public class RecruitService {
         RecruitListRequest request, Authentication auth) {
         //TODO:favorite 등
         //query 생성 준비
-
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Recruit> cq = cb.createQuery(Recruit.class).distinct(true);
         Root<Recruit> recruit = cq.from(Recruit.class);
@@ -138,10 +137,11 @@ public class RecruitService {
             predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
+            RecruitDueEnum start = RecruitDueEnum.from(request.getDue().get(0));
+            RecruitDueEnum end = RecruitDueEnum.from(request.getDue().get(1));
             predicates.add(cb.and(
-                    cb.greaterThanOrEqualTo(recruit.get("start").get("value"), request.getStart().getValue()),
-                    cb.lessThanOrEqualTo(recruit.get("duration").get("value"), request.getEnd().getValue()))
-            );
+                    cb.greaterThanOrEqualTo(recruit.get("due").get("value"), start),
+                    cb.lessThanOrEqualTo(recruit.get("due").get("value"), end)));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
@@ -208,7 +208,7 @@ public class RecruitService {
             .region(new ArrayList<>(List.of(recruit.getRegion1(), recruit.getRegion2())))
             .status(recruit.getStatus())
             .totalNumber(recruit.getRoles().size())
-            .due(recruit.getDue())
+            .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter().getNickname())
@@ -234,7 +234,7 @@ public class RecruitService {
             .region2(recruit.getRegion2())
             .status(recruit.getStatus())
             .totalNumber(recruit.getRoles().size())
-            .due(recruit.getDue())
+            .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter().getNickname())
@@ -290,7 +290,7 @@ public class RecruitService {
             .team(team)
             .type(TeamType.valueOf(request.getType()))
             .title(request.getTitle())
-            .due(request.getDue())
+            .due(RecruitDueEnum.from(request.getDue()))
             .link(request.getLink())
             .content(request.getContent())
             .place(TeamOperationFormat.valueOf(request.getPlace()))
