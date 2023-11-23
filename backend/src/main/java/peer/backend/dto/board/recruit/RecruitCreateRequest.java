@@ -1,9 +1,6 @@
 package peer.backend.dto.board.recruit;
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.RecruitRole;
 
 import java.util.List;
 
