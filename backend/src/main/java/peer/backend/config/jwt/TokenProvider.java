@@ -1,7 +1,14 @@
 package peer.backend.config.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,14 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import peer.backend.entity.user.User;
 import peer.backend.service.UserDetailsServiceImpl;
-
-import javax.servlet.http.HttpServletRequest;
-import java.security.Key;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -50,8 +51,7 @@ public class TokenProvider {
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
             .signWith(this.key, SignatureAlgorithm.HS256)
-            .compact()
-            ;
+            .compact();
 //        String redisKey = "redis_" + user.getId().toString();
 //        redisTemplate.opsForValue().set(redisKey, ret);
         return ret;
@@ -99,14 +99,20 @@ public class TokenProvider {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
+        bearerToken = req.getParameter("accessToken");
+        if (bearerToken != null) {
+            return bearerToken;
+        }
         return null;
     }
 
     public boolean validateToken(String accessToken) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         try {
-            boolean val = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration().after(new Date());
-            Date exp = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(accessToken).getBody().getExpiration();
+            boolean val = Jwts.parserBuilder().setSigningKey(this.key).build()
+                .parseClaimsJws(accessToken).getBody().getExpiration().after(new Date());
+            Date exp = Jwts.parserBuilder().setSigningKey(this.key).build()
+                .parseClaimsJws(accessToken).getBody().getExpiration();
 //            log.info("exp : " + exp);
 //            log.info("system 시간 : " + new Date(System.currentTimeMillis()));
 //            log.info("걍 시간 : " + new Date());
@@ -120,7 +126,7 @@ public class TokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         try {
             return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(refreshToken)
-                    .getBody().getExpiration().before(new Date());
+                .getBody().getExpiration().before(new Date());
         } catch (JwtException e) {
             return false;
         }
