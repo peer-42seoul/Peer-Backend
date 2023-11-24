@@ -167,8 +167,8 @@ public class RecruitService {
                 recruit2.getTitle(),
                 recruit2.getThumbnailUrl(),
                 recruit2.getWriterId(),
-                recruit2.getWriter().getNickname(),
-                recruit2.getWriter().getImageUrl(),
+                recruit2.getWriter() == null ? null : recruit2.getWriter().getNickname(),
+                recruit2.getWriter() == null ? null : recruit2.getWriter().getImageUrl(),
                 recruit2.getStatus().toString(),
                 TagListManager.getRecruitTags(recruit2.getTags()),
                 recruit2.getId(),
@@ -205,9 +205,9 @@ public class RecruitService {
             .totalNumber(recruit.getRoles().size())
             .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
-            .leader_id(recruit.getWriter().getId())
-            .leader_nickname(recruit.getWriter().getNickname())
-            .leader_image(recruit.getWriter().getImageUrl())
+            .leader_id(recruit.getWriterId())
+            .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
+            .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
             .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .roleList(roleDtoList)
             .place(recruit.getPlace())
@@ -232,12 +232,12 @@ public class RecruitService {
             .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
-            .leader_nickname(recruit.getWriter().getNickname())
-            .leader_image(recruit.getWriter().getImageUrl())
+            .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
+            .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
             .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
-            .isAnswered(recruit.getApplicants().size() > 0 ? true : false)
+            .isAnswered(!recruit.getApplicants().isEmpty())
             .build();
     }
 
