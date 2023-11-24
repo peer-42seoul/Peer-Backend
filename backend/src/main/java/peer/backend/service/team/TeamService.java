@@ -1,32 +1,19 @@
 package peer.backend.service.team;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.team.TeamApplicantListDto;
-import peer.backend.dto.team.TeamInfoResponse;
-import peer.backend.dto.team.TeamListResponse;
-import peer.backend.dto.team.TeamMemberDto;
-import peer.backend.dto.team.TeamSettingDto;
-import peer.backend.dto.team.TeamSettingInfoDto;
+import peer.backend.dto.team.*;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
-import peer.backend.entity.team.enums.TeamMemberStatus;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamStatus;
-import peer.backend.entity.team.enums.TeamType;
-import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
@@ -34,20 +21,28 @@ import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
-import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.ObjectService;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TeamService {
 
-    private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
     private final RecruitRepository recruitRepository;
     private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
-    private String filePath = "TeamImage";
+
+    private boolean isLeader(Long teamId, User user) {
+        return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
+                == TeamUserRoleType.LEADER;
+    }
 
     @Transactional
     public List<TeamListResponse> getTeamList(TeamStatus teamStatus, User user) {
@@ -77,8 +72,7 @@ public class TeamService {
     }
 
     @Transactional
-    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user)
-        throws IOException {
+    public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) {
         String teamImage = teamSettingInfoDto.getTeamImage();
         if (teamImage != null) {
             if (teamImage.startsWith("data:image/png;base64")) {
@@ -96,13 +90,14 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
+            String filePath = "TeamImage";
             if (team.getTeamLogoPath() != null) {
                 if (teamSettingInfoDto.getTeamImage() != null) {
                     if (team.getTeamLogoPath().equals(teamSettingInfoDto.getTeamImage())) {
                         return;
                     }
                     String newImage = objectService.uploadObject(
-                        this.filePath + "/" + team.getId().toString(),
+                        filePath + "/" + team.getId().toString(),
                         teamSettingInfoDto.getTeamImage(), "image");
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
@@ -112,7 +107,7 @@ public class TeamService {
                 }
             } else if (teamSettingInfoDto.getTeamImage() != null) {
                 String newImage = objectService.uploadObject(
-                    this.filePath + "/" + team.getId().toString(),
+                    filePath + "/" + team.getId().toString(),
                     teamSettingInfoDto.getTeamImage(), "image");
                 team.setTeamLogoPath(newImage);
             }
@@ -144,6 +139,9 @@ public class TeamService {
     @Transactional
     public void grantRole(Long teamId, Long grantingUserId, User user,
         TeamUserRoleType teamUserRoleType) {
+        if (grantingUserId.equals(user.getId())) {
+            throw new ForbiddenException("자기 자신에게 권한을 부여할 수 없습니다.");
+        }
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
@@ -214,8 +212,6 @@ public class TeamService {
         }
         RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(
             applicantId, teamId);
-        Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (recruitApplicant == null) {
             throw new NotFoundException("존재하지 않는 지원자입니다.");
         }
@@ -237,8 +233,6 @@ public class TeamService {
         }
         RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(
             applicantId, teamId);
-        Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (recruitApplicant == null) {
             throw new NotFoundException("존재하지 않는 지원자입니다.");
         }
@@ -267,11 +261,6 @@ public class TeamService {
         } else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
-    }
-
-    private boolean isLeader(Long teamId, User user) {
-        return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
-            == TeamUserRoleType.LEADER;
     }
 
     @TeamCreateTracking

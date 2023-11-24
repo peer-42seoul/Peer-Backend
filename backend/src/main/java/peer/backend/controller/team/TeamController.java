@@ -1,14 +1,7 @@
 package peer.backend.controller.team;
 
 import io.swagger.annotations.ApiOperation;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -19,9 +12,12 @@ import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
-import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Secured("USER_ROLE")
 @RestController
@@ -30,14 +26,8 @@ import javax.validation.Valid;
 public class TeamController {
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
-    private final ObjectService objectService;
-//
-//    public TeamController(TeamService teamService, ObjectService objectService) {
-//        this.teamService = teamService;
-//        this.objectService = objectService;
-//    }
 
-    @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "유저가 속한 팀 리스트를 가져옵니다.")
+    @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "GET-유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/list")
     public List<TeamListResponse> getTeamList(@RequestParam("teamStatus") String teamStatus, Authentication authentication) {
         TeamStatus teamStatus1 = TeamStatus.valueOf(teamStatus.toUpperCase());
@@ -45,24 +35,28 @@ public class TeamController {
         return this.teamService.getTeamList(teamStatus1, thisUser);
     }
 
+    @ApiOperation(value = "TEAM-SETTING", notes = "GET-팀 설정 정보를 가져옵니다.")
     @GetMapping("/setting/{teamId}")
     public TeamSettingDto getTeamSetting(@PathVariable() Long teamId, Authentication authentication) {
         User thisUser = User.authenticationToUser(authentication);
         return this.teamService.getTeamSetting(teamId, thisUser);
     }
 
+    @ApiOperation(value = "TEAM-LIST", notes = "POST-팀 정보를 설정합니다.")
     @PostMapping("/setting/{teamId}")
     public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) throws IOException {
         this.teamService.updateTeamSetting(teamId, teamSettingInfoDto, User.authenticationToUser(authentication));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation(value = "TEAM-LIST", notes = "DELETE-팀원을 삭제합니다.")
     @DeleteMapping("/delete/{teamId}")
     public ArrayList<TeamMemberDto> deleteTeamMember(@PathVariable() Long teamId, @RequestParam("userId") Long userId, Authentication authentication) {
         System.out.println("deleteTeamMember");
         return this.teamService.deleteTeamMember(teamId, userId, User.authenticationToUser(authentication));
     }
 
+    @ApiOperation(value = "TEAM-LIST", notes = "POST-팀원의 역할(리더, 멤버)을 변경합니다.")
     @PostMapping("/grant/{teamId}")
     public ResponseEntity<?> grantRole(@PathVariable() Long teamId, @RequestParam("userId") Long userId, @RequestParam("role") String teamUserRoleType, Authentication authentication) {
         try {
@@ -75,6 +69,7 @@ public class TeamController {
         }
     }
 
+    @ApiOperation(value = "TEAM-LIST", notes = "DELETE-팀을 나갑니다.")
     @DeleteMapping("/exit")
     public ResponseEntity<?> exitTeam(@RequestParam("teamId") Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
@@ -112,14 +107,4 @@ public class TeamController {
         User user = User.authenticationToUser(authentication);
         return this.teamService.getTeamMemberList(teamId, user);
     }
-
-//    @PostMapping("/uploadImage")
-//    public ResponseEntity<?> uploadImage(@RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) throws IOException {
-//        objectService.requestToken();
-//        System.out.println("TOKENID = " + objectService.getTokenId());
-//        String uploadurl = objectService.uploadObject("TeamImage", teamSettingInfoDto.getTeamImage(), "image");
-//        System.out.println("uploadurl = " + uploadurl);
-////        objectService.deleteObject(uploadurl);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 }
