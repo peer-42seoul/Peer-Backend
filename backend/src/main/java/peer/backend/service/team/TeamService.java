@@ -139,6 +139,9 @@ public class TeamService {
     @Transactional
     public void grantRole(Long teamId, Long grantingUserId, User user,
         TeamUserRoleType teamUserRoleType) {
+        if (grantingUserId.equals(user.getId())) {
+            throw new ForbiddenException("자기 자신에게 권한을 부여할 수 없습니다.");
+        }
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
