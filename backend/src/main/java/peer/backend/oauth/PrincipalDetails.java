@@ -1,6 +1,5 @@
 package peer.backend.oauth;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,9 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import peer.backend.entity.user.PeerOperation;
 import peer.backend.entity.user.User;
-import peer.backend.entity.user.UserAchievement;
 import peer.backend.entity.user.UserLink;
-import peer.backend.entity.user.UserPushKeyword;
 import peer.backend.oauth.enums.LoginStatus;
 
 @Getter
@@ -112,16 +109,8 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         return user.getRepresentAchievement();
     }
 
-//    public List<UserPushKeyword> getUserPushKeywords() {
-//        return user.getUserPushKeywords();
-//    }
-
     public PeerOperation getPeerOperation() {
         return user.getPeerOperation();
-    }
-
-    public List<UserAchievement> getUserAchievements() {
-        return user.getUserAchievements();
     }
 
     public List<UserLink> getUserLinks() {
