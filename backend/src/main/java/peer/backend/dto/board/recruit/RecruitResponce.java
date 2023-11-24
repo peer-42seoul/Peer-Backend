@@ -31,4 +31,5 @@ public class RecruitResponce {
     private List<TagListResponse> tagList;
     private List<RecruitRoleDTO> roleList;
     private TeamOperationFormat place;
+    private String image;
 }
