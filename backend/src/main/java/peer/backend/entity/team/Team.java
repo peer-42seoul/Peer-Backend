@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.team.enums.*;
-import peer.backend.entity.user.InterestedProject;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -76,9 +75,6 @@ public class Team extends BaseEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<InterestedProject> interestedProjects = new ArrayList<>();
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();

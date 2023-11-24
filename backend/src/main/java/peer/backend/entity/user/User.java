@@ -92,23 +92,14 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<UserPushKeyword> userPushKeywords = new ArrayList<>();
-
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private PeerOperation peerOperation;
-
-    @OneToMany(mappedBy = "user")
-    private List<UserAchievement> userAchievements = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserLink> userLinks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<InterestedProject> interestedProjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<RecruitFavorite> recruitFavorites = new ArrayList<>();
