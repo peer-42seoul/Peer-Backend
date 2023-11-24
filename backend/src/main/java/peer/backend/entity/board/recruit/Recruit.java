@@ -62,24 +62,27 @@ public class Recruit extends BaseEntity {
 
     @Column
     private Long hit = 0L;
-    @Column
+    @Column(nullable = false)
     private String title;
     @Enumerated(EnumType.STRING)
     private RecruitDueEnum due;
     private int dueValue;
-    @Column
+    @Column(nullable = false)
     private String content;
-    @Column
+    @Column(length = 10)
     private String region1;
-    @Column
+    @Column(length = 10)
     private String region2;
     @Column
     private String link;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TeamType type;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TeamOperationFormat place;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RecruitStatus status;
     @Column
     private String thumbnailUrl;

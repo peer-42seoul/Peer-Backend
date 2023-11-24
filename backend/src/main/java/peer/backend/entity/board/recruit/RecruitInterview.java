@@ -26,6 +26,7 @@ public class RecruitInterview {
     @Column(nullable = false, length = 255)
     private String question;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RecruitInterviewType type;
     @ElementCollection
     private List<String> options;
