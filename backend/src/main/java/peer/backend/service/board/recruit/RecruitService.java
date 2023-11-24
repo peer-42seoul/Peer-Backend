@@ -211,6 +211,7 @@ public class RecruitService {
             .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .roleList(roleDtoList)
             .place(recruit.getPlace())
+            .image(recruit.getThumbnailUrl())
             .build();
     }
 
