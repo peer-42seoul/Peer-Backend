@@ -1,24 +1,43 @@
 package peer.backend.controller.board;
 
 import io.swagger.annotations.ApiOperation;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
-import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.board.recruit.ApplyRecruitRequest;
+import peer.backend.dto.board.recruit.RecruitCreateRequest;
+import peer.backend.dto.board.recruit.RecruitInterviewDto;
+import peer.backend.dto.board.recruit.RecruitListRequest;
+import peer.backend.dto.board.recruit.RecruitListResponse;
+import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.entity.board.recruit.Tag;
 import peer.backend.service.board.recruit.RecruitService;
 
-import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/recruit")
+@Slf4j
 public class RecruitController {
 
     private final RecruitService recruitService;
@@ -31,15 +50,17 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request,
+    public Page<RecruitListResponse> getRecruitListByConditions(
+        @CookieValue("refreshToken") String refreshToken, RecruitListRequest request,
         Authentication auth) {
+        log.info(refreshToken);
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
         return recruitService.getRecruitSearchList(pageable, request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public String createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+    public String createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth){
         return recruitService.createRecruit(request, auth);
     }
 
@@ -64,8 +85,8 @@ public class RecruitController {
     }
 
     @PostMapping("/favorite/{recruit_id}")
-    public void goFavorite(@PathVariable Long recruit_id, Authentication auth){
-        recruitService.changeRecruitFavorite(auth, recruit_id );
+    public void goFavorite(@PathVariable Long recruit_id, Authentication auth) {
+        recruitService.changeRecruitFavorite(auth, recruit_id);
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
@@ -76,7 +97,7 @@ public class RecruitController {
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요. 추후 글 생성, 수정이 어떻게 달라질지 몰라서 일단 동일한 기능이지만 api 분리해두었음.
-    @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
+    @ApiOperation(value = "", notes = "글 수정을 위한 정보를 불러온다.")
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
     public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id) {

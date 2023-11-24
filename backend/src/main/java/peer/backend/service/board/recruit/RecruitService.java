@@ -237,6 +237,7 @@ public class RecruitService {
             .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
+            .isAnswered(recruit.getApplicants().size() > 0 ? true : false)
             .build();
     }
 
