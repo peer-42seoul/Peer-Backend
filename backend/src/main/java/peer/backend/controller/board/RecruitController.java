@@ -30,6 +30,8 @@ import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.entity.board.recruit.Tag;
 import peer.backend.service.board.recruit.RecruitService;
 
+import javax.validation.Valid;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request,
+    public Page<RecruitListResponse> getRecruitListByConditions(@Valid RecruitListRequest request,
         Authentication auth) {
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
         return recruitService.getRecruitSearchList(pageable, request, auth);
@@ -55,7 +57,7 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public String createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) {
+    public String createRecruit(@RequestBody @Valid RecruitCreateRequest request, Authentication auth) {
         return recruitService.createRecruit(request, auth);
     }
 
