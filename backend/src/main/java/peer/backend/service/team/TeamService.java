@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
@@ -37,6 +38,7 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.ObjectService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TeamService {
