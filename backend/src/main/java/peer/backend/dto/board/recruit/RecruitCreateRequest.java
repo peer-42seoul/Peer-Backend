@@ -16,10 +16,10 @@ import java.util.List;
 public class RecruitCreateRequest {
     private String image;
     @NotNull
-    @Size(min = 1, max = 30, message = "제목은 15글자(한글) 이하로 작성해주세요.")
+    @Size(min = 2, max = 12, message = "팀이름은 12글자 이하로 작성해주세요.")
     private String name;
     @NotNull(message = "제목이 반드시 필요합니다.")
-    @Size(min = 10, max = 100, message = "제목은 10~100글자로 작성해주세요.")
+    @Size(min = 1, max = 100, message = "제목은 1~100글자로 작성해주세요.")
     private String title;
     @NotNull
     private String due;
