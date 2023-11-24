@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -18,9 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.ApplyRecruitRequest;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
@@ -50,24 +47,23 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(
-        @CookieValue("refreshToken") String refreshToken, RecruitListRequest request,
+    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request,
         Authentication auth) {
-        log.info(refreshToken);
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
         return recruitService.getRecruitSearchList(pageable, request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public String createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth){
+    public String createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) {
         return recruitService.createRecruit(request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id, @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
+    public void updateRecruit(@PathVariable Long recruit_id,
+        @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
         recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
