@@ -39,6 +39,11 @@ public class TeamService {
     private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
 
+    private boolean isLeader(Long teamId, User user) {
+        return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
+                == TeamUserRoleType.LEADER;
+    }
+
     @Transactional
     public List<TeamListResponse> getTeamList(TeamStatus teamStatus, User user) {
         if (teamStatus == null) {
@@ -253,11 +258,6 @@ public class TeamService {
         } else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
-    }
-
-    private boolean isLeader(Long teamId, User user) {
-        return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
-            == TeamUserRoleType.LEADER;
     }
 
     @TeamCreateTracking
