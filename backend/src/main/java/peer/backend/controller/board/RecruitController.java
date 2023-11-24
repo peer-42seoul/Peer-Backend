@@ -1,28 +1,42 @@
 package peer.backend.controller.board;
 
 import io.swagger.annotations.ApiOperation;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.annotation.AuthorCheck;
-import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.board.recruit.ApplyRecruitRequest;
+import peer.backend.dto.board.recruit.RecruitCreateRequest;
+import peer.backend.dto.board.recruit.RecruitInterviewDto;
+import peer.backend.dto.board.recruit.RecruitListRequest;
+import peer.backend.dto.board.recruit.RecruitListResponse;
+import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.entity.board.recruit.Tag;
-import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
-import peer.backend.entity.user.User;
-import peer.backend.exception.NotFoundException;
-import peer.backend.repository.user.UserRepository;
 import peer.backend.service.board.recruit.RecruitService;
-import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/recruit")
+@Slf4j
 public class RecruitController {
 
     private final RecruitService recruitService;
@@ -35,15 +49,18 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
     @GetMapping("")
-    public Page<RecruitListResponse> getRecruitListByConditions(RecruitListRequest request,
+    public Page<RecruitListResponse> getRecruitListByConditions(
+        @CookieValue("refreshToken") String refreshToken, RecruitListRequest request,
         Authentication auth) {
+        log.info(refreshToken);
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
         return recruitService.getRecruitSearchList(pageable, request, auth);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth) throws IOException{
+    public void createRecruit(@RequestBody RecruitCreateRequest request, Authentication auth)
+        throws IOException {
         recruitService.createRecruit(request, auth);
     }
 
@@ -70,8 +87,8 @@ public class RecruitController {
     }
 
     @PostMapping("/favorite/{recruit_id}")
-    public void goFavorite(@PathVariable Long recruit_id, Authentication auth){
-        recruitService.changeRecruitFavorite(auth, recruit_id );
+    public void goFavorite(@PathVariable Long recruit_id, Authentication auth) {
+        recruitService.changeRecruitFavorite(auth, recruit_id);
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
