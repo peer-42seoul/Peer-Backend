@@ -16,6 +16,8 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     List<TeamUser> findByUserId(Long userId);
 
+    List<TeamUser> findByTeamId(Long teamId);
+
     Boolean existsByUserIdAndTeamId(Long userId, Long teamId);
 
     @Query("select t.role from TeamUser t where t.teamId = :teamId and t.userId = :userId")
