@@ -73,7 +73,7 @@ public class TeamService {
         }
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        return new TeamSettingDto(team);
+        return new TeamSettingDto(team, teamUserRepository.findByTeamId(teamId));
     }
 
     @Transactional
