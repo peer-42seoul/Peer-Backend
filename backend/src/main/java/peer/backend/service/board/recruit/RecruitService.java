@@ -352,6 +352,7 @@ public class RecruitService {
     public void deleteRecruit(Long recruit_id) {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
+        objectService.deleteObject(recruit.getThumbnailUrl());
         recruitRepository.delete(recruit);
     }
 
