@@ -38,10 +38,10 @@ public class Recruit extends BaseEntity {
 
     @Id
     @Column(name = "recruit_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
+    @MapsId
     @JoinColumn(name = "team_id")
     private Team team;
 
