@@ -1,10 +1,6 @@
 package peer.backend.controller.team;
 
 import io.swagger.annotations.ApiOperation;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +12,12 @@ import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
-import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Secured("USER_ROLE")
 @RestController
