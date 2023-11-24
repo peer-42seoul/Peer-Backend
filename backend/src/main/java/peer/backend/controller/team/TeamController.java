@@ -27,7 +27,6 @@ import javax.validation.Valid;
 public class TeamController {
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
-    private final ObjectService objectService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "GET-유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/list")
