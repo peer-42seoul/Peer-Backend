@@ -1,0 +1,3 @@
+[submodule "backend/private-resources"]
+	path = backend/private-resources
+	url = https://github.com/peer-42seoul/Peer-Backend-Resources.git
