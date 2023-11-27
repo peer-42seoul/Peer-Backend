@@ -22,4 +22,9 @@ public class UserService {
             .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
     }
 
+    public User findById(Long id) {
+        return this.userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
+    }
+
 }
