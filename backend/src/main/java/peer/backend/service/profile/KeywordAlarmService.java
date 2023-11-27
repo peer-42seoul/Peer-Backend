@@ -33,13 +33,26 @@ public class KeywordAlarmService {
     @Transactional
     public void addKeyword(Authentication auth, String newKeyword) {
         User user = User.authenticationToUser(auth);
-        if (user.getKeywordAlarm() == null) {
+        String oldKeywords = user.getKeywordAlarm();
+        String uniqWord = "\\^&%";
+        String[] parts = oldKeywords.split(uniqWord);
+
+        if (parts.length == 10){
+            throw new BadRequestException("최대 등록 가능한 키워드는 10개입니다.");
+        }
+        if (newKeyword.length() > 30) {
+            throw new BadRequestException("키워드 크기는 최대 30자입니다.");
+        }
+
+        if (oldKeywords.isBlank()) {
             user.setKeywordAlarm(newKeyword);
         }
-        else if (user.getKeywordAlarm().contains(newKeyword)) {
-            throw new BadRequestException("이미 존재하는 키워드 입니다.");
-        }
         else {
+            for (String part : parts){
+                if (part.equals(newKeyword)) {
+                    throw new BadRequestException("이미 존재하는 키워드 입니다.");
+                }
+            }
             String keyword = String.format("%s^&%%%s", user.getKeywordAlarm(), newKeyword);
             user.setKeywordAlarm(keyword);
         }
