@@ -100,12 +100,9 @@ public class TokenProvider {
             return bearerToken.substring(7);
         }
         bearerToken = req.getParameter("accessToken");
-        log.info("accessToekn: " + bearerToken);
+        log.info("accessToken: " + bearerToken);
         log.info("queryString: " + req.getQueryString());
-        if (bearerToken != null) {
-            return bearerToken;
-        }
-        return null;
+        return bearerToken;
     }
 
     public boolean validateToken(String accessToken) {
