@@ -35,16 +35,18 @@ public class KeywordAlarmService {
         User user = User.authenticationToUser(auth);
         String oldKeywords = user.getKeywordAlarm();
         String uniqWord = "\\^&%";
-        String[] parts = oldKeywords.split(uniqWord);
-
-        if (parts.length == 10){
-            throw new BadRequestException("최대 등록 가능한 키워드는 10개입니다.");
+        String[] parts = null;
+        if (oldKeywords != null) {
+            parts = oldKeywords.split(uniqWord);
+            if (parts.length == 10) {
+                throw new BadRequestException("최대 등록 가능한 키워드는 10개입니다.");
+            }
         }
         if (newKeyword.length() > 30) {
             throw new BadRequestException("키워드 크기는 최대 30자입니다.");
         }
 
-        if (oldKeywords.isBlank()) {
+        if (oldKeywords == null || oldKeywords.isBlank()) {
             user.setKeywordAlarm(newKeyword);
         }
         else {
