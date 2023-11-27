@@ -1,9 +1,7 @@
 package peer.backend.entity.board.team;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
@@ -13,10 +11,9 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "post")
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,4 +35,16 @@ public class Post {
     @Lob
     @NotNull
     private String content;
+
+    private int hit;
+    private String image;
+
+    public void update(PostUpdateRequest request){
+        this.title = request.getTitle();
+        this.content = request.getContent();
+    }
+
+    public void setImage(String url){
+        this.image = url;
+    }
 }

@@ -39,7 +39,7 @@ public class TeamService {
     private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
 
-    private boolean isLeader(Long teamId, User user) {
+    public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
                 == TeamUserRoleType.LEADER;
     }
