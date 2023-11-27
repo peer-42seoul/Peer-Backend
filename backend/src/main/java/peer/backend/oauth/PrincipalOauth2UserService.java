@@ -1,10 +1,10 @@
 package peer.backend.oauth;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -32,50 +32,38 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo oAuth2UserInfo = this.getOAuth2UserInfo(oAuth2User, registrationId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LoginStatus loginStatus;
-
-        UserDetails userDetails;
-        if (authentication != null) {
-            userDetails = (UserDetails) authentication.getPrincipal();
-            log.info(userDetails.getUsername());
-        }
-
-        String email = oAuth2UserInfo.getEmail();
-
         User user = null;
-        SocialLogin socialInfo = this.socialLoginService.getSocialLogin(email);
+        String socialEmail = oAuth2UserInfo.getEmail();
+        SocialLogin socialInfo = this.socialLoginService.getSocialLogin(socialEmail);
 
-        if (socialInfo == null) {
-            if (authentication == null) {
+        if (Objects.isNull(socialInfo)) {
+            if (Objects.isNull(authentication)) {
                 // 회원가입
                 this.socialLoginService.putSocialLoginInRedis(new SocialLogin(user, oAuth2UserInfo,
                     userRequest.getAccessToken().getTokenValue(),
-                    email));
+                    socialEmail));
                 loginStatus = LoginStatus.REGISTER;
+                user = User.builder().name("register").build();
             } else {
                 // 연동
                 loginStatus = LoginStatus.LINK;
-                PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-                user = principalDetails.getUser();
+                user = User.authenticationToUser(authentication);
                 this.socialLoginService.save(new SocialLogin(user, oAuth2UserInfo,
                     userRequest.getAccessToken().getTokenValue(),
-                    email));
+                    socialEmail));
             }
         } else {
-            // 소셜 로그인 시켜주기!!
+            // 소셜 로그인
             loginStatus = LoginStatus.LOGIN;
             user = this.userRepository.findById(socialInfo.getUser().getId()).orElse(null);
         }
 
-        if (user == null) {
-            user = User.builder().name("tmp").build();
-        }
-        return new PrincipalDetails(user, oAuth2User.getAttributes(), loginStatus, email);
+        return new PrincipalDetails(user, oAuth2User.getAttributes(), loginStatus, socialEmail);
     }
 
     private OAuth2UserInfo getOAuth2UserInfo(OAuth2User oAuth2User, String registrationId) {
