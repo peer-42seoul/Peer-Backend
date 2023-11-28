@@ -53,27 +53,51 @@ class AlarmRepositoryTest {
                 .representAchievement("test")
                 .build();
         userRepository.save(user);
+        save();
     }
 
-
-    @DisplayName("알림 저장")
-    @Test
-    void save() {
-        Alarm alarm = Alarm.builder()
+    @DisplayName("전체 알림 생성")
+    Alarm crateAlarmAll() {
+        return Alarm.builder()
                 .id(1L)
                 .title("test")
                 .message("message")
+                .target(0L)
                 .targetType(TargetType.ALL)
                 .link("link")
                 .sent(false)
                 .priority(Priority.SCHEDULED)
                 .scheduledTime(new Date())
                 .build();
-        alarmRepository.save(alarm);
     }
-    @DisplayName("알림에 속상 대상 찾기")
-    @Test
-    void findByTarget() {
+    @DisplayName("특정 대상 알림 생성")
+    Alarm createAlarmCertain() {
+        return Alarm.builder()
+                .id(1L)
+                .title("test")
+                .message("message")
+                .target(1L)
+                .targetType(TargetType.CERTAIN)
+                .link("link")
+                .sent(false)
+                .priority(Priority.SCHEDULED)
+                .scheduledTime(new Date())
+                .build();
+    }
 
+    @DisplayName("알림 저장")
+    void save() {
+//        Alarm alarm = create(); // using create suffix certain or all
+//        alarmRepository.save(alarm);
+    }
+    @DisplayName("알림 찾기")
+    @Test
+    void findById() {
+        // given
+        alarmRepository.save(createAlarmCertain());
+        Alarm alarm1 = alarmRepository.getReferenceById(1L);
+        Alarm alarm2 = alarmRepository.findByTarget(1L).get(0);
+        // when
+        assertEquals(alarm1, alarm2);
     }
 }
