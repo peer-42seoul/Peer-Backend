@@ -75,18 +75,18 @@ public class BoardService {
     }
 
     @Transactional
-    public void getBoardList(Long team_id, Authentication auth){
+    public void getBoardList(Long teamId, Authentication auth){
         User user = User.authenticationToUser(auth);
-        if (teamUserRepository.findByUserIdAndTeamId(user.getId(), team_id) == null)
+        if (teamUserRepository.findByUserIdAndTeamId(user.getId(), teamId) == null)
             throw new ForbiddenException("팀 멤버가 아닙니다.");
 
     }
 
 
     @Transactional
-    public void updateBoard(Long board_id, BoardUpdateRequest request, Authentication auth){
+    public void updateBoard(Long boardId, BoardUpdateRequest request, Authentication auth){
         User user = User.authenticationToUser(auth);
-        Board board = boardRepository.findById(board_id).orElseThrow(
+        Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시판입니다."));
         boardRepository.findByTeamAndName(board.getTeam(), request.getName()).ifPresent( tempBoard -> {
             throw new ConflictException("이미 존재하는 게시판입니다.");
@@ -97,9 +97,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void updatePost(Long post_id, PostUpdateRequest request, Authentication auth){
+    public void updatePost(Long postId, PostUpdateRequest request, Authentication auth){
         User user = User.authenticationToUser(auth);
-        Post post = postRepository.findById(post_id).orElseThrow(
+        Post post = postRepository.findById(postId).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시글입니다."));
         if (!post.getUser().equals(user) && !teamService.isLeader(post.getBoard().getTeam().getId(), user))
             throw new ForbiddenException("게시글을 수정할 권한이 업습니다.");
@@ -113,9 +113,9 @@ public class BoardService {
 
 
     @Transactional
-    public void deleteBoard(Long board_id, Authentication auth){
+    public void deleteBoard(Long boardId, Authentication auth){
         User user = User.authenticationToUser(auth);
-        Board board = boardRepository.findById(board_id).orElseThrow(
+        Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시판입니다."));
         if (!teamService.isLeader(board.getTeam().getId(), user))
             throw new ForbiddenException("팀을 삭제할 권한이 없습니다.");
@@ -123,9 +123,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void deletePost(Long post_id, Authentication auth){
+    public void deletePost(Long postId, Authentication auth){
         User user = User.authenticationToUser(auth);
-        Post post = postRepository.findById(post_id).orElseThrow(
+        Post post = postRepository.findById(postId).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시글입니다."));
         if (!post.getUser().equals(user) && !teamService.isLeader(post.getBoard().getTeam().getId(), user))
             throw new ForbiddenException("게시글을 삭제할 권한이 업습니다.");

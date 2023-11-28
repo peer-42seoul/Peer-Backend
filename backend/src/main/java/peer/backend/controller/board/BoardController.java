@@ -26,19 +26,19 @@ public class BoardController {
         boardService.createPost(request, auth);
     }
 
-    @GetMapping("/list/{team_id}")
-    public void getBoardList(@PathVariable("team_id") Long team_id, Authentication auth){
-        boardService.getBoardList(team_id, auth);
+    @GetMapping("/list/{teamId}")
+    public void getBoardList(@PathVariable("teamId") Long teamId, Authentication auth){
+        boardService.getBoardList(teamId, auth);
     }
 
-    @PutMapping("/{board_id}")
-    public void updateBoard(@PathVariable("board_id") Long board_id, @RequestBody BoardUpdateRequest request, Authentication auth){
-        boardService.updateBoard(board_id, request, auth);
+    @PutMapping("/{boardId}")
+    public void updateBoard(@PathVariable("boardId") Long boardId, @RequestBody BoardUpdateRequest request, Authentication auth){
+        boardService.updateBoard(boardId, request, auth);
     }
 
-    @PutMapping("/post/{post_id}")
-    public void updatePost(@PathVariable("post_id") Long post_id, @RequestBody PostUpdateRequest request, Authentication auth){
-        boardService.updatePost(post_id, request, auth);
+    @PutMapping("/post/{postId}")
+    public void updatePost(@PathVariable("postId") Long postId, @RequestBody PostUpdateRequest request, Authentication auth){
+        boardService.updatePost(postId, request, auth);
     }
 
     @DeleteMapping("/{boardId}")
@@ -47,8 +47,8 @@ public class BoardController {
 
     }
 
-    @DeleteMapping("/post/{post_id}")
-    public void deletePost(@PathVariable("post_id") Long post_id, Authentication auth){
-        boardService.deletePost(post_id, auth);
+    @DeleteMapping("/post/{postId}")
+    public void deletePost(@PathVariable("postId") Long postId, Authentication auth){
+        boardService.deletePost(postId, auth);
     }
 }

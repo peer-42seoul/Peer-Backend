@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class BoardListResponse {
-    private Long board_id;
+    private Long boardId;
     private String name;
 }
