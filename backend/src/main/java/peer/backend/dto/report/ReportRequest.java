@@ -16,7 +16,7 @@ public class ReportRequest {
     @NotNull
     private Long id;
 
-    @ValidEnum(enumClass = ReportType.class)
+    @ValidEnum(enumClass = ReportType.class, message = "잘못된 신고 유형입니다.")
     private ReportType type;
 
     @NotBlank

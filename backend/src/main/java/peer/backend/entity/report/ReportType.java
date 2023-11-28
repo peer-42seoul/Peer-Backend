@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import peer.backend.entity.team.enums.TeamMemberStatus;
 
 @Getter
 @RequiredArgsConstructor
@@ -18,10 +17,10 @@ public enum ReportType {
     private final Long code;
 
     @JsonCreator
-    public static TeamMemberStatus from(String value) {
-        for (TeamMemberStatus status : TeamMemberStatus.values()) {
-            if (status.getValue().equals(value)) {
-                return status;
+    public static ReportType from(String value) {
+        for (ReportType type : ReportType.values()) {
+            if (type.getValue().equals(value)) {
+                return type;
             }
         }
         return null;

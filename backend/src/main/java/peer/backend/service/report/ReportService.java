@@ -1,5 +1,6 @@
 package peer.backend.service.report;
 
+import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,10 @@ public class ReportService {
         }
 
         this.reportRepository.save(new Report(from, to, type, content));
+    }
+
+    @Transactional
+    public List<Report> getReportList() {
+        return this.reportRepository.findAll();
     }
 }
