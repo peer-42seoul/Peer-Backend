@@ -30,19 +30,19 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "from_user")
     private User fromUser;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "to_user")
     private User toUser;
 
-    @Column
+    @Column(nullable = false)
     @Convert(converter = ReportTypeConverter.class)
     private ReportType type;
 
-    @Column
+    @Column(nullable = false)
     private String content;
 
     public Report(User from, User to, ReportType type, String content) {
