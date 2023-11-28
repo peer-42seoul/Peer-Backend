@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.util.List;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,5 +21,10 @@ public class TagService {
     @Transactional
     public void deleteTag(String tag) {
         this.tagRepository.deleteByTag(tag);
+    }
+
+    @Transactional
+    public List<Tag> getTagList() {
+        this.tagRepository.findAll();
     }
 }
