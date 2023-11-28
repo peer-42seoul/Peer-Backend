@@ -40,10 +40,10 @@ class AlarmRepositoryTest {
     @BeforeEach
     void beforeEach() {
         User user = User.builder()
-                .id(1L)
                 .name("test")
                 .email("test@test.com")
                 .nickname("test")
+                .password("test")
                 .isAlarm(false)
                 .address("test")
                 .certification(false)
@@ -51,7 +51,6 @@ class AlarmRepositoryTest {
                 .introduce("test")
                 .peerLevel(0L)
                 .representAchievement("test")
-                .imageUrl("/hello")
                 .build();
         userRepository.save(user);
     }
