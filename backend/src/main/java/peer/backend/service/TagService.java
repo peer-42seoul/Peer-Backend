@@ -25,6 +25,6 @@ public class TagService {
 
     @Transactional
     public List<Tag> getTagList() {
-        this.tagRepository.findAll();
+        return this.tagRepository.findAll();
     }
 }
