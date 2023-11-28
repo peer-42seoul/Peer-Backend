@@ -25,4 +25,9 @@ public class Tag {
 
     @Column(nullable = false)
     private String color;
+
+    public Tag(String tag, String color) {
+        this.tag = tag;
+        this.color = color;
+    }
 }
