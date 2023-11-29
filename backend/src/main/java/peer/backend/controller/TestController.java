@@ -21,7 +21,6 @@ public class TestController {
 
     @PostMapping("test")
     public ResponseEntity<Object> test(@RequestBody AlarmDto dto) {
-        System.out.println(dto);
         Alarm alarm = alarmService.AlarmFromDto(dto);
         alarmService.saveAlarm(alarm);
         return ResponseEntity.ok().build();

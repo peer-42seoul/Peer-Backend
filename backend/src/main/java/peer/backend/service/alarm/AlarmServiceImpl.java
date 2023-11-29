@@ -17,18 +17,17 @@ public class AlarmServiceImpl implements AlarmService{
     private final AlarmRepository alarmRepository;
     @Override
     public void saveAlarm(Alarm data) {
-        System.out.println(data.toString());
         alarmRepository.save(data);
     }
 
 /*
-    private String title;
-    private String message;
-    private TargetType;
-    private Long target;
-    private String link;
-    private Boolean sent;
-    private Priority;
+    title;
+    message;
+    TargetType;
+    target;
+    link;
+    sent;
+    Priority;
  */
     @Override
     public Alarm AlarmFromDto(AlarmDto dto, Long target) {
