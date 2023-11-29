@@ -62,26 +62,6 @@ public class MessaageController {
     }
 
     @ApiOperation(value = "", notes = "유저의 쪽지 목록 중 일부를 삭제 한다.")
-//    @ApiImplicitParams(
-//            {
-//                    @ApiImplicitParam(
-//                            name = "id"
-//                            , value = "사용자 아이디"
-//                            , required = true
-//                            , dataType = "number"
-//                            , paramType = "Param"
-//                            , defaultValue = "None")
-//                    ,
-//                    @ApiImplicitParam(
-//                            name = "body"
-//                            , value = "삭제할 대화 상대 목록"
-//                            , required = true
-//                            , dataType = "Array 타입의 TargetDTO"
-//                            , paramType = "Body"
-//                            , defaultValue = "None"
-//                    )
-//            }
-//    )
     @DeleteMapping("/delete-message")
     public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody TargetDTO body) {
         CompletableFuture<AsyncResult<Long>> deleted;

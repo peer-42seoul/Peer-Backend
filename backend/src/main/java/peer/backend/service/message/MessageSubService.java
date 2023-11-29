@@ -21,6 +21,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.sql.Time;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -33,6 +35,8 @@ public class MessageSubService {
     private final UserRepository userRepository;
     private final MessageIndexRepository indexRepository;
     private final MessagePieceRepository pieceRepository;
+
+    private ZoneId currnetTimezone = ZoneId.systemDefault();
 
     @Autowired
     private EntityManager entityManager;
@@ -75,8 +79,7 @@ public class MessageSubService {
         else
             msgNumber = index.getUnreadMessageNumber2();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
-        String formattedDateTime = conversation.getCreatedAt().format(formatter);
+        String formattedDateTime = this.makeFormattedDate(conversation.getCreatedAt());
 
         MsgObjectDTO ret = new MsgObjectDTO();
         ret.setTargetId(target.getId());
@@ -115,7 +118,11 @@ public class MessageSubService {
     }
 
     public String makeFormattedDate(LocalDateTime value) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
+//        ZonedDateTime seoulTimeDate = value.atZone(ZoneId.of("Asia/Seoul"));
+//        ZonedDateTime seoulTimeDate = value.atZone(ZoneId.of("UTC"));
+        System.out.println("현재 존 :" + this.currnetTimezone);
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+//        return seoulTimeDate.format(formatter);
         return value.format(formatter);
     }
 

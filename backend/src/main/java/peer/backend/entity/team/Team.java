@@ -24,13 +24,12 @@ import java.util.List;
 @DynamicUpdate
 @Table(name = "team")
 public class Team extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    @Size(min = 2, max = 12)
+    @Size(min = 2, max = 30)
     private String name;
 
     @Enumerated(EnumType.STRING)
