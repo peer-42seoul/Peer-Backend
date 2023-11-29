@@ -18,15 +18,13 @@ import peer.backend.entity.BaseEntity;
 public class Subscription extends BaseEntity {
     @Id
     @Column(name = "subscription_id")
-    private String id;
+    private Long id;
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "alarm_id")
-    private Alarm alarm;
+    @Column(name = "key")
+    private String key;
 }

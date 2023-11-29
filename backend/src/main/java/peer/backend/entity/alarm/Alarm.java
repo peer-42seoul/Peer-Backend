@@ -1,11 +1,20 @@
 package peer.backend.entity.alarm;
 
-import javax.persistence.*;
 import java.util.Date;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.alarm.enums.Priority;
@@ -13,6 +22,8 @@ import peer.backend.entity.alarm.enums.TargetType;
 //import peer.backend.entity.alarm.enums.MessageType;
 
 @Entity
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +32,7 @@ import peer.backend.entity.alarm.enums.TargetType;
 public class Alarm extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "alarm_id")
     private Long id;
     @Column
@@ -39,6 +51,13 @@ public class Alarm extends BaseEntity {
     private Boolean sent;
     @Enumerated(EnumType.STRING)
     private Priority priority;
-    @Column
+    @Column()
     private Date scheduledTime;
+
+    @Override
+    public String toString() {
+        return "Alarm [id=" + id + ", title=" + title + ", message=" + message + ", targetType=" + targetType
+                + ", target=" + target + ", link=" + link + ", sent=" + sent + ", priority=" + priority
+                + ", scheduledTime=" + scheduledTime + "]";
+    }
 }
