@@ -5,6 +5,10 @@ on:
       - dev
   pull_request:
     types: [opened, synchronize, reopened]
+
+env:
+  WORKING_DIRECTORY: ./backend
+
 jobs:
   build:
     name: Build and analyze
