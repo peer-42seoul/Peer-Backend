@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.14'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id "org.sonarqube" version "4.4.1.3373"
 }
 
 group = 'peer'
@@ -104,5 +105,13 @@ task copyGitSubmodule(type: Copy) {
         from './private-resources'
         include "**/**"
         into 'src/main/resources'
+    }
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "peer-42seoul_Peer-Backend"
+        property "sonar.organization", "peer-community-development-community"
+        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
