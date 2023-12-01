@@ -1,5 +1,6 @@
 package peer.backend.service.profile;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,40 +12,40 @@ import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ForbiddenException;
-import peer.backend.exception.NotFoundException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.user.SocialLoginRepository;
 import peer.backend.repository.user.UserRepository;
-
-import java.util.List;
+import peer.backend.service.SocialLoginService;
 
 
 @Service
 @RequiredArgsConstructor
 public class PersonalInfoService {
+
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
+    private final SocialLoginService socialLoginService;
 
     @Transactional(readOnly = true)
     public PersonalInfoResponse getPersonalInfo(Authentication auth) {
         User user = User.authenticationToUser(auth);
-        List<SocialLogin> socialLoginList = socialLoginRepository.findAllByUserId(user.getId());
+        List<SocialLogin> socialLoginList = this.socialLoginService.getSocialLoginListByUserId(
+            user.getId());
         PersonalInfoResponse info = PersonalInfoResponse.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .local(user.getAddress())
-                .authenticationFt(null)
-                .authenticationGoogle(null)
-                .build();
+            .name(user.getName())
+            .email(user.getEmail())
+            .local(user.getAddress())
+            .authenticationFt(null)
+            .authenticationGoogle(null)
+            .build();
         for (SocialLogin socialLogin : socialLoginList) {
             switch (socialLogin.getProvider().getValue()) {
-                case "ft" :
+                case "ft":
                     info.setAuthenticationFt(socialLogin.getIntraId());
                     break;
-                case "google" :
+                case "google":
                     info.setAuthenticationGoogle(socialLogin.getEmail());
                     break;
-                case "github" :
+                case "github":
                     break;
             }
         }

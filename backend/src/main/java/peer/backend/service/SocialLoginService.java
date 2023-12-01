@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,9 @@ public class SocialLoginService {
 
     public SocialLogin getSocialLoginInRedis(String email) {
         return this.redisTemplate.opsForValue().get(SOCIAL_REDIS_KEY_PREFIX + email);
+    }
+
+    public List<SocialLogin> getSocialLoginListByUserId(Long id) {
+        return this.socialLoginRepository.findAllByUserId(id);
     }
 }
