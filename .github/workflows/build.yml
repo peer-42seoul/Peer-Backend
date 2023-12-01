@@ -38,4 +38,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: pwd && ls -al && ./gradlew build sonar --info
-        run: ./gradlew build sonar --info
+      
