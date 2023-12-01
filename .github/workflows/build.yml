@@ -37,4 +37,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: pwd
+        run: ls -al
         run: ~/Peer-Backend/backend/gradlew build sonar --info
