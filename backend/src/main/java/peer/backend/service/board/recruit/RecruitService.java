@@ -66,18 +66,16 @@ public class RecruitService {
         User user = User.authenticationToUser(auth);
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        Optional<RecruitFavorite> optFavorite = recruitFavoriteRepository.findById(
-            new RecruitFavoritePK(user.getId(), recruit_id));
-        if (optFavorite.isPresent()) {
-            recruitFavoriteRepository.delete(optFavorite.get());
-        } else {
-            RecruitFavorite favorite = new RecruitFavorite();
-            favorite.setUser(user);
-            favorite.setRecruit(recruit);
-            favorite.setUserId(user.getId());
-            favorite.setRecruitId(recruit_id);
-            recruitFavoriteRepository.save(favorite);
-        }
+        recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruit_id))
+                .ifPresentOrElse( favorite -> recruitFavoriteRepository.delete(favorite),
+                                    () -> {
+                                            RecruitFavorite newFavorite = new RecruitFavorite();
+                                            newFavorite.setUser(user);
+                                            newFavorite.setRecruit(recruit);
+                                            newFavorite.setUserId(user.getId());
+                                            newFavorite.setRecruitId(recruit_id);
+                                            recruitFavoriteRepository.save(newFavorite);
+                                        });
     }
 
     public List<RecruitInterviewDto> getInterviewList(Long recruit_id) {
@@ -189,9 +187,10 @@ public class RecruitService {
     }
 
     @Transactional
-    public RecruitResponce getRecruit(Long recruit_id) {
+    public RecruitResponce getRecruit(Long recruit_id, Authentication auth) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        User user = User.authenticationToUser(auth);
         recruit.setHit(recruit.getHit() + 1);
         List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
         for (RecruitRole role : recruit.getRoles()) {
@@ -212,6 +211,8 @@ public class RecruitService {
             .roleList(roleDtoList)
             .place(recruit.getPlace())
             .image(recruit.getThumbnailUrl())
+            .teamName(recruit.getTeam().getName())
+            .isFavorite((auth != null) && recruitFavoriteRepository.findById(new RecruitFavoritePK(recruit_id, user.getId())).isPresent())
             .build();
     }
 
@@ -313,12 +314,12 @@ public class RecruitService {
     @Transactional
     @RecruitWritingTracking
     public String createRecruit(RecruitCreateRequest request, Authentication auth) {
-        //동일한 팀 이름 검사
-        Optional<Team> findTeam = teamRepository.findByName(request.getName());
-        if (findTeam.isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 팀 이름입니다.");
-        }
         User user = User.authenticationToUser(auth);
+        //동일한 팀 이름 검사
+        teamRepository.findByName(request.getName()).ifPresent(
+                team1 -> { throw new IllegalArgumentException("이미 존재하는 팀 이름입니다."); }
+        );
+
         //팀 생성
         Team team = this.teamService.createTeam(user, request);
 

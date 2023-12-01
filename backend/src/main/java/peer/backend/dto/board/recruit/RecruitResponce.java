@@ -32,4 +32,6 @@ public class RecruitResponce {
     private List<RecruitRoleDTO> roleList;
     private TeamOperationFormat place;
     private String image;
+    private String teamName;
+    private boolean isFavorite;
 }
