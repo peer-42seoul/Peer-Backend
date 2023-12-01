@@ -6,11 +6,11 @@ import peer.backend.entity.Tag;
 @Getter
 public class TagResponse {
 
-    private String tag;
+    private String name;
     private String color;
 
     public TagResponse(Tag tag) {
-        this.tag = tag.getTag();
+        this.name = tag.getName();
         this.color = tag.getColor();
     }
 }

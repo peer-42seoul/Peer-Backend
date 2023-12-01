@@ -7,7 +7,7 @@ import lombok.Getter;
 public class InsertTagRequest {
 
     @NotBlank
-    private String tag;
+    private String name;
 
     @NotBlank
     private String color;

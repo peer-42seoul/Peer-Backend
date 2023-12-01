@@ -14,13 +14,13 @@ public class TagService {
     private final TagRepository tagRepository;
 
     @Transactional
-    public void insertTag(String tag, String color) {
-        this.tagRepository.save(new Tag(tag, color));
+    public void insertTag(String name, String color) {
+        this.tagRepository.save(new Tag(name, color));
     }
 
     @Transactional
-    public void deleteTag(String tag) {
-        this.tagRepository.deleteByTag(tag);
+    public void deleteTag(String name) {
+        this.tagRepository.deleteByTag(name);
     }
 
     @Transactional

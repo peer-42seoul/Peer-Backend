@@ -25,13 +25,13 @@ public class Tag {
     private Long id;
 
     @Column(nullable = false)
-    private String tag;
+    private String name;
 
     @Column(nullable = false)
     private String color;
 
-    public Tag(String tag, String color) {
-        this.tag = tag;
+    public Tag(String name, String color) {
+        this.name = name;
         this.color = color;
     }
 }

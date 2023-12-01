@@ -26,12 +26,12 @@ public class TagController {
 
     @PostMapping()
     public void insertTag(@RequestBody @Valid InsertTagRequest request) {
-        this.tagService.insertTag(request.getTag(), request.getColor());
+        this.tagService.insertTag(request.getName(), request.getColor());
     }
 
     @DeleteMapping()
     public void deleteTag(@RequestBody @Valid DeleteTagRequest request) {
-        this.tagService.deleteTag(request.getTag());
+        this.tagService.deleteTag(request.getName());
     }
 
     @GetMapping
