@@ -20,6 +20,7 @@ public class EmailAuthService {
 
     private final JavaMailSender sender;
     private final RedisTemplate<String, String> redisTemplate;
+    private static final String EMAIL_REDIS_KEY_PREFIX = "email-auth:";
 
     private String getAuthCode(String email) {
         Random random = new Random();
@@ -63,17 +64,18 @@ public class EmailAuthService {
     }
 
     public void emailCodeVerification(String email, String code) {
-        String redisCode = this.redisTemplate.opsForValue().get(email);
+        String redisCode = this.redisTemplate.opsForValue().get(EMAIL_REDIS_KEY_PREFIX + email);
         if (redisCode == null) {
             throw new BadRequestException("잘못된 이메일입니다!");
         }
         if (!redisCode.equals(code)) {
             throw new UnauthorizedException("잘못된 인증 코드입니다!");
         }
-        this.redisTemplate.delete(email);
+        this.redisTemplate.delete(EMAIL_REDIS_KEY_PREFIX + email);
     }
 
     private void putRedisEmailCode(String email, String code) {
-        this.redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
+        this.redisTemplate.opsForValue()
+            .set(EMAIL_REDIS_KEY_PREFIX + email, code, 5, TimeUnit.MINUTES);
     }
 }
