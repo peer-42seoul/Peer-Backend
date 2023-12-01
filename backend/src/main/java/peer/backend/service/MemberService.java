@@ -81,12 +81,9 @@ public class MemberService {
     public boolean emailDuplicationCheck(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
         if (this.userRepository.existsByEmail(email)) {
-            return false;
+            return true;
         }
-        if (this.socialLoginRepository.existsByEmail(email)) {
-            return false;
-        }
-        return true;
+        return this.socialLoginRepository.existsByEmail(email);
     }
 
     @Transactional
