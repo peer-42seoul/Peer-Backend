@@ -11,8 +11,8 @@ on:
 permissions:
   contents: read
 
-env:
-  WORKING_DIRECTORY: ./backend
+# env:
+#   WORKING_DIRECTORY: ./backend
 
 jobs:
   build:
