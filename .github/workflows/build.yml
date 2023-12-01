@@ -6,9 +6,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-env:
-  WORKING_DIRECTORY: ./backend
-
 jobs:
   build:
     name: Build and analyze
@@ -27,13 +24,13 @@ jobs:
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
-          path: ~/.sonar/cache
+          path: ~/backend/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
-          path: ~/.gradle/caches
+          path: ~/backend/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Build and analyze
