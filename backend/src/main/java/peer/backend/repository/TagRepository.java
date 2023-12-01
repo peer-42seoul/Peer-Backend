@@ -5,5 +5,5 @@ import peer.backend.entity.Tag;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
-    void deleteByTag(String tag);
+    void deleteByName(String name);
 }

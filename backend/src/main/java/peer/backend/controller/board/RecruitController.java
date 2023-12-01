@@ -3,6 +3,8 @@ package peer.backend.controller.board;
 import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,10 +29,9 @@ import peer.backend.dto.board.recruit.RecruitListResponse;
 import peer.backend.dto.board.recruit.RecruitResponce;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateResponse;
-import peer.backend.entity.board.recruit.Tag;
+import peer.backend.dto.tag.TagResponse;
+import peer.backend.service.TagService;
 import peer.backend.service.board.recruit.RecruitService;
-
-import javax.validation.Valid;
 
 
 @RestController
@@ -40,6 +41,7 @@ import javax.validation.Valid;
 public class RecruitController {
 
     private final RecruitService recruitService;
+    private final TagService tagService;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
@@ -57,7 +59,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
     @PostMapping("/write")
-    public String createRecruit(@RequestBody @Valid RecruitCreateRequest request, Authentication auth) {
+    public String createRecruit(@RequestBody @Valid RecruitCreateRequest request,
+        Authentication auth) {
         return recruitService.createRecruit(request, auth);
     }
 
@@ -90,8 +93,10 @@ public class RecruitController {
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요
     @ApiOperation(value = "", notes = "글 작성을 위한 태그리스트를 불러온다.")
     @GetMapping("/allTags")
-    public List<Tag> getTagListForWrite() {
-        return recruitService.getTagList();
+    public List<TagResponse> getTagListForWrite() {
+//        return recruitService.getTagList();
+        return this.tagService.getTagList().stream().map(TagResponse::new)
+            .collect(Collectors.toList());
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요. 추후 글 생성, 수정이 어떻게 달라질지 몰라서 일단 동일한 기능이지만 api 분리해두었음.

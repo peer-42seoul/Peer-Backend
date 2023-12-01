@@ -20,7 +20,7 @@ public class TagService {
 
     @Transactional
     public void deleteTag(String name) {
-        this.tagRepository.deleteByTag(name);
+        this.tagRepository.deleteByName(name);
     }
 
     @Transactional
