@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ public class SocialLoginService {
 
     private final SocialLoginRepository socialLoginRepository;
     private final RedisTemplate<String, SocialLogin> redisTemplate;
+    public static final String SOCIAL_REDIS_KEY_PREFIX = "social-email:";
 
     @Transactional
     public SocialLogin getSocialLogin(String email) {
@@ -26,7 +28,19 @@ public class SocialLoginService {
 
     public void putSocialLoginInRedis(SocialLogin socialLogin) {
         this.redisTemplate.opsForValue()
-            .set(socialLogin.getEmail(), socialLogin, 3,
+            .set(SOCIAL_REDIS_KEY_PREFIX + socialLogin.getEmail(), socialLogin, 3,
                 TimeUnit.HOURS);
+    }
+
+    public void deleteSocialLoginInRedis(String email) {
+        this.redisTemplate.delete(SOCIAL_REDIS_KEY_PREFIX + email);
+    }
+
+    public SocialLogin getSocialLoginInRedis(String email) {
+        return this.redisTemplate.opsForValue().get(SOCIAL_REDIS_KEY_PREFIX + email);
+    }
+
+    public List<SocialLogin> getSocialLoginListByUserId(Long id) {
+        return this.socialLoginRepository.findAllByUserId(id);
     }
 }

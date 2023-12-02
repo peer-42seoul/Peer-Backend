@@ -47,11 +47,11 @@ public class MemberService {
         User savedUser = this.userService.saveUser(user);
         String socialEmail = info.getSocialEmail();
         if (socialEmail != null) {
-            SocialLogin socialLogin = this.redisTemplate.opsForValue().get(socialEmail);
+            SocialLogin socialLogin = this.socialLoginService.getSocialLoginInRedis(socialEmail);
             if (socialLogin != null) {
                 socialLogin.setUser(savedUser);
                 this.socialLoginService.save(socialLogin);
-                this.redisTemplate.delete(socialEmail);
+                this.socialLoginService.deleteSocialLoginInRedis(socialEmail);
                 savedUser.addSocialLogin(socialLogin);
             } else {
                 throw new ConflictException("잘못된 소셜 로그인 이메일입니다!");
@@ -81,28 +81,20 @@ public class MemberService {
     public boolean emailDuplicationCheck(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
         if (this.userRepository.existsByEmail(email)) {
-            return false;
+            return true;
         }
-        if (this.socialLoginRepository.existsByEmail(email)) {
-            return false;
-        }
-        return true;
+        return this.socialLoginRepository.existsByEmail(email);
     }
 
     @Transactional
     public boolean emailExistsCheck(String email) {
-        User user = this.userRepository.findByEmail(email).orElse(null);
-        if (!this.userRepository.existsByEmail(email)) {
-            return false;
-        }
-        return true;
+        return this.userRepository.existsByEmail(email);
     }
 
     @Transactional
     public User getUserByEmail(String email) {
-        User user = this.userRepository.findByEmail(email)
+        return this.userRepository.findByEmail(email)
             .orElseThrow(() -> new NotFoundException("해당 이메일의 유저가 없습니다!"));
-        return user;
     }
 
     @Transactional
@@ -114,7 +106,7 @@ public class MemberService {
         final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         SecureRandom rm = new SecureRandom();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < 10; i++) {
             //무작위로 문자열의 인덱스 반환

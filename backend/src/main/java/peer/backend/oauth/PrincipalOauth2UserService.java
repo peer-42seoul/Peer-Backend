@@ -1,5 +1,6 @@
 package peer.backend.oauth;
 
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,9 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                 // 연동
                 loginStatus = LoginStatus.LINK;
                 user = User.authenticationToUser(authentication);
+                if (this.alreadyLinkCheck(user, oAuth2UserInfo)) {
+                    throw new ConflictException("해당 소설 서비스로 이미 연동이 되어 있습니다!");
+                }
                 this.socialLoginService.save(new SocialLogin(user, oAuth2UserInfo,
                     userRequest.getAccessToken().getTokenValue(),
                     socialEmail));
@@ -82,5 +86,18 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         } else {
             throw new ForbiddenException("지원하지 않는 OAuth 입니다!");
         }
+    }
+
+    private boolean alreadyLinkCheck(User user, OAuth2UserInfo oAuth2UserInfo) {
+        List<SocialLogin> socialLoginList = this.socialLoginService.getSocialLoginListByUserId(
+            user.getId());
+
+        for (SocialLogin socialLogin : socialLoginList) {
+            if (oAuth2UserInfo.getProvider() == socialLogin.getProvider()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
