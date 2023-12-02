@@ -43,8 +43,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
-    public RecruitResponce getRecruit(@PathVariable Long recruit_id) {
-        return recruitService.getRecruit(recruit_id);
+    public RecruitResponce getRecruit(@PathVariable Long recruit_id, Authentication auth) {
+        return recruitService.getRecruit(recruit_id, auth);
     }
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
