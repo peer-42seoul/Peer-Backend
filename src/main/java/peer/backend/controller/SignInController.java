@@ -59,6 +59,7 @@ public class SignInController {
         cookie.setMaxAge((int) refreshExpirationTime / 1000);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setSecure(true);
 
         response.addCookie(cookie);
 
