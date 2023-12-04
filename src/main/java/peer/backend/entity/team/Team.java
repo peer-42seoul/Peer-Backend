@@ -1,9 +1,6 @@
 package peer.backend.entity.team;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.team.TeamSettingInfoDto;
@@ -25,6 +22,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
 @Table(name = "team")
+@EqualsAndHashCode(callSuper = false)
 public class Team extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
