@@ -57,6 +57,7 @@ public class ExcelService {
         createActivityTrackingSheet(activityTrackingList, activityTrackingSheet, headerCellStyle);
 
         workbook.write(out);
+        workbook.close();
         return new ByteArrayInputStream(out.toByteArray());
     }
 
