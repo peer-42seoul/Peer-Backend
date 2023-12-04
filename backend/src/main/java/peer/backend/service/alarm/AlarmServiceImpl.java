@@ -1,5 +1,7 @@
 package peer.backend.service.alarm;
 
+import java.util.Date;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,22 +15,23 @@ import peer.backend.repository.alarm.AlarmRepository;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class AlarmServiceImpl implements AlarmService{
+public class AlarmServiceImpl implements AlarmService {
     private final AlarmRepository alarmRepository;
+
     @Override
     public void saveAlarm(Alarm data) {
         alarmRepository.save(data);
     }
 
-/*
-    title;
-    message;
-    TargetType;
-    target;
-    link;
-    sent;
-    Priority;
- */
+    /*
+        title;
+        message;
+        TargetType;
+        target;
+        link;
+        sent;
+        Priority;
+     */
     @Override
     public Alarm AlarmFromDto(AlarmDto dto, Long target) {
 
@@ -53,6 +56,22 @@ public class AlarmServiceImpl implements AlarmService{
                 .link(dto.getLink())
                 .sent(false)
                 .priority(dto.getPriority())
+                .scheduledTime(new Date())
                 .build();
+    }
+
+    @Override
+    public List<Alarm> getAlarm(Long target) {
+        return alarmRepository.findByTarget(target);
+    }
+
+    @Override
+    public List<Alarm> getAlarmGeneral() {
+        return alarmRepository.findByTarget(0L);
+    }
+
+    @Override
+    public void deleteAlarm(Long id) {
+        alarmRepository.deleteById(id);
     }
 }
