@@ -7,13 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import peer.backend.dto.profile.response.PersonalInfoResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -21,8 +18,6 @@ import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.board.team.enums.BoardType;
-import peer.backend.entity.board.team.enums.PostLikeType;
-import peer.backend.entity.composite.PostLikePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
@@ -30,7 +25,6 @@ import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
-import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.board.team.PostLikeRepository;
 import peer.backend.repository.board.team.PostRepository;
 import peer.backend.service.board.team.ShowcaseService;
@@ -47,7 +41,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShowcaseService Test")
-public class ShowcaseServiceTest {
+class ShowcaseServiceTest {
 
     @Mock
     private PostRepository postRepository;
@@ -145,7 +139,7 @@ public class ShowcaseServiceTest {
 
     @Test
     @DisplayName("쇼케이스 리스트 가져오기 테스티")
-    public void getShowCaseListTest() {
+    void getShowCaseListTest() {
         when(postRepository.findAllByBoardTypeOrderByCreatedAtDesc(any(), any()))
                 .thenReturn(new PageImpl<>(posts, PageRequest.of(0, 2), 1L));
 
@@ -154,7 +148,7 @@ public class ShowcaseServiceTest {
 
     @Test
     @DisplayName("쇼케이스 담기 테스트")
-    public void doFavoriteTestWhenPostLikeNotExist() {
+    void doFavoriteTestWhenPostLikeNotExist() {
         when(postRepository.findById(anyLong())).thenReturn(Optional.of(post));
         showcaseService.doFavorite(1L, auth);
         verify(postLikeRepository).save(any(PostLike.class));
@@ -162,7 +156,7 @@ public class ShowcaseServiceTest {
 
     @Test
     @DisplayName("쇼케이스 담기 테스트")
-    public void doFavoriteTestWhenPostLikeExist() {
+    void doFavoriteTestWhenPostLikeExist() {
         when(postRepository.findById(anyLong())).thenReturn(Optional.of(post));
         PostLike mockPostLike = new PostLike();
         when(postLikeRepository.findById(any())).thenReturn(Optional.of(mockPostLike));
@@ -172,7 +166,7 @@ public class ShowcaseServiceTest {
 
     @Test
     @DisplayName("쇼케이스 좋아요 테스트")
-    public void dolikeTestWhenPostLikeExist() {
+    void dolikeTestWhenPostLikeExist() {
         when(postRepository.findById(any())).thenReturn(Optional.of(mockPost)); // 이 부분 추가
         PostLike mockPostLike = new PostLike();
         when(postLikeRepository.findById(any())).thenReturn(Optional.of(mockPostLike));
