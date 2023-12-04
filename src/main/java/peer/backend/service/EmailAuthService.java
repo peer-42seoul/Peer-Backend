@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,14 @@ import peer.backend.exception.UnauthorizedException;
 @RequiredArgsConstructor
 public class EmailAuthService {
 
-    private final JavaMailSender sender;
-    private final RedisTemplate<String, String> redisTemplate;
     private static final String EMAIL_REDIS_KEY_PREFIX = "email-auth:";
 
+    private final JavaMailSender sender;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final SecureRandom random = new SecureRandom();
+
     private String getAuthCode(String email) {
-        Random random = new Random();
-        String code = random.ints('0', 'Z' + 1)
+        String code = this.random.ints('0', 'Z' + 1)
             .filter(i -> (i <= '9' || i >= 'A'))
             .limit(7)
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
