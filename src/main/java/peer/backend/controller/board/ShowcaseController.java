@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.board.ShowcaseListResponse;
+import peer.backend.dto.board.team.ShowcaseListResponse;
 import peer.backend.service.board.team.ShowcaseService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,9 +16,9 @@ public class ShowcaseController {
 
     private final ShowcaseService showcaseService;
 
-    @GetMapping("/")
+    @GetMapping("")
     public Page<ShowcaseListResponse> getShowcaseList(@RequestParam int page, @RequestParam int pageSize, Authentication auth){
-        return showcaseService.getShowCaseList(page, pageSize, auth);
+        return showcaseService.getShowCaseList(page - 1, pageSize, auth);
     }
 
 

@@ -1,4 +1,4 @@
-package peer.backend.dto.board;
+package peer.backend.dto.board.team;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +23,6 @@ public class ShowcaseListResponse {
     private boolean is_liked;
     private boolean is_favorite;
     private String team_logo;
-    private LocalDateTime start;
-    private LocalDateTime end;
+    private String start;
+    private String end;
 }

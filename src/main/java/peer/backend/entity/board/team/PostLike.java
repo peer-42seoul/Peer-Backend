@@ -24,7 +24,7 @@ public class PostLike {
     private Long postId;
 
     @Id
-    @Column
+    @Column(name = "type")
     private String type;
 
     @MapsId("userId")
