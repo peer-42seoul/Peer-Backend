@@ -10,6 +10,7 @@ import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.board.team.enums.BoardType;
+import peer.backend.entity.board.team.enums.PostLikeType;
 import peer.backend.entity.composite.PostLikePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.User;
@@ -36,9 +37,9 @@ public class ShowcaseService {
                 .description(post.getContent())
                 .skill(TagListManager.getRecruitTags(team.getRecruit().getTags()))
                 .like(post.getLiked())
-                .is_liked(auth != null && postLikeRepository.findById(new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(), "LIKE")).isPresent())
-                .is_favorite(auth != null && postLikeRepository.findById(new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(), "FAVORITE")).isPresent())
-                .team_logo(team.getTeamLogoPath())
+                .isLiked(auth != null && postLikeRepository.findById(new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(), PostLikeType.LIKE)).isPresent())
+                .isFavorite(auth != null && postLikeRepository.findById(new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(), PostLikeType.FAVORITE)).isPresent())
+                .teamLogo(team.getTeamLogoPath())
                 .start(post.getCreatedAt().toString())
                 .end(team.getEnd().toString())
                 .build();
@@ -61,7 +62,7 @@ public class ShowcaseService {
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, "FAVORITE"))
+        postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE))
                 .ifPresentOrElse(postLikeRepository::delete,
                         () -> {
                             PostLike newFavorite = new PostLike();
@@ -69,7 +70,7 @@ public class ShowcaseService {
                             newFavorite.setPost(showcase);
                             newFavorite.setUserId(user.getId());
                             newFavorite.setPostId(showcaseId);
-                            newFavorite.setType("FAVORITE");
+                            newFavorite.setType(PostLikeType.FAVORITE);
                             postLikeRepository.save(newFavorite);
                         });
     }
@@ -79,7 +80,7 @@ public class ShowcaseService {
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, "LIKE"))
+        postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE))
                 .ifPresentOrElse( favorite -> { postLikeRepository.delete(favorite); showcase.decreaseLike(); } ,
                         () -> {
                             showcase.increaseLike();
@@ -88,7 +89,7 @@ public class ShowcaseService {
                             newFavorite.setPost(showcase);
                             newFavorite.setUserId(user.getId());
                             newFavorite.setPostId(showcaseId);
-                            newFavorite.setType("LIKE");
+                            newFavorite.setType(PostLikeType.LIKE);
                             postLikeRepository.save(newFavorite);
                         });
     }

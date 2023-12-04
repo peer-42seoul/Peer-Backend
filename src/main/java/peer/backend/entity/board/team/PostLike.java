@@ -1,6 +1,7 @@
 package peer.backend.entity.board.team;
 
 import lombok.*;
+import peer.backend.entity.board.team.enums.PostLikeType;
 import peer.backend.entity.composite.PostLikePK;
 import peer.backend.entity.user.User;
 
@@ -25,7 +26,8 @@ public class PostLike {
 
     @Id
     @Column(name = "type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private PostLikeType type;
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.board.recruit.TagListResponse;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,9 +19,9 @@ public class ShowcaseListResponse {
     private String description;
     private List<TagListResponse> skill;
     private int like;
-    private boolean is_liked;
-    private boolean is_favorite;
-    private String team_logo;
+    private boolean isLiked;
+    private boolean isFavorite;
+    private String teamLogo;
     private String start;
     private String end;
 }
