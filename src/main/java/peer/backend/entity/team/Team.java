@@ -8,10 +8,12 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.team.enums.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,8 +74,14 @@ public class Team extends BaseEntity {
     @Column(length = 10)
     private String region3;
 
+    @Column
+    private LocalDateTime end;
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
+
+    @OneToOne(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private Recruit recruit;
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();

@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum BoardType {
     NORMAL("NORMAL"),
-    ADMIN("ADMIN")
+    ADMIN("ADMIN"),
+    SHOWCASE("SHOWCASE")
     ;
     private final String type;
 }
