@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class EmailAuthService {
 
     private final JavaMailSender sender;
     private final RedisTemplate<String, String> redisTemplate;
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
     private String getAuthCode(String email) {
         String code = this.random.ints('0', 'Z' + 1)
