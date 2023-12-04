@@ -61,7 +61,7 @@ public class ShowcaseService {
     public void doFavorite(Long showcaseId, Authentication auth){
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
         postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE))
                 .ifPresentOrElse(postLikeRepository::delete,
                         () -> {
