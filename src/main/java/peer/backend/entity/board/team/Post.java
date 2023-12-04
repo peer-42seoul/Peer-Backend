@@ -1,9 +1,6 @@
 package peer.backend.entity.board.team;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
@@ -13,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Getter
 @Builder
