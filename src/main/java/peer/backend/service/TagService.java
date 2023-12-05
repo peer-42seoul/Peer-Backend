@@ -17,7 +17,7 @@ public class TagService {
 
     @Transactional
     public void createTag(String name, String color) {
-        if (tagRepository.existsByName(name)) {
+        if (this.tagRepository.existsByName(name)) {
             throw new ConflictException("이미 존재하는 Tag 이름입니다!");
         }
         this.tagRepository.save(new Tag(name, color));
@@ -35,6 +35,9 @@ public class TagService {
 
     @Transactional
     public void updateTag(Long tagId, String name, String color) {
+        if (this.tagRepository.existsByName(name)) {
+            throw new ConflictException("이미 존재하는 Tag 이름입니다!");
+        }
         Tag tag = this.getTag(tagId);
         tag.setName(name);
         tag.setColor(color);
