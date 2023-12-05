@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.Tag;
+import peer.backend.exception.ConflictException;
 import peer.backend.repository.TagRepository;
 
 @RequiredArgsConstructor
@@ -15,6 +16,9 @@ public class TagService {
 
     @Transactional
     public void insertTag(String name, String color) {
+        if (tagRepository.existsByName(name)) {
+            throw new ConflictException("이미 존재하는 Tag 이름입니다!");
+        }
         this.tagRepository.save(new Tag(name, color));
     }
 
