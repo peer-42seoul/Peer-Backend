@@ -19,7 +19,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.alarm.enums.Priority;
 import peer.backend.entity.alarm.enums.TargetType;
-//import peer.backend.entity.alarm.enums.MessageType;
 
 @Entity
 @Getter
@@ -39,7 +38,6 @@ public class Alarm extends BaseEntity {
     private String title;
     @Column
     private String message;
-    //    private MessageType messageType;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TargetType targetType;
@@ -54,10 +52,4 @@ public class Alarm extends BaseEntity {
     @Column()
     private Date scheduledTime;
 
-    @Override
-    public String toString() {
-        return "Alarm [id=" + id + ", title=" + title + ", message=" + message + ", targetType=" + targetType
-                + ", target=" + target + ", link=" + link + ", sent=" + sent + ", priority=" + priority
-                + ", scheduledTime=" + scheduledTime + "]";
-    }
 }

@@ -23,17 +23,8 @@ public class AlarmServiceImpl implements AlarmService {
         alarmRepository.save(data);
     }
 
-    /*
-        title;
-        message;
-        TargetType;
-        target;
-        link;
-        sent;
-        Priority;
-     */
     @Override
-    public Alarm AlarmFromDto(AlarmDto dto, Long target) {
+    public Alarm alarmFromDto(AlarmDto dto, Long target) {
 
         return Alarm.builder()
                 .title(dto.getTitle())
@@ -47,7 +38,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
-    public Alarm AlarmFromDto(AlarmDto dto) {
+    public Alarm alarmFromDto(AlarmDto dto) {
         return Alarm.builder()
                 .title(dto.getTitle())
                 .message(dto.getMessage())

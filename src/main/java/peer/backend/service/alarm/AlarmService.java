@@ -7,8 +7,8 @@ import peer.backend.entity.alarm.Alarm;
 public interface AlarmService {
     public void saveAlarm(Alarm data);
 
-    public Alarm AlarmFromDto(AlarmDto dto, Long target);
-    public Alarm AlarmFromDto(AlarmDto dto);
+    public Alarm alarmFromDto(AlarmDto dto, Long target);
+    public Alarm alarmFromDto(AlarmDto dto);
 
     public List<Alarm> getAlarm(Long target);
 

@@ -26,14 +26,14 @@ public class NotiController {
 
     @PostMapping("")
     public ResponseEntity<Object> saveAlarm(@RequestBody AlarmDto dto) {
-        Alarm alarm = alarmService.AlarmFromDto(dto);
+        Alarm alarm = alarmService.alarmFromDto(dto);
         alarmService.saveAlarm(alarm);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{target}")
     public ResponseEntity<Object> saveAlarm(@RequestBody AlarmDto dto, @PathVariable Long target) {
-        Alarm alarm = alarmService.AlarmFromDto(dto, target);
+        Alarm alarm = alarmService.alarmFromDto(dto, target);
         alarmService.saveAlarm(alarm);
         return ResponseEntity.ok().build();
     }
