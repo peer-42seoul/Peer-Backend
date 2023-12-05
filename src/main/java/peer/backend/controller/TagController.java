@@ -21,27 +21,27 @@ import peer.backend.service.TagService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/tag")
+@RequestMapping("/api/v1")
 public class TagController {
 
     private final TagService tagService;
 
-    @PostMapping()
+    @PostMapping("/admin/tag")
     public void insertTag(@RequestBody @Valid InsertTagRequest request) {
         this.tagService.insertTag(request.getName(), request.getColor());
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/admin/tag")
     public void deleteTag(@RequestBody @Valid DeleteTagRequest request) {
         this.tagService.deleteTag(request.getTagId());
     }
 
-    @PutMapping()
+    @PutMapping("/admin/tag")
     public void modifyTag(@RequestBody @Valid ModifyTagRequest request) {
         this.tagService.modifyTag(request.getTypeId(), request.getName(), request.getColor());
     }
 
-    @GetMapping
+    @GetMapping("/tag")
     public List<TagResponse> getTagList() {
         List<Tag> tagList = this.tagService.getTagList();
         return tagList.stream().map(TagResponse::new).collect(Collectors.toList());

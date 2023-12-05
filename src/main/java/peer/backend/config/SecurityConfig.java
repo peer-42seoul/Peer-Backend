@@ -66,8 +66,6 @@ public class SecurityConfig {
             .and()
             .authorizeRequests()
             .antMatchers("/api/v1/admin/**").hasRole("ADMIN")
-            .antMatchers(HttpMethod.POST, "/api/v1/tag/**").hasRole("ADMIN")
-            .antMatchers(HttpMethod.DELETE, "/api/v1/tag/**").hasRole("ADMIN")
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
             .permitAll()
             .antMatchers("/swagger-ui/**", "/v1/api-docs", "/v3/api-docs", "/swagger-resources/**")
