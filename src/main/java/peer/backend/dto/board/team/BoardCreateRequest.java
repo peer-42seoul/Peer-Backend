@@ -9,4 +9,5 @@ import peer.backend.entity.board.team.enums.BoardType;
 public class BoardCreateRequest {
     private Long teamId;
     private String name;
+    private String type;
 }

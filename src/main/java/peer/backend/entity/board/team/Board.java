@@ -33,7 +33,7 @@ public class Board {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Post> posts;
 
     public void update(BoardUpdateRequest request){
