@@ -31,7 +31,7 @@ public class TagController {
 
     @DeleteMapping()
     public void deleteTag(@RequestBody @Valid DeleteTagRequest request) {
-        this.tagService.deleteTag(request.getName());
+        this.tagService.deleteTag(request.getTagId());
     }
 
     @GetMapping

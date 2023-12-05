@@ -1,11 +1,11 @@
 package peer.backend.dto.tag;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
 public class DeleteTagRequest {
 
-    @NotBlank
-    private String name;
+    @NotNull
+    private Long tagId;
 }

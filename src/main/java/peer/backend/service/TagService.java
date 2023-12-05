@@ -23,8 +23,8 @@ public class TagService {
     }
 
     @Transactional
-    public void deleteTag(String name) {
-        this.tagRepository.deleteByName(name);
+    public void deleteTag(Long tagId) {
+        this.tagRepository.deleteById(tagId);
     }
 
     @Transactional
