@@ -190,7 +190,6 @@ public class RecruitService {
     public RecruitResponce getRecruit(Long recruit_id, Authentication auth) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        User user = User.authenticationToUser(auth);
         recruit.setHit(recruit.getHit() + 1);
         List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
         for (RecruitRole role : recruit.getRoles()) {
@@ -212,7 +211,7 @@ public class RecruitService {
             .place(recruit.getPlace())
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
-            .isFavorite((auth != null) && recruitFavoriteRepository.findById(new RecruitFavoritePK(recruit_id, user.getId())).isPresent())
+            .isFavorite((auth != null) && recruitFavoriteRepository.findById(new RecruitFavoritePK(recruit_id, User.authenticationToUser(auth).getId())).isPresent())
             .build();
     }
 
