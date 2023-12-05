@@ -7,5 +7,5 @@ import lombok.Getter;
 public class UpdateTagRequest extends CreateTagRequest {
 
     @NotNull
-    private Long typeId;
+    private Long tagId;
 }

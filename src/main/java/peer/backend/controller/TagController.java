@@ -38,7 +38,7 @@ public class TagController {
 
     @PutMapping("/admin/tag")
     public void modifyTag(@RequestBody @Valid UpdateTagRequest request) {
-        this.tagService.updateTag(request.getTypeId(), request.getName(), request.getColor());
+        this.tagService.updateTag(request.getTagId(), request.getName(), request.getColor());
     }
 
     @GetMapping("/tag")
