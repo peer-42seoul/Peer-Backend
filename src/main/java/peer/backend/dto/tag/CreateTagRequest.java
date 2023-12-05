@@ -1,14 +1,10 @@
 package peer.backend.dto.tag;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class ModifyTagRequest {
-
-    @NotNull
-    private Long typeId;
+public class CreateTagRequest {
 
     @NotBlank
     private String name;

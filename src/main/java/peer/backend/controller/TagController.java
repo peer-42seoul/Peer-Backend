@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.tag.DeleteTagRequest;
-import peer.backend.dto.tag.InsertTagRequest;
-import peer.backend.dto.tag.ModifyTagRequest;
+import peer.backend.dto.tag.CreateTagRequest;
+import peer.backend.dto.tag.UpdateTagRequest;
 import peer.backend.dto.tag.TagResponse;
 import peer.backend.entity.Tag;
 import peer.backend.service.TagService;
@@ -27,8 +27,8 @@ public class TagController {
     private final TagService tagService;
 
     @PostMapping("/admin/tag")
-    public void insertTag(@RequestBody @Valid InsertTagRequest request) {
-        this.tagService.insertTag(request.getName(), request.getColor());
+    public void createTag(@RequestBody @Valid CreateTagRequest request) {
+        this.tagService.createTag(request.getName(), request.getColor());
     }
 
     @DeleteMapping("/admin/tag")
@@ -37,8 +37,8 @@ public class TagController {
     }
 
     @PutMapping("/admin/tag")
-    public void modifyTag(@RequestBody @Valid ModifyTagRequest request) {
-        this.tagService.modifyTag(request.getTypeId(), request.getName(), request.getColor());
+    public void modifyTag(@RequestBody @Valid UpdateTagRequest request) {
+        this.tagService.updateTag(request.getTypeId(), request.getName(), request.getColor());
     }
 
     @GetMapping("/tag")
