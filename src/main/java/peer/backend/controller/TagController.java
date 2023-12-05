@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.tag.DeleteTagRequest;
 import peer.backend.dto.tag.InsertTagRequest;
+import peer.backend.dto.tag.ModifyTagRequest;
 import peer.backend.dto.tag.TagResponse;
 import peer.backend.entity.Tag;
 import peer.backend.service.TagService;
@@ -32,6 +34,11 @@ public class TagController {
     @DeleteMapping()
     public void deleteTag(@RequestBody @Valid DeleteTagRequest request) {
         this.tagService.deleteTag(request.getTagId());
+    }
+
+    @PutMapping()
+    public void modifyTag(@RequestBody @Valid ModifyTagRequest request) {
+        this.tagService.modifyTag(request.getTypeId(), request.getName(), request.getColor());
     }
 
     @GetMapping

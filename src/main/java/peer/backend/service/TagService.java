@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.Tag;
 import peer.backend.exception.ConflictException;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.TagRepository;
 
 @RequiredArgsConstructor
@@ -30,5 +31,18 @@ public class TagService {
     @Transactional
     public List<Tag> getTagList() {
         return this.tagRepository.findAll();
+    }
+
+    @Transactional
+    public void modifyTag(Long tagId, String name, String color) {
+        Tag tag = this.getTag(tagId);
+        tag.setName(name);
+        tag.setColor(color);
+    }
+
+    @Transactional
+    public Tag getTag(Long tagId) {
+        return this.tagRepository.findById(tagId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 tagId 입니다!"));
     }
 }
