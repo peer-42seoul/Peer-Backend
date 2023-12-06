@@ -23,13 +23,13 @@ public class ShowcaseController {
 
 
     @PostMapping("/favorite/{id}")
-    public void doFavorite(@PathVariable Long id, Authentication auth){
-        showcaseService.doFavorite(id, auth);
+    public boolean doFavorite(@PathVariable Long id, Authentication auth){
+        return showcaseService.doFavorite(id, auth);
     }
 
     @PostMapping("like/{id}")
-    public void doLike(@PathVariable Long id, Authentication auth){
-        showcaseService.doLike(id, auth);
+    public int doLike(@PathVariable Long id, Authentication auth){
+        return showcaseService.doLike(id, auth);
     }
 
 }
