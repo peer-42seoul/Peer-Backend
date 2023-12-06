@@ -25,6 +25,6 @@ public class Subscription extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "key")
-    private String key;
+    @Column(name = "firebase_token")
+    private String firebaseToken;
 }
