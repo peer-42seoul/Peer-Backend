@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecruitRoleDTO {
-    private String role;
+    private String name;
     private int number;
 }
