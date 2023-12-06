@@ -142,7 +142,7 @@ public class Recruit extends BaseEntity {
             this.roles = new ArrayList<>();
         }
         this.roles.add(RecruitRole.builder()
-            .name(role.getName())
+            .name(role.getRole())
             .number(role.getNumber())
             .recruit(this).build());
     }
