@@ -23,7 +23,6 @@ class AlarmServiceTest {
                 .link("test")
                 .message("test")
                 .priority(Priority.SCHEDULED)
-                .sent(false)
                 .build();
     }
 
@@ -31,21 +30,12 @@ class AlarmServiceTest {
     void testCertainAlarmFromDto() {
         AlarmDto dto = getAlarmDtoSupport().builder()
                 .targetType(TargetType.CERTAIN)
-                .target(1L)
-                .build();
-        Alarm alarm = alarmService.alarmFromDto(dto, 1L);
-
-
-
-
-    }
-
-    @Test
-    void testAllAlarmFromDto() {
-        AlarmDto dto = getAlarmDtoSupport().builder()
-                .targetType(TargetType.CERTAIN)
-                .target(1L)
                 .build();
         Alarm alarm = alarmService.alarmFromDto(dto);
+
+
+
+
     }
+
 }

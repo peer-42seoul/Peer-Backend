@@ -24,25 +24,12 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
-    public Alarm alarmFromDto(AlarmDto dto, Long target) {
-
-        return Alarm.builder()
-                .title(dto.getTitle())
-                .message(dto.getMessage())
-                .targetType(TargetType.CERTAIN)
-                .target(target)
-                .link(dto.getLink())
-                .sent(false)
-                .priority(dto.getPriority())
-                .build();
-    }
-
-    @Override
     public Alarm alarmFromDto(AlarmDto dto) {
+
         return Alarm.builder()
                 .title(dto.getTitle())
                 .message(dto.getMessage())
-                .targetType(TargetType.ALL)
+                .targetType(dto.getTargetType())
                 .target(0L)
                 .link(dto.getLink())
                 .sent(false)
