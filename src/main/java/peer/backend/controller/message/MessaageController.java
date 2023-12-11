@@ -1,10 +1,8 @@
 package peer.backend.controller.message;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.xwpf.usermodel.IBody;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +13,9 @@ import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.user.User;
 import peer.backend.exception.AlreadyDeletedException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.message.MessageMainService;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.NoSuchElementException;
@@ -27,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping(MessaageController.LETTER_URL)
 public class MessaageController {
 
@@ -44,8 +41,11 @@ public class MessaageController {
             wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in getAllLetters");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in getAllLetters");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
