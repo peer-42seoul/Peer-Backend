@@ -34,8 +34,6 @@ public class RecruitUpdateRequestDTO {
     @Lob
     private String content;
     private List<String> region;
-    //    private String region1 = region.get(0);
-//    private String region2 = region.get(1);
     private String link;
     private List<Long> tagList;
     @NotNull

@@ -130,11 +130,6 @@ public class Recruit extends BaseEntity {
             .map(e -> (new RecruitTag(this, new Tag(e))))
             .collect(
                 Collectors.toList());
-        for (RecruitTag recruitTag : recruitTags) {
-            System.out.println(recruitTag.getTag().getName());
-        }
-//        this.recruitTags = request.getTagList().stream().map(TagListResponse::getName)
-//            .collect(Collectors.toList());
         this.interviews.clear();
         if (!request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {

@@ -369,8 +369,9 @@ public class RecruitService {
 
     @Transactional
     public void applyRecruit(Long recruit_id, ApplyRecruitRequest request, Authentication auth) {
-        Recruit recruit = recruitRepository.findById(recruit_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        if (!this.recruitRepository.existsById(recruit_id)) {
+            throw new NotFoundException("존재하지 않는 모집글입니다.");
+        }
         User user = User.authenticationToUser(auth);
         Optional<RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(
             new RecruitApplicantPK(user.getId(), recruit_id,

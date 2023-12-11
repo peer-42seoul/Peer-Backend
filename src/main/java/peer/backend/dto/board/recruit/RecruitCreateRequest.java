@@ -35,7 +35,6 @@ public class RecruitCreateRequest {
     private String content;
     private List<String> region;
     private String link;
-    //    private List<TagListResponse> tagList;
     private List<Long> tagList;
     private List<RecruitRoleDTO> roleList;
     private List<RecruitInterviewDto> interviewList;
