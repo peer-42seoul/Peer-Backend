@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import peer.backend.dto.security.request.AdminLoginRequest;
 import peer.backend.dto.security.request.EmailAddress;
 import peer.backend.dto.security.request.EmailCode;
 import peer.backend.dto.security.request.UserLoginRequest;
@@ -113,5 +114,16 @@ public class SignInController {
         this.emailService.sendEmail(code.getEmail(), "Peer 임시 비밀번호",
             "임시 비밀번호입니다.\n\n" + randomPassword + "\n");
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> adminLogin(@RequestBody @Valid AdminLoginRequest adminLoginRequest) {
+        String accessToken = loginService.adminLogin(adminLoginRequest.getId(),
+            adminLoginRequest.getPassword());
+
+        LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
+        maps.put("accessToken", accessToken);
+
+        return ResponseEntity.ok(maps);
     }
 }

@@ -44,7 +44,7 @@ import peer.backend.oauth.PrincipalDetails;
 @Table(name = "user")
 @DynamicUpdate
 @DynamicInsert
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Login {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -126,7 +126,7 @@ public class User extends BaseEntity {
     private List<PostLike> postLikes;
 
     public static User authenticationToUser(Authentication authentication) {
-        return ((PrincipalDetails) authentication.getPrincipal()).getUser();
+        return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();
     }
 
     public void addSocialLogin(SocialLogin socialLogin) {
