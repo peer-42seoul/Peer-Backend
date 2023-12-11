@@ -28,6 +28,8 @@ import java.util.concurrent.ExecutionException;
 public class MessaageController {
 
     public static final String LETTER_URL = "api/v1/message";
+    public static final String ERR_1 = "Thread interruption happens in ";
+    public static final String ERR_2 = "Problem is happened in ";
 
     private final MessageMainService messageMainService;
 
@@ -42,10 +44,10 @@ public class MessaageController {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in getAllLetters");
+            log.error(ERR_1 + "getAllLetters");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in getAllLetters");
+            log.error(ERR_2 + "getAllLetters");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -78,16 +80,16 @@ public class MessaageController {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in getLetterListByUserId");
+            log.error(ERR_1 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in getLetterListByUserId");
+            log.error(ERR_2 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
             ret = wrappedRet.getResult();
         else {
-            log.error("Problem is happened in getLetterListByUserId");
+            log.error(ERR_2 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -104,10 +106,10 @@ public class MessaageController {
             wrappedRet = this.messageMainService.findUserListByUserNickname(keyword, user).get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in findUserListByUserNickname");
+            log.error(ERR_1 + "findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in findUserListByUserNickname");
+            log.error(ERR_2 + "findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -131,10 +133,10 @@ public class MessaageController {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in makeNewMessageIndex");
+            log.error(ERR_1 + "makeNewMessageIndex");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in makeNewMessageIndex");
+            log.error(ERR_2 + "makeNewMessageIndex");
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -152,10 +154,10 @@ public class MessaageController {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in getLetterListByUserId");
+            log.error(ERR_1 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in getLetterListByUserId");
+            log.error(ERR_2 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -174,10 +176,10 @@ public class MessaageController {
             wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in getSpecificLetterListByUserIdAndTargetId");
+            log.error(ERR_1 + "getSpecificLetterListByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in getSpecificLetterListByUserIdAndTargetId");
+            log.error(ERR_2 + "getSpecificLetterListByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (!wrappedData.isSuccess())
@@ -204,15 +206,15 @@ public class MessaageController {
             wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Thread interruption happens in getSpecificLetterUpByUserIdAndTargetId");
+            log.error(ERR_1 + "getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
-            log.error("Problem is happened in getSpecificLetterUpByUserIdAndTargetId");
+            log.error(ERR_2 + "getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
-            log.error("Problem is happened in getSpecificLetterUpByUserIdAndTargetId");
+            log.error(ERR_2 + "getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
