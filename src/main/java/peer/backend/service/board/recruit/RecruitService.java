@@ -67,7 +67,7 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruit_id))
-                .ifPresentOrElse( favorite -> recruitFavoriteRepository.delete(favorite),
+                .ifPresentOrElse(recruitFavoriteRepository::delete,
                                     () -> {
                                             RecruitFavorite newFavorite = new RecruitFavorite();
                                             newFavorite.setUser(user);
@@ -190,7 +190,6 @@ public class RecruitService {
     public RecruitResponce getRecruit(Long recruit_id, Authentication auth) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        User user = User.authenticationToUser(auth);
         recruit.setHit(recruit.getHit() + 1);
         List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
         for (RecruitRole role : recruit.getRoles()) {
@@ -212,7 +211,7 @@ public class RecruitService {
             .place(recruit.getPlace())
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
-            .isFavorite((auth != null) && recruitFavoriteRepository.findById(new RecruitFavoritePK(recruit_id, user.getId())).isPresent())
+            .isFavorite((auth != null) && recruitFavoriteRepository.findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit_id)).isPresent())
             .build();
     }
 
@@ -331,8 +330,7 @@ public class RecruitService {
 
     @Transactional
     public void applyRecruit(Long recruit_id, ApplyRecruitRequest request, Authentication auth) {
-        Recruit recruit = recruitRepository.findById(recruit_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
         Optional<RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(
             new RecruitApplicantPK(user.getId(), recruit_id, (request.getRole() == null ? "" : request.getRole())));

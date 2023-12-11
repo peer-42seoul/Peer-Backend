@@ -141,6 +141,7 @@ public class Recruit extends BaseEntity {
         if (this.getRoles() == null) {
             this.roles = new ArrayList<>();
         }
+        System.out.println(role.getNumber());
         this.roles.add(RecruitRole.builder()
             .name(role.getName())
             .number(role.getNumber())
