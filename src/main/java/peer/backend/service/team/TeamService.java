@@ -2,6 +2,7 @@ package peer.backend.service.team;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
@@ -15,6 +16,7 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
+import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitApplicantRepository;
