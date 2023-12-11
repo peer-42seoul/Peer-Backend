@@ -77,8 +77,11 @@ public class MessaageController {
             wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -98,8 +101,11 @@ public class MessaageController {
         try {
             wrappedRet = this.messageMainService.findUserListByUserNickname(keyword, user).get();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -121,8 +127,11 @@ public class MessaageController {
             wrappedIndex = this.messageMainService.makeNewMessageIndex(auth, body).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in makeNewMessageIndex");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in makeNewMessageIndex");
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -139,8 +148,11 @@ public class MessaageController {
             wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -158,8 +170,11 @@ public class MessaageController {
         try {
             wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in getSpecificLetterListByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in getSpecificLetterListByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (!wrappedData.isSuccess())
@@ -185,12 +200,16 @@ public class MessaageController {
         try {
             wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interruption happens in getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error("Problem is happened in getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
+            log.error("Problem is happened in getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
