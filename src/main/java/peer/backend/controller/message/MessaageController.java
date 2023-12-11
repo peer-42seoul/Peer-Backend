@@ -86,8 +86,10 @@ public class MessaageController {
         }
         if (wrappedRet.getResult() != null)
             ret = wrappedRet.getResult();
-        else
+        else {
+            log.error("Problem is happened in getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
@@ -112,6 +114,7 @@ public class MessaageController {
         try {
             ret = wrappedRet.getResult();
         } catch (NullPointerException e) {
+            log.error("Problem is happened in findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
         return new ResponseEntity<List<LetterTargetDTO>>(ret, HttpStatus.OK);
