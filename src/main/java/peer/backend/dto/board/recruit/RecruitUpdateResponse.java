@@ -2,21 +2,21 @@ package peer.backend.dto.board.recruit;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import peer.backend.dto.tag.TagResponse;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
-
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@JsonIgnoreProperties(value = { "answered" })
+@JsonIgnoreProperties(value = {"answered"})
 public class RecruitUpdateResponse {
+
     private String title;
     private int totalNumber;
     private RecruitStatus status;
@@ -28,7 +28,8 @@ public class RecruitUpdateResponse {
     private String link;
     private String leader_nickname;
     private String leader_image;
-    private List<TagListResponse> tagList;
+    //    private List<TagListResponse> tagList;
+    private List<TagResponse> tagList;
     private List<RecruitRoleDTO> roleList;
     private List<RecruitInterviewDto> interviewList;
     @JsonProperty("isAnswered")

@@ -1,14 +1,15 @@
 package peer.backend.dto.board.recruit;
 
-import lombok.*;
-import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.RecruitRole;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
-
+import java.util.List;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import peer.backend.entity.board.recruit.enums.RecruitStatus;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecruitUpdateRequestDTO {
+
     @NotNull
     private Long user_id;
     @NotNull
@@ -32,13 +34,21 @@ public class RecruitUpdateRequestDTO {
     @Lob
     private String content;
     private List<String> region;
-    private String region1 = region.get(0);
-    private String region2 = region.get(1);
+    //    private String region1 = region.get(0);
+//    private String region2 = region.get(1);
     private String link;
-    private List<TagListResponse> tagList;
+    private List<Long> tagList;
     @NotNull
     private String place;
     private List<RecruitRoleDTO> roleList;
     private List<RecruitInterviewDto> interviewList;
     private String image;
+
+    public String getRegion1() {
+        return this.region.get(0);
+    }
+
+    public String getRegion2() {
+        return this.region.get(1);
+    }
 }

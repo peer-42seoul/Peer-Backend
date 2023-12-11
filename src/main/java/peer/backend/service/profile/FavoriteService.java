@@ -1,5 +1,9 @@
 package peer.backend.service.profile;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -8,18 +12,16 @@ import peer.backend.dto.board.recruit.RecruitListResponse;
 import peer.backend.dto.profile.FavoritePage;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
-import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.List;
+import peer.backend.service.TagService;
 
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
+
+    private final TagService tagService;
+
     @PersistenceContext
     private EntityManager em;
 
@@ -30,12 +32,12 @@ public class FavoriteService {
         // WHERE user.id = ? AND recruit.type = ?
         return em.createQuery(
                 "SELECT r FROM User u " +
-                        "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
-                        "JOIN Recruit r ON rf.recruit.id = r.id " +
-                        "WHERE u.id = :userId AND r.type = :teamType", Recruit.class)
-                .setParameter("userId", userId)
-                .setParameter("teamType", type)
-                .getResultList();
+                    "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
+                    "JOIN Recruit r ON rf.recruit.id = r.id " +
+                    "WHERE u.id = :userId AND r.type = :teamType", Recruit.class)
+            .setParameter("userId", userId)
+            .setParameter("teamType", type)
+            .getResultList();
     }
 
     private List<Recruit> pagingBy(List<Recruit> retFind, int pageIndex, int pageSize) {
@@ -58,35 +60,37 @@ public class FavoriteService {
         List<RecruitListResponse> ret = new ArrayList<>();
         for (Recruit recruit : retPage) {
             RecruitListResponse recruitListResponse = RecruitListResponse.builder()
-                    .recruit_id(recruit.getId())
-                    .title(recruit.getTitle())
-                    .image(recruit.getThumbnailUrl())
-                    .user_id(recruit.getWriter() != null ? recruit.getWriterId() : -1)
-                    .user_nickname(recruit.getWriter() != null ? recruit.getWriter().getNickname() : "")
-                    .user_thumbnail(recruit.getWriter() != null ? recruit.getWriter().getImageUrl() : null)
-                    .status(recruit.getStatus().getStatus())
-                    .tagList(TagListManager.getRecruitTags(recruit.getTags()))
-                    .isFavorite(true)
-                    .build();
+                .recruit_id(recruit.getId())
+                .title(recruit.getTitle())
+                .image(recruit.getThumbnailUrl())
+                .user_id(recruit.getWriter() != null ? recruit.getWriterId() : -1)
+                .user_nickname(recruit.getWriter() != null ? recruit.getWriter().getNickname() : "")
+                .user_thumbnail(
+                    recruit.getWriter() != null ? recruit.getWriter().getImageUrl() : null)
+                .status(recruit.getStatus().getStatus())
+//                .tagList(TagListManager.getRecruitTags(recruit.getRecruitTags()))
+                .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
+                .isFavorite(true)
+                .build();
             ret.add(recruitListResponse);
         }
         return FavoritePage.builder()
-                .postList(ret)
-                .isLast(ret.isEmpty())
-                .build();
+            .postList(ret)
+            .isLast(ret.isEmpty())
+            .build();
     }
 
     @Transactional
     public void deleteAll(Authentication auth, String type) {
         User user = User.authenticationToUser(auth);
         List<RecruitFavorite> toDelete = em.createQuery(
-                        "SELECT rf FROM User u " +
-                                "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
-                                "JOIN Recruit r ON rf.recruit.id = r.id " +
-                                "WHERE u.id = :userId AND r.type = :teamType", RecruitFavorite.class)
-                .setParameter("userId", user.getId())
-                .setParameter("teamType", TeamType.valueOf(type))
-                .getResultList();
+                "SELECT rf FROM User u " +
+                    "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
+                    "JOIN Recruit r ON rf.recruit.id = r.id " +
+                    "WHERE u.id = :userId AND r.type = :teamType", RecruitFavorite.class)
+            .setParameter("userId", user.getId())
+            .setParameter("teamType", TeamType.valueOf(type))
+            .getResultList();
         for (RecruitFavorite recruitFavorite : toDelete) {
             em.remove(recruitFavorite);
         }

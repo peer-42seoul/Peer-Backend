@@ -1,12 +1,13 @@
 package peer.backend.dto.board.recruit;
 
-import lombok.*;
-
+import java.util.List;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Getter
@@ -14,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecruitCreateRequest {
+
     private String image;
     @NotNull
     @Size(min = 2, max = 30, message = "팀이름은 2글자 이상 30글자 이하로 작성해주세요.")
@@ -33,7 +35,8 @@ public class RecruitCreateRequest {
     private String content;
     private List<String> region;
     private String link;
-    private List<TagListResponse> tagList;
+    //    private List<TagListResponse> tagList;
+    private List<Long> tagList;
     private List<RecruitRoleDTO> roleList;
     private List<RecruitInterviewDto> interviewList;
 }

@@ -1,23 +1,20 @@
 package peer.backend.dto.board.recruit;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.RecruitRole;
+import peer.backend.dto.tag.TagResponse;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.user.enums.Role;
-
-import javax.swing.*;
-import java.util.List;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecruitResponce {
+
     private String title;
     private int totalNumber;
     private RecruitStatus status;
@@ -28,7 +25,8 @@ public class RecruitResponce {
     private String link;
     private String leader_nickname;
     private String leader_image;
-    private List<TagListResponse> tagList;
+    //    private List<TagListResponse> tagList;
+    private List<TagResponse> tagList;
     private List<RecruitRoleDTO> roleList;
     private TeamOperationFormat place;
     private String image;

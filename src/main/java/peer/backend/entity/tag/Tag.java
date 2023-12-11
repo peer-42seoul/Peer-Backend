@@ -1,4 +1,4 @@
-package peer.backend.entity;
+package peer.backend.entity.tag;
 
 
 import javax.persistence.Column;
@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import peer.backend.entity.BaseEntity;
 
 @Entity
 @Getter
@@ -33,5 +34,9 @@ public class Tag extends BaseEntity {
     public Tag(String name, String color) {
         this.name = name;
         this.color = color;
+    }
+
+    public Tag(Long id) {
+        this.id = id;
     }
 }
