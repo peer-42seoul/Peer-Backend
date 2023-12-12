@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.time.LocalDate;
 import lombok.Getter;
-import peer.backend.entity.Tag;
+import peer.backend.entity.tag.Tag;
 
 @Getter
 public class TagResponse {

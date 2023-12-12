@@ -1,39 +1,33 @@
 package peer.backend.service;
 
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import peer.backend.entity.user.User;
+import peer.backend.entity.user.Login;
 import peer.backend.oauth.PrincipalDetails;
+import peer.backend.repository.user.AdminRepository;
 import peer.backend.repository.user.UserRepository;
 
 @Service
-@Log4j2
+@Slf4j
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        log.info("loadUserByUsername id = " + id);
-        User user = userRepository.findById(Long.parseLong(id))
-                .orElseThrow(() -> {
-                    log.info("유저를 찾을 수 없습니다.");
-                    return new UsernameNotFoundException("유저를 찾을 수 없습니다.");
-                });
+        Login user = this.userRepository.findById(Long.parseLong(id)).orElse(null);
+        if (Objects.isNull(user)) {
+            user = this.adminRepository.findById(Long.parseLong(id))
+                .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다."));
+        }
 
         return new PrincipalDetails(user);
-//
-//        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-//        return new org
-//                .springframework
-//                .security
-//                .core
-//                .userdetails
-//                .User(user.getEmail(), user.getPassword(), grantedAuthorities);
     }
 }
