@@ -20,6 +20,7 @@ import peer.backend.repository.board.team.PostRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,39 +59,46 @@ public class ShowcaseService {
     }
 
     @Transactional
-    public void doFavorite(Long showcaseId, Authentication auth){
+    public boolean doFavorite(Long showcaseId, Authentication auth){
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
-        postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE))
-                .ifPresentOrElse(postLikeRepository::delete,
-                        () -> {
-                            PostLike newFavorite = new PostLike();
-                            newFavorite.setUser(user);
-                            newFavorite.setPost(showcase);
-                            newFavorite.setUserId(user.getId());
-                            newFavorite.setPostId(showcaseId);
-                            newFavorite.setType(PostLikeType.FAVORITE);
-                            postLikeRepository.save(newFavorite);
-                        });
+        Optional<PostLike> postLike = postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE));
+        if (postLike.isPresent()) {
+            postLikeRepository.delete(postLike.get());
+            return false;
+        } else {
+            PostLike newFavorite = new PostLike();
+            newFavorite.setUser(user);
+            newFavorite.setPost(showcase);
+            newFavorite.setUserId(user.getId());
+            newFavorite.setPostId(showcaseId);
+            newFavorite.setType(PostLikeType.FAVORITE);
+            postLikeRepository.save(newFavorite);
+            return true;
+        }
     }
 
     @Transactional
-    public void doLike(Long showcaseId, Authentication auth){
+    public int doLike(Long showcaseId, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE))
-                .ifPresentOrElse( favorite -> { postLikeRepository.delete(favorite); showcase.decreaseLike(); } ,
-                        () -> {
-                            showcase.increaseLike();
-                            PostLike newFavorite = new PostLike();
-                            newFavorite.setUser(user);
-                            newFavorite.setPost(showcase);
-                            newFavorite.setUserId(user.getId());
-                            newFavorite.setPostId(showcaseId);
-                            newFavorite.setType(PostLikeType.LIKE);
-                            postLikeRepository.save(newFavorite);
-                        });
+        Optional<PostLike> postLike = postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE));
+        if (postLike.isPresent()) {
+            postLikeRepository.delete(postLike.get());
+            showcase.decreaseLike();
+            return showcase.getLiked();
+        } else {
+            PostLike newFavorite = new PostLike();
+            newFavorite.setUser(user);
+            newFavorite.setPost(showcase);
+            newFavorite.setUserId(user.getId());
+            newFavorite.setPostId(showcaseId);
+            newFavorite.setType(PostLikeType.LIKE);
+            postLikeRepository.save(newFavorite);
+            showcase.increaseLike();
+            return showcase.getLiked();
+        }
     }
 }
