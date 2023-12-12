@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.SocketOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -87,7 +88,11 @@ public class MessageMainService {
                     continue;
                 }
                 else {
-                    target = this.userRepository.findById(msg.getUserIdx2()).get();
+                    try {
+                        target = this.userRepository.findById(msg.getUserIdx2()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
+                    } catch (NotFoundException e) {
+                        return CompletableFuture.completedFuture((AsyncResult.failure(e)));
+                    }
                     retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
                 }
             } else if (msg.getUserIdx2().equals(msgOwner.getId())) {
@@ -95,7 +100,11 @@ public class MessageMainService {
                     continue;
                 }
                 else {
-                    target = this.userRepository.findById(msg.getUserIdx1()).get();
+                    try {
+                        target = this.userRepository.findById(msg.getUserIdx1()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
+                    } catch (NotFoundException e) {
+                        return CompletableFuture.completedFuture((AsyncResult.failure(e)));
+                    }
                     retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
                 }
             }
@@ -122,7 +131,7 @@ public class MessageMainService {
         ret = 0L;
         Optional<List<MessageIndex>> rawTargetsData = this.indexRepository.findByUserId(userId);
         List<MessageIndex> targetData = rawTargetsData.orElseGet(() -> null);
-        if (rawTargetsData == null)
+        if (rawTargetsData.isEmpty())
             return CompletableFuture.completedFuture(AsyncResult.success(0L));
         boolean check = false;
         List<TargetForDelete> targetUserIds = list.getTarget();
@@ -294,7 +303,7 @@ public class MessageMainService {
      * @param message : 메시지 내용
      * @return
      */
-    @Transactional(readOnly = false)
+    @Transactional
     public Msg sendMessage(Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         long targetId = message.getTargetId();
         MessageIndex index;
