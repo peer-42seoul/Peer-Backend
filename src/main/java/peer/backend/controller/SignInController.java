@@ -117,7 +117,8 @@ public class SignInController {
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<?> adminLogin(@RequestBody @Valid AdminLoginRequest adminLoginRequest) {
+    public ResponseEntity<Object> adminLogin(
+        @RequestBody @Valid AdminLoginRequest adminLoginRequest) {
         String accessToken = loginService.adminLogin(adminLoginRequest.getId(),
             adminLoginRequest.getPassword());
 
