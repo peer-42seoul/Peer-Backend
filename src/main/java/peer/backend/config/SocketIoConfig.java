@@ -10,9 +10,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
-@CrossOrigin
+//@CrossOrigin()
 @Slf4j
 public class SocketIoConfig {
 
@@ -36,4 +41,5 @@ public class SocketIoConfig {
         this.server = new SocketIOServer(config);
         return server;
     }
+
 }
