@@ -33,8 +33,6 @@ public class TagService {
     @Transactional
     public void deleteTag(Long tagId) {
         this.recruitTagRepository.deleteAllByTagId(tagId);
-        log.info("여기서 뜨냐?");
-        log.info(String.valueOf(this.recruitTagRepository.findAllByTagId(tagId).size()));
         this.tagRepository.deleteById(tagId);
     }
 
