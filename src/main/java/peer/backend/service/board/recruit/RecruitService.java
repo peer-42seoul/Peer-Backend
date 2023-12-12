@@ -73,8 +73,6 @@ public class RecruitService {
     @PersistenceContext
     private EntityManager em;
 
-    private final List<Tag> preDefinedTagList = TagListManager.getPredefinedTags();
-
     //Markdown에서 form-data를 추출하기 위한 패턴 ![](*)
     //TODO: toast에디터로 바뀔 경우 사용
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
@@ -218,7 +216,7 @@ public class RecruitService {
         recruit.setHit(recruit.getHit() + 1);
         List<TeamJobDto> jobDtoList = new ArrayList<>();
         for (TeamJob role : recruit.getJobs()) {
-            jobDtoList.add(new TeamJobDto(role.getName(), role.getNumber()));
+            jobDtoList.add(new TeamJobDto(role.getName(), role.getMax()));
         }
         return RecruitResponce.builder()
             .title(recruit.getTitle())
@@ -248,7 +246,7 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         List<TeamJobDto> roleDtoList = new ArrayList<>();
         for (TeamJob role : recruit.getJobs()) {
-            roleDtoList.add(new TeamJobDto(role.getName(), role.getNumber()));
+            roleDtoList.add(new TeamJobDto(role.getName(), role.getMax()));
         }
         //TODO:DTO 항목 추가 필요
         return RecruitUpdateResponse.builder()
@@ -403,9 +401,5 @@ public class RecruitService {
                 objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                     "recruit/" + recruit_id, "image"));
         }
-    }
-
-    public List<Tag> getTagList() {
-        return preDefinedTagList;
     }
 }
