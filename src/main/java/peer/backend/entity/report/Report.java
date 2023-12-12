@@ -45,10 +45,14 @@ public class Report extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private ReportStatus status;
+
     public Report(User from, User to, ReportType type, String content) {
         this.fromUser = from;
         this.toUser = to;
         this.type = type;
         this.content = content;
+        this.status = ReportStatus.COMPLETED;
     }
 }
