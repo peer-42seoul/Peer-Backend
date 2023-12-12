@@ -1,5 +1,16 @@
 package peer.backend.board;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,17 +38,8 @@ import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.board.team.PostLikeRepository;
 import peer.backend.repository.board.team.PostRepository;
+import peer.backend.service.TagService;
 import peer.backend.service.board.team.ShowcaseService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShowcaseService Test")
@@ -47,89 +49,92 @@ class ShowcaseServiceTest {
     private PostRepository postRepository;
     @Mock
     private PostLikeRepository postLikeRepository;
+    @Mock
+    private TagService tagService;
     @InjectMocks
     private ShowcaseService showcaseService;
 
 
-        User user;
-        Team team;
-        Post post;
-        Board board;
-        Recruit recruit;
-        Authentication auth;
-        Post mockPost;
+    User user;
+    Team team;
+    Post post;
+    Board board;
+    Recruit recruit;
+    Authentication auth;
+    Post mockPost;
 
-        List<Post> posts = new ArrayList<>();
+    List<Post> posts = new ArrayList<>();
+
     @BeforeEach
     void beforeEach() {
         user = User.builder()
-                .id(1L)
-                .name("test")
-                .email("test@test.com")
-                .nickname("test")
-                .isAlarm(false)
-                .address("test")
-                .certification(false)
-                .company("test")
-                .introduce("test")
-                .peerLevel(0L)
-                .representAchievement("test")
-                .build();
+            .id(1L)
+            .name("test")
+            .email("test@test.com")
+            .nickname("test")
+            .isAlarm(false)
+            .address("test")
+            .certification(false)
+            .company("test")
+            .introduce("test")
+            .peerLevel(0L)
+            .representAchievement("test")
+            .build();
 
         recruit = Recruit.builder()
-                .id(1L)
-                .link("t")
-                .due(RecruitDueEnum.EIGHT_MONTHS)
-                .content("t")
-                .place(TeamOperationFormat.ONLINE)
-                .region1("t")
-                .region2("t")
-                .status(RecruitStatus.BEFORE)
-                .team(team)
-                .thumbnailUrl("t")
-                .title("t")
-                .tags(new ArrayList<>())
-                .type(TeamType.PROJECT)
-                .build();
+            .id(1L)
+            .link("t")
+            .due(RecruitDueEnum.EIGHT_MONTHS)
+            .content("t")
+            .place(TeamOperationFormat.ONLINE)
+            .region1("t")
+            .region2("t")
+            .status(RecruitStatus.BEFORE)
+            .team(team)
+            .thumbnailUrl("t")
+            .title("t")
+            .recruitTags(new ArrayList<>())
+            .type(TeamType.PROJECT)
+            .build();
 
         team = Team.builder()
-                .id(1L)
-                .name("test")
-                .type(TeamType.STUDY)
-                .dueTo("10월")
-                .operationFormat(TeamOperationFormat.ONLINE)
-                .status(TeamStatus.ONGOING)
-                .teamMemberStatus(TeamMemberStatus.RECRUITING)
-                .isLock(false)
-                .recruit(recruit)
-                .region1("test")
-                .region2("test")
-                .region3("test")
-                .end(LocalDateTime.now())
-                .build();
+            .id(1L)
+            .name("test")
+            .type(TeamType.STUDY)
+            .dueTo("10월")
+            .operationFormat(TeamOperationFormat.ONLINE)
+            .status(TeamStatus.ONGOING)
+            .teamMemberStatus(TeamMemberStatus.RECRUITING)
+            .isLock(false)
+            .recruit(recruit)
+            .region1("test")
+            .region2("test")
+            .region3("test")
+            .end(LocalDateTime.now())
+            .build();
 
         board = Board.builder()
-                .id(1L)
-                .name("쇼케이스")
-                .type(BoardType.SHOWCASE)
-                .team(team)
-                .build();
+            .id(1L)
+            .name("쇼케이스")
+            .type(BoardType.SHOWCASE)
+            .team(team)
+            .build();
 
         post = Post.builder()
-                .id(1L)
-                .content("abcde")
-                .image(null)
-                .hit(0)
-                .liked(0)
-                .title("12345")
-                .user(user)
-                .board(board)
-                .build();
+            .id(1L)
+            .content("abcde")
+            .image(null)
+            .hit(0)
+            .liked(0)
+            .title("12345")
+            .user(user)
+            .board(board)
+            .build();
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         PrincipalDetails details = new PrincipalDetails(user);
         auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(),
-                details.getAuthorities());
+            details.getAuthorities());
 
         posts.add(post);
 
@@ -141,7 +146,7 @@ class ShowcaseServiceTest {
     @DisplayName("쇼케이스 리스트 가져오기 테스티")
     void getShowCaseListTest() {
         when(postRepository.findAllByBoardTypeOrderByCreatedAtDesc(any(), any()))
-                .thenReturn(new PageImpl<>(posts, PageRequest.of(0, 2), 1L));
+            .thenReturn(new PageImpl<>(posts, PageRequest.of(0, 2), 1L));
 
         assertThat(showcaseService.getShowCaseList(0, 1, auth).getTotalElements()).isEqualTo(1);
     }

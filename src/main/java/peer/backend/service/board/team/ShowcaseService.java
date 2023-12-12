@@ -1,12 +1,17 @@
 package peer.backend.service.board.team;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.board.team.ShowcaseListResponse;
-import peer.backend.entity.board.recruit.TagListManager;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.board.team.enums.BoardType;
@@ -17,10 +22,7 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.PostLikeRepository;
 import peer.backend.repository.board.team.PostRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import peer.backend.service.TagService;
 
 @Service
 @RequiredArgsConstructor
@@ -28,29 +30,37 @@ public class ShowcaseService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final TagService tagService;
 
-    private ShowcaseListResponse convertToDto(Post post, Authentication auth){
+    private ShowcaseListResponse convertToDto(Post post, Authentication auth) {
         Team team = post.getBoard().getTeam();
         return ShowcaseListResponse.builder()
-                .id(post.getId())
-                .image(post.getImage())
-                .name(post.getBoard().getTeam().getName())
-                .description(post.getContent())
-                .skill(TagListManager.getRecruitTags(team.getRecruit().getTags()))
-                .like(post.getLiked())
-                .isLiked(auth != null && postLikeRepository.findById(new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(), PostLikeType.LIKE)).isPresent())
-                .isFavorite(auth != null && postLikeRepository.findById(new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(), PostLikeType.FAVORITE)).isPresent())
-                .teamLogo(team.getTeamLogoPath())
-                .start(post.getCreatedAt().toString())
-                .end(team.getEnd().toString())
-                .build();
+            .id(post.getId())
+            .image(post.getImage())
+            .name(post.getBoard().getTeam().getName())
+            .description(post.getContent())
+//            .skill(TagListManager.getRecruitTags(team.getRecruit().getRecruitTags()))
+            .skill(
+                this.tagService.recruitTagListToTagResponseList(team.getRecruit().getRecruitTags()))
+            .like(post.getLiked())
+            .isLiked(auth != null && postLikeRepository.findById(
+                new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(),
+                    PostLikeType.LIKE)).isPresent())
+            .isFavorite(auth != null && postLikeRepository.findById(
+                new PostLikePK(User.authenticationToUser(auth).getId(), post.getId(),
+                    PostLikeType.FAVORITE)).isPresent())
+            .teamLogo(team.getTeamLogoPath())
+            .start(post.getCreatedAt().toString())
+            .end(team.getEnd().toString())
+            .build();
     }
 
 
     @Transactional
-    public Page<ShowcaseListResponse> getShowCaseList(int page, int pageSize, Authentication auth){
+    public Page<ShowcaseListResponse> getShowCaseList(int page, int pageSize, Authentication auth) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Post> posts = postRepository.findAllByBoardTypeOrderByCreatedAtDesc(BoardType.SHOWCASE, pageable);
+        Page<Post> posts = postRepository.findAllByBoardTypeOrderByCreatedAtDesc(BoardType.SHOWCASE,
+            pageable);
         List<ShowcaseListResponse> postDtoList = new ArrayList<>();
         for (Post post : posts.getContent()) {
             postDtoList.add(convertToDto(post, auth));
@@ -59,11 +69,12 @@ public class ShowcaseService {
     }
 
     @Transactional
-    public boolean doFavorite(Long showcaseId, Authentication auth){
+    public boolean doFavorite(Long showcaseId, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
-        Optional<PostLike> postLike = postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
+        Optional<PostLike> postLike = postLikeRepository.findById(
+            new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE));
         if (postLike.isPresent()) {
             postLikeRepository.delete(postLike.get());
             return false;
@@ -83,8 +94,9 @@ public class ShowcaseService {
     public int doLike(Long showcaseId, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Post showcase = postRepository.findById(showcaseId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        Optional<PostLike> postLike = postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        Optional<PostLike> postLike = postLikeRepository.findById(
+            new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE));
         if (postLike.isPresent()) {
             postLikeRepository.delete(postLike.get());
             showcase.decreaseLike();
