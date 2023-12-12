@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import peer.backend.converter.ReportStatusConverter;
 import peer.backend.converter.ReportTypeConverter;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
@@ -46,6 +47,7 @@ public class Report extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
+    @Convert(converter = ReportStatusConverter.class)
     private ReportStatus status;
 
     public Report(User from, User to, ReportType type, String content) {
@@ -53,6 +55,6 @@ public class Report extends BaseEntity {
         this.toUser = to;
         this.type = type;
         this.content = content;
-        this.status = ReportStatus.COMPLETED;
+        this.status = ReportStatus.WAITING;
     }
 }

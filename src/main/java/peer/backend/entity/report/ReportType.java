@@ -37,6 +37,6 @@ public enum ReportType {
         return Arrays.stream(ReportType.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 신고 타입 코드입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고 타입 코드입니다."));
     }
 }

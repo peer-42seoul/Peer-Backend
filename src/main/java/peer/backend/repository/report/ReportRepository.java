@@ -7,5 +7,5 @@ import peer.backend.entity.report.Report;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
-    Page<Report> findAll(Pageable pageable);
+    Page<Report> findAllByOrderByStatusAsc(Pageable pageable);
 }

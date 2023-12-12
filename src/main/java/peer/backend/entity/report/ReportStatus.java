@@ -17,10 +17,10 @@ public enum ReportStatus {
     private final Long code;
 
     @JsonCreator
-    public static ReportType from(String value) {
-        for (ReportType type : ReportType.values()) {
-            if (type.getValue().equals(value)) {
-                return type;
+    public static ReportStatus from(String value) {
+        for (ReportStatus status : ReportStatus.values()) {
+            if (status.getValue().equals(value)) {
+                return status;
             }
         }
         return null;
@@ -31,10 +31,10 @@ public enum ReportStatus {
         return value;
     }
 
-    public static ReportType ofCode(Long dbData) {
-        return Arrays.stream(ReportType.values())
+    public static ReportStatus ofCode(Long dbData) {
+        return Arrays.stream(ReportStatus.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 신고 타입 코드입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고 상태 코드입니다."));
     }
 }
