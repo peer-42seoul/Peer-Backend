@@ -35,6 +35,7 @@ import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
@@ -68,7 +69,7 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitApplicant> applicants = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecruitRole> roles = new ArrayList<>();
+    private List<TeamJob> roles = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitInterview> interviews = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -158,7 +159,7 @@ public class Recruit extends BaseEntity {
             this.roles = new ArrayList<>();
         }
         System.out.println(role.getNumber());
-        this.roles.add(RecruitRole.builder()
+        this.roles.add(TeamJob.builder()
             .name(role.getName())
             .number(role.getNumber())
             .recruit(this).build());

@@ -1,6 +1,7 @@
-package peer.backend.entity.board.recruit;
+package peer.backend.entity.team;
 
 import lombok.*;
+import peer.backend.entity.board.recruit.Recruit;
 
 import javax.persistence.*;
 
@@ -9,11 +10,11 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "recruit_role")
-public class RecruitRole {
+@Table(name = "team_job")
+public class TeamJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "recruit_role_id")
+    @Column(name = "team_job_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

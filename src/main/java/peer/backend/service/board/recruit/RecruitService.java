@@ -32,13 +32,7 @@ import peer.backend.dto.board.recruit.RecruitResponce;
 import peer.backend.dto.board.recruit.RecruitRoleDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateResponse;
-import peer.backend.entity.board.recruit.Recruit;
-import peer.backend.entity.board.recruit.RecruitApplicant;
-import peer.backend.entity.board.recruit.RecruitFavorite;
-import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.RecruitRole;
-import peer.backend.entity.board.recruit.Tag;
-import peer.backend.entity.board.recruit.TagListManager;
+import peer.backend.entity.board.recruit.*;
 import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
@@ -46,6 +40,7 @@ import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
@@ -222,7 +217,7 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         recruit.setHit(recruit.getHit() + 1);
         List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
-        for (RecruitRole role : recruit.getRoles()) {
+        for (TeamJob role : recruit.getRoles()) {
             roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
         }
         return RecruitResponce.builder()
@@ -252,7 +247,7 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
-        for (RecruitRole role : recruit.getRoles()) {
+        for (TeamJob role : recruit.getRoles()) {
             roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
         }
         //TODO:DTO 항목 추가 필요
