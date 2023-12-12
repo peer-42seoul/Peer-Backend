@@ -1,9 +1,10 @@
 package peer.backend.service.report;
 
-import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.report.Report;
 import peer.backend.entity.report.ReportType;
@@ -36,7 +37,7 @@ public class ReportService {
     }
 
     @Transactional
-    public List<Report> getReportList() {
-        return this.reportRepository.findAll();
+    public Page<Report> getReportList(Pageable pageable) {
+        return this.reportRepository.findAll(pageable);
     }
 }

@@ -1,10 +1,10 @@
 package peer.backend.controller;
 
 
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,9 +33,8 @@ public class ReportController {
     }
 
     @GetMapping()
-    public List<ReportResponse> getReportList() {
-        List<Report> reportList = this.reportService.getReportList();
-        return reportList.stream().map(ReportResponse::new)
-            .collect(Collectors.toList());
+    public Page<ReportResponse> getReportList(Pageable pageable) {
+        Page<Report> reportList = this.reportService.getReportList(pageable);
+        return reportList.map(ReportResponse::new);
     }
 }
