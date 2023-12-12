@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ReportType {
     ADVERTISING("광고", 1L),
-    SENSATIONALISM("선정성", 2L),
-    CALUMNY("비방", 3L);
+    CALUMNY("비방", 2L),
+    SENSATIONALISM("선정성", 3L),
+    SPAM("도배", 4L),
+    ETC("기타", 5L);
 
     private final String value;
     private final Long code;

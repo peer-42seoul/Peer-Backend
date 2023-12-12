@@ -14,7 +14,7 @@ import peer.backend.entity.report.ReportType;
 public class ReportRequest {
 
     @NotNull
-    private Long id;
+    private Long userId;
 
     @ValidEnum(enumClass = ReportType.class, message = "잘못된 신고 유형입니다.")
     private ReportType type;
