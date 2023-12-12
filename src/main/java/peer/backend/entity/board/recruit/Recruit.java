@@ -160,7 +160,7 @@ public class Recruit extends BaseEntity {
         }
         this.jobs.add(TeamJob.builder()
             .name(role.getName())
-            .number(role.getNumber())
+            .max(role.getNumber())
             .recruit(this).build());
     }
 

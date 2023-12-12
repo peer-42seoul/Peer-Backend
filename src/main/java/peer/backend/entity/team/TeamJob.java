@@ -24,5 +24,7 @@ public class TeamJob {
     @Column(nullable = false, length = 10)
     private String name;
     @Column(nullable = false)
-    private Integer number;
+    private Integer max;
+    @Column
+    private Integer current;
 }
