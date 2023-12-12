@@ -34,7 +34,6 @@ import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
-import peer.backend.entity.tag.Tag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
@@ -101,8 +100,6 @@ public class Recruit extends BaseEntity {
     private RecruitStatus status;
     @Column
     private String thumbnailUrl;
-    //    @ElementCollection
-//    private List<String> tags = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitTag> recruitTags = new ArrayList<>();
     @Column
@@ -127,7 +124,7 @@ public class Recruit extends BaseEntity {
         this.thumbnailUrl = filePath;
         this.recruitTags.clear();
         this.recruitTags = request.getTagList().stream()
-            .map(e -> (new RecruitTag(this, new Tag(e))))
+            .map(e -> (new RecruitTag(this.id, e)))
             .collect(
                 Collectors.toList());
         this.interviews.clear();
