@@ -134,7 +134,7 @@ public class RecruitService {
             predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
-            Join<Recruit, String> tagList = recruit.join("tags");
+            Join<Recruit, String> tagList = recruit.join("tag");
             predicates.add(tagList.in(request.getTag()));
         }
         if (request.getType() != null && !request.getType().isEmpty()) {
