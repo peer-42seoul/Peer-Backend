@@ -48,7 +48,7 @@ public class BoardService {
         Board board = Board.builder()
                 .team(team)
                 .name(request.getName())
-                .type(BoardType.NORMAL)
+                .type(BoardType.from(request.getType()))
                 .build();
         boardRepository.save(board);
     }

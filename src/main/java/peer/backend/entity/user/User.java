@@ -1,6 +1,7 @@
 package peer.backend.entity.user;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,6 +28,8 @@ import org.springframework.util.ObjectUtils;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.team.Post;
+import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
@@ -41,7 +44,7 @@ import peer.backend.oauth.PrincipalDetails;
 @Table(name = "user")
 @DynamicUpdate
 @DynamicInsert
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Login {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -116,8 +119,14 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "writer", cascade = CascadeType.PERSIST)
     private List<Recruit> recruitList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    private List<Post> post;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<PostLike> postLikes;
+
     public static User authenticationToUser(Authentication authentication) {
-        return ((PrincipalDetails) authentication.getPrincipal()).getUser();
+        return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();
     }
 
     public void addSocialLogin(SocialLogin socialLogin) {
@@ -125,5 +134,9 @@ public class User extends BaseEntity {
             this.socialLogins = new ArrayList<>();
         }
         this.socialLogins.add(socialLogin);
+    }
+
+    public Collection<Post> getPost() {
+        return post;
     }
 }

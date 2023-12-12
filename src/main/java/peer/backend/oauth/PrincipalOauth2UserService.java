@@ -50,7 +50,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     userRequest.getAccessToken().getTokenValue(),
                     socialEmail));
                 loginStatus = LoginStatus.REGISTER;
-                user = User.builder().name("register").build();
+                user = User.builder().email("register").build();
             } else {
                 // 연동
                 loginStatus = LoginStatus.LINK;

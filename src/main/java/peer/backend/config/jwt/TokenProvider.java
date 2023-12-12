@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import peer.backend.entity.user.Login;
 import peer.backend.entity.user.User;
 import peer.backend.service.UserDetailsServiceImpl;
 
@@ -39,11 +40,11 @@ public class TokenProvider {
     private Key key;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public String createAccessToken(User user) {
+    public String createAccessToken(Login user) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         Claims claims = Jwts.claims();
         claims.put("sub", user.getId());
-        claims.put("role", "ROLE_USER");
+        claims.put("role", user.getRole());
 
         String ret = Jwts.builder()
             .setHeaderParam("typ", "accessToken")
@@ -57,9 +58,10 @@ public class TokenProvider {
         return ret;
     }
 
-    public String createRefreshToken(User user) {
+    public String createRefreshToken(Login user) {
         Claims claims = Jwts.claims();
         claims.put("sub", user.getId());
+        claims.put("role", user.getRole());
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + refreshExpirationTime);
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
@@ -100,8 +102,6 @@ public class TokenProvider {
             return bearerToken.substring(7);
         }
         bearerToken = req.getParameter("accessToken");
-        log.info("accessToken: " + bearerToken);
-        log.info("queryString: " + req.getQueryString());
         return bearerToken;
     }
 
