@@ -9,22 +9,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import peer.backend.dto.report.ReportProcessingRequest;
 import peer.backend.dto.report.ReportRequest;
 import peer.backend.dto.report.ReportResponse;
 import peer.backend.entity.report.Report;
+import peer.backend.entity.report.ReportProcessingStatus;
 import peer.backend.entity.user.User;
 import peer.backend.service.report.ReportService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/report")
 public class ReportController {
 
     private final ReportService reportService;
 
-    @PostMapping()
+    @PostMapping("/api/v1/report")
     public void report(Authentication authentication, @RequestBody @Valid
     ReportRequest request) {
         User user = User.authenticationToUser(authentication);
@@ -32,9 +32,16 @@ public class ReportController {
             request.getContent());
     }
 
-    @GetMapping()
+    @GetMapping("/api/v1/admin/report")
     public Page<ReportResponse> getReportList(Pageable pageable) {
         Page<Report> reportList = this.reportService.getReportList(pageable);
         return reportList.map(ReportResponse::new);
+    }
+
+    @PostMapping("/api/v1/admin/report")
+    public void reportProcessing(@RequestBody @Valid ReportProcessingRequest request) {
+        if (request.getType().equals(ReportProcessingStatus.FINISHED)) {
+            this.reportService.setReportFinished(request.getIdList());
+        }
     }
 }
