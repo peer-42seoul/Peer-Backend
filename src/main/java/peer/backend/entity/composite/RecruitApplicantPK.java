@@ -15,5 +15,5 @@ import java.io.Serializable;
 public class RecruitApplicantPK implements Serializable {
     private Long userId;
     private Long recruitId;
-    private String role;
+    private String job;
 }
