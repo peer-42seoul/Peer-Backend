@@ -27,7 +27,7 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitRoleDTO;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
@@ -48,7 +48,7 @@ import peer.backend.entity.user.User;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
-@Table(name = "Recruit")
+@Table(name = "recruit")
 public class Recruit extends BaseEntity {
 
     @Id
@@ -69,7 +69,7 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitApplicant> applicants = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TeamJob> roles = new ArrayList<>();
+    private List<TeamJob> jobs = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitInterview> interviews = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -134,9 +134,9 @@ public class Recruit extends BaseEntity {
                 this.addInterview(interview);
             }
         }
-        this.roles.clear();
+        this.jobs.clear();
         if (!request.getInterviewList().isEmpty()) {
-            for (RecruitRoleDTO role : request.getRoleList()) {
+            for (TeamJobDto role : request.getRoleList()) {
                 this.addRole(role);
             }
         }
@@ -154,12 +154,11 @@ public class Recruit extends BaseEntity {
             .build());
     }
 
-    public void addRole(RecruitRoleDTO role) {
-        if (this.getRoles() == null) {
-            this.roles = new ArrayList<>();
+    public void addRole(TeamJobDto role) {
+        if (this.getJobs() == null) {
+            this.jobs = new ArrayList<>();
         }
-        System.out.println(role.getNumber());
-        this.roles.add(TeamJob.builder()
+        this.jobs.add(TeamJob.builder()
             .name(role.getName())
             .number(role.getNumber())
             .recruit(this).build());

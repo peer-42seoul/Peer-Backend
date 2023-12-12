@@ -29,7 +29,7 @@ import peer.backend.dto.board.recruit.RecruitInterviewDto;
 import peer.backend.dto.board.recruit.RecruitListRequest;
 import peer.backend.dto.board.recruit.RecruitListResponse;
 import peer.backend.dto.board.recruit.RecruitResponce;
-import peer.backend.dto.board.recruit.RecruitRoleDTO;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.entity.board.recruit.*;
@@ -216,16 +216,16 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         recruit.setHit(recruit.getHit() + 1);
-        List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
-        for (TeamJob role : recruit.getRoles()) {
-            roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
+        List<TeamJobDto> jobDtoList = new ArrayList<>();
+        for (TeamJob role : recruit.getJobs()) {
+            jobDtoList.add(new TeamJobDto(role.getName(), role.getNumber()));
         }
         return RecruitResponce.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
             .region(new ArrayList<>(List.of(recruit.getRegion1(), recruit.getRegion2())))
             .status(recruit.getStatus())
-            .totalNumber(recruit.getRoles().size())
+            .totalNumber(recruit.getJobs().size())
             .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
@@ -233,7 +233,7 @@ public class RecruitService {
             .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
 //            .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
-            .roleList(roleDtoList)
+            .roleList(jobDtoList)
             .place(recruit.getPlace())
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
@@ -246,9 +246,9 @@ public class RecruitService {
     public RecruitUpdateResponse getRecruitwithInterviewList(Long recruit_id) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        List<RecruitRoleDTO> roleDtoList = new ArrayList<>();
-        for (TeamJob role : recruit.getRoles()) {
-            roleDtoList.add(new RecruitRoleDTO(role.getName(), role.getNumber()));
+        List<TeamJobDto> roleDtoList = new ArrayList<>();
+        for (TeamJob role : recruit.getJobs()) {
+            roleDtoList.add(new TeamJobDto(role.getName(), role.getNumber()));
         }
         //TODO:DTO 항목 추가 필요
         return RecruitUpdateResponse.builder()
@@ -257,7 +257,7 @@ public class RecruitService {
             .region1(recruit.getRegion1())
             .region2(recruit.getRegion2())
             .status(recruit.getStatus())
-            .totalNumber(recruit.getRoles().size())
+            .totalNumber(recruit.getJobs().size())
             .due(recruit.getDue().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
@@ -282,9 +282,9 @@ public class RecruitService {
         }
     }
 
-    private void addRolesToRecruit(Recruit recruit, List<RecruitRoleDTO> roleList) {
+    private void addRolesToRecruit(Recruit recruit, List<TeamJobDto> roleList) {
         if (roleList != null && !roleList.isEmpty()) {
-            for (RecruitRoleDTO role : roleList) {
+            for (TeamJobDto role : roleList) {
                 recruit.addRole(role);
             }
         }
@@ -380,7 +380,7 @@ public class RecruitService {
         RecruitApplicant recruitApplicant = RecruitApplicant.builder()
             .recruitId(recruit_id)
             .userId(user.getId())
-            .role(request.getRole() == null ? "" : request.getRole())
+            .job(request.getRole() == null ? "" : request.getRole())
             .nickname(user.getNickname())
             .status(RecruitApplicantStatus.PENDING)
             .answerList(request.getAnswerList())

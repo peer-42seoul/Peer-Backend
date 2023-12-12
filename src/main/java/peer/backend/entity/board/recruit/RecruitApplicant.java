@@ -28,8 +28,8 @@ public class RecruitApplicant extends BaseEntity {
     private Long recruitId;
 
     @Id
-    @Column(name = "role")
-    private String role;
+    @Column(name = "job")
+    private String job;
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)

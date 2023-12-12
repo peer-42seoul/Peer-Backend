@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import peer.backend.dto.team.TeamJobDto;
 
 
 @Getter
@@ -36,6 +37,6 @@ public class RecruitCreateRequest {
     private List<String> region;
     private String link;
     private List<Long> tagList;
-    private List<RecruitRoleDTO> roleList;
+    private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
 }
