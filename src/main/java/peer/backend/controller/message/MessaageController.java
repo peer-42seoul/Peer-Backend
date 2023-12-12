@@ -1,10 +1,8 @@
 package peer.backend.controller.message;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.xwpf.usermodel.IBody;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +13,9 @@ import peer.backend.dto.message.*;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.user.User;
 import peer.backend.exception.AlreadyDeletedException;
-import peer.backend.oauth.PrincipalDetails;
 import peer.backend.service.message.MessageMainService;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.NoSuchElementException;
@@ -27,10 +23,13 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping(MessaageController.LETTER_URL)
 public class MessaageController {
 
     public static final String LETTER_URL = "api/v1/message";
+    public static final String ERR_1 = "Thread interruption happens in ";
+    public static final String ERR_2 = "Problem is happened in ";
 
     private final MessageMainService messageMainService;
 
@@ -44,8 +43,11 @@ public class MessaageController {
             wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "getAllLetters");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "getAllLetters");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -77,14 +79,19 @@ public class MessaageController {
             wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
             ret = wrappedRet.getResult();
-        else
+        else {
+            log.error(ERR_2 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
@@ -98,14 +105,18 @@ public class MessaageController {
         try {
             wrappedRet = this.messageMainService.findUserListByUserNickname(keyword, user).get();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         try {
             ret = wrappedRet.getResult();
         } catch (NullPointerException e) {
+            log.error("Problem is happened in findUserListByUserNickname");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
         return new ResponseEntity<List<LetterTargetDTO>>(ret, HttpStatus.OK);
@@ -121,8 +132,11 @@ public class MessaageController {
             wrappedIndex = this.messageMainService.makeNewMessageIndex(auth, body).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "makeNewMessageIndex");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "makeNewMessageIndex");
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -139,8 +153,11 @@ public class MessaageController {
             wrappedRet = this.messageMainService.getLetterListByUserId(User.authenticationToUser(auth)).get();
         }
         catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "getLetterListByUserId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (wrappedRet.getResult() != null)
@@ -158,8 +175,11 @@ public class MessaageController {
         try {
             wrappedData = this.messageMainService.getSpecificLetterListByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "getSpecificLetterListByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "getSpecificLetterListByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (!wrappedData.isSuccess())
@@ -185,12 +205,16 @@ public class MessaageController {
         try {
             wrappedData =this.messageMainService.getSpecificLetterUpByUserIdAndTargetId(auth, body).get();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(ERR_1 + "getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ExecutionException e) {
+            log.error(ERR_2 + "getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         MsgListDTO ret = wrappedData.getResult();
         if (ret == null) {
+            log.error(ERR_2 + "getSpecificLetterUpByUserIdAndTargetId");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ret, HttpStatus.OK);
