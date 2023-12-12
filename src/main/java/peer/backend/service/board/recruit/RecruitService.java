@@ -362,7 +362,7 @@ public class RecruitService {
         //모집게시글 생성
         Recruit recruit = recruitRepository.save(createRecruitFromDto(request, team, user));
         recruit.setRecruitTags(request.getTagList().stream()
-            .map(e -> (new RecruitTag(recruit, this.tagService.getTag(e)))).collect(
+            .map(e -> (new RecruitTag(recruit.getId(), e))).collect(
                 Collectors.toList()));
         return recruit.getId().toString();
     }
