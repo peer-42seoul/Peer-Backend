@@ -4,18 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.config.jwt.TokenProvider;
-import peer.backend.dto.security.request.LogoutRequest;
 import peer.backend.dto.security.response.JwtDto;
+import peer.backend.entity.user.Admin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.UserRepository;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -25,16 +23,18 @@ public class LoginService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final AdminService adminService;
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Transactional
     public JwtDto login(String userEmail, String password) {
         // no username
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new UnauthorizedException("로그인이 실패"));
+            .orElseThrow(() -> new UnauthorizedException("Email 혹은 비밀번호가 잘못되었습니다!"));
         // wrong password
         if (!encoder.matches(password, user.getPassword())) {
-            throw new UnauthorizedException("로그인이 실패");
+            throw new UnauthorizedException("Email 혹은 비밀번호가 잘못되었습니다!");
         }
         // create jwtDto
         JwtDto jwtDto = new JwtDto(
@@ -75,5 +75,16 @@ public class LoginService {
             throw new UnauthorizedException("올바르지 않은 accessToken/refreshToken 입니다.");
         }
         return tokenProvider.createAccessToken(user);
+    }
+
+    @Transactional
+    public String adminLogin(String id, String password) {
+        Admin admin = this.adminService.getAdminByAdminId(id);
+
+        if (!admin.getPassword().equals(password)) {
+            throw new UnauthorizedException("비밀번호가 틀렸습니다.");
+        }
+
+        return tokenProvider.createAccessToken(admin);
     }
 }
