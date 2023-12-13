@@ -1,18 +1,18 @@
 package peer.backend.converter;
 
 import javax.persistence.AttributeConverter;
-import peer.backend.entity.report.ReportProcessingStatus;
+import peer.backend.entity.report.ReportProcessingType;
 
 public class ReportProcessingStatusConverter implements
-    AttributeConverter<ReportProcessingStatus, Long> {
+    AttributeConverter<ReportProcessingType, Long> {
 
     @Override
-    public Long convertToDatabaseColumn(ReportProcessingStatus attribute) {
+    public Long convertToDatabaseColumn(ReportProcessingType attribute) {
         return attribute.getCode();
     }
 
     @Override
-    public ReportProcessingStatus convertToEntityAttribute(Long dbData) {
-        return ReportProcessingStatus.ofCode(dbData);
+    public ReportProcessingType convertToEntityAttribute(Long dbData) {
+        return ReportProcessingType.ofCode(dbData);
     }
 }

@@ -1,9 +1,9 @@
 package peer.backend.service.report;
 
 import java.util.List;
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,28 +11,28 @@ import peer.backend.entity.report.Report;
 import peer.backend.entity.report.ReportStatus;
 import peer.backend.entity.report.ReportType;
 import peer.backend.entity.user.User;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.report.ReportRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.UserService;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ReportService {
 
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
 
     @Transactional
     public void save(Long fromId, Long toId, ReportType type, String content) {
-        User from = userRepository.getReferenceById(fromId);
-        User to;
+        User from = userRepository.findById(fromId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+        User to = userRepository.findById(toId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
 
-        try {
-            to = userRepository.getReferenceById(toId);
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("존재하지 않는 유저입니다!");
+        if (from.getId().equals(to.getId())) {
+            throw new ConflictException("자기 자신은 신고할 수 없습니다.");
         }
 
         this.reportRepository.save(new Report(from, to, type, content));
@@ -44,11 +44,23 @@ public class ReportService {
     }
 
     @Transactional
-    public void setReportFinished(List<Long> idList) {
-        List<Report> reportList = this.reportRepository.findAllByIdIn(idList);
+    public void setReportStatus(List<Long> idList, ReportStatus status) {
+        List<Report> reportList = this.getReportListToIdList(idList);
 
         for (Report report : reportList) {
-            report.setStatus(ReportStatus.COMPLETED);
+            report.setStatus(status);
         }
     }
+
+    @Transactional
+    public List<Report> getReportListToIdList(List<Long> idList) {
+        return this.reportRepository.findAllByIdIn(idList);
+    }
+
+    @Transactional
+    public List<Report> getReportListToIdListWithoutStatus(List<Long> idList, ReportStatus status) {
+        return this.reportRepository.findAllByIdInWithoutStatusWithoutBlacklist(idList,
+            status);
+    }
+
 }
