@@ -45,6 +45,11 @@ public class BlacklistService {
         this.blacklistRepository.save(new Blacklist(user, type, content));
     }
 
+    @Transactional
+    public void deleteBlacklist(Long blacklistId) {
+        this.blacklistRepository.deleteById(blacklistId);
+    }
+
     public BlacklistType getBlacklistTypeToReportHandleType(
         ReportHandleType reportHandleType) {
         BlacklistType result = null;

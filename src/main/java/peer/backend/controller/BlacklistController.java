@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.blacklist.AddBlacklistRequest;
 import peer.backend.dto.blacklist.BlacklistResponse;
+import peer.backend.dto.blacklist.HandleBlacklistRequest;
 import peer.backend.entity.blacklist.Blacklist;
+import peer.backend.entity.blacklist.BlacklistHandleType;
 import peer.backend.service.blacklist.BlacklistService;
 
 @RestController
@@ -31,5 +33,12 @@ public class BlacklistController {
     void addBlacklist(@RequestBody @Valid AddBlacklistRequest request) {
         this.blacklistService.addBlacklistToEmail(request.getEmail(), request.getType(),
             request.getContent());
+    }
+
+    @PostMapping("/handle")
+    void handleBlacklist(@RequestBody @Valid HandleBlacklistRequest request) {
+        if (request.getType().equals(BlacklistHandleType.FREE)) {
+            this.blacklistService.deleteBlacklist(request.getBlacklistId());
+        }
     }
 }
