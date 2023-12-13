@@ -86,7 +86,6 @@ public class SecurityConfig {
             .anyRequest().authenticated()
 
             .and()
-//            .addFilter(corsConfig.corsFilter())
             .addFilterBefore(new JwtFilter(tokenProvider), OAuth2LoginAuthenticationFilter.class)
             .exceptionHandling()
             .accessDeniedHandler(jwtAccessDeniedHandler)
