@@ -25,7 +25,7 @@ public class BlacklistController {
 
     @GetMapping()
     Page<BlacklistResponse> getBlacklist(Pageable pageable) {
-        Page<Blacklist> blacklist = this.blacklistService.getBlacklist(pageable);
+        Page<Blacklist> blacklist = this.blacklistService.getBlacklists(pageable);
         return blacklist.map(BlacklistResponse::new);
     }
 

@@ -35,7 +35,7 @@ public class BlacklistService {
     }
 
     @Transactional
-    public Page<Blacklist> getBlacklist(Pageable pageable) {
+    public Page<Blacklist> getBlacklists(Pageable pageable) {
         return this.blacklistRepository.findAll(pageable);
     }
 
@@ -48,6 +48,11 @@ public class BlacklistService {
     @Transactional
     public void deleteBlacklist(Long blacklistId) {
         this.blacklistRepository.deleteById(blacklistId);
+    }
+
+    @Transactional
+    public boolean isExistsByUserId(Long userId) {
+        return this.blacklistRepository.existsByUserId(userId);
     }
 
     public BlacklistType getBlacklistTypeToReportHandleType(

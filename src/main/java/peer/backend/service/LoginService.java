@@ -14,6 +14,7 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.blacklist.BlacklistService;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class LoginService {
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
     private final AdminService adminService;
+    private final BlacklistService blacklistService;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -36,6 +38,12 @@ public class LoginService {
         if (!encoder.matches(password, user.getPassword())) {
             throw new UnauthorizedException("Email 혹은 비밀번호가 잘못되었습니다!");
         }
+
+        // 블랙리스트 체크
+        if (blacklistService.isExistsByUserId(user.getId())) {
+            throw new UnauthorizedException("정지된 계정입니다.");
+        }
+
         // create jwtDto
         JwtDto jwtDto = new JwtDto(
             user.getId(),

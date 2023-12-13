@@ -8,4 +8,6 @@ import peer.backend.entity.blacklist.Blacklist;
 public interface BlacklistRepository extends JpaRepository<Blacklist, Long> {
 
     Page<Blacklist> findAll(Pageable pageable);
+
+    boolean existsByUserId(Long userId);
 }
