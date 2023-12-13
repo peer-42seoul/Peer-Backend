@@ -1,19 +1,19 @@
 package peer.backend.entity.tag;
 
 
-import javax.persistence.EmbeddedId;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import peer.backend.entity.board.recruit.Recruit;
-import peer.backend.entity.composite.RecruitTagPK;
 
 @Entity
 @Getter
@@ -23,21 +23,26 @@ import peer.backend.entity.composite.RecruitTagPK;
 @Table(name = "recruit_tag")
 public class RecruitTag {
 
-    @EmbeddedId
-    RecruitTagPK id = new RecruitTagPK();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "recruit_id")
+    private Long recruitId;
+
+    @Column(name = "tag_id")
+    private Long tagId;
 
     @ManyToOne
-    @MapsId("recruitId")
-    @JoinColumn(name = "recruit_id")
-    Recruit recruit;
+    @JoinColumn(name = "recruit_id", insertable = false, updatable = false)
+    private Recruit recruit;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("tagId")
-    @JoinColumn(name = "tag_id")
-    Tag tag;
+    @ManyToOne
+    @JoinColumn(name = "tag_id", insertable = false, updatable = false)
+    private Tag tag;
 
-    public RecruitTag(Recruit recruit, Tag tag) {
-        this.recruit = recruit;
-        this.tag = tag;
+    public RecruitTag(Long recruitId, Long tagId) {
+        this.recruitId = recruitId;
+        this.tagId = tagId;
     }
 }

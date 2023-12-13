@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import peer.backend.entity.user.Login;
-import peer.backend.entity.user.User;
 import peer.backend.oauth.enums.LoginStatus;
 
 @Getter
@@ -19,11 +18,11 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     private LoginStatus loginStatus;
     private String socialEmail;
 
-    public PrincipalDetails(User user) {
+    public PrincipalDetails(Login user) {
         this.user = user;
     }
 
-    public PrincipalDetails(User user, Map<String, Object> attributes, LoginStatus loginStatus,
+    public PrincipalDetails(Login user, Map<String, Object> attributes, LoginStatus loginStatus,
         String socialEmail) {
         this.user = user;
         this.attributes = attributes;

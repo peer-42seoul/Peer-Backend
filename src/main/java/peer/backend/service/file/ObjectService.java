@@ -104,7 +104,7 @@ public class ObjectService {
         }
         byte[] fileData = Base64.getDecoder().decode(base64String);
         String contentType = mimeTypeCheck(fileData, typeCheck);
-        String objectName = UUID.randomUUID() + "." + FileService.getExtensionFromMimeType(contentType);
+        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
         String url = this.getUrl(folderName, objectName);
         if (base64String == null) {
             return null;
@@ -142,5 +142,23 @@ public class ObjectService {
 
         // API 호출
         this.restTemplate.exchange(imageUrl, HttpMethod.DELETE, requestHttpEntity, String.class);
+    }
+
+    public String getExtensionFromMimeType(String mimeType) {
+        // MIME 타입을 기반으로 파일 확장자를 매핑
+        switch (mimeType.toLowerCase()) {
+            case "image/jpeg":
+                return "jpg";
+            case "image/png":
+                return "png";
+            case "image/gif":
+                return "gif";
+            case "image/bmp":
+                return "bmp";
+            case "image/svg+xml":
+                return "svg";
+            default:
+                throw new IllegalArgumentException("지원하지 않는 파일유형입니다."); // 알려진 MIME 타입이 없는 경우
+        }
     }
 }

@@ -134,7 +134,7 @@ public class RecruitService {
             predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
-            Join<Recruit, String> tagList = recruit.join("tags");
+            Join<Recruit, String> tagList = recruit.join("tag");
             predicates.add(tagList.in(request.getTag()));
         }
         if (request.getType() != null && !request.getType().isEmpty()) {
@@ -362,7 +362,7 @@ public class RecruitService {
         //모집게시글 생성
         Recruit recruit = recruitRepository.save(createRecruitFromDto(request, team, user));
         recruit.setRecruitTags(request.getTagList().stream()
-            .map(e -> (new RecruitTag(recruit, this.tagService.getTag(e)))).collect(
+            .map(e -> (new RecruitTag(recruit.getId(), e))).collect(
                 Collectors.toList()));
         return recruit.getId().toString();
     }
