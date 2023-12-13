@@ -15,6 +15,8 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,17 +43,22 @@ import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
+import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
 import peer.backend.exception.NotFoundException;
-import peer.backend.repository.board.recruit.RecruitApplicantRepository;
+//import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
+import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
@@ -64,10 +71,12 @@ public class RecruitService {
     private final RecruitRepository recruitRepository;
     private final TeamRepository teamRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
-    private final RecruitApplicantRepository recruitApplicantRepository;
+//    private final RecruitApplicantRepository recruitApplicantRepository;
     private final TeamService teamService;
     private final ObjectService objectService;
     private final TagService tagService;
+    private final TeamUserRepository teamUserRepository;
+    private final TeamJobRepository teamJobRepository;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -265,7 +274,7 @@ public class RecruitService {
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
-            .isAnswered(!recruit.getApplicants().isEmpty())
+            .isAnswered(recruit.getTeam().getTeamUsers().size() > 1)
             .build();
     }
 
@@ -277,13 +286,7 @@ public class RecruitService {
         }
     }
 
-    private void addRolesToRecruit(Recruit recruit, List<TeamJobDto> roleList) {
-        if (roleList != null && !roleList.isEmpty()) {
-            for (TeamJobDto role : roleList) {
-                recruit.addRole(role);
-            }
-        }
-    }
+
 
 // TODO: 2스텝에서 에디터 변경시 적용 필요
 //    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
@@ -333,7 +336,6 @@ public class RecruitService {
             .build();
         //List 추가
         addInterviewsToRecruit(recruit, request.getInterviewList());
-        addRolesToRecruit(recruit, request.getRoleList());
         return recruit;
     }
 
@@ -354,33 +356,37 @@ public class RecruitService {
 
         //모집게시글 생성
         Recruit recruit = recruitRepository.save(createRecruitFromDto(request, team, user));
-        recruit.setRecruitTags(request.getTagList().stream()
-            .map(e -> (new RecruitTag(recruit.getId(), e))).collect(
-                Collectors.toList()));
+        if (request.getTagList() != null)
+            recruit.setRecruitTags(request.getTagList().stream()
+                .map(e -> (new RecruitTag(recruit.getId(), e))).collect(
+                    Collectors.toList()));
         return recruit.getId().toString();
     }
 
     @Transactional
     public void applyRecruit(Long recruit_id, ApplyRecruitRequest request, Authentication auth) {
-        if (!this.recruitRepository.existsById(recruit_id)) {
-            throw new NotFoundException("존재하지 않는 모집글입니다.");
-        }
+        Recruit recruit = recruitRepository.findById(recruit_id)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
-        Optional<RecruitApplicant> optRecruitApplicant = recruitApplicantRepository.findById(
-            new RecruitApplicantPK(user.getId(), recruit_id,
-                (request.getRole() == null ? "" : request.getRole())));
-        if (optRecruitApplicant.isPresent()) {
-            throw new ConflictException("이미 지원한 팀입니다.");
+
+        teamUserRepository.findByJobsAndTeamIdAndUserId(request.getRole(), recruit_id, user.getId())
+                .ifPresent(
+                        teamUser -> { throw new ConflictException("이미 지원한 팀입니다."); }
+                );
+
+        TeamUser teamUser = TeamUser.builder()
+                .team(recruit.getTeam())
+                .user(user)
+                .role(TeamUserRoleType.MEMBER)
+                .status(TeamUserStatus.APPROVED)
+                .answers(request.getAnswerList())
+                .build();
+        if (request.getRole() != null) {
+            teamUser.addJob(
+                    teamJobRepository.findByName(request.getRole())
+                            .orElseThrow(() -> new NotFoundException("이 팀에 존재하지 않는 역할입니다.")));
         }
-        RecruitApplicant recruitApplicant = RecruitApplicant.builder()
-            .recruitId(recruit_id)
-            .userId(user.getId())
-            .job(request.getRole() == null ? "" : request.getRole())
-            .nickname(user.getNickname())
-            .status(RecruitApplicantStatus.PENDING)
-            .answerList(request.getAnswerList())
-            .build();
-        recruitApplicantRepository.save(recruitApplicant);
+        teamUserRepository.save(teamUser);
     }
 
     @Transactional
