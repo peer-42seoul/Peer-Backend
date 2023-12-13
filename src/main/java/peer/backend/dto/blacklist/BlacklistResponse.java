@@ -9,6 +9,7 @@ import peer.backend.entity.user.User;
 @Getter
 public class BlacklistResponse {
 
+    private final Long blacklistId;
     private final Long userId;
     private final String nickname;
     private final String name;
@@ -18,6 +19,8 @@ public class BlacklistResponse {
 
     public BlacklistResponse(Blacklist blacklist) {
         User user = blacklist.getUser();
+
+        this.blacklistId = blacklist.getId();
         this.userId = user.getId();
         this.nickname = user.getNickname();
         this.name = user.getName();
