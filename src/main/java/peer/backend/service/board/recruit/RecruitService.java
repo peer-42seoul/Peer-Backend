@@ -273,6 +273,8 @@ public class RecruitService {
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
             .isAnswered(!recruit.getApplicants().isEmpty())
+            .place(recruit.getPlace().getValue())
+            .type(recruit.getType().getValue())
             .build();
     }
 
