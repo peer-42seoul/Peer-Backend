@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ReportProcessingStatus {
+public enum ReportProcessingType {
     FINISHED("종결", 1L),
     PERMANENT_BAN("영구정지", 2L);
 
@@ -17,8 +17,8 @@ public enum ReportProcessingStatus {
     private final Long code;
 
     @JsonCreator
-    public static ReportProcessingStatus from(String value) {
-        for (ReportProcessingStatus status : ReportProcessingStatus.values()) {
+    public static ReportProcessingType from(String value) {
+        for (ReportProcessingType status : ReportProcessingType.values()) {
             if (status.getValue().equals(value)) {
                 return status;
             }
@@ -31,8 +31,8 @@ public enum ReportProcessingStatus {
         return value;
     }
 
-    public static ReportProcessingStatus ofCode(Long dbData) {
-        return Arrays.stream(ReportProcessingStatus.values())
+    public static ReportProcessingType ofCode(Long dbData) {
+        return Arrays.stream(ReportProcessingType.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고 상태 코드입니다."));

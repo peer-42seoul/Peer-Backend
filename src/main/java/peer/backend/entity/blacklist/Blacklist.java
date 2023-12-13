@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ import peer.backend.entity.user.User;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "blacklist")
+@Table(name = "blacklist", uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
 public class Blacklist {
 
     @Id
@@ -39,4 +40,10 @@ public class Blacklist {
 
     @Column(nullable = false)
     private String content;
+
+    public Blacklist(User user, BlacklistType type, String content) {
+        this.user = user;
+        this.type = type;
+        this.content = content;
+    }
 }

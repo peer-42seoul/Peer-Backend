@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,15 +15,14 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.report.ReportRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.service.UserService;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ReportService {
 
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
 
     @Transactional
     public void save(Long fromId, Long toId, ReportType type, String content) {
@@ -44,11 +44,23 @@ public class ReportService {
     }
 
     @Transactional
-    public void setReportFinished(List<Long> idList) {
-        List<Report> reportList = this.reportRepository.findAllByIdIn(idList);
+    public void setReportStatus(List<Long> idList, ReportStatus status) {
+        List<Report> reportList = this.getReportListToIdList(idList);
 
         for (Report report : reportList) {
-            report.setStatus(ReportStatus.COMPLETED);
+            report.setStatus(status);
         }
     }
+
+    @Transactional
+    public List<Report> getReportListToIdList(List<Long> idList) {
+        return this.reportRepository.findAllByIdIn(idList);
+    }
+
+    @Transactional
+    public List<Report> getReportListToIdListWithoutStatus(List<Long> idList, ReportStatus status) {
+        return this.reportRepository.findAllByIdInWithoutStatusWithoutBlacklist(idList,
+            status);
+    }
+
 }
