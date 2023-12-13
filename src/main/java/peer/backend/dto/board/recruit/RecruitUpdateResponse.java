@@ -35,4 +35,5 @@ public class RecruitUpdateResponse {
     private boolean isAnswered;
     private String place;
     private String type;
+    private String name;
 }

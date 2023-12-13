@@ -275,6 +275,7 @@ public class RecruitService {
             .isAnswered(!recruit.getApplicants().isEmpty())
             .place(recruit.getPlace().getValue())
             .type(recruit.getType().getValue())
+            .name(recruit.getTeam().getName())
             .build();
     }
 
