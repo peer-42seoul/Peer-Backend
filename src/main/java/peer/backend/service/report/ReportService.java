@@ -1,7 +1,6 @@
 package peer.backend.service.report;
 
 import java.util.List;
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +25,10 @@ public class ReportService {
 
     @Transactional
     public void save(Long fromId, Long toId, ReportType type, String content) {
-        User from = userRepository.getReferenceById(fromId);
-        User to;
-
-        try {
-            to = userRepository.getReferenceById(toId);
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("존재하지 않는 유저입니다!");
-        }
+        User from = userRepository.findById(fromId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+        User to = userRepository.findById(toId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
 
         this.reportRepository.save(new Report(from, to, type, content));
     }
