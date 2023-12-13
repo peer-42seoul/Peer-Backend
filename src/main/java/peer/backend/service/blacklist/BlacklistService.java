@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.blacklist.Blacklist;
 import peer.backend.entity.blacklist.BlacklistType;
-import peer.backend.entity.report.ReportProcessingType;
+import peer.backend.entity.report.ReportHandleType;
 import peer.backend.entity.user.User;
 import peer.backend.repository.blacklist.BlacklistRepository;
 
@@ -30,12 +30,12 @@ public class BlacklistService {
         this.blacklistRepository.saveAll(blacklist);
     }
 
-    public BlacklistType getBlacklistTypeToReportProcessingType(
-        ReportProcessingType reportProcessingType) {
+    public BlacklistType getBlacklistTypeToReportHandleType(
+        ReportHandleType reportHandleType) {
         BlacklistType result = null;
 
-        if (Objects.requireNonNull(reportProcessingType)
-            .equals(ReportProcessingType.PERMANENT_BAN)) {
+        if (Objects.requireNonNull(reportHandleType)
+            .equals(ReportHandleType.PERMANENT_BAN)) {
             result = BlacklistType.PERMANENT_BAN;
         }
 
