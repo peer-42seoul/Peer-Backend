@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.ErrorResponse;
+import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.exception.UnauthorizedException;
 
@@ -31,6 +32,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
                 setErrorResponse(HttpStatus.NOT_FOUND, request, response, e);
             } else if (e instanceof ConflictException) {
                 setErrorResponse(HttpStatus.CONFLICT, request, response, e);
+            } else if (e instanceof ForbiddenException) {
+                setErrorResponse(HttpStatus.FORBIDDEN, request, response, e);
             }
         }
     }

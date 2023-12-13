@@ -23,6 +23,7 @@ import peer.backend.oauth.provider.GoogleUserInfo;
 import peer.backend.oauth.provider.OAuth2UserInfo;
 import peer.backend.service.SocialLoginService;
 import peer.backend.service.UserService;
+import peer.backend.service.blacklist.BlacklistService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserService userService;
     private final SocialLoginService socialLoginService;
+    private final BlacklistService blacklistService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -67,6 +69,10 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                 // 소셜 로그인
                 loginStatus = LoginStatus.LOGIN;
                 user = this.userService.findById(socialInfo.getUser().getId());
+
+                if (this.blacklistService.isExistsByUserId(user.getId())) {
+                    throw new ForbiddenException("정지된 계정입니다.");
+                }
             } else {
                 // 이중 연동
                 throw new ConflictException("이미 연동되어있는 계정입니다!");

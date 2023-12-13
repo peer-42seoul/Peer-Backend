@@ -12,6 +12,7 @@ import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.Admin;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
+import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.UnauthorizedException;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.blacklist.BlacklistService;
@@ -41,7 +42,7 @@ public class LoginService {
 
         // 블랙리스트 체크
         if (blacklistService.isExistsByUserId(user.getId())) {
-            throw new UnauthorizedException("정지된 계정입니다.");
+            throw new ForbiddenException("정지된 계정입니다.");
         }
 
         // create jwtDto
