@@ -11,6 +11,7 @@ import peer.backend.entity.report.Report;
 import peer.backend.entity.report.ReportStatus;
 import peer.backend.entity.report.ReportType;
 import peer.backend.entity.user.User;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.report.ReportRepository;
 import peer.backend.repository.user.UserRepository;
@@ -29,6 +30,10 @@ public class ReportService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
         User to = userRepository.findById(toId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+
+        if (from.getId().equals(to.getId())) {
+            throw new ConflictException("자기 자신은 신고할 수 없습니다.");
+        }
 
         this.reportRepository.save(new Report(from, to, type, content));
     }
