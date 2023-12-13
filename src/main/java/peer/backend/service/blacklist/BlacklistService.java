@@ -13,12 +13,14 @@ import peer.backend.entity.blacklist.BlacklistType;
 import peer.backend.entity.report.ReportHandleType;
 import peer.backend.entity.user.User;
 import peer.backend.repository.blacklist.BlacklistRepository;
+import peer.backend.service.UserService;
 
 @RequiredArgsConstructor
 @Service
 public class BlacklistService {
 
     private final BlacklistRepository blacklistRepository;
+    private final UserService userService;
 
     @Transactional
     public void addBlacklistToUserList(List<User> userList,
@@ -35,6 +37,12 @@ public class BlacklistService {
     @Transactional
     public Page<Blacklist> getBlacklist(Pageable pageable) {
         return this.blacklistRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public void addBlacklistToEmail(String email, BlacklistType type, String content) {
+        User user = this.userService.findByEmail(email);
+        this.blacklistRepository.save(new Blacklist(user, type, content));
     }
 
     public BlacklistType getBlacklistTypeToReportHandleType(
