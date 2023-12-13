@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.blacklist.Blacklist;
 import peer.backend.entity.blacklist.BlacklistType;
@@ -28,6 +30,11 @@ public class BlacklistService {
         }
 
         this.blacklistRepository.saveAll(blacklist);
+    }
+
+    @Transactional
+    public Page<Blacklist> getBlacklist(Pageable pageable) {
+        return this.blacklistRepository.findAll(pageable);
     }
 
     public BlacklistType getBlacklistTypeToReportHandleType(
