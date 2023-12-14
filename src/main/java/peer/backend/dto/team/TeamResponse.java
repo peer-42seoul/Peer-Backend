@@ -10,7 +10,7 @@ public class TeamResponse {
         this.id = team.getId();
         this.name = team.getName();
         this.type = team.getType().getValue();
-        this.dueTo = team.getDueTo();
+        this.dueTo = team.getDueTo().getLabel();
         this.teamPicturePath = team.getTeamPicturePath();
         this.operationFormat = team.getOperationFormat().getValue();
         this.teamLogoPath = team.getTeamLogoPath();

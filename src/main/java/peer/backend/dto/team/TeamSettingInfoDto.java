@@ -36,7 +36,7 @@ public class TeamSettingInfoDto {
         this.id = team.getId().toString();
         this.name = team.getName();
         this.teamImage = team.getTeamLogoPath();
-        this.dueTo = team.getDueTo();
+        this.dueTo = team.getDueTo().getLabel();
         this.status = team.getStatus();
         this.operationForm = team.getOperationFormat();
         this.type = team.getType();

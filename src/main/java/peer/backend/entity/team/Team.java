@@ -7,6 +7,7 @@ import peer.backend.dto.team.TeamJobDto;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.enums.*;
 
 import javax.persistence.*;
@@ -37,8 +38,10 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     private TeamType type;
 
-    @Column(length = 30, nullable = false)
-    private String dueTo;
+    @Column(nullable = false)
+    @Enumerated
+    private RecruitDueEnum dueTo;
+    private int dueValue;
 
     @Column()
     private String teamPicturePath;
@@ -92,7 +95,7 @@ public class Team extends BaseEntity {
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
-        this.dueTo = teamSettingInfoDto.getDueTo();
+        this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
         this.status = teamSettingInfoDto.getStatus();
         String[] regions = teamSettingInfoDto.getRegion();
         this.region1 = regions.length > 0 ? regions[0] : "";
@@ -100,6 +103,14 @@ public class Team extends BaseEntity {
         this.region3 = regions.length > 2 ? regions[2] : "";
         this.operationFormat = teamSettingInfoDto.getOperationForm();
         this.maxMember = Integer.valueOf(teamSettingInfoDto.getMaxMember());
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void updateDueValue() {
+        if (this.dueTo != null) {
+            this.dueValue = this.dueTo.getValue();
+        }
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
@@ -113,6 +124,8 @@ public class Team extends BaseEntity {
             }
         }
     }
+
+
 
     public void addRole(TeamJobDto role) {
         if (this.getJobs() == null) {

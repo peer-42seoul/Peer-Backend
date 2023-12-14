@@ -224,16 +224,18 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         recruit.setHit(recruit.getHit() + 1);
         List<TeamJobDto> jobDtoList = new ArrayList<>();
-        for (TeamJob role : recruit.getJobs()) {
-            jobDtoList.add(new TeamJobDto(role.getName(), role.getMax()));
-        }
+        recruit.getJobs()
+                .stream()
+                .forEach(
+                        role -> jobDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
+        Team team = recruit.getTeam();
         return RecruitResponce.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
-            .region(new ArrayList<>(List.of(recruit.getRegion1(), recruit.getRegion2())))
+            .region(new ArrayList<>(List.of(team.getRegion1(), team.getRegion2())))
             .status(recruit.getStatus())
             .totalNumber(recruit.getJobs().size())
-            .due(recruit.getDue().getLabel())
+            .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
             .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
@@ -241,7 +243,7 @@ public class RecruitService {
 //            .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(jobDtoList)
-            .place(recruit.getPlace())
+            .place(team.getOperationFormat())
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
             .isFavorite((auth != null) && recruitFavoriteRepository.findById(
@@ -254,18 +256,20 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         List<TeamJobDto> roleDtoList = new ArrayList<>();
-        for (TeamJob role : recruit.getJobs()) {
-            roleDtoList.add(new TeamJobDto(role.getName(), role.getMax()));
-        }
+        recruit.getJobs()
+                .stream()
+                .forEach(
+                        role -> roleDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
+        Team team = recruit.getTeam();
         //TODO:DTO 항목 추가 필요
         return RecruitUpdateResponse.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
-            .region1(recruit.getRegion1())
-            .region2(recruit.getRegion2())
+            .region1(team.getRegion1())
+            .region2(team.getRegion2())
             .status(recruit.getStatus())
             .totalNumber(recruit.getJobs().size())
-            .due(recruit.getDue().getLabel())
+            .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
@@ -275,8 +279,8 @@ public class RecruitService {
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
             .isAnswered(recruit.getTeam().getTeamUsers().size() > 1)
-            .place(recruit.getPlace().getValue())
-            .type(recruit.getType().getValue())
+            .place(team.getOperationFormat().getValue())
+            .type(team.getType().getValue())
             .name(recruit.getTeam().getName())
             .build();
     }
@@ -318,14 +322,10 @@ public class RecruitService {
     private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user) {
         Recruit recruit = Recruit.builder()
             .team(team)
-            .type(TeamType.valueOf(request.getType()))
             .title(request.getTitle())
-            .due(RecruitDueEnum.from(request.getDue()))
             .link(request.getLink())
             .content(request.getContent())
-            .place(TeamOperationFormat.valueOf(request.getPlace()))
-            .region1(request.getPlace().equals("온라인") ? null : request.getRegion().get(0))
-            .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
+
 //            .tags(request.getTagList().stream().map(TagListResponse::getName)
 //                .collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
@@ -335,7 +335,6 @@ public class RecruitService {
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
-            .dueValue(10)
             .build();
         //List 추가
         addInterviewsToRecruit(recruit, request.getInterviewList());

@@ -59,24 +59,11 @@ public class Recruit extends BaseEntity {
     private Long hit = 0L;
     @Column(nullable = false)
     private String title;
-    @Enumerated(EnumType.STRING)
-    private RecruitDueEnum due;
-    private int dueValue;
+
     @Column(nullable = false)
     private String content;
-    @Column(length = 10)
-    private String region1;
-    @Column(length = 10)
-    private String region2;
     @Column
     private String link;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TeamType type;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TeamOperationFormat place;
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RecruitStatus status;
     @Column
@@ -86,21 +73,10 @@ public class Recruit extends BaseEntity {
     @Column
     private Long writerId;
 
-    @PrePersist
-    @PreUpdate
-    private void updateDueValue() {
-        if (this.due != null) {
-            this.dueValue = this.due.getValue();
-        }
-    }
-
     public void update(RecruitUpdateRequestDTO request, String filePath) {
         this.title = request.getTitle();
-        this.due = RecruitDueEnum.from(request.getDue());
         this.content = request.getContent();
         this.status = request.getStatus();
-        this.region1 = (request.getPlace().equals("온라인") ? null : request.getRegion1());
-        this.region2 = (request.getPlace().equals("온라인") ? null : request.getRegion2());
         this.link = request.getLink();
         this.thumbnailUrl = filePath;
         this.recruitTags.clear();

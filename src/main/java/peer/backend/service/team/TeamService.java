@@ -10,6 +10,7 @@ import peer.backend.dto.team.*;
 import peer.backend.entity.board.recruit.Recruit;
 //import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
@@ -269,7 +270,6 @@ public class TeamService {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
-            .dueTo(request.getDue())
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
@@ -277,7 +277,11 @@ public class TeamService {
             .region1(request.getRegion().get(0))
             .region2(request.getRegion().get(1))
             .region3(null)
-            .maxMember(0)
+            .type(TeamType.valueOf(request.getType()))
+            .dueTo(RecruitDueEnum.from(request.getDue()))
+            .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
+            .region1(request.getRegion().get(0))
+            .region2(request.getRegion().get(1))
             .build();
         if (request.getRoleList() != null)
             addRolesToTeam(team, request.getRoleList());
