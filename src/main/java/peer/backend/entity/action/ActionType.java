@@ -2,8 +2,6 @@ package peer.backend.entity.action;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -14,9 +12,11 @@ import lombok.Getter;
 public class ActionType {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long code;
 
     @Column(nullable = false)
-    private String action_type;
+    private String actionType;
+
+    @Column(nullable = false)
+    private Boolean isDeleteable;
 }

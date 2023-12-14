@@ -3,6 +3,7 @@ package peer.backend.mongo.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import javax.persistence.Convert;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +13,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import peer.backend.converter.ActionTypeEnumConverter;
 import peer.backend.entity.team.enums.TeamType;
-import peer.backend.mongo.entity.enums.ActionType;
+import peer.backend.mongo.entity.enums.ActionTypeEnum;
 
 @Getter
 @Setter
@@ -31,7 +33,8 @@ public class ActionTracking {
     private String intraId;
     private Long registeredTeamId;
     private TeamType teamType;
-    private ActionType actionType;
+    @Convert(converter = ActionTypeEnumConverter.class)
+    private ActionTypeEnum actionTypeEnum;
     private String toolboxSubKey;
     @CreatedDate
     private LocalDate actDate;

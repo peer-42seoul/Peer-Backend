@@ -9,14 +9,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import peer.backend.entity.action.Wallet;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.ActionTracking;
-import peer.backend.mongo.entity.enums.ActionType;
+import peer.backend.mongo.entity.enums.ActionTypeEnum;
 import peer.backend.mongo.repository.ActionTrackingRepository;
 import peer.backend.service.UserService;
+import peer.backend.service.action.ActionTypeService;
+import peer.backend.service.action.WalletService;
 
 @Component
 @Aspect
@@ -26,6 +29,8 @@ public class ActionTrackingAspect {
 
     private final ActionTrackingRepository actionTrackingRepository;
     private final UserService userService;
+    private final ActionTypeService actionTypeService;
+    private final WalletService walletService;
 
     @Pointcut("@annotation(peer.backend.annotation.tracking.UserRegistrationTracking)")
     public void userRegistration() {
@@ -42,10 +47,14 @@ public class ActionTrackingAspect {
     @Order(0)
     @AfterReturning(pointcut = "peer.backend.aspect.ActionTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
+        ActionTypeEnum actionTypeEnum = ActionTypeEnum.REGISTRATION;
+        Wallet wallet = this.walletService.getWalletToActionTypeCode(actionTypeEnum.getCode());
+
         ActionTracking actionTracking = ActionTracking.builder()
             .userId(user.getId())
             .intraId(this.getIntraId(user))
-            .actionType(ActionType.REGISTRATION)
+            .actionTypeEnum(actionTypeEnum)
+            .wallet(wallet.getValue())
             .build();
 
         actionTrackingRepository.save(actionTracking);
@@ -53,6 +62,8 @@ public class ActionTrackingAspect {
 
     @AfterReturning(pointcut = "peer.backend.aspect.ActionTrackingAspect.recruitWriting()", returning = "recruit")
     public void recruitWriting(Recruit recruit) throws Throwable {
+        ActionTypeEnum actionTypeEnum = ActionTypeEnum.WRITING;
+        Wallet wallet = this.walletService.getWalletToActionTypeCode(actionTypeEnum.getCode());
         User user = this.userService.findByEmail(recruit.getWriter().getEmail());
 
         Team team = recruit.getTeam();
@@ -62,7 +73,8 @@ public class ActionTrackingAspect {
             .intraId(this.getIntraId(user))
             .registeredTeamId(team.getId())
             .teamType(team.getType())
-            .actionType(ActionType.WRITING)
+            .actionTypeEnum(actionTypeEnum)
+            .wallet(wallet.getValue())
             .build();
 
         actionTrackingRepository.save(actionTracking);
@@ -70,9 +82,13 @@ public class ActionTrackingAspect {
 
     @AfterReturning(pointcut = "userWithdrawal()", returning = "user")
     public void userWithdrawalTracking(User user) {
+        ActionTypeEnum actionTypeEnum = ActionTypeEnum.WITHDRAWAL;
+        Wallet wallet = this.walletService.getWalletToActionTypeCode(actionTypeEnum.getCode());
+
         ActionTracking actionTracking = ActionTracking.builder()
             .userId(user.getId())
-            .actionType(ActionType.WITHDRAWAL)
+            .actionTypeEnum(actionTypeEnum)
+            .wallet(wallet.getValue())
             .build();
         this.actionTrackingRepository.save(actionTracking);
     }

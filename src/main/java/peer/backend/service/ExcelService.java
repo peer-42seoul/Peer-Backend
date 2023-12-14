@@ -206,8 +206,8 @@ public class ExcelService {
                 bodyCell.setCellValue(actionTracking.getTeamType().getValue());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (actionTracking.getActionType() != null) {
-                bodyCell.setCellValue(actionTracking.getActionType().getValue());
+            if (actionTracking.getActionTypeEnum() != null) {
+                bodyCell.setCellValue(actionTracking.getActionTypeEnum().getValue());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
             bodyCell.setCellValue(actionTracking.getToolboxSubKey());
