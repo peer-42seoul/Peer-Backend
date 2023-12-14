@@ -3,6 +3,7 @@ package peer.backend.entity.team;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
@@ -81,6 +82,9 @@ public class Team extends BaseEntity {
     @OneToOne(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Recruit recruit;
 
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamJob> jobs;
+
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
         this.dueTo = teamSettingInfoDto.getDueTo();
@@ -103,6 +107,17 @@ public class Team extends BaseEntity {
                 teamUser.grantLeader(teamUserRoleType);
             }
         }
+    }
+
+    public void addRole(TeamJobDto role) {
+        if (this.getJobs() == null) {
+            this.jobs = new ArrayList<>();
+        }
+        this.jobs.add(TeamJob.builder()
+                .name(role.getName())
+                .max(role.getNumber())
+                .current(0)
+                .team(this).build());
     }
 
     public void setTeamLogoPath(String teamLogoPath) {
