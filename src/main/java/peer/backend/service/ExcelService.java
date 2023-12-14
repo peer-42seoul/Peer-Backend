@@ -15,10 +15,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
-import peer.backend.mongo.entity.ActivityTracking;
+import peer.backend.mongo.entity.ActionTracking;
 import peer.backend.mongo.entity.TeamTracking;
 import peer.backend.mongo.entity.UserTracking;
-import peer.backend.mongo.repository.ActivityTrackingRepository;
+import peer.backend.mongo.repository.ActionTrackingRepository;
 import peer.backend.mongo.repository.TeamTrackingRepository;
 import peer.backend.mongo.repository.UserTrackingRepository;
 
@@ -28,12 +28,12 @@ public class ExcelService {
 
     private final UserTrackingRepository userTrackingRepository;
     private final TeamTrackingRepository teamTrackingRepository;
-    private final ActivityTrackingRepository activityTrackingRepository;
+    private final ActionTrackingRepository actionTrackingRepository;
 
     public ByteArrayInputStream getTrackingExcel() throws IOException {
         List<UserTracking> userTrackingList = this.userTrackingRepository.findAll();
         List<TeamTracking> teamTrackingList = this.teamTrackingRepository.findAll();
-        List<ActivityTracking> activityTrackingList = this.activityTrackingRepository.findAll();
+        List<ActionTracking> actionTrackingList = this.actionTrackingRepository.findAll();
 
         Workbook workbook = new XSSFWorkbook();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -53,8 +53,8 @@ public class ExcelService {
         Sheet teamTrackingSheet = workbook.createSheet("TeamTracking");
         createTeamTrackingSheet(teamTrackingList, teamTrackingSheet, headerCellStyle);
 
-        Sheet activityTrackingSheet = workbook.createSheet("ActivityTracking");
-        createActivityTrackingSheet(activityTrackingList, activityTrackingSheet, headerCellStyle);
+        Sheet actionTrackingSheet = workbook.createSheet("ActionTracking");
+        createActionTrackingSheet(actionTrackingList, actionTrackingSheet, headerCellStyle);
 
         workbook.write(out);
         workbook.close();
@@ -174,7 +174,7 @@ public class ExcelService {
         }
     }
 
-    private void createActivityTrackingSheet(List<ActivityTracking> list, Sheet sheet,
+    private void createActionTrackingSheet(List<ActionTracking> list, Sheet sheet,
         CellStyle headerCellStyle) {
         Row headerRow = sheet.createRow(0);
         String[] headers = {"actId", "userId", "intraId", "registeredTeamId",
@@ -188,44 +188,44 @@ public class ExcelService {
         }
 
         int idx = 1;
-        for (ActivityTracking activityTracking : list) {
+        for (ActionTracking actionTracking : list) {
             int cellIndex = 1;
             Row bodyRow = sheet.createRow(idx++);
             Cell bodyCell = bodyRow.createCell(0);
-            bodyCell.setCellValue(activityTracking.getActId());
+            bodyCell.setCellValue(actionTracking.getActId());
             bodyCell = bodyRow.createCell(cellIndex++);
-            bodyCell.setCellValue(activityTracking.getUserId());
+            bodyCell.setCellValue(actionTracking.getUserId());
             bodyCell = bodyRow.createCell(cellIndex++);
-            bodyCell.setCellValue(activityTracking.getIntraId());
+            bodyCell.setCellValue(actionTracking.getIntraId());
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (activityTracking.getRegisteredTeamId() != null) {
-                bodyCell.setCellValue(activityTracking.getRegisteredTeamId());
+            if (actionTracking.getRegisteredTeamId() != null) {
+                bodyCell.setCellValue(actionTracking.getRegisteredTeamId());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (activityTracking.getTeamType() != null) {
-                bodyCell.setCellValue(activityTracking.getTeamType().getValue());
+            if (actionTracking.getTeamType() != null) {
+                bodyCell.setCellValue(actionTracking.getTeamType().getValue());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (activityTracking.getActionType() != null) {
-                bodyCell.setCellValue(activityTracking.getActionType().getValue());
+            if (actionTracking.getActionType() != null) {
+                bodyCell.setCellValue(actionTracking.getActionType().getValue());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
-            bodyCell.setCellValue(activityTracking.getToolboxSubKey());
+            bodyCell.setCellValue(actionTracking.getToolboxSubKey());
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (activityTracking.getActDate() != null) {
-                bodyCell.setCellValue(activityTracking.getActDate().toString());
+            if (actionTracking.getActDate() != null) {
+                bodyCell.setCellValue(actionTracking.getActDate().toString());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
-            bodyCell.setCellValue(activityTracking.getWallet());
+            bodyCell.setCellValue(actionTracking.getWallet());
             bodyCell = bodyRow.createCell(cellIndex++);
-            bodyCell.setCellValue(activityTracking.isHandled());
+            bodyCell.setCellValue(actionTracking.isHandled());
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (activityTracking.getCreatedAt() != null) {
-                bodyCell.setCellValue(activityTracking.getCreatedAt().toString());
+            if (actionTracking.getCreatedAt() != null) {
+                bodyCell.setCellValue(actionTracking.getCreatedAt().toString());
             }
             bodyCell = bodyRow.createCell(cellIndex++);
-            if (activityTracking.getUpdatedAt() != null) {
-                bodyCell.setCellValue(activityTracking.getUpdatedAt().toString());
+            if (actionTracking.getUpdatedAt() != null) {
+                bodyCell.setCellValue(actionTracking.getUpdatedAt().toString());
             }
         }
 

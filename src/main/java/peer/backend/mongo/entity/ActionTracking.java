@@ -20,11 +20,11 @@ import peer.backend.mongo.entity.enums.ActionType;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "activity_tracking")
-public class ActivityTracking {
+@Document(collection = "action_tracking")
+public class ActionTracking {
 
     @Transient
-    public static final String SEQUENCE_NAME = "activity_tracking_sequence";
+    public static final String SEQUENCE_NAME = "action_tracking_sequence";
 
     private Long actId;
     private Long userId;
