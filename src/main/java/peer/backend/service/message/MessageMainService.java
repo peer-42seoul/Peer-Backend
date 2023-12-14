@@ -3,7 +3,6 @@ package peer.backend.service.message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectDeletedException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,14 +12,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
-import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
@@ -30,12 +27,8 @@ import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.swing.text.html.Option;
-import java.io.IOException;
-import java.net.SocketOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +63,7 @@ public class MessageMainService {
             // msgIndex Get
             msgList = this.subService.getMessageIndexList(msgOwner.getId());
         } catch (NoSuchElementException e) {
-            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
+            return CompletableFuture.completedFuturgite((AsyncResult.failure(e)));
         }
 
         List<MsgObjectDTO> retList = new ArrayList<>();
