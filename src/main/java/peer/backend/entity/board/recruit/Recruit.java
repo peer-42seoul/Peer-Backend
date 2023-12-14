@@ -73,27 +73,28 @@ public class Recruit extends BaseEntity {
     @Column
     private Long writerId;
 
-    public void update(RecruitUpdateRequestDTO request) {
+    public void update(RecruitUpdateRequestDTO request, String filePath) {
         this.title = request.getTitle();
         this.content = request.getContent();
         this.status = request.getStatus();
         this.link = request.getLink();
+        this.thumbnailUrl = filePath;
         this.recruitTags.clear();
-        if (request.getTagList() != null && !request.getTagList().isEmpty())
-        this.recruitTags = request.getTagList().stream()
-            .map(e -> (new RecruitTag(this.id, e)))
-            .collect(
-                Collectors.toList());
+//        this.recruitTags = request.getTagList().stream()
+//            .map(e -> (new RecruitTag(this.id, e)))
+//            .collect(
+//                Collectors.toList());
         this.interviews.clear();
-        if (request.getInterviewList() != null && !request.getInterviewList().isEmpty()) {
+        if (!request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {
                 this.addInterview(interview);
             }
         }
         this.jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
-            request.getRoleList().stream()
-                    .forEach(role -> { this.addRole(role); });
+        if (!request.getInterviewList().isEmpty()) {
+            for (TeamJobDto role : request.getRoleList()) {
+                this.addRole(role);
+            }
         }
     }
 
@@ -104,7 +105,7 @@ public class Recruit extends BaseEntity {
         this.interviews.add(RecruitInterview.builder()
             .question(interview.getQuestion())
             .type(RecruitInterviewType.valueOf(interview.getType()))
-            .options(interview.getOptions())
+            .options(interview.getOptionList())
             .recruit(this)
             .build());
     }

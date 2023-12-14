@@ -13,7 +13,6 @@ import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
-import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
@@ -271,6 +270,14 @@ public class TeamService {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
+            .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
+            .status(TeamStatus.RECRUITING)
+            .teamMemberStatus(TeamMemberStatus.RECRUITING)
+            .isLock(false)
+            .region1(request.getRegion().get(0))
+            .region2(request.getRegion().get(1))
+            .region3(null)
+            .type(TeamType.valueOf(request.getType()))
             .dueTo(RecruitDueEnum.from(request.getDue()))
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .region1(request.getRegion().get(0))
@@ -294,18 +301,12 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
-            .status(TeamUserStatus.APPROVED)
             .role(TeamUserRoleType.LEADER)
             .build();
         if (request.getLeaderJob() != null)
-            request.getLeaderJob().stream().forEach(jobName -> {
-                teamJobRepository.findByName(jobName).ifPresentOrElse(
-                        job -> { teamUser.addJob(job); },
-                        () -> { throw new NotFoundException("존재하지 않는 역할입니다."); }
-                );
-            });
+            teamUser.addJob(teamJobRepository.findByName(request.getLeaderJob())
+                    .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다.")));
         teamUserRepository.save(teamUser);
-
         return team;
     }
 }

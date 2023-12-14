@@ -65,13 +65,16 @@ public class Team extends BaseEntity {
     private Boolean isLock;
 
     @Column()
-    private Integer maxMember = 0;
+    private Integer maxMember;
 
     @Column(length = 10)
     private String region1;
 
     @Column(length = 10)
     private String region2;
+
+    @Column(length = 10)
+    private String region3;
 
     @Column
     private LocalDateTime end;
@@ -87,7 +90,7 @@ public class Team extends BaseEntity {
 
     @PostLoad
     private void updateValue(){
-        this.maxMember = this.getJobs()
+        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
@@ -95,20 +98,19 @@ public class Team extends BaseEntity {
         this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
         this.status = teamSettingInfoDto.getStatus();
         String[] regions = teamSettingInfoDto.getRegion();
-        this.region1 = regions[0];
-        this.region2 = regions[1];
+        this.region1 = regions.length > 0 ? regions[0] : "";
+        this.region2 = regions.length > 1 ? regions[1] : "";
+        this.region3 = regions.length > 2 ? regions[2] : "";
         this.operationFormat = teamSettingInfoDto.getOperationForm();
         this.maxMember = Integer.valueOf(teamSettingInfoDto.getMaxMember());
     }
 
     @PrePersist
     @PreUpdate
-    @PostLoad
-    private void updateValues() {
+    private void updateDueValue() {
         if (this.dueTo != null) {
             this.dueValue = this.dueTo.getValue();
         }
-        this.maxMember = getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
