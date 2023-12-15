@@ -88,10 +88,6 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
-    @PostLoad
-    private void updateValue(){
-        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
-    }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
@@ -107,12 +103,11 @@ public class Team extends BaseEntity {
 
     @PrePersist
     @PreUpdate
-    @PostLoad
-    private void updateValues() {
+    private void updateDueValue() {
         if (this.dueTo != null) {
             this.dueValue = this.dueTo.getValue();
         }
-        this.maxMember = getJobs().stream().mapToInt(TeamJob::getMax).sum();
+        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
