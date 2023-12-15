@@ -85,6 +85,11 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
+    @PostLoad
+    private void updateValue(){
+        this.maxMember = this.getJobs()
+    }
+
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
         this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
