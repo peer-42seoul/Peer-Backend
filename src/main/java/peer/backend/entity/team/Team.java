@@ -65,7 +65,7 @@ public class Team extends BaseEntity {
     private Boolean isLock;
 
     @Column()
-    private Integer maxMember;
+    private Integer maxMember = 0;
 
     @Column(length = 10)
     private String region1;
@@ -88,6 +88,10 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
+    @PostLoad
+    private void updateValue(){
+        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
+    }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
@@ -103,11 +107,12 @@ public class Team extends BaseEntity {
 
     @PrePersist
     @PreUpdate
-    private void updateDueValue() {
+    @PostLoad
+    private void updateValues() {
         if (this.dueTo != null) {
             this.dueValue = this.dueTo.getValue();
         }
-        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
+        this.maxMember = getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
