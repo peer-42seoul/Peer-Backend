@@ -111,7 +111,7 @@ public class RecruitService {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
                 .type(question.getType().toString())
-                .optionList(question.getOptions())
+                .options(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
         }
@@ -411,5 +411,6 @@ public class RecruitService {
         } else {
             recruit.update(recruitUpdateRequestDTO);
         }
+        recruit.update(recruitUpdateRequestDTO);
     }
 }

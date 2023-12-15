@@ -104,7 +104,7 @@ public class Recruit extends BaseEntity {
         this.interviews.add(RecruitInterview.builder()
             .question(interview.getQuestion())
             .type(RecruitInterviewType.valueOf(interview.getType()))
-            .options(interview.getOptionList())
+            .options(interview.getOptions())
             .recruit(this)
             .build());
     }
