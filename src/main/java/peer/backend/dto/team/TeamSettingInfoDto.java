@@ -42,8 +42,7 @@ public class TeamSettingInfoDto {
         this.type = team.getType();
         this.region = new String[]{
                 team.getRegion1(),
-                team.getRegion2(),
-                team.getRegion3()
+                team.getRegion2()
         };
         this.maxMember = team.getMaxMember().toString();
     }

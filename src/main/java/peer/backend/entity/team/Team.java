@@ -73,9 +73,6 @@ public class Team extends BaseEntity {
     @Column(length = 10)
     private String region2;
 
-    @Column(length = 10)
-    private String region3;
-
     @Column
     private LocalDateTime end;
 
@@ -88,19 +85,13 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
-    @PostLoad
-    private void updateValue(){
-        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
-    }
-
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
         this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
         this.status = teamSettingInfoDto.getStatus();
         String[] regions = teamSettingInfoDto.getRegion();
-        this.region1 = regions.length > 0 ? regions[0] : "";
-        this.region2 = regions.length > 1 ? regions[1] : "";
-        this.region3 = regions.length > 2 ? regions[2] : "";
+        this.region1 = regions[0];
+        this.region2 = regions[1];
         this.operationFormat = teamSettingInfoDto.getOperationForm();
         this.maxMember = Integer.valueOf(teamSettingInfoDto.getMaxMember());
     }

@@ -43,6 +43,7 @@ public class TeamUser {
     @Column(columnDefinition = "TEXT")
     private String review;
 
+    @Column
     @Enumerated(EnumType.STRING)
     private TeamUserStatus status;
 

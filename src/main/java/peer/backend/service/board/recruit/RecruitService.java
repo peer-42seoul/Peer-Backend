@@ -111,7 +111,7 @@ public class RecruitService {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
                 .type(question.getType().toString())
-                .options(question.getOptions())
+                .optionList(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
         }
@@ -408,7 +408,8 @@ public class RecruitService {
             objectService.deleteObject(recruit.getThumbnailUrl());
             recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                     "recruit/" + recruit_id, "image"));
+        } else {
+            recruit.update(recruitUpdateRequestDTO);
         }
-        recruit.update(recruitUpdateRequestDTO);
     }
 }

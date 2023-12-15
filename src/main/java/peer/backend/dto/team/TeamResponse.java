@@ -20,7 +20,6 @@ public class TeamResponse {
         this.maxMember = team.getMaxMember();
         this.region1 = team.getRegion1();
         this.region2 = team.getRegion2();
-        this.region3 = team.getRegion3();
     }
 
     private final Long id;
@@ -36,5 +35,4 @@ public class TeamResponse {
     private final Integer maxMember;
     private final String region1;
     private final String region2;
-    private final String region3;
 }

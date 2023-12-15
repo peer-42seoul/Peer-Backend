@@ -271,8 +271,10 @@ public class TeamService {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
-            .dueTo(request.getDue())
+            .dueTo(RecruitDueEnum.from(request.getDue()))
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
+            .region1(request.getRegion().get(0))
+            .region2(request.getRegion().get(1))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
@@ -284,7 +286,6 @@ public class TeamService {
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .region1(request.getRegion().get(0))
             .region2(request.getRegion().get(1))
-
             .build();
         if (request.getRoleList() != null)
             addRolesToTeam(team, request.getRoleList());
@@ -293,6 +294,7 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
+            .status(TeamUserStatus.APPROVED)
             .role(TeamUserRoleType.LEADER)
             .build();
         if (request.getLeaderJob() != null)
