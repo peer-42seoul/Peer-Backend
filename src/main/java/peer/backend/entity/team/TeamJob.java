@@ -41,8 +41,7 @@ public class TeamJob {
     @PrePersist
     @PreUpdate
     private void updateValues() {
-        this.max =
-        this.current = users.size();
+        this.current = (users == null ? 0 :users.size());
     }
 
 
