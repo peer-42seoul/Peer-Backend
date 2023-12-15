@@ -24,16 +24,16 @@ public class JobConfig {
     @Bean
     public Job walletAdjustment() {
         return jobBuilderFactory.get("walletAdjustment")
-            .start(integratingActivityWallet())
+            .start(integratingActionWallet())
             .build();
     }
 
     @Bean
-    public Step integratingActivityWallet() {
-        return stepBuilderFactory.get("integratingActivityWallet")
+    public Step integratingActionWallet() {
+        return stepBuilderFactory.get("integratingActionWallet")
             .tasklet((contribution, chunkContext) -> {
                 // 정산 로직
-                log.info(">>>>> This is integratingActivityWallet");
+                log.info(">>>>> This is integratingActionWallet");
                 return RepeatStatus.FINISHED;
             })
             .build();
