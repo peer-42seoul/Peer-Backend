@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 
 @Getter
@@ -38,7 +39,7 @@ public class RecruitUpdateRequestDTO {
     private List<Long> tagList;
     @NotNull
     private String place;
-    private List<RecruitRoleDTO> roleList;
+    private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
     private String image;
 

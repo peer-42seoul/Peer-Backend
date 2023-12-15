@@ -1,43 +1,26 @@
 package peer.backend.entity.board.recruit;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitRoleDTO;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -47,11 +30,11 @@ import peer.backend.entity.user.User;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
-@Table(name = "Recruit")
+@Table(name = "recruit")
 public class Recruit extends BaseEntity {
 
     @Id
-    @Column(name = "recruit_id")
+    @Column(name = "team_id")
     private Long id;
 
     @OneToOne
@@ -66,9 +49,7 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitFavorite> favorites = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecruitApplicant> applicants = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecruitRole> roles = new ArrayList<>();
+    private List<TeamJob> jobs = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitInterview> interviews = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -123,19 +104,19 @@ public class Recruit extends BaseEntity {
         this.link = request.getLink();
         this.thumbnailUrl = filePath;
         this.recruitTags.clear();
-        this.recruitTags = request.getTagList().stream()
-            .map(e -> (new RecruitTag(this.id, e)))
-            .collect(
-                Collectors.toList());
+//        this.recruitTags = request.getTagList().stream()
+//            .map(e -> (new RecruitTag(this.id, e)))
+//            .collect(
+//                Collectors.toList());
         this.interviews.clear();
         if (!request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {
                 this.addInterview(interview);
             }
         }
-        this.roles.clear();
+        this.jobs.clear();
         if (!request.getInterviewList().isEmpty()) {
-            for (RecruitRoleDTO role : request.getRoleList()) {
+            for (TeamJobDto role : request.getRoleList()) {
                 this.addRole(role);
             }
         }
@@ -153,14 +134,13 @@ public class Recruit extends BaseEntity {
             .build());
     }
 
-    public void addRole(RecruitRoleDTO role) {
-        if (this.getRoles() == null) {
-            this.roles = new ArrayList<>();
+    public void addRole(TeamJobDto role) {
+        if (this.getJobs() == null) {
+            this.jobs = new ArrayList<>();
         }
-        System.out.println(role.getNumber());
-        this.roles.add(RecruitRole.builder()
+        this.jobs.add(TeamJob.builder()
             .name(role.getName())
-            .number(role.getNumber())
+            .max(role.getNumber())
             .recruit(this).build());
     }
 

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.tag.TagResponse;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 
 @Builder
@@ -29,8 +30,11 @@ public class RecruitUpdateResponse {
     private String leader_nickname;
     private String leader_image;
     private List<TagResponse> tagList;
-    private List<RecruitRoleDTO> roleList;
+    private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
     @JsonProperty("isAnswered")
     private boolean isAnswered;
+    private String place;
+    private String type;
+    private String name;
 }
