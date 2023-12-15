@@ -87,7 +87,7 @@ public class Team extends BaseEntity {
 
     @PostLoad
     private void updateValue(){
-        this.maxMember = this.getJobs()
+        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
