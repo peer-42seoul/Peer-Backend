@@ -22,6 +22,7 @@ import peer.backend.service.alarm.AlarmService;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/noti")
+
 public class NotiController {
     private final AlarmService alarmService;
 
