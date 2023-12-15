@@ -88,10 +88,6 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
-    @PostLoad
-    private void updateValue(){
-        this.maxMember = this.getJobs()
-    }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
@@ -111,6 +107,7 @@ public class Team extends BaseEntity {
         if (this.dueTo != null) {
             this.dueValue = this.dueTo.getValue();
         }
+        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
