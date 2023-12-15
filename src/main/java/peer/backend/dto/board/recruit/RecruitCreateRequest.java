@@ -39,5 +39,5 @@ public class RecruitCreateRequest {
     private List<Long> tagList;
     private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
-    private String leaderJob;
+    private List<String> leaderJob;
 }

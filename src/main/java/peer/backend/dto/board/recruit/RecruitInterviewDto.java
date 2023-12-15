@@ -15,5 +15,5 @@ import java.util.List;
 public class RecruitInterviewDto {
     private String question;
     private String type;
-    private List<String> optionList;
+    private List<String> options;
 }

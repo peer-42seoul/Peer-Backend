@@ -28,13 +28,22 @@ public class TeamJob {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @ManyToMany(mappedBy = "jobs")
+    List<TeamUser> users = new ArrayList<>();
+
     @Column(nullable = false, length = 10)
     private String name;
     @Column(nullable = false)
-    private Integer max;
+    private Integer max = 0;
     @Column
-    private Integer current;
+    private Integer current = 0;
 
-    @ManyToMany(mappedBy = "jobs")
-    List<TeamUser> users = new ArrayList<>();
+    @PrePersist
+    @PreUpdate
+    private void updateValues() {
+        this.max =
+        this.current = users.size();
+    }
+
+
 }

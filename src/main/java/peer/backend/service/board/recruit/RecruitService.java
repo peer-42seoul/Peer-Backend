@@ -111,7 +111,7 @@ public class RecruitService {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
                 .type(question.getType().toString())
-                .optionList(question.getOptions())
+                .options(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
         }
@@ -404,10 +404,11 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
         if (recruitUpdateRequestDTO.getImage() != null) {
+            recruit.update(recruitUpdateRequestDTO);
             objectService.deleteObject(recruit.getThumbnailUrl());
-            recruit.update(recruitUpdateRequestDTO,
-                objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
+            recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                     "recruit/" + recruit_id, "image"));
         }
+        recruit.update(recruitUpdateRequestDTO);
     }
 }
