@@ -65,7 +65,7 @@ public class Team extends BaseEntity {
     private Boolean isLock;
 
     @Column()
-    private Integer maxMember = 0;
+    private Integer maxMember;
 
     @Column(length = 10)
     private String region1;
