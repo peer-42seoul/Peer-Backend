@@ -18,5 +18,5 @@ public class ActionType {
     private String actionTypeName;
 
     @Column(nullable = false)
-    private Boolean isDeleteable;
+    private Boolean isDeletable;
 }
