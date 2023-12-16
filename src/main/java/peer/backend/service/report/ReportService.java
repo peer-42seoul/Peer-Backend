@@ -25,9 +25,7 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void save(Long fromId, Long toId, ReportType type, String content) {
-        User from = userRepository.findById(fromId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+    public void save(User from, Long toId, ReportType type, String content) {
         User to = userRepository.findById(toId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
 

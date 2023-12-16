@@ -37,7 +37,7 @@ public class ReportController {
     public void report(Authentication authentication, @RequestBody @Valid
     ReportRequest request) {
         User user = User.authenticationToUser(authentication);
-        this.reportService.save(user.getId(), request.getUserId(), request.getType(),
+        this.reportService.save(user, request.getUserId(), request.getType(),
             request.getContent());
     }
 
