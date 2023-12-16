@@ -23,7 +23,7 @@ public class ActionType {
 
     @Column(nullable = false)
     private Boolean isDeletable;
-
+  
     public ActionType(Long code, String actionTypeName) {
         this.code = code;
         this.actionTypeName = actionTypeName;

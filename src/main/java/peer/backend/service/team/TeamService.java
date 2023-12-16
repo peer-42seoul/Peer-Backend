@@ -277,6 +277,7 @@ public class TeamService {
             .region1(request.getRegion().get(0))
             .region2(request.getRegion().get(1))
             .region3(null)
+            .maxMember(0)
             .build();
         if (request.getRoleList() != null)
             addRolesToTeam(team, request.getRoleList());
@@ -291,6 +292,7 @@ public class TeamService {
             teamUser.addJob(teamJobRepository.findByName(request.getLeaderJob())
                     .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다.")));
         teamUserRepository.save(teamUser);
+
         return team;
     }
 }
