@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import peer.backend.entity.action.ActionType;
 import peer.backend.entity.action.Wallet;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.action.WalletRepository;
@@ -25,5 +26,11 @@ public class WalletService {
     @Transactional
     public Page<Wallet> getWalletList(Pageable pageable) {
         return this.walletRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public void saveWallet(String actionTypeName, Long value) {
+        ActionType actionType = this.actionTypeService.saveActionType(actionTypeName);
+        this.walletRepository.save(new Wallet(actionType, value));
     }
 }

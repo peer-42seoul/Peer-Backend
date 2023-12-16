@@ -9,9 +9,11 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor
 @Table(name = "wallet")
 public class Wallet {
 
@@ -25,4 +27,9 @@ public class Wallet {
 
     @Column(nullable = false)
     private Long value;
+
+    public Wallet(ActionType actionType, Long value) {
+        this.actionType = actionType;
+        this.value = value;
+    }
 }
