@@ -9,12 +9,13 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.peerOperation WHERE u.nickname = :nickname")
     Optional<User> findByNickname(String nickname);
 
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.peerOperation WHERE u.email = :email")
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByName(String name);
-
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.peerOperation WHERE u.id = :id")
     Optional<User> findById(Long id);
 
     @Query("SELECT m FROM User m WHERE (m.nickname LIKE %:keyword%) ORDER BY m.nickname")
