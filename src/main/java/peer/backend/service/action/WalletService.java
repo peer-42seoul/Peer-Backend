@@ -33,4 +33,18 @@ public class WalletService {
         ActionType actionType = this.actionTypeService.saveActionType(actionTypeName);
         this.walletRepository.save(new Wallet(actionType, value));
     }
+
+    @Transactional
+    public void updateWallet(Long code, String actionTypeName, Long value) {
+        Wallet wallet = this.getWalletByCode(code);
+        ActionType actionType = wallet.getActionType();
+        actionType.setActionTypeName(actionTypeName);
+        wallet.setValue(value);
+    }
+
+    @Transactional
+    public Wallet getWalletByCode(Long code) {
+        return this.walletRepository.findByActionTypeCode(code)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 코드입니다."));
+    }
 }
