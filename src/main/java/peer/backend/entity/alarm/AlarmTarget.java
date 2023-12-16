@@ -34,4 +34,10 @@ public class AlarmTarget extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "alarm_id")
     private Alarm alarm;
+
+    @Column
+    private Boolean read;
+
+    @Column
+    private Boolean deleted;
 }

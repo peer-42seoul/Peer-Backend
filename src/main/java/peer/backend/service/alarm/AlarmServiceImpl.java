@@ -10,6 +10,7 @@ import peer.backend.dto.alarm.AlarmDto;
 import peer.backend.entity.alarm.Alarm;
 import peer.backend.entity.alarm.enums.TargetType;
 import peer.backend.repository.alarm.AlarmRepository;
+import peer.backend.repository.alarm.AlarmTargetRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ import peer.backend.repository.alarm.AlarmRepository;
 @Transactional
 public class AlarmServiceImpl implements AlarmService {
     private final AlarmRepository alarmRepository;
-
+    private final AlarmTargetRepository alarmTargetRepository;
     @Override
     public void saveAlarm(Alarm data) {
         alarmRepository.save(data);

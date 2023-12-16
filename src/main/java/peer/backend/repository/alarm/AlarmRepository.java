@@ -13,4 +13,6 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
 
     @Query("SELECT e FROM Alarm e WHERE e.target = :target ORDER BY e.scheduledTime DESC")
     List<Alarm> findByTarget(Long target);
+
+
 }
