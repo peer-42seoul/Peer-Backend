@@ -2,6 +2,7 @@ package peer.backend.entity.action;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapsId;
@@ -18,7 +19,7 @@ public class Wallet {
     private Long actionTypeCode;
 
     @MapsId
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "action_type_code")
     private ActionType actionType;
 

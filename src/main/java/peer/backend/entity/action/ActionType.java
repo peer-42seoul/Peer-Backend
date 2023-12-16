@@ -15,8 +15,8 @@ public class ActionType {
     private Long code;
 
     @Column(nullable = false)
-    private String actionType;
+    private String actionTypeName;
 
     @Column(nullable = false)
-    private Boolean isDeleteable;
+    private Boolean isDeletable;
 }
