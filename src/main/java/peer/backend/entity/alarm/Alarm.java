@@ -27,7 +27,7 @@ import peer.backend.entity.alarm.enums.TargetType;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "Alarm")
+@Table(name = "alarm")
 public class Alarm extends BaseEntity {
 
     @Id

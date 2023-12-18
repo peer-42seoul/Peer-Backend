@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.alarm.AlarmDto;
+import peer.backend.dto.alarm.AlarmTargetDto;
 import peer.backend.entity.alarm.Alarm;
-import peer.backend.entity.alarm.enums.TargetType;
+import peer.backend.entity.alarm.AlarmTarget;
+import peer.backend.entity.alarm.enums.AlarmType;
 import peer.backend.repository.alarm.AlarmRepository;
 import peer.backend.repository.alarm.AlarmTargetRepository;
 
@@ -20,10 +22,32 @@ public class AlarmServiceImpl implements AlarmService {
     private final AlarmRepository alarmRepository;
     private final AlarmTargetRepository alarmTargetRepository;
     @Override
-    public void saveAlarm(Alarm data) {
-        alarmRepository.save(data);
+    public Alarm saveAlarm(AlarmDto data) {
+        return alarmRepository.save(alarmFromDto(data));
     }
 
+    @Override
+    public AlarmTarget saveAlarmTarget(Alarm alarm) {
+
+        AlarmTargetDto alarmTargetDto = AlarmTargetDto.builder()
+                .userId(alarm.getTarget())
+                .alarm(alarm)
+                .alarmType(AlarmType.GENERAL)
+                .build();
+        AlarmTarget alarmTarget = alarmTargetFromDto(alarmTargetDto);
+        return alarmTargetRepository.save(alarmTarget);
+    }
+
+    @Override
+    public AlarmTarget alarmTargetFromDto(AlarmTargetDto dto) {
+        return AlarmTarget.builder()
+                .target(dto.getUserId())
+                .alarm(dto.getAlarm())
+                .alarmType(dto.getAlarmType())
+                .read(false)
+                .deleted(false)
+                .build();
+    }
     @Override
     public Alarm alarmFromDto(AlarmDto dto) {
 
@@ -31,7 +55,7 @@ public class AlarmServiceImpl implements AlarmService {
                 .title(dto.getTitle())
                 .message(dto.getMessage())
                 .targetType(dto.getTargetType())
-                .target(0L)
+                .target(dto.getTarget())
                 .link(dto.getLink())
                 .sent(false)
                 .priority(dto.getPriority())
@@ -41,12 +65,12 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     public List<Alarm> getAlarm(Long target) {
-        return alarmRepository.findByTarget(target);
+        return null;
     }
 
     @Override
-    public List<Alarm> getAlarmGeneral() {
-        return alarmRepository.findByTarget(0L);
+    public List<Alarm> getAlarmGeneral(Long target) {
+        return alarmRepository.findByUserIdAndAlarmType(target, AlarmType.GENERAL);
     }
 
     @Override

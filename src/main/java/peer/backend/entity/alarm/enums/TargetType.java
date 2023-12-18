@@ -8,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 public enum TargetType {
     ALL("ALL"),
     CERTAIN("CERTAIN");
-    private final String type;
+    private final String targetType;
 }

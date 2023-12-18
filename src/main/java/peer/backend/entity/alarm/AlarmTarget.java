@@ -3,36 +3,42 @@ package peer.backend.entity.alarm;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.user.User;
+import peer.backend.entity.alarm.enums.AlarmType;
 
 @Entity
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "subscription")
+@Table(name = "alarm_target")
 public class AlarmTarget extends BaseEntity {
     @Id
-    @Column(name = "alarm_target_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "target")
+    private Long target;
 
-    @ManyToOne
-    @JoinColumn(name = "alarm_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "alarm")
     private Alarm alarm;
 
     @Column
@@ -40,4 +46,8 @@ public class AlarmTarget extends BaseEntity {
 
     @Column
     private Boolean deleted;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private AlarmType alarmType;
 }

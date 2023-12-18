@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.alarm.AlarmDto;
 import peer.backend.entity.alarm.Alarm;
+import peer.backend.entity.user.User;
 import peer.backend.service.alarm.AlarmAdminService;
 import peer.backend.service.alarm.AlarmService;
 
@@ -25,8 +27,8 @@ public class NoticeController {
 
     @PutMapping("/api/v1/admin/noti/save")
     public ResponseEntity<Object> saveAlarmAdmin(@RequestBody AlarmDto dto) {
-        Alarm alarm = alarmService.alarmFromDto(dto);
-        alarmService.saveAlarm(alarm);
+        Alarm alarm = alarmService.saveAlarm(dto);
+
         return ResponseEntity.ok().build();
     }
     @GetMapping("/api/v1/admin/noti/spring")
@@ -35,9 +37,17 @@ public class NoticeController {
         return ResponseEntity.ok().body(alarms);
     }
 
-    @GetMapping("/general")
-    public ResponseEntity<Object> getAlarmGeneral() {
-        List<Alarm> alarms = alarmService.getAlarmGeneral();
+    @PutMapping("/api/v1/noti/save")
+    public ResponseEntity<Object> saveAlarm(@RequestBody AlarmDto dto) {
+        Alarm alarm = alarmService.saveAlarm(dto);
+        alarmService.saveAlarmTarget(alarm);
+
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/api/v1/noti/general")
+    public ResponseEntity<Object> getAlarmGeneral(Authentication authentication) {
+        User user = User.authenticationToUser(authentication);
+        List<Alarm> alarms = alarmService.getAlarmGeneral(user.getId());
         return ResponseEntity.ok().body(alarms);
     }
 
