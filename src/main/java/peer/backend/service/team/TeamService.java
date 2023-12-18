@@ -7,20 +7,14 @@ import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.*;
-import peer.backend.entity.board.recruit.Recruit;
-//import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.Team;
-import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
-//import peer.backend.repository.board.recruit.RecruitApplicantRepository;
-import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
@@ -38,8 +32,6 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
-    private final RecruitRepository recruitRepository;
-//    private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
 
@@ -291,12 +283,11 @@ public class TeamService {
             .role(TeamUserRoleType.LEADER)
             .build();
             if (request.getLeaderJob() != null)
-                request.getLeaderJob().stream().forEach(jobName -> {
+                request.getLeaderJob().forEach(jobName ->
                     teamJobRepository.findByTeamIdAndName(team.getId(), jobName).ifPresentOrElse(
-                            job -> { teamUser.addJob(job); },
-                            () -> { throw new NotFoundException("존재하지 않는 역할입니다."); }
-                    );
-                });
+                            teamUser::addJob,
+                            () -> { throw new NotFoundException("존재하지 않는 역할입니다."); })
+                );
         teamUserRepository.save(teamUser);
         return team;
     }

@@ -4,18 +4,12 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.team.TeamJobDto;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
-import peer.backend.entity.team.TeamJob;
-import peer.backend.entity.team.enums.TeamOperationFormat;
-import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;

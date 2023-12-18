@@ -1,17 +1,13 @@
 package peer.backend.dto.board.recruit;
 
-import java.util.List;
+import lombok.*;
+import peer.backend.dto.team.TeamJobDto;
+import peer.backend.exception.IllegalArgumentException;
+
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import peer.backend.dto.team.TeamJobDto;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
-import peer.backend.exception.IllegalArgumentException;
+import java.util.List;
 
 @Getter
 @Setter
@@ -44,7 +40,7 @@ public class RecruitUpdateRequestDTO {
     private String image;
 
     public String getRegion1() {
-        if ((this.region == null && this.place == "OFFLINE") ||
+        if ((this.region == null && this.place.equals("OFFLINE")) ||
                 (this.region != null && this.region.size() != 2))
             throw new IllegalArgumentException("잘못된 지역입니다.");
         return (this.region == null ? null : region.get(0));

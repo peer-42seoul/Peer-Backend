@@ -1,5 +1,7 @@
 package peer.backend.dto.board.recruit;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
@@ -43,7 +45,7 @@ public class RecruitCreateRequest {
     private List<String> leaderJob;
 
     public String getRegion1() {
-        if ((this.region == null && this.place == "OFFLINE") ||
+        if ((this.region == null && this.place.equals("OFFLINE")) ||
                 (this.region != null && this.region.size() != 2))
             throw new IllegalArgumentException("잘못된 지역입니다.");
         return (this.region == null ? null : region.get(0));
@@ -55,7 +57,7 @@ public class RecruitCreateRequest {
 
     public List<String> getLeaderJob() {
         if (this.roleList == null && this.leaderJob == null)
-            return null;
+            return Collections.emptyList();
         else if (this.roleList != null && !this.roleList.isEmpty() && this.leaderJob != null)
             return this.leaderJob;
         else

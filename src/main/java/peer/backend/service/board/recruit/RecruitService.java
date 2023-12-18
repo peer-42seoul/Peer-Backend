@@ -1,22 +1,6 @@
 package peer.backend.service.board.recruit;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,20 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
-import peer.backend.dto.board.recruit.ApplyRecruitRequest;
-import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitListRequest;
-import peer.backend.dto.board.recruit.RecruitListResponse;
-import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamJobDto;
-import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateResponse;
-import peer.backend.entity.board.recruit.*;
-import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
-import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
-import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
@@ -53,7 +29,6 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
 import peer.backend.exception.NotFoundException;
-//import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
@@ -62,6 +37,15 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

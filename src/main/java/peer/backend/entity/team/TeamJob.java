@@ -1,7 +1,6 @@
 package peer.backend.entity.team;
 
 import lombok.*;
-import peer.backend.entity.board.recruit.Recruit;
 
 import javax.persistence.*;
 import java.util.ArrayList;

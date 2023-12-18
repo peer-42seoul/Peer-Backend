@@ -108,13 +108,8 @@ public class Team extends BaseEntity {
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
         jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
-            request.getRoleList().stream()
-                    .forEach(
-                            role -> {
-                                this.addRoleWithTeamId(role);
-                            });
-        }
+        if (request.getRoleList() != null && !request.getInterviewList().isEmpty())
+            request.getRoleList().forEach(this::addRoleWithTeamId);
     }
 
     public void addRoleWithTeamId(TeamJobDto role) {
