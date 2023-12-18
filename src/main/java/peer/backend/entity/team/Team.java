@@ -9,7 +9,6 @@ import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.enums.*;
 
 import javax.persistence.*;
@@ -151,8 +150,6 @@ public class Team extends BaseEntity {
             }
         }
     }
-
-
 
     public void addRole(TeamJobDto role) {
         if (this.getJobs() == null) {

@@ -256,8 +256,8 @@ public class RecruitService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         List<TeamJob> teamJobs = recruit.getTeam().getJobs();
         List<TeamJobDto> roleDtoList = new ArrayList<>();
-        teamJobs
-                .stream()
+
+        teamJobs.stream()
                 .forEach(
                         role -> roleDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
         Team team = recruit.getTeam();
