@@ -4,17 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
-import peer.backend.mongo.entity.ActivityTracking;
+import peer.backend.mongo.entity.ActionTracking;
 
 @RequiredArgsConstructor
 @Component
-public class ActivityTrackingListener extends AbstractMongoEventListener<ActivityTracking> {
+public class ActionTrackingListener extends AbstractMongoEventListener<ActionTracking> {
 
     private final SequenceGeneratorService sequenceGeneratorService;
 
     @Override
-    public void onBeforeConvert(BeforeConvertEvent<ActivityTracking> event) {
+    public void onBeforeConvert(BeforeConvertEvent<ActionTracking> event) {
         event.getSource()
-            .setActId(sequenceGeneratorService.generateSequence(ActivityTracking.SEQUENCE_NAME));
+            .setActId(sequenceGeneratorService.generateSequence(ActionTracking.SEQUENCE_NAME));
     }
 }

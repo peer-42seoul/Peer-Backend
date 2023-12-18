@@ -81,6 +81,8 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers(HttpMethod.GET, "/socket.io/**")
             .permitAll()
+            .antMatchers(HttpMethod.GET, "/api/v1/tag")
+            .permitAll()
             .antMatchers("/login")
             .permitAll()
             .anyRequest().authenticated()
