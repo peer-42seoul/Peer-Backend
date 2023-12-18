@@ -1,21 +1,18 @@
 package peer.backend.entity.team;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -46,14 +43,37 @@ public class TeamUser {
     @Column(columnDefinition = "TEXT")
     private String review;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private TeamUserStatus status;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TeamUserRoleType role;
 
-    @Column(nullable = true)
-    private String job;
+    @ManyToMany
+    @JoinTable(name = "team_user_job",
+            joinColumns = @JoinColumn(name = "team_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_job_id")
+    )
+    private List<TeamJob> jobs;
+
+    @ElementCollection
+    private List<String> answers;
 
     public void grantLeader(TeamUserRoleType teamUserRoleType) {
         this.role = teamUserRoleType;
+    }
+
+    public void addJob(TeamJob job) {
+        if (jobs == null) {
+            jobs = new ArrayList<>();
+        }
+
+        jobs.add(job);
+    }
+
+    public void acceptApplicant(){
+        this.status = TeamUserStatus.APPROVED;
     }
 }

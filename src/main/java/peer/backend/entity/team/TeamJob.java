@@ -4,9 +4,12 @@ import lombok.*;
 import peer.backend.entity.board.recruit.Recruit;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,11 +21,22 @@ public class TeamJob {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruit_id")
-    private Recruit recruit;
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    @ManyToMany(mappedBy = "jobs", cascade = CascadeType.ALL)
+    List<TeamUser> users = new ArrayList<>();
 
     @Column(nullable = false, length = 10)
     private String name;
     @Column(nullable = false)
-    private Integer number;
+    private Integer max;
+    @Column
+    private Integer current;
+
+    @PrePersist
+    @PreUpdate
+    private void updateValues() {
+        this.current = (users == null ? 0 :users.size());
+    }
 }

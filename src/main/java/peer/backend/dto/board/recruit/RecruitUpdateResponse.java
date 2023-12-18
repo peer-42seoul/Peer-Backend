@@ -34,4 +34,7 @@ public class RecruitUpdateResponse {
     private List<RecruitInterviewDto> interviewList;
     @JsonProperty("isAnswered")
     private boolean isAnswered;
+    private String place;
+    private String type;
+    private String name;
 }
