@@ -84,24 +84,19 @@ class ShowcaseServiceTest {
         recruit = Recruit.builder()
             .id(1L)
             .link("t")
-            .due(RecruitDueEnum.EIGHT_MONTHS)
             .content("t")
-            .place(TeamOperationFormat.ONLINE)
-            .region1("t")
-            .region2("t")
             .status(RecruitStatus.BEFORE)
             .team(team)
             .thumbnailUrl("t")
             .title("t")
             .recruitTags(new ArrayList<>())
-            .type(TeamType.PROJECT)
             .build();
 
         team = Team.builder()
             .id(1L)
             .name("test")
             .type(TeamType.STUDY)
-            .dueTo("10월")
+            .dueTo(RecruitDueEnum.EIGHT_MONTHS)
             .operationFormat(TeamOperationFormat.ONLINE)
             .status(TeamStatus.ONGOING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
@@ -109,7 +104,6 @@ class ShowcaseServiceTest {
             .recruit(recruit)
             .region1("test")
             .region2("test")
-            .region3("test")
             .end(LocalDateTime.now())
             .build();
 

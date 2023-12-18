@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamMemberStatus;
@@ -59,14 +60,13 @@ public class TeamUserRepositoryTest {
         Team team = Team.builder()
             .name("test")
             .type(TeamType.STUDY)
-            .dueTo("10월")
+            .dueTo(RecruitDueEnum.EIGHT_MONTHS)
             .operationFormat(TeamOperationFormat.ONLINE)
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
             .region1("test")
             .region2("test")
-            .region3("test")
             .build();
         teamRepository.save(team);
     }
