@@ -38,7 +38,7 @@ public class AlarmTarget extends BaseEntity {
     private Long target;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "alarm")
+    @JoinColumn(name = "alarm_id")
     private Alarm alarm;
 
     @Column
