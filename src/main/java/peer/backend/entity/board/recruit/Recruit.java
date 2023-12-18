@@ -49,8 +49,6 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitFavorite> favorites = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TeamJob> jobs = new ArrayList<>();
-    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitInterview> interviews = new ArrayList<>();
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitFile> files = new ArrayList<>();
@@ -68,32 +66,27 @@ public class Recruit extends BaseEntity {
     private RecruitStatus status;
     @Column
     private String thumbnailUrl;
-    @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<RecruitTag> recruitTags = new ArrayList<>();
     @Column
     private Long writerId;
 
     public void update(RecruitUpdateRequestDTO request) {
+        this.getTeam().update(request);
         this.title = request.getTitle();
         this.content = request.getContent();
-        this.status = request.getStatus();
+        this.status = RecruitStatus.from(request.getStatus());
         this.link = request.getLink();
         this.recruitTags.clear();
-        if (request.getTagList() != null && !request.getTagList().isEmpty())
         this.recruitTags = request.getTagList().stream()
-            .map(e -> (new RecruitTag(this.id, e)))
-            .collect(
-                Collectors.toList());
+                .map(e -> (new RecruitTag(this.id, e)))
+                .collect(
+                        Collectors.toList());
         this.interviews.clear();
         if (request.getInterviewList() != null && !request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {
                 this.addInterview(interview);
             }
-        }
-        this.jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
-            request.getRoleList().stream()
-                    .forEach(role -> { this.addRole(role); });
         }
     }
 
@@ -107,16 +100,6 @@ public class Recruit extends BaseEntity {
             .options(interview.getOptions())
             .recruit(this)
             .build());
-    }
-
-    public void addRole(TeamJobDto role) {
-        if (this.getJobs() == null) {
-            this.jobs = new ArrayList<>();
-        }
-        this.jobs.add(TeamJob.builder()
-            .name(role.getName())
-            .max(role.getNumber())
-            .recruit(this).build());
     }
 
     public void setHit(Long hit) {

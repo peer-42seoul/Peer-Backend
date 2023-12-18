@@ -64,7 +64,7 @@ public class RecruitController {
     @PutMapping("/{recruit_id}")
     @AuthorCheck
     public void updateRecruit(@PathVariable Long recruit_id,
-        @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
+        @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO) {
         recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 

@@ -275,9 +275,10 @@ public class TeamService {
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
-            .region1(request.getRegion().get(0))
-            .region2(request.getRegion().get(1))
+            .region1(request.getRegion1())
+            .region2(request.getRegion2())
             .dueTo(RecruitDueEnum.from(request.getDue()))
+            .maxMember(0)
             .build();
         if (request.getRoleList() != null)
             addRolesToTeam(team, request.getRoleList());
@@ -286,15 +287,16 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
+            .status(TeamUserStatus.APPROVED)
             .role(TeamUserRoleType.LEADER)
             .build();
-        if (request.getLeaderJob() != null)
-            request.getLeaderJob().stream().forEach(jobName -> {
-                teamJobRepository.findByName(jobName).ifPresentOrElse(
-                        job -> { teamUser.addJob(job); },
-                        () -> { throw new NotFoundException("존재하지 않는 역할입니다."); }
-                );
-            });
+            if (request.getLeaderJob() != null)
+                request.getLeaderJob().stream().forEach(jobName -> {
+                    teamJobRepository.findByTeamIdAndName(team.getId(), jobName).ifPresentOrElse(
+                            job -> { teamUser.addJob(job); },
+                            () -> { throw new NotFoundException("존재하지 않는 역할입니다."); }
+                    );
+                });
         teamUserRepository.save(teamUser);
         return team;
     }

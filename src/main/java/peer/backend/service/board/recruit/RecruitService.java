@@ -222,10 +222,10 @@ public class RecruitService {
     public RecruitResponce getRecruit(Long recruit_id, Authentication auth) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        List<TeamJob> teamJobs = recruit.getTeam().getJobs();
         recruit.setHit(recruit.getHit() + 1);
         List<TeamJobDto> jobDtoList = new ArrayList<>();
-        recruit.getJobs()
-                .stream()
+        teamJobs.stream()
                 .forEach(
                         role -> jobDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
         Team team = recruit.getTeam();
@@ -234,13 +234,12 @@ public class RecruitService {
             .content(recruit.getContent())
             .region(new ArrayList<>(List.of(team.getRegion1(), team.getRegion2())))
             .status(recruit.getStatus())
-            .totalNumber(recruit.getJobs().size())
+            .totalNumber(teamJobs.size())
             .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
             .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
             .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
-//            .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(jobDtoList)
             .place(team.getOperationFormat())
@@ -255,8 +254,9 @@ public class RecruitService {
     public RecruitUpdateResponse getRecruitwithInterviewList(Long recruit_id) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        List<TeamJob> teamJobs = recruit.getTeam().getJobs();
         List<TeamJobDto> roleDtoList = new ArrayList<>();
-        recruit.getJobs()
+        teamJobs
                 .stream()
                 .forEach(
                         role -> roleDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
@@ -268,13 +268,12 @@ public class RecruitService {
             .region1(team.getRegion1())
             .region2(team.getRegion2())
             .status(recruit.getStatus())
-            .totalNumber(recruit.getJobs().size())
+            .totalNumber(teamJobs.size())
             .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
             .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
-//            .tagList(TagListManager.getRecruitTags(recruit.getRecruitTags()))
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
@@ -325,9 +324,6 @@ public class RecruitService {
             .title(request.getTitle())
             .link(request.getLink())
             .content(request.getContent())
-
-//            .tags(request.getTagList().stream().map(TagListResponse::getName)
-//                .collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
             .thumbnailUrl(
                 objectService.uploadObject("recruit/" + team.getId().toString(), request.getImage(),
@@ -336,11 +332,9 @@ public class RecruitService {
             .writer(user)
             .hit(0L)
             .build();
-        //List 추가
         addInterviewsToRecruit(recruit, request.getInterviewList());
         return recruit;
     }
-
 
     @Transactional
     @RecruitWritingTracking
@@ -411,6 +405,5 @@ public class RecruitService {
         } else {
             recruit.update(recruitUpdateRequestDTO);
         }
-        recruit.update(recruitUpdateRequestDTO);
     }
 }

@@ -21,28 +21,22 @@ public class TeamJob {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruit_id")
-    private Recruit recruit;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @ManyToMany(mappedBy = "jobs")
+    @ManyToMany(mappedBy = "jobs", cascade = CascadeType.ALL)
     List<TeamUser> users = new ArrayList<>();
 
     @Column(nullable = false, length = 10)
     private String name;
     @Column(nullable = false)
-    private Integer max = 0;
+    private Integer max;
     @Column
-    private Integer current = 0;
+    private Integer current;
 
     @PrePersist
     @PreUpdate
     private void updateValues() {
         this.current = (users == null ? 0 :users.size());
     }
-
-
 }
