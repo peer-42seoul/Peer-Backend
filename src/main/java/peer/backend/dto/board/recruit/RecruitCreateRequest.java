@@ -1,17 +1,17 @@
 package peer.backend.dto.board.recruit;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.persistence.Lob;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.team.TeamJobDto;
 import peer.backend.exception.IllegalArgumentException;
+
+import javax.persistence.Lob;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Collections;
+import java.util.List;
 
 
 @Getter
