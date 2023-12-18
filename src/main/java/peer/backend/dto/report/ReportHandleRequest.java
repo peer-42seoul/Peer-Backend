@@ -6,18 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.annotation.ValidEnum;
-import peer.backend.entity.report.ReportProcessingType;
+import peer.backend.entity.report.ReportHandleType;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportProcessingRequest {
+public class ReportHandleRequest {
 
     @NotNull
     private List<Long> idList;
 
-    @ValidEnum(enumClass = ReportProcessingType.class, message = "잘못된 신고 처리 유형입니다.")
-    private ReportProcessingType type;
+    @ValidEnum(enumClass = ReportHandleType.class, message = "잘못된 신고 처리 유형입니다.")
+    private ReportHandleType type;
 
     @NotNull
     private String content;
