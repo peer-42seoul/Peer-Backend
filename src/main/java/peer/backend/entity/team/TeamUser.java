@@ -43,7 +43,8 @@ public class TeamUser {
     @Column(columnDefinition = "TEXT")
     private String review;
 
-    @Enumerated
+    @Column
+    @Enumerated(EnumType.STRING)
     private TeamUserStatus status;
 
     @Column(nullable = false)
@@ -68,6 +69,7 @@ public class TeamUser {
         if (jobs == null) {
             jobs = new ArrayList<>();
         }
+
         jobs.add(job);
     }
 

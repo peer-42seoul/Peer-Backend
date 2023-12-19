@@ -1,14 +1,17 @@
 package peer.backend.dto.board.recruit;
 
-import java.util.List;
-import javax.persistence.Lob;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.team.TeamJobDto;
+import peer.backend.exception.IllegalArgumentException;
+
+import javax.persistence.Lob;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Collections;
+import java.util.List;
 
 
 @Getter
@@ -39,5 +42,25 @@ public class RecruitCreateRequest {
     private List<Long> tagList;
     private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
-    private String leaderJob;
+    private List<String> leaderJob;
+
+    public String getRegion1() {
+        if ((this.region == null && this.place.equals("OFFLINE")) ||
+                (this.region != null && this.region.size() != 2))
+            throw new IllegalArgumentException("잘못된 지역입니다.");
+        return (this.region == null ? null : region.get(0));
+    }
+
+    public String getRegion2() {
+        return (this.region == null ? null : region.get(1));
+    }
+
+    public List<String> getLeaderJob() {
+        if (this.roleList == null && this.leaderJob == null)
+            return Collections.emptyList();
+        else if (this.roleList != null && !this.roleList.isEmpty() && this.leaderJob != null)
+            return this.leaderJob;
+        else
+            throw new IllegalArgumentException("작성자에게 잘못된 역할을 할당하였습니다.");
+    }
 }

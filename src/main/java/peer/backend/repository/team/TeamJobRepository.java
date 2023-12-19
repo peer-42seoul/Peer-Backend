@@ -6,5 +6,6 @@ import peer.backend.entity.team.TeamJob;
 import java.util.Optional;
 
 public interface TeamJobRepository extends JpaRepository<TeamJob, Long> {
+    Optional<TeamJob> findByTeamIdAndName(Long teamId, String name);
     Optional<TeamJob> findByName(String name);
 }

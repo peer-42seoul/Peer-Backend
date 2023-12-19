@@ -1,22 +1,6 @@
 package peer.backend.service.board.recruit;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,20 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
-import peer.backend.dto.board.recruit.ApplyRecruitRequest;
-import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitListRequest;
-import peer.backend.dto.board.recruit.RecruitListResponse;
-import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.*;
 import peer.backend.dto.team.TeamJobDto;
-import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateResponse;
-import peer.backend.entity.board.recruit.*;
-import peer.backend.entity.board.recruit.enums.RecruitApplicantStatus;
-import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
-import peer.backend.entity.composite.RecruitApplicantPK;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
@@ -53,7 +29,6 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
 import peer.backend.exception.NotFoundException;
-//import peer.backend.repository.board.recruit.RecruitApplicantRepository;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
@@ -62,6 +37,15 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -111,7 +95,7 @@ public class RecruitService {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
                 .type(question.getType().toString())
-                .optionList(question.getOptions())
+                .options(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
         }
@@ -222,26 +206,27 @@ public class RecruitService {
     public RecruitResponce getRecruit(Long recruit_id, Authentication auth) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        List<TeamJob> teamJobs = recruit.getTeam().getJobs();
         recruit.setHit(recruit.getHit() + 1);
         List<TeamJobDto> jobDtoList = new ArrayList<>();
-        for (TeamJob role : recruit.getJobs()) {
-            jobDtoList.add(new TeamJobDto(role.getName(), role.getMax()));
-        }
+        teamJobs.stream()
+                .forEach(
+                        role -> jobDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
+        Team team = recruit.getTeam();
         return RecruitResponce.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
-            .region(new ArrayList<>(List.of(recruit.getRegion1(), recruit.getRegion2())))
+            .region(new ArrayList<>(List.of(team.getRegion1(), team.getRegion2())))
             .status(recruit.getStatus())
-            .totalNumber(recruit.getJobs().size())
-            .due(recruit.getDue().getLabel())
+            .totalNumber(teamJobs.size())
+            .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
             .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
             .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
-//            .tagList(TagListManager.getRecruitTags(recruit.getTags()))
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(jobDtoList)
-            .place(recruit.getPlace())
+            .place(team.getOperationFormat())
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
             .isFavorite((auth != null) && recruitFavoriteRepository.findById(
@@ -253,30 +238,32 @@ public class RecruitService {
     public RecruitUpdateResponse getRecruitwithInterviewList(Long recruit_id) {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        List<TeamJob> teamJobs = recruit.getTeam().getJobs();
         List<TeamJobDto> roleDtoList = new ArrayList<>();
-        for (TeamJob role : recruit.getJobs()) {
-            roleDtoList.add(new TeamJobDto(role.getName(), role.getMax()));
-        }
+
+        teamJobs.stream()
+                .forEach(
+                        role -> roleDtoList.add(new TeamJobDto(role.getName(), role.getMax())));
+        Team team = recruit.getTeam();
         //TODO:DTO 항목 추가 필요
         return RecruitUpdateResponse.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
-            .region1(recruit.getRegion1())
-            .region2(recruit.getRegion2())
+            .region1(team.getRegion1())
+            .region2(team.getRegion2())
             .status(recruit.getStatus())
-            .totalNumber(recruit.getJobs().size())
-            .due(recruit.getDue().getLabel())
+            .totalNumber(teamJobs.size())
+            .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriter().getId())
             .leader_nickname(recruit.getWriter() == null ? null : recruit.getWriter().getNickname())
             .leader_image(recruit.getWriter() == null ? null : recruit.getWriter().getImageUrl())
-//            .tagList(TagListManager.getRecruitTags(recruit.getRecruitTags()))
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
             .isAnswered(recruit.getTeam().getTeamUsers().size() > 1)
-            .place(recruit.getPlace().getValue())
-            .type(recruit.getType().getValue())
+            .place(team.getOperationFormat().getValue())
+            .type(team.getType().getValue())
             .name(recruit.getTeam().getName())
             .build();
     }
@@ -288,8 +275,6 @@ public class RecruitService {
             }
         }
     }
-
-
 
 // TODO: 2스텝에서 에디터 변경시 적용 필요
 //    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
@@ -318,16 +303,9 @@ public class RecruitService {
     private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user) {
         Recruit recruit = Recruit.builder()
             .team(team)
-            .type(TeamType.valueOf(request.getType()))
             .title(request.getTitle())
-            .due(RecruitDueEnum.from(request.getDue()))
             .link(request.getLink())
             .content(request.getContent())
-            .place(TeamOperationFormat.valueOf(request.getPlace()))
-            .region1(request.getPlace().equals("온라인") ? null : request.getRegion().get(0))
-            .region2(request.getPlace().equals("온라인") ? null : request.getRegion().get(1))
-//            .tags(request.getTagList().stream().map(TagListResponse::getName)
-//                .collect(Collectors.toList()))
             .status(RecruitStatus.ONGOING)
             .thumbnailUrl(
                 objectService.uploadObject("recruit/" + team.getId().toString(), request.getImage(),
@@ -335,13 +313,10 @@ public class RecruitService {
             .writerId(user.getId())
             .writer(user)
             .hit(0L)
-            .dueValue(10)
             .build();
-        //List 추가
         addInterviewsToRecruit(recruit, request.getInterviewList());
         return recruit;
     }
-
 
     @Transactional
     @RecruitWritingTracking
@@ -405,10 +380,12 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
         if (recruitUpdateRequestDTO.getImage() != null) {
+            recruit.update(recruitUpdateRequestDTO);
             objectService.deleteObject(recruit.getThumbnailUrl());
-            recruit.update(recruitUpdateRequestDTO,
-                objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
+            recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                     "recruit/" + recruit_id, "image"));
+        } else {
+            recruit.update(recruitUpdateRequestDTO);
         }
     }
 }

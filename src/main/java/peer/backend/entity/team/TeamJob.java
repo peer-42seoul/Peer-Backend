@@ -1,7 +1,6 @@
 package peer.backend.entity.team;
 
 import lombok.*;
-import peer.backend.entity.board.recruit.Recruit;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -21,12 +20,11 @@ public class TeamJob {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruit_id")
-    private Recruit recruit;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @ManyToMany(mappedBy = "jobs", cascade = CascadeType.ALL)
+    List<TeamUser> users = new ArrayList<>();
 
     @Column(nullable = false, length = 10)
     private String name;
@@ -35,6 +33,9 @@ public class TeamJob {
     @Column
     private Integer current;
 
-    @ManyToMany(mappedBy = "jobs")
-    List<TeamUser> users = new ArrayList<>();
+    @PrePersist
+    @PreUpdate
+    private void updateValues() {
+        this.current = (users == null ? 0 :users.size());
+    }
 }

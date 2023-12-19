@@ -7,18 +7,14 @@ import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.*;
-import peer.backend.entity.board.recruit.Recruit;
-//import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
-//import peer.backend.repository.board.recruit.RecruitApplicantRepository;
-import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
@@ -36,8 +32,6 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
-    private final RecruitRepository recruitRepository;
-//    private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
 
@@ -269,14 +263,13 @@ public class TeamService {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
-            .dueTo(request.getDue())
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
-            .region1(request.getRegion().get(0))
-            .region2(request.getRegion().get(1))
-            .region3(null)
+            .region1(request.getRegion1())
+            .region2(request.getRegion2())
+            .dueTo(RecruitDueEnum.from(request.getDue()))
             .maxMember(0)
             .build();
         if (request.getRoleList() != null)
@@ -286,13 +279,16 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
+            .status(TeamUserStatus.APPROVED)
             .role(TeamUserRoleType.LEADER)
             .build();
-        if (request.getLeaderJob() != null)
-            teamUser.addJob(teamJobRepository.findByName(request.getLeaderJob())
-                    .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다.")));
+            if (request.getLeaderJob() != null)
+                request.getLeaderJob().forEach(jobName ->
+                    teamJobRepository.findByTeamIdAndName(team.getId(), jobName).ifPresentOrElse(
+                            teamUser::addJob,
+                            () -> { throw new NotFoundException("존재하지 않는 역할입니다."); })
+                );
         teamUserRepository.save(teamUser);
-
         return team;
     }
 }

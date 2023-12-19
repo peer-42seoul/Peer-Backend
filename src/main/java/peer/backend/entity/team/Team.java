@@ -3,10 +3,12 @@ package peer.backend.entity.team;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.team.TeamJobDto;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.enums.*;
 
 import javax.persistence.*;
@@ -37,8 +39,10 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     private TeamType type;
 
-    @Column(length = 30, nullable = false)
-    private String dueTo;
+    @Column(nullable = false)
+    @Enumerated
+    private RecruitDueEnum dueTo;
+    private int dueValue;
 
     @Column()
     private String teamPicturePath;
@@ -70,36 +74,64 @@ public class Team extends BaseEntity {
     @Column(length = 10)
     private String region2;
 
-    @Column(length = 10)
-    private String region3;
-
     @Column
     private LocalDateTime end;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
 
-    @OneToOne(mappedBy = "team", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private Recruit recruit;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
-    @PostLoad
-    private void updateValue(){
-        this.maxMember = this.getJobs().stream().mapToInt(TeamJob::getMax).sum();
-    }
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
-        this.dueTo = teamSettingInfoDto.getDueTo();
+        this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
         this.status = teamSettingInfoDto.getStatus();
         String[] regions = teamSettingInfoDto.getRegion();
-        this.region1 = regions.length > 0 ? regions[0] : "";
-        this.region2 = regions.length > 1 ? regions[1] : "";
-        this.region3 = regions.length > 2 ? regions[2] : "";
+        if (teamSettingInfoDto.getRegion().length == 2) {
+            this.region1 = regions[0];
+            this.region2 = regions[1];
+        }
         this.operationFormat = teamSettingInfoDto.getOperationForm();
-        this.maxMember = Integer.valueOf(teamSettingInfoDto.getMaxMember());
+    }
+
+    public void update(RecruitUpdateRequestDTO request) {
+        this.name = request.getName();
+        this.dueTo = RecruitDueEnum.from(request.getDue());
+        if (!request.getRegion().isEmpty()) {
+            this.region1 = request.getRegion1();
+            this.region2 = request.getRegion2();
+        }
+        this.operationFormat = TeamOperationFormat.from(request.getPlace());
+        jobs.clear();
+        if (request.getRoleList() != null && !request.getInterviewList().isEmpty())
+            request.getRoleList().forEach(this::addRoleWithTeamId);
+    }
+
+    public void addRoleWithTeamId(TeamJobDto role) {
+        if (this.getJobs() == null) {
+            this.jobs = new ArrayList<>();
+        }
+        this.jobs.add(TeamJob.builder()
+                .name(role.getName())
+                .max(role.getNumber())
+                .team(this)
+                .build());
+    }
+
+
+    @PrePersist
+    @PreUpdate
+    @PostLoad
+    private void updateDueValue() {
+        if (this.dueTo != null) {
+            this.dueValue = this.dueTo.getValue();
+        }
+        this.maxMember = (this.getJobs() == null ? null:  this.getJobs().stream().mapToInt(TeamJob::getMax).sum());
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
