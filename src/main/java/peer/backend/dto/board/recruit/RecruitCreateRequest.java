@@ -56,8 +56,9 @@ public class RecruitCreateRequest {
     }
 
     public List<String> getLeaderJob() {
-        if (this.roleList == null && this.leaderJob == null)
+        if ((this.roleList == null || this.roleList.isEmpty()) && this.leaderJob == null) {
             return Collections.emptyList();
+        }
         else if (this.roleList != null && !this.roleList.isEmpty() && this.leaderJob != null)
             return this.leaderJob;
         else
