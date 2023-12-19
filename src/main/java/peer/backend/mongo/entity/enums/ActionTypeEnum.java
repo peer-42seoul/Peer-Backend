@@ -1,6 +1,8 @@
 package peer.backend.mongo.entity.enums;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,20 @@ public enum ActionTypeEnum {
     private final String value;
     private final Long code;
 
+    @JsonCreator
+    public static ActionTypeEnum from(String value) {
+        for (ActionTypeEnum type : ActionTypeEnum.values()) {
+            if (type.getValue().equals(value)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 
     public static ActionTypeEnum ofCode(Long dbData) {
         return Arrays.stream(ActionTypeEnum.values())
