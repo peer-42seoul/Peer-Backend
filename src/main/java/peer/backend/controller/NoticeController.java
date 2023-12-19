@@ -61,4 +61,9 @@ public class NoticeController {
     public void hideNotice(@RequestBody @Valid NoticeIdRequest request) {
         this.noticeService.setNoticeStatus(request.getNoticeId(), NoticeStatus.HIDING);
     }
+
+    @PostMapping("show")
+    public void showNotice(@RequestBody @Valid NoticeIdRequest request) {
+        this.noticeService.setNoticeStatus(request.getNoticeId(), NoticeStatus.PUBLISHED);
+    }
 }

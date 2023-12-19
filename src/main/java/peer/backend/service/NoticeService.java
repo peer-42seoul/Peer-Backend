@@ -117,9 +117,10 @@ public class NoticeService {
     @Transactional
     public void setNoticeStatus(Long noticeId, NoticeStatus status) {
         Notice notice = this.getNotice(noticeId);
-        if (status.equals(NoticeStatus.HIDING) && !notice.getStatus()
-            .equals(NoticeStatus.PUBLISHED)) {
+        if (this.isHidePossible(notice, status)) {
             throw new ConflictException("게재 상태가 아닌 공지사항을 숨김 처리 할 수 없습니다.");
+        } else if (this.isShowPossible(notice, status)) {
+            throw new ConflictException("숨김 상태가 아닌 공지사항을 게재 처리 할 수 없습니다.");
         }
         notice.setStatus(status);
     }
@@ -127,5 +128,15 @@ public class NoticeService {
     private String uploadNoticeImage(String imageData) {
         return this.objectService.uploadObject("notice/" + UUID.randomUUID(),
             imageData, "image");
+    }
+
+    private Boolean isHidePossible(Notice notice, NoticeStatus status) {
+        return status.equals(NoticeStatus.HIDING) && !notice.getStatus()
+            .equals(NoticeStatus.PUBLISHED);
+    }
+
+    private Boolean isShowPossible(Notice notice, NoticeStatus status) {
+        return status.equals(NoticeStatus.PUBLISHED) && !notice.getStatus()
+            .equals(NoticeStatus.HIDING);
     }
 }
