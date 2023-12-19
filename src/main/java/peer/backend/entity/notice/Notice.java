@@ -12,15 +12,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.converter.NoticeStatusConverter;
 import peer.backend.converter.NotificationConverter;
 import peer.backend.entity.BaseEntity;
 
-@Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicUpdate
+@Entity
 @Table(name = "notice")
 public class Notice extends BaseEntity {
 
@@ -39,6 +41,9 @@ public class Notice extends BaseEntity {
 
     @Column(nullable = false)
     private String image;
+
+    @Column(nullable = false)
+    private Long view;
 
     @Column(nullable = false)
     @Convert(converter = NoticeStatusConverter.class)

@@ -10,6 +10,7 @@ import peer.backend.dto.notice.CreateNoticeRequest;
 import peer.backend.entity.notice.Notice;
 import peer.backend.entity.notice.NoticeStatus;
 import peer.backend.entity.notice.Notification;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.notice.NoticeRepository;
 import peer.backend.service.file.ObjectService;
 
@@ -31,6 +32,12 @@ public class NoticeService {
         return this.noticeRepository.findAll(pageable);
     }
 
+    @Transactional
+    public Notice getNotice(Long noticeId) {
+        return this.noticeRepository.findById(noticeId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 Id 입니다."));
+    }
+
     private Notice createNoticeFromCreateNoticeRequest(CreateNoticeRequest request) {
         String imageUrl = this.objectService.uploadObject("notice/" + UUID.randomUUID(),
             request.getImage(), "image");
@@ -43,6 +50,7 @@ public class NoticeService {
             .notification(request.getNotification())
             .reservation_date(request.getReservationDate())
             .image(imageUrl)
+            .view(0L)
             .build();
     }
 

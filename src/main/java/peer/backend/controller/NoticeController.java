@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.notice.CreateNoticeRequest;
+import peer.backend.dto.notice.NoticeListResponse;
 import peer.backend.dto.notice.NoticeResponse;
 import peer.backend.entity.notice.Notice;
 import peer.backend.service.NoticeService;
@@ -27,8 +29,14 @@ public class NoticeController {
     }
 
     @GetMapping
-    public Page<NoticeResponse> getNoticeList(Pageable pageable) {
+    public Page<NoticeListResponse> getNoticeList(Pageable pageable) {
         Page<Notice> noticeList = this.noticeService.getNoticeList(pageable);
-        return noticeList.map(NoticeResponse::new);
+        return noticeList.map(NoticeListResponse::new);
+    }
+
+    @GetMapping("{noticeId}")
+    public NoticeResponse getNotice(@PathVariable("noticeId") Long noticeId) {
+        Notice notice = this.noticeService.getNotice(noticeId);
+        return new NoticeResponse(notice);
     }
 }
