@@ -38,6 +38,11 @@ public class NoticeService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 Id 입니다."));
     }
 
+    @Transactional
+    public void deleteNotice(Long noticeId) {
+        this.noticeRepository.deleteById(noticeId);
+    }
+
     private Notice createNoticeFromCreateNoticeRequest(CreateNoticeRequest request) {
         String imageUrl = this.objectService.uploadObject("notice/" + UUID.randomUUID(),
             request.getImage(), "image");

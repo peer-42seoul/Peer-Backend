@@ -4,6 +4,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.notice.CreateNoticeRequest;
+import peer.backend.dto.notice.NoticeIdRequest;
 import peer.backend.dto.notice.NoticeListResponse;
 import peer.backend.dto.notice.NoticeResponse;
 import peer.backend.entity.notice.Notice;
@@ -38,5 +40,10 @@ public class NoticeController {
     public NoticeResponse getNotice(@PathVariable("noticeId") Long noticeId) {
         Notice notice = this.noticeService.getNotice(noticeId);
         return new NoticeResponse(notice);
+    }
+
+    @DeleteMapping
+    public void deleteNotice(@RequestBody @Valid NoticeIdRequest request) {
+        this.noticeService.deleteNotice(request.getNoticeId());
     }
 }
