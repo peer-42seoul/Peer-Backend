@@ -40,7 +40,7 @@ public class Team extends BaseEntity {
     private TeamType type;
 
     @Column(nullable = false)
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private RecruitDueEnum dueTo;
     private int dueValue;
 
