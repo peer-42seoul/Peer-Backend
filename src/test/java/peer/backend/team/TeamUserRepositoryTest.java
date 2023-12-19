@@ -146,5 +146,5 @@ public class TeamUserRepositoryTest {
 //        assertEquals(teamUserRepository.count(), 1);
 //        teamUserRepository.deleteByUserIdAndTeamId(user.getId(), team.getId());
 //        assertEquals(teamUserRepository.count(), 0);
-    }
+//    }
 }
