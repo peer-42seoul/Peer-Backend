@@ -58,6 +58,7 @@ public class Recruit extends BaseEntity {
     @Column
     private String link;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RecruitStatus status;
     @Column
     private String thumbnailUrl;
