@@ -268,6 +268,7 @@ public class RecruitService {
             .place(team.getOperationFormat().getValue())
             .type(team.getType().getValue())
             .name(recruit.getTeam().getName())
+            .image(recruit.getThumbnailUrl())
             .build();
     }
 
