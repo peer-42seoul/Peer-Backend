@@ -112,6 +112,9 @@ public class RecruitService {
         Root<Recruit> recruit = cq.from(Recruit.class);
         List<Predicate> predicates = new ArrayList<>();
 
+
+        Join<Recruit, Team> teamJoin = recruit.join("team"); // Assuming "team" is the name of the field in Recruit entity that references Team entity
+
         // query 생성
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
             List<RecruitStatus> statuses = request.getStatus().stream()
@@ -124,23 +127,23 @@ public class RecruitService {
             predicates.add(tagList.in(request.getTag()));
         }
         if (request.getType() != null && !request.getType().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("type"), TeamType.valueOf(request.getType())));
+            predicates.add(cb.equal(teamJoin.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
             List<TeamOperationFormat> places = request.getPlace().stream()
                 .map(TeamOperationFormat::valueOf)
                 .collect(Collectors.toList());
-            predicates.add(recruit.get("place").in(places));
+            predicates.add(teamJoin.get("operationFormat").in(places));
         }
         if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("region1"), request.getRegion1()));
+            predicates.add(cb.equal(teamJoin.get("region1"), request.getRegion1()));
         }
         if (request.getRegion2() != null && !request.getRegion2().isEmpty()) {
-            predicates.add(cb.equal(recruit.get("region2"), request.getRegion2()));
+            predicates.add(cb.equal(teamJoin.get("region2"), request.getRegion2()));
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
             predicates.add(
-                cb.between(recruit.get("dueValue"), request.getStart(), request.getEnd()));
+                cb.between(teamJoin.get("dueValue"), request.getStart(), request.getEnd()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
