@@ -114,6 +114,16 @@ public class NoticeService {
         }
     }
 
+    @Transactional
+    public void setNoticeStatus(Long noticeId, NoticeStatus status) {
+        Notice notice = this.getNotice(noticeId);
+        if (status.equals(NoticeStatus.HIDING) && !notice.getStatus()
+            .equals(NoticeStatus.PUBLISHED)) {
+            throw new ConflictException("게재 상태가 아닌 공지사항을 숨김 처리 할 수 없습니다.");
+        }
+        notice.setStatus(status);
+    }
+
     private String uploadNoticeImage(String imageData) {
         return this.objectService.uploadObject("notice/" + UUID.randomUUID(),
             imageData, "image");

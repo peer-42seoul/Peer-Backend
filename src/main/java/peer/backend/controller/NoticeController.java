@@ -18,6 +18,7 @@ import peer.backend.dto.notice.NoticeListResponse;
 import peer.backend.dto.notice.NoticeResponse;
 import peer.backend.dto.notice.UpdateNoticeRequest;
 import peer.backend.entity.notice.Notice;
+import peer.backend.entity.notice.NoticeStatus;
 import peer.backend.service.NoticeService;
 
 @RestController
@@ -54,5 +55,10 @@ public class NoticeController {
     @PutMapping
     public void updateNotice(@RequestBody @Valid UpdateNoticeRequest request) {
         this.noticeService.updateNotice(request);
+    }
+
+    @PostMapping("hide")
+    public void hideNotice(@RequestBody @Valid NoticeIdRequest request) {
+        this.noticeService.setNoticeStatus(request.getNoticeId(), NoticeStatus.HIDING);
     }
 }
