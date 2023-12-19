@@ -3,6 +3,8 @@ package peer.backend.service;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.notice.CreateNoticeRequest;
 import peer.backend.entity.notice.Notice;
@@ -20,6 +22,11 @@ public class NoticeService {
     public void writeNotice(CreateNoticeRequest request) {
         Notice notice = this.createNoticeFromCreateNoticeRequest(request);
         this.noticeRepository.save(notice);
+    }
+
+    @Transactional
+    public Page<Notice> getNoticeList(Pageable pageable) {
+        return this.noticeRepository.findAll(pageable);
     }
 
     private Notice createNoticeFromCreateNoticeRequest(CreateNoticeRequest request) {

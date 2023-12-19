@@ -36,6 +36,9 @@ public class Notice extends BaseEntity {
     private String image;
 
     @Column(nullable = false)
+    private NoticeStatus status;
+
+    @Column(nullable = false)
     @Convert(converter = NotificationConverter.class)
     private Notification notification;
 
