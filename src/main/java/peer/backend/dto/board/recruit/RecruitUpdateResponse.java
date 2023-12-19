@@ -37,4 +37,5 @@ public class RecruitUpdateResponse {
     private String place;
     private String type;
     private String name;
+    private String image;
 }
