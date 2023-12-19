@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.notice.CreateNoticeRequest;
 import peer.backend.entity.notice.Notice;
+import peer.backend.entity.notice.NoticeStatus;
+import peer.backend.entity.notice.Notification;
 import peer.backend.repository.notice.NoticeRepository;
 import peer.backend.service.file.ObjectService;
 
@@ -37,9 +39,18 @@ public class NoticeService {
             .title(request.getTitle())
             .writer(request.getWriter())
             .content(request.getContent())
+            .status(this.getNoticeStatusFromNotification(request.getNotification()))
             .notification(request.getNotification())
             .reservation_date(request.getReservationDate())
             .image(imageUrl)
             .build();
+    }
+
+    private NoticeStatus getNoticeStatusFromNotification(Notification notification) {
+        if (notification.equals(Notification.NONE) || notification.equals(
+            Notification.IMMEDIATELY)) {
+            return NoticeStatus.PUBLISHED;
+        }
+        return NoticeStatus.RESERVATION;
     }
 }

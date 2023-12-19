@@ -8,14 +8,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import peer.backend.converter.NoticeStatusConverter;
 import peer.backend.converter.NotificationConverter;
 import peer.backend.entity.BaseEntity;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "notice")
 public class Notice extends BaseEntity {
 
@@ -36,6 +41,7 @@ public class Notice extends BaseEntity {
     private String image;
 
     @Column(nullable = false)
+    @Convert(converter = NoticeStatusConverter.class)
     private NoticeStatus status;
 
     @Column(nullable = false)
