@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class TeamJobDto {
     private String name;
     private int number;
+    private int current;
 }

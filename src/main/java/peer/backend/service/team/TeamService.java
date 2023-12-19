@@ -9,20 +9,27 @@ import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -257,9 +264,11 @@ public class TeamService {
         }
     }
 
+
+
     @TeamCreateTracking
     @Transactional
-    public Team createTeam(User user, RecruitCreateRequest request) {
+    public Team createTeam(User user, RecruitCreateRequest request) throws IllegalArgumentException {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
@@ -270,7 +279,7 @@ public class TeamService {
             .region1(request.getRegion1())
             .region2(request.getRegion2())
             .dueTo(RecruitDueEnum.from(request.getDue()))
-            .maxMember(0)
+            .maxMember(request.getMax())
             .build();
         if (request.getRoleList() != null)
             addRolesToTeam(team, request.getRoleList());
@@ -279,16 +288,16 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
-            .status(TeamUserStatus.APPROVED)
             .role(TeamUserRoleType.LEADER)
             .build();
-            if (request.getLeaderJob() != null)
-                request.getLeaderJob().forEach(jobName ->
-                    teamJobRepository.findByTeamIdAndName(team.getId(), jobName).ifPresentOrElse(
-                            teamUser::addJob,
-                            () -> { throw new NotFoundException("존재하지 않는 역할입니다."); })
-                );
         teamUserRepository.save(teamUser);
+        request.getLeaderJob().forEach(
+                name -> teamJobRepository.findByTeamIdAndName(team.getId(), name).ifPresent(job -> teamUser.addTeamUserJob( TeamUserJob.builder()
+                        .teamJobId(job.getId())
+                        .teamUserId(teamUser.getId())
+                        .status(TeamUserStatus.APPROVED)
+                        .build()))
+        );
         return team;
     }
 }

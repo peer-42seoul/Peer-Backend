@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
@@ -21,7 +20,6 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "team_user")
 public class TeamUser {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,12 +49,8 @@ public class TeamUser {
     @Enumerated(EnumType.STRING)
     private TeamUserRoleType role;
 
-    @ManyToMany
-    @JoinTable(name = "team_user_job",
-            joinColumns = @JoinColumn(name = "team_user_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_job_id")
-    )
-    private List<TeamJob> jobs;
+    @OneToMany(mappedBy = "teamUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamUserJob> teamUserJobs;
 
     @ElementCollection
     private List<String> answers;
@@ -65,12 +59,12 @@ public class TeamUser {
         this.role = teamUserRoleType;
     }
 
-    public void addJob(TeamJob job) {
-        if (jobs == null) {
-            jobs = new ArrayList<>();
+    public void addTeamUserJob(TeamUserJob teamUserJob) {
+        if (teamUserJobs == null) {
+            teamUserJobs = new ArrayList<>();
         }
 
-        jobs.add(job);
+        teamUserJobs.add(teamUserJob);
     }
 
     public void acceptApplicant(){

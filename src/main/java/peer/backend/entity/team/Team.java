@@ -65,7 +65,7 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     private Boolean isLock;
 
-    @Column()
+    @Column(nullable = false)
     private Integer maxMember;
 
     @Column(length = 10)
@@ -153,7 +153,6 @@ public class Team extends BaseEntity {
         this.jobs.add(TeamJob.builder()
                 .name(role.getName())
                 .max(role.getNumber())
-                .current(0)
                 .team(this).build());
     }
 

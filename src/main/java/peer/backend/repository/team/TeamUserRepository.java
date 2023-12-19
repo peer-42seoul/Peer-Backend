@@ -1,7 +1,9 @@
 package peer.backend.repository.team;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.team.enums.TeamUserStatus;
@@ -20,10 +22,8 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     boolean existsTeamUserByStatus(TeamUserStatus status);
 
-    Optional<TeamUser> findByJobsAndTeamIdAndUserId(String job, Long teamId, Long userId);
+    List<TeamUser> findByTeamIdAndStatus(Long teamId, TeamUserStatus status);
 
-//    @Query("SELECT tu FROM TeamUser tu WHERE tu.userId = :userId AND tu.teamId = :teamId AND tu.job IN :jobs")
-//    List<TeamUser> findByUserIdAndTeamIdAndJobs(Long userId, Long teamId, List<String> jobs);
 
     Boolean existsByUserIdAndTeamId(Long userId, Long teamId);
 
