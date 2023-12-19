@@ -34,5 +34,11 @@ public class TeamUserJob {
     @JoinColumn(name = "team_job_id")
     private TeamJob teamJob;
 
+    @Enumerated(EnumType.STRING)
+    @Column
     private TeamUserStatus status;
+
+    public void acceptApplicant(){
+        this.status = TeamUserStatus.APPROVED;
+    }
 }

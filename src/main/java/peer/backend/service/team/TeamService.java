@@ -41,6 +41,7 @@ public class TeamService {
     private final TeamUserRepository teamUserRepository;
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
+    private final TeamUserJobRepository teamUserJobRepository;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
@@ -208,15 +209,12 @@ public class TeamService {
     }
 
     @Transactional
-    public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
+    public void acceptTeamApplicant(Long teamId, TeamUserJobPK teamUserJobId, User user) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(applicantId, teamId);
-        if (teamUser == null) {
-            throw new NotFoundException("존재하지 않는 지원자입니다.");
-        }
-        teamUser.acceptApplicant();
+        TeamUserJob teamUserJob = teamUserJobRepository.findById(teamUserJobId).orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
+        teamUserJob.acceptApplicant();
         //TODO: 신청자에게 알림을 보내야됨
     }
 

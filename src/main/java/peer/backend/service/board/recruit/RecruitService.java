@@ -224,7 +224,7 @@ public class RecruitService {
             .region(new ArrayList<>(List.of(team.getRegion1(), team.getRegion2())))
             .status(recruit.getStatus())
             .totalNumber(recruit.getTeam().getTeamUsers().size())
-            .current(teamUserRepository.findByTeamIdAndStatus(team.getId(), TeamUserStatus.APPROVED).size())
+            .current(teamUserJobRepository.findByTeamUserTeamIdAndStatus(team.getId(), TeamUserStatus.APPROVED).size())
             .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
@@ -361,7 +361,6 @@ public class RecruitService {
                     .teamId(team.getId())
                     .userId(user.getId())
                     .role(TeamUserRoleType.MEMBER)
-                    .status(TeamUserStatus.PENDING)
                     .answers(request.getAnswerList())
                     .build();
             teamUserRepository.save(teamUser);

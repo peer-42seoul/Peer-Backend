@@ -41,10 +41,6 @@ public class TeamUser {
     @Column(columnDefinition = "TEXT")
     private String review;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private TeamUserStatus status;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TeamUserRoleType role;
@@ -65,9 +61,5 @@ public class TeamUser {
         }
 
         teamUserJobs.add(teamUserJob);
-    }
-
-    public void acceptApplicant(){
-        this.status = TeamUserStatus.APPROVED;
     }
 }
