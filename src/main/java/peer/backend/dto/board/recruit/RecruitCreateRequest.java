@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.team.TeamJobDto;
+import peer.backend.entity.team.enums.TeamType;
 import peer.backend.exception.IllegalArgumentException;
 
 import javax.persistence.Lob;
@@ -59,17 +60,17 @@ public class RecruitCreateRequest {
 
     public List<TeamJobDto> getRoleList() {
         if ((Objects.isNull(this.roleList) || this.roleList.isEmpty())) {
-            if (this.type.equals("PROJECT"))
+            if (this.type.equals(TeamType.PROJECT.getValue()))
                 throw new IllegalArgumentException("프로젝트에는 반드시 역할이 한개 이상 필요합니다.");
         } else {
-            if (this.type.equals("STUDY"))
+            if (this.type.equals(TeamType.STUDY.getValue()))
                 throw new IllegalArgumentException("스터디에는 역할을 추가할 수 없습니다.");
         }
         return this.roleList;
     }
 
     public List<String> getLeaderJob() {
-        if (this.type.equals("STUDY"))
+        if (this.type.equals(TeamType.STUDY.getValue()))
             return Collections.emptyList();
         else {
             if (Objects.isNull(this.leaderJob))

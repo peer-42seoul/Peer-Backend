@@ -2,7 +2,6 @@ package peer.backend.entity.team;
 
 import lombok.*;
 import peer.backend.entity.composite.TeamUserJobPK;
-import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamUserStatus;
 
 import javax.persistence.*;

@@ -11,7 +11,6 @@ import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
-import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
@@ -25,11 +24,9 @@ import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j

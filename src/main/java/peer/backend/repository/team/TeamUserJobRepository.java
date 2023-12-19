@@ -7,7 +7,6 @@ import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.TeamUserStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TeamUserJobRepository extends JpaRepository<TeamUserJob, TeamUserJobPK> {
 

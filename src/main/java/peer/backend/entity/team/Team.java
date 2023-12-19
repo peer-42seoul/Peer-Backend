@@ -109,10 +109,10 @@ public class Team extends BaseEntity {
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
         jobs.clear();
         if (request.getRoleList() != null && !request.getInterviewList().isEmpty())
-            request.getRoleList().forEach(this::addRoleWithTeamId);
+            request.getRoleList().forEach(this::addRole);
     }
 
-    public void addRoleWithTeamId(TeamJobDto role) {
+    public void addRole(TeamJobDto role) {
         if (this.getJobs() == null) {
             this.jobs = new ArrayList<>();
         }
@@ -144,16 +144,6 @@ public class Team extends BaseEntity {
                 teamUser.grantLeader(teamUserRoleType);
             }
         }
-    }
-
-    public void addRole(TeamJobDto role) {
-        if (this.getJobs() == null) {
-            this.jobs = new ArrayList<>();
-        }
-        this.jobs.add(TeamJob.builder()
-                .name(role.getName())
-                .max(role.getNumber())
-                .team(this).build());
     }
 
     public void setTeamLogoPath(String teamLogoPath) {

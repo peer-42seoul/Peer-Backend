@@ -1,15 +1,13 @@
 package peer.backend.entity.team;
 
-import javax.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.entity.team.enums.TeamUserRoleType;
-import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
