@@ -34,6 +34,9 @@ public class Banner {
     private BannerType bannerType;
 
     @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
     private String imageUrl;
 
     @Column(nullable = false)
