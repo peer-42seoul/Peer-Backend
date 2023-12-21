@@ -48,9 +48,9 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id,
+    public Long updateRecruit(@PathVariable Long recruit_id,
         @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO) {
-        recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
+        return recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")
