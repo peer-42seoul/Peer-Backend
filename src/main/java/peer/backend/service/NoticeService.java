@@ -23,6 +23,7 @@ public class NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final ObjectService objectService;
+    private final UtilService utilService;
 
     @Transactional
     public void writeNotice(CreateNoticeRequest request) {
@@ -58,16 +59,25 @@ public class NoticeService {
     private Notice createNoticeFromCreateNoticeRequest(CreateNoticeRequest request) {
         String imageUrl = this.uploadNoticeImage(request.getImage());
 
-        return Notice.builder()
+        Notice notice = Notice.builder()
             .title(request.getTitle())
             .writer(request.getWriter())
             .content(request.getContent())
             .status(this.getNoticeStatusFromNotification(request.getNotification()))
             .notification(request.getNotification())
-            .reservationDate(request.getReservationDate())
             .image(imageUrl)
             .view(0L)
             .build();
+
+        if (request.getNotification().equals(Notification.RESERVATION) && Objects.nonNull(
+            request.getReservationDate())) {
+            if (!this.utilService.checkDatePastNow(request.getReservationDate())) {
+                throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
+            }
+            notice.setReservationDate(request.getReservationDate());
+        }
+
+        return notice;
     }
 
     private NoticeStatus getNoticeStatusFromNotification(Notification notification) {
@@ -104,6 +114,9 @@ public class NoticeService {
             // 공지사항이 알림 상태인데 notification도 그대로고 얘가 예약 상태일경우 -> 이때만 예약 시간 수정 필요.
             if (notice.getStatus().equals(NoticeStatus.RESERVATION) && notice.getNotification()
                 .equals(Notification.RESERVATION)) {
+                if (this.utilService.checkDatePastNow(request.getReservationDate())) {
+                    throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
+                }
                 notice.setReservationDate(request.getReservationDate());
             }
         }
@@ -126,7 +139,8 @@ public class NoticeService {
     }
 
     private String uploadNoticeImage(String imageData) {
-        return this.objectService.uploadObject("notice/" + UUID.randomUUID(),
+        String noticeImageFolder = "notice/";
+        return this.objectService.uploadObject(noticeImageFolder + UUID.randomUUID(),
             imageData, "image");
     }
 
