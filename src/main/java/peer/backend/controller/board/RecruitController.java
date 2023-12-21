@@ -49,7 +49,8 @@ public class RecruitController {
     @PutMapping("/{recruit_id}")
     @AuthorCheck
     public Long updateRecruit(@PathVariable Long recruit_id,
-        @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO) {
+                              @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO,
+                              Authentication auth) {
         return recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
@@ -75,7 +76,8 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "글 수정을 위한 정보를 불러온다.")
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
-    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id) {
+    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id,
+                                                   Authentication auth) {
         return recruitService.getRecruitwithInterviewList(recruit_id);
     }
 
