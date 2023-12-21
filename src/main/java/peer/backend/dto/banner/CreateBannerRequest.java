@@ -15,6 +15,9 @@ public class CreateBannerRequest {
     @ValidEnum(enumClass = BannerType.class)
     private BannerType bannerType;
 
+    @NotBlank(message = "배너 제목을 필수입니다.")
+    private String title;
+
     @NotBlank(message = "이미지는 필수입니다.")
     private String image;
 

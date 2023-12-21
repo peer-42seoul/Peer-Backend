@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.banner.CreateBannerRequest;
 import peer.backend.entity.banner.Banner;
@@ -27,11 +29,17 @@ public class BannerService {
         this.bannerRepository.save(banner);
     }
 
+    @Transactional
+    public Page<Banner> getBannerList(Pageable pageable) {
+        return this.bannerRepository.findAll(pageable);
+    }
+
     private Banner createBannerFromCreateBannerRequest(CreateBannerRequest request) {
         String imageUrl = this.uploadBannerImage(request.getImage());
 
         Banner banner = Banner.builder()
             .bannerType(request.getBannerType())
+            .title(request.getTitle())
             .imageUrl(imageUrl)
             .bannerStatus(
                 this.getBannerStatusFromBannerReservationType(request.getBannerReservationType()))
