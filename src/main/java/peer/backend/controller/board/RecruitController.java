@@ -76,9 +76,9 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "글 수정을 위한 정보를 불러온다.")
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
-    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id,
+    public RecruitUpdateResponse getRecruitForEdit(@PathVariable("recruit_id") Long recruitId,
                                                    Authentication auth) {
-        return recruitService.getRecruitwithInterviewList(recruit_id);
+        return recruitService.getRecruitwithInterviewList(recruitId);
     }
 
     @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")
