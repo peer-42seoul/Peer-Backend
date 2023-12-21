@@ -44,7 +44,6 @@ public class RecruitCreateRequest {
     private List<Long> tagList;
     private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
-    private List<String> leaderJob;
     private int max;
 
     public String getRegion1() {
@@ -67,16 +66,6 @@ public class RecruitCreateRequest {
                 throw new IllegalArgumentException("스터디에는 역할을 추가할 수 없습니다.");
         }
         return this.roleList;
-    }
-
-    public List<String> getLeaderJob() {
-        if (this.type.equals(TeamType.STUDY.getValue()))
-            return Collections.emptyList();
-        else {
-            if (Objects.isNull(this.leaderJob))
-                throw new IllegalArgumentException("작성자에게 역할을 부여해주세요.");
-            return this.leaderJob;
-        }
     }
 
     public int getMax() {
