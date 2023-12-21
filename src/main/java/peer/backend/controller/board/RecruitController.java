@@ -26,8 +26,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
-    public RecruitResponce getRecruit(@PathVariable Long recruit_id, Authentication auth) {
-        return recruitService.getRecruit(recruit_id, auth);
+    public RecruitResponce getRecruit(@PathVariable("recruit_id") Long recruitId, Authentication auth) {
+        return recruitService.getRecruit(recruitId, auth);
     }
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
@@ -49,7 +49,8 @@ public class RecruitController {
     @PutMapping("/{recruit_id}")
     @AuthorCheck
     public Long updateRecruit(@PathVariable Long recruit_id,
-        @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO) {
+                              @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO,
+                              Authentication auth) {
         return recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
@@ -75,8 +76,9 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "글 수정을 위한 정보를 불러온다.")
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
-    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id) {
-        return recruitService.getRecruitwithInterviewList(recruit_id);
+    public RecruitUpdateResponse getRecruitForEdit(@PathVariable("recruit_id") Long recruitId,
+                                                   Authentication auth) {
+        return recruitService.getRecruitwithInterviewList(recruitId);
     }
 
     @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")
