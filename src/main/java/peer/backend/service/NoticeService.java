@@ -130,12 +130,12 @@ public class NoticeService {
             imageData, "image");
     }
 
-    private Boolean isHidePossible(Notice notice, NoticeStatus status) {
+    private boolean isHidePossible(Notice notice, NoticeStatus status) {
         return status.equals(NoticeStatus.HIDING) && !notice.getStatus()
             .equals(NoticeStatus.PUBLISHED);
     }
 
-    private Boolean isShowPossible(Notice notice, NoticeStatus status) {
+    private boolean isShowPossible(Notice notice, NoticeStatus status) {
         return status.equals(NoticeStatus.PUBLISHED) && !notice.getStatus()
             .equals(NoticeStatus.HIDING);
     }
