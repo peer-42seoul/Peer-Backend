@@ -61,7 +61,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             response.addCookie(cookie);
         } else if (loginStatus.equals(LoginStatus.REGISTER)) {
             log.info("회원가입 화면으로 리다이렉트");
-            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + REDIRECT_URL)
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + REGISTER_URL)
                 .queryParam("social-email", principalDetails.getSocialEmail())
                 .build()
                 .toUriString();
