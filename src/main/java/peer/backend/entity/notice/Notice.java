@@ -56,5 +56,5 @@ public class Notice extends BaseEntity {
     private Notification notification;
 
     @Column
-    private LocalDateTime reservation_date;
+    private LocalDateTime reservationDate;
 }

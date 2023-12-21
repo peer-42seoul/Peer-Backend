@@ -27,7 +27,7 @@ public class NoticeResponse {
         this.view = notice.getView();
         this.noticeStatus = notice.getStatus();
         if (this.noticeStatus.equals(NoticeStatus.RESERVATION)) {
-            this.date = notice.getReservation_date();
+            this.date = notice.getReservationDate();
         } else {
             this.date = notice.getCreatedAt();
         }

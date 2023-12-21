@@ -64,7 +64,7 @@ public class NoticeService {
             .content(request.getContent())
             .status(this.getNoticeStatusFromNotification(request.getNotification()))
             .notification(request.getNotification())
-            .reservation_date(request.getReservationDate())
+            .reservationDate(request.getReservationDate())
             .image(imageUrl)
             .view(0L)
             .build();
@@ -104,7 +104,7 @@ public class NoticeService {
             // 공지사항이 알림 상태인데 notification도 그대로고 얘가 예약 상태일경우 -> 이때만 예약 시간 수정 필요.
             if (notice.getStatus().equals(NoticeStatus.RESERVATION) && notice.getNotification()
                 .equals(Notification.RESERVATION)) {
-                notice.setReservation_date(request.getReservationDate());
+                notice.setReservationDate(request.getReservationDate());
             }
         }
         if (Objects.nonNull(request.getImage())) {
