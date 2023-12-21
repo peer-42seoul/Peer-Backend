@@ -9,14 +9,18 @@ import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.*;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 
@@ -34,6 +38,7 @@ public class TeamService {
     private final TeamUserRepository teamUserRepository;
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
+    private final TeamUserJobRepository teamUserJobRepository;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
@@ -201,15 +206,12 @@ public class TeamService {
     }
 
     @Transactional
-    public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
+    public void acceptTeamApplicant(Long teamId, TeamUserJobPK teamUserJobId, User user) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(applicantId, teamId);
-        if (teamUser == null) {
-            throw new NotFoundException("존재하지 않는 지원자입니다.");
-        }
-        teamUser.acceptApplicant();
+        TeamUserJob teamUserJob = teamUserJobRepository.findById(teamUserJobId).orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
+        teamUserJob.acceptApplicant();
         //TODO: 신청자에게 알림을 보내야됨
     }
 
@@ -257,9 +259,11 @@ public class TeamService {
         }
     }
 
+
+
     @TeamCreateTracking
     @Transactional
-    public Team createTeam(User user, RecruitCreateRequest request) {
+    public Team createTeam(User user, RecruitCreateRequest request) throws IllegalArgumentException {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
@@ -270,7 +274,7 @@ public class TeamService {
             .region1(request.getRegion1())
             .region2(request.getRegion2())
             .dueTo(RecruitDueEnum.from(request.getDue()))
-            .maxMember(0)
+            .maxMember(request.getMax())
             .build();
         if (request.getRoleList() != null)
             addRolesToTeam(team, request.getRoleList());
@@ -279,16 +283,16 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
-            .status(TeamUserStatus.APPROVED)
             .role(TeamUserRoleType.LEADER)
             .build();
-            if (request.getLeaderJob() != null)
-                request.getLeaderJob().forEach(jobName ->
-                    teamJobRepository.findByTeamIdAndName(team.getId(), jobName).ifPresentOrElse(
-                            teamUser::addJob,
-                            () -> { throw new NotFoundException("존재하지 않는 역할입니다."); })
-                );
         teamUserRepository.save(teamUser);
+        request.getLeaderJob().forEach(
+                name -> teamJobRepository.findByTeamIdAndName(team.getId(), name).ifPresent(job -> teamUser.addTeamUserJob( TeamUserJob.builder()
+                        .teamJobId(job.getId())
+                        .teamUserId(teamUser.getId())
+                        .status(TeamUserStatus.APPROVED)
+                        .build()))
+        );
         return team;
     }
 }

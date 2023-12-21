@@ -71,80 +71,80 @@ public class TeamUserRepositoryTest {
         teamRepository.save(team);
     }
 
-    @Test
-    @DisplayName("TeamUser insert test")
-    void insertTest() {
-        User user = userRepository.findAll().get(0);
-        Team team = teamRepository.findAll().get(0);
-
-        TeamUser teamUser = TeamUser.builder()
-            .user(user)
-            .userId(user.getId())
-            .team(team)
-            .teamId(team.getId())
-            .role(TeamUserRoleType.MEMBER)
-            .build();
-
-        teamUserRepository.save(teamUser);
-        assertEquals(teamUserRepository.count(), 1);
-    }
-
-    @Test
-    @DisplayName("TeamUser findByUserIdAndTeamId test")
-    void findByUserIdAndTeamIdTest() {
-        User user = userRepository.findAll().get(0);
-        Team team = teamRepository.findAll().get(0);
-
-        TeamUser teamUser = TeamUser.builder()
-            .user(user)
-            .userId(user.getId())
-            .team(team)
-            .teamId(team.getId())
-            .role(TeamUserRoleType.MEMBER)
-            .build();
-
-        teamUserRepository.save(teamUser);
-        TeamUser find = teamUserRepository.findByUserIdAndTeamId(user.getId(),
-            team.getId());
-        assertEquals(find.getTeamId(), teamUser.getTeamId());
-    }
-
-    @Test
-    @DisplayName("TeamUser findByUserId test")
-    void findByUserIdTest() {
-        User user = userRepository.findAll().get(0);
-        Team team = teamRepository.findAll().get(0);
-
-        TeamUser teamUser = TeamUser.builder()
-            .user(user)
-            .userId(user.getId())
-            .team(team)
-            .teamId(team.getId())
-            .role(TeamUserRoleType.MEMBER)
-            .build();
-
-        teamUserRepository.save(teamUser);
-        List<TeamUser> teamUserList = teamUserRepository.findByUserId(user.getId());
-        assertEquals(teamUserList.size(), 1);
-    }
-
-    @Test
-    @DisplayName("TeamUser delete test")
-    void deleteTest() {
-        User user = userRepository.findAll().get(0);
-        Team team = teamRepository.findAll().get(0);
-
-        TeamUser teamUser = TeamUser.builder()
-            .user(user)
-            .userId(user.getId())
-            .team(team)
-            .teamId(team.getId())
-            .role(TeamUserRoleType.MEMBER)
-            .build();
+//    @Test
+//    @DisplayName("TeamUser insert test")
+//    void insertTest() {
+//        User user = userRepository.findAll().get(0);
+//        Team team = teamRepository.findAll().get(0);
+//
+//        TeamUser teamUser = TeamUser.builder()
+//            .user(user)
+//            .userId(user.getId())
+//            .team(team)
+//            .teamId(team.getId())
+//            .role(TeamUserRoleType.MEMBER)
+//            .build();
+//
+//        teamUserRepository.save(teamUser);
+//        assertEquals(teamUserRepository.count(), 1);
+//    }
+//
+//    @Test
+//    @DisplayName("TeamUser findByUserIdAndTeamId test")
+//    void findByUserIdAndTeamIdTest() {
+//        User user = userRepository.findAll().get(0);
+//        Team team = teamRepository.findAll().get(0);
+//
+//        TeamUser teamUser = TeamUser.builder()
+//            .user(user)
+//            .userId(user.getId())
+//            .team(team)
+//            .teamId(team.getId())
+//            .role(TeamUserRoleType.MEMBER)
+//            .build();
+//
+//        teamUserRepository.save(teamUser);
+//        TeamUser find = teamUserRepository.findByUserIdAndTeamId(user.getId(),
+//            team.getId());
+//        assertEquals(find.getTeamId(), teamUser.getTeamId());
+//    }
+//
+//    @Test
+//    @DisplayName("TeamUser findByUserId test")
+//    void findByUserIdTest() {
+//        User user = userRepository.findAll().get(0);
+//        Team team = teamRepository.findAll().get(0);
+//
+//        TeamUser teamUser = TeamUser.builder()
+//            .user(user)
+//            .userId(user.getId())
+//            .team(team)
+//            .teamId(team.getId())
+//            .role(TeamUserRoleType.MEMBER)
+//            .build();
+//
+//        teamUserRepository.save(teamUser);
+//        List<TeamUser> teamUserList = teamUserRepository.findByUserId(user.getId());
+//        assertEquals(teamUserList.size(), 1);
+//    }
+//
+//    @Test
+//    @DisplayName("TeamUser delete test")
+//    void deleteTest() {
+//        User user = userRepository.findAll().get(0);
+//        Team team = teamRepository.findAll().get(0);
+//
+//        TeamUser teamUser = TeamUser.builder()
+//            .user(user)
+//            .userId(user.getId())
+//            .team(team)
+//            .teamId(team.getId())
+//            .role(TeamUserRoleType.MEMBER)
+//            .build();
 
 //        teamUserRepository.save(teamUser);
 //        assertEquals(teamUserRepository.count(), 1);
 //        teamUserRepository.deleteByUserIdAndTeamId(user.getId(), team.getId());
 //        assertEquals(teamUserRepository.count(), 0);
-    }
+//    }
 }

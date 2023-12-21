@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.team.TeamJobDto;
+import peer.backend.entity.team.enums.TeamType;
 import peer.backend.exception.IllegalArgumentException;
 
 import javax.persistence.Lob;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
@@ -43,6 +45,7 @@ public class RecruitCreateRequest {
     private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
     private List<String> leaderJob;
+    private int max;
 
     public String getRegion1() {
         if ((this.region == null && this.place.equals("OFFLINE")) ||
@@ -55,13 +58,30 @@ public class RecruitCreateRequest {
         return (this.region == null ? null : region.get(1));
     }
 
-    public List<String> getLeaderJob() {
-        if ((this.roleList == null || this.roleList.isEmpty()) && this.leaderJob == null) {
-            return Collections.emptyList();
+    public List<TeamJobDto> getRoleList() {
+        if ((Objects.isNull(this.roleList) || this.roleList.isEmpty())) {
+            if (this.type.equals(TeamType.PROJECT.getValue()))
+                throw new IllegalArgumentException("프로젝트에는 반드시 역할이 한개 이상 필요합니다.");
+        } else {
+            if (this.type.equals(TeamType.STUDY.getValue()))
+                throw new IllegalArgumentException("스터디에는 역할을 추가할 수 없습니다.");
         }
-        else if (this.roleList != null && !this.roleList.isEmpty() && this.leaderJob != null)
+        return this.roleList;
+    }
+
+    public List<String> getLeaderJob() {
+        if (this.type.equals(TeamType.STUDY.getValue()))
+            return Collections.emptyList();
+        else {
+            if (Objects.isNull(this.leaderJob))
+                throw new IllegalArgumentException("작성자에게 역할을 부여해주세요.");
             return this.leaderJob;
-        else
-            throw new IllegalArgumentException("작성자에게 잘못된 역할을 할당하였습니다.");
+        }
+    }
+
+    public int getMax() {
+        if (this.type.equals("STUDY"))
+            return this.max;
+        return 0;
     }
 }

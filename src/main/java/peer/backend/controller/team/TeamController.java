@@ -8,6 +8,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.team.*;
+import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
@@ -83,7 +84,7 @@ public class TeamController {
     }
 
     @PutMapping("/applicant/accept/{teamId}")
-    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
+    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") TeamUserJobPK applicantId, @RequestParam("job") String job, Authentication authentication) {
         User thisUser =  User.authenticationToUser(authentication);
         this.teamService.acceptTeamApplicant(teamId, applicantId, thisUser);
         return this.teamService.getTeamApplicantList(teamId, thisUser);
