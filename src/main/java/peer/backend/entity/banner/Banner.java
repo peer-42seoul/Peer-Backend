@@ -1,5 +1,6 @@
 package peer.backend.entity.banner;
 
+import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import peer.backend.converter.BannerStatusConverter;
 import peer.backend.converter.BannerTypeConverter;
+import peer.backend.entity.BaseEntity;
 
 @Entity
 @Getter
@@ -23,7 +25,7 @@ import peer.backend.converter.BannerTypeConverter;
 @AllArgsConstructor
 @Builder
 @Table(name = "banner")
-public class Banner {
+public class Banner extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
