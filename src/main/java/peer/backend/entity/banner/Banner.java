@@ -1,6 +1,5 @@
 package peer.backend.entity.banner;
 
-import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
