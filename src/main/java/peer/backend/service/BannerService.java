@@ -12,6 +12,7 @@ import peer.backend.entity.banner.Banner;
 import peer.backend.entity.banner.BannerReservationType;
 import peer.backend.entity.banner.BannerStatus;
 import peer.backend.exception.ConflictException;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.banner.BannerRepository;
 import peer.backend.service.file.ObjectService;
 
@@ -32,6 +33,12 @@ public class BannerService {
     @Transactional
     public Page<Banner> getBannerList(Pageable pageable) {
         return this.bannerRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public Banner getBanner(Long id) {
+        return this.bannerRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 배너 ID 입니다."));
     }
 
     private Banner createBannerFromCreateBannerRequest(CreateBannerRequest request) {
