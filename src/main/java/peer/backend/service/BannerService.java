@@ -54,6 +54,9 @@ public class BannerService {
         if (status.equals(BannerStatus.ONGOING) && banner.getBannerStatus()
             .equals(BannerStatus.ONGOING)) {
             throw new ConflictException("이미 게재 상태인 배너를 게재할 순 없습니다!");
+        } else if (status.equals(BannerStatus.TERMINATION) && banner.getBannerStatus()
+            .equals(BannerStatus.TERMINATION)) {
+            throw new ConflictException("이미 종료 상태인 배너를 종료할 순 없습니다!");
         }
         banner.setBannerStatus(status);
     }
