@@ -41,6 +41,13 @@ public class BannerService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 배너 ID 입니다."));
     }
 
+    @Transactional
+    public void deleteBanner(Long id) {
+        Banner banner = this.getBanner(id);
+        this.bannerRepository.deleteById(id);
+        this.objectService.deleteObject(banner.getImageUrl());
+    }
+
     private Banner createBannerFromCreateBannerRequest(CreateBannerRequest request) {
         String imageUrl = this.uploadBannerImage(request.getImage());
 
