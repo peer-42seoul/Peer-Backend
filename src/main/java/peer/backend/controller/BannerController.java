@@ -18,6 +18,7 @@ import peer.backend.dto.banner.BannerResponse;
 import peer.backend.dto.banner.CreateBannerRequest;
 import peer.backend.dto.notice.NoticeResponse;
 import peer.backend.entity.banner.Banner;
+import peer.backend.entity.banner.BannerStatus;
 import peer.backend.entity.notice.Notice;
 import peer.backend.service.BannerService;
 
@@ -49,5 +50,10 @@ public class BannerController {
     @DeleteMapping
     public void deleteBanner(@RequestBody @Valid BannerIdRequest request) {
         this.bannerService.deleteBanner(request.getBannerId());
+    }
+
+    @PostMapping("publish")
+    public void publishBanner(@RequestBody @Valid BannerIdRequest request) {
+        this.bannerService.setBannerStatus(request.getBannerId(), BannerStatus.ONGOING);
     }
 }

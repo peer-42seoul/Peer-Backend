@@ -48,6 +48,16 @@ public class BannerService {
         this.objectService.deleteObject(banner.getImageUrl());
     }
 
+    @Transactional
+    public void setBannerStatus(Long bannerId, BannerStatus status) {
+        Banner banner = this.getBanner(bannerId);
+        if (status.equals(BannerStatus.ONGOING) && banner.getBannerStatus()
+            .equals(BannerStatus.ONGOING)) {
+            throw new ConflictException("이미 게재 상태인 배너를 게재할 순 없습니다!");
+        }
+        banner.setBannerStatus(status);
+    }
+
     private Banner createBannerFromCreateBannerRequest(CreateBannerRequest request) {
         String imageUrl = this.uploadBannerImage(request.getImage());
 
