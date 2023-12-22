@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 import javax.transaction.Transactional;
@@ -7,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.RecruitWritingTracking;
 import peer.backend.dto.banner.CreateBannerRequest;
+import peer.backend.dto.banner.UpdateBannerRequest;
 import peer.backend.entity.banner.Banner;
 import peer.backend.entity.banner.BannerReservationType;
 import peer.backend.entity.banner.BannerStatus;
@@ -49,6 +52,12 @@ public class BannerService {
     }
 
     @Transactional
+    public void updateBanner(UpdateBannerRequest request) {
+        Banner banner = this.getBanner(request.getBannerId());
+        this.updateBannerFromUpdateBannerRequest(banner, request);
+    }
+
+    @Transactional
     public void setBannerStatus(Long bannerId, BannerStatus status) {
         Banner banner = this.getBanner(bannerId);
         if (status.equals(BannerStatus.ONGOING) && banner.getBannerStatus()
@@ -75,13 +84,35 @@ public class BannerService {
 
         if (request.getBannerReservationType().equals(BannerReservationType.RESERVATION)
             && Objects.nonNull(request.getReservationDate())) {
-            if (!this.utilService.checkDatePastNow(request.getReservationDate())) {
-                throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
-            }
-            banner.setReservationDate(request.getReservationDate());
+            this.setBannerReservationDate(banner, request.getReservationDate());
         }
 
         return banner;
+    }
+
+    private void updateBannerFromUpdateBannerRequest(Banner banner, UpdateBannerRequest request) {
+        banner.setBannerType(request.getBannerType());
+        banner.setTitle(request.getTitle());
+        banner.setNoticeUrl(request.getNoticeUrl());
+        // BannerReservationType이 즉시일 경우
+        if (request.getBannerReservationType().equals(BannerReservationType.IMMEDIATELY)) {
+            // Banner의 상태가 예약일 경우
+            if (banner.getBannerStatus().equals(BannerStatus.RESERVATION)) {
+                banner.setBannerStatus(BannerStatus.ONGOING);
+                // Banner의 상태가 예약이 아닐 경우
+            } else {
+                throw new ConflictException("예약 상태가 아닌 배너의 예약 타입을 즉시로 설정할 수 없습니다!");
+            }
+            // BannerReservationType이 예약일 경우
+        } else {
+            // Banner의 상태가 예약일 경우
+            if (banner.getBannerStatus().equals(BannerStatus.RESERVATION)) {
+                this.setBannerReservationDate(banner, request.getReservationDate());
+                // Banner의 상태가 예약이 아닐 경우
+            } else {
+                throw new ConflictException("이미 진행 중인 배너의 예약 타입을 예약으로 설정할 수 없습니다!");
+            }
+        }
     }
 
     private BannerStatus getBannerStatusFromBannerReservationType(BannerReservationType type) {
@@ -96,5 +127,12 @@ public class BannerService {
         String bannerImageFolder = "banner/";
         return this.objectService.uploadObject(bannerImageFolder + UUID.randomUUID(),
             imageData, "image");
+    }
+
+    private void setBannerReservationDate(Banner banner, LocalDateTime date) {
+        if (!this.utilService.checkDatePastNow(date)) {
+            throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
+        }
+        banner.setReservationDate(date);
     }
 }
