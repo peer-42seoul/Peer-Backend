@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public enum BannerStatus {
     ONGOING("진행 중", 1L),
     RESERVATION("예약", 2L),
-    FINISHED("종료", 3L);
+    TERMINATION("종료", 3L);
 
     private final String value;
     private final Long code;

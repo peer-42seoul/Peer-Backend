@@ -56,4 +56,9 @@ public class BannerController {
     public void publishBanner(@RequestBody @Valid BannerIdRequest request) {
         this.bannerService.setBannerStatus(request.getBannerId(), BannerStatus.ONGOING);
     }
+
+    @PostMapping("termination")
+    public void terminateBanner(@RequestBody @Valid BannerIdRequest request) {
+        this.bannerService.setBannerStatus(request.getBannerId(), BannerStatus.TERMINATION);
+    }
 }
