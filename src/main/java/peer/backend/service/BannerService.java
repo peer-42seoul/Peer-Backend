@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import peer.backend.annotation.tracking.RecruitWritingTracking;
 import peer.backend.dto.banner.CreateBannerRequest;
 import peer.backend.dto.banner.UpdateBannerRequest;
 import peer.backend.entity.banner.Banner;

@@ -2,7 +2,6 @@ package peer.backend.dto.banner;
 
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
-import peer.backend.dto.notice.CreateNoticeRequest;
 
 @Getter
 public class UpdateBannerRequest extends CreateBannerRequest {
