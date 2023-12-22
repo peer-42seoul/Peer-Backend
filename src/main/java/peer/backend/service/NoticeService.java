@@ -1,5 +1,6 @@
 package peer.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 import javax.transaction.Transactional;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.notice.CreateNoticeRequest;
 import peer.backend.dto.notice.UpdateNoticeRequest;
+import peer.backend.entity.banner.Banner;
 import peer.backend.entity.notice.Notice;
 import peer.backend.entity.notice.NoticeStatus;
 import peer.backend.entity.notice.Notification;
@@ -71,10 +73,7 @@ public class NoticeService {
 
         if (request.getNotification().equals(Notification.RESERVATION) && Objects.nonNull(
             request.getReservationDate())) {
-            if (!this.utilService.checkDatePastNow(request.getReservationDate())) {
-                throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
-            }
-            notice.setReservationDate(request.getReservationDate());
+            this.setNoticeReservationDate(notice, request.getReservationDate());
         }
 
         return notice;
@@ -114,10 +113,7 @@ public class NoticeService {
             // 공지사항이 알림 상태인데 notification도 그대로고 얘가 예약 상태일경우 -> 이때만 예약 시간 수정 필요.
             if (notice.getStatus().equals(NoticeStatus.RESERVATION) && notice.getNotification()
                 .equals(Notification.RESERVATION)) {
-                if (this.utilService.checkDatePastNow(request.getReservationDate())) {
-                    throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
-                }
-                notice.setReservationDate(request.getReservationDate());
+                this.setNoticeReservationDate(notice, request.getReservationDate());
             }
         }
         if (Objects.nonNull(request.getImage())) {
@@ -152,5 +148,12 @@ public class NoticeService {
     private boolean isShowPossible(Notice notice, NoticeStatus status) {
         return status.equals(NoticeStatus.PUBLISHED) && !notice.getStatus()
             .equals(NoticeStatus.HIDING);
+    }
+
+    private void setNoticeReservationDate(Notice notice, LocalDateTime date) {
+        if (!this.utilService.checkDatePastNow(date)) {
+            throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
+        }
+        notice.setReservationDate(date);
     }
 }
