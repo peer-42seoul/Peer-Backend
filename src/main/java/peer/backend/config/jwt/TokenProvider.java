@@ -19,14 +19,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import peer.backend.entity.user.Login;
 import peer.backend.entity.user.User;
-import peer.backend.service.UserDetailsServiceImpl;
+import peer.backend.entity.user.enums.Role;
+import peer.backend.service.PrincipalDetailsService;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class TokenProvider {
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final PrincipalDetailsService principalDetailsService;
 
     @Value("${jwt.token.secret}")
     private String secretKey;
@@ -86,9 +87,11 @@ public class TokenProvider {
      */
     public Authentication getAuthentication(String token) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        String id = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(token)
-            .getBody().getSubject();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(id);
+        Claims claims = Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(token)
+            .getBody();
+        String id = claims.getSubject();
+        Role role = Role.from(String.valueOf(claims.get("role")));
+        UserDetails userDetails = principalDetailsService.loadUserByUsername(id, role);
         return new UsernamePasswordAuthenticationToken(userDetails, null,
             userDetails.getAuthorities());
     }

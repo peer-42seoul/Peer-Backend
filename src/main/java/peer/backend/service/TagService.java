@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.tag.TagResponse;
 import peer.backend.entity.tag.RecruitTag;
@@ -11,12 +12,15 @@ import peer.backend.entity.tag.Tag;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.TagRepository;
+import peer.backend.repository.board.recruit.RecruitTagRepository;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class TagService {
 
     private final TagRepository tagRepository;
+    private final RecruitTagRepository recruitTagRepository;
 
     @Transactional
     public void createTag(String name, String color) {
@@ -28,6 +32,7 @@ public class TagService {
 
     @Transactional
     public void deleteTag(Long tagId) {
+        this.recruitTagRepository.deleteAllByTagId(tagId);
         this.tagRepository.deleteById(tagId);
     }
 
