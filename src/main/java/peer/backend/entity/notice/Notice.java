@@ -50,20 +50,20 @@ public class Notice extends BaseEntity {
 
     @Column(nullable = false)
     @Convert(converter = NoticeStatusConverter.class)
-    private NoticeStatus status;
+    private NoticeStatus noticeStatus;
 
     @Column(nullable = false)
     @Convert(converter = NotificationConverter.class)
-    private Notification notification;
+    private NoticeNotification noticeNotification;
 
     @Column
     private LocalDateTime reservationDate;
 
-    public void setStatus(NoticeStatus status) {
+    public void setNoticeStatus(NoticeStatus status) {
         if (status.equals(NoticeStatus.PUBLISHED)) {
             ZoneId seoulZone = ZoneId.of("Asia/Seoul");
             this.setCreatedAt(LocalDateTime.now(seoulZone));
         }
-        this.status = status;
+        this.noticeStatus = status;
     }
 }

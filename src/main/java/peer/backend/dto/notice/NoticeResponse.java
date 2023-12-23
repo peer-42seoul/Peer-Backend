@@ -25,7 +25,7 @@ public class NoticeResponse {
         this.content = notice.getContent();
         this.image = notice.getImage();
         this.view = notice.getView();
-        this.noticeStatus = notice.getStatus();
+        this.noticeStatus = notice.getNoticeStatus();
         if (this.noticeStatus.equals(NoticeStatus.RESERVATION)) {
             this.date = notice.getReservationDate();
         } else {
