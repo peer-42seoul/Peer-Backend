@@ -46,7 +46,7 @@ public class NoticeService {
 
     @Transactional
     public List<Notice> getNoticeListByNoticeStatus(NoticeStatus status) {
-        return this.noticeRepository.findAllByStatus(status);
+        return this.noticeRepository.findAllByNoticeStatus(status);
     }
 
     @Transactional
@@ -70,8 +70,8 @@ public class NoticeService {
             .title(request.getTitle())
             .writer(request.getWriter())
             .content(request.getContent())
-            .status(this.getNoticeStatusFromNotification(request.getNoticeNotification()))
-            .notification(request.getNoticeNotification())
+            .noticeStatus(this.getNoticeStatusFromNotification(request.getNoticeNotification()))
+            .noticeNotification(request.getNoticeNotification())
             .image(imageUrl)
             .view(0L)
             .build();
