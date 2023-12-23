@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UtilService {
 
-    public boolean checkDatePastNow(LocalDateTime date) {
+    public boolean isBeforeThanNow(LocalDateTime date) {
         ZoneId seoulZone = ZoneId.of("Asia/Seoul");
-        return date.isAfter(LocalDateTime.now(seoulZone));
+        return date.isBefore(LocalDateTime.now(seoulZone));
     }
 }

@@ -1,6 +1,7 @@
 package peer.backend.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.transaction.Transactional;
@@ -69,6 +70,11 @@ public class BannerService {
         banner.setBannerStatus(status);
     }
 
+    @Transactional
+    public List<Banner> getBannerListByBannerStatus(BannerStatus status) {
+        return this.bannerRepository.findAllByBannerStatus(status);
+    }
+
     private Banner createBannerFromCreateBannerRequest(CreateBannerRequest request) {
         String imageUrl = this.uploadBannerImage(request.getImage());
 
@@ -129,7 +135,7 @@ public class BannerService {
     }
 
     private void setBannerReservationDate(Banner banner, LocalDateTime date) {
-        if (!this.utilService.checkDatePastNow(date)) {
+        if (this.utilService.isBeforeThanNow(date)) {
             throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
         }
         banner.setReservationDate(date);
