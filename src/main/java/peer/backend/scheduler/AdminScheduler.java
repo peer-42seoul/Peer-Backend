@@ -30,7 +30,7 @@ public class AdminScheduler {
             NoticeStatus.RESERVATION);
         noticeList.forEach(notice -> {
             if (utilService.isBeforeThanNow(notice.getReservationDate())) {
-                notice.setStatus(NoticeStatus.PUBLISHED);
+                notice.setNoticeStatus(NoticeStatus.PUBLISHED);
             }
         });
     }
