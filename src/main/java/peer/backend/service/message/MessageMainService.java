@@ -63,7 +63,7 @@ public class MessageMainService {
             // msgIndex Get
             msgList = this.subService.getMessageIndexList(msgOwner.getId());
         } catch (NoSuchElementException e) {
-            return CompletableFuture.completedFuturgite((AsyncResult.failure(e)));
+            return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
 
         List<MsgObjectDTO> retList = new ArrayList<>();
