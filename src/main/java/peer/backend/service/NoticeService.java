@@ -1,6 +1,7 @@
 package peer.backend.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.transaction.Transactional;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.notice.CreateNoticeRequest;
 import peer.backend.dto.notice.UpdateNoticeRequest;
-import peer.backend.entity.banner.Banner;
 import peer.backend.entity.notice.Notice;
 import peer.backend.entity.notice.NoticeStatus;
 import peer.backend.entity.notice.Notification;
@@ -42,6 +42,11 @@ public class NoticeService {
     public Notice getNotice(Long noticeId) {
         return this.noticeRepository.findById(noticeId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 Id 입니다."));
+    }
+
+    @Transactional
+    public List<Notice> getNoticeListByNoticeStatus(NoticeStatus status) {
+        return this.noticeRepository.findAllByStatus(status);
     }
 
     @Transactional
@@ -77,14 +82,6 @@ public class NoticeService {
         }
 
         return notice;
-    }
-
-    private NoticeStatus getNoticeStatusFromNotification(Notification notification) {
-        if (notification.equals(Notification.NONE) || notification.equals(
-            Notification.IMMEDIATELY)) {
-            return NoticeStatus.PUBLISHED;
-        }
-        return NoticeStatus.RESERVATION;
     }
 
     @Transactional
@@ -134,6 +131,14 @@ public class NoticeService {
         notice.setStatus(status);
     }
 
+    private NoticeStatus getNoticeStatusFromNotification(Notification notification) {
+        if (notification.equals(Notification.NONE) || notification.equals(
+            Notification.IMMEDIATELY)) {
+            return NoticeStatus.PUBLISHED;
+        }
+        return NoticeStatus.RESERVATION;
+    }
+
     private String uploadNoticeImage(String imageData) {
         String noticeImageFolder = "notice/";
         return this.objectService.uploadObject(noticeImageFolder + UUID.randomUUID(),
@@ -151,7 +156,7 @@ public class NoticeService {
     }
 
     private void setNoticeReservationDate(Notice notice, LocalDateTime date) {
-        if (!this.utilService.checkDatePastNow(date)) {
+        if (this.utilService.isBeforeThanNow(date)) {
             throw new ConflictException("예약 시간이 현재보다 이후여야 합니다!");
         }
         notice.setReservationDate(date);
