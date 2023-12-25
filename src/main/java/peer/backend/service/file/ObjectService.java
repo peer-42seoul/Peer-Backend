@@ -29,8 +29,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class ObjectService {
+
     @Data
     private static class TokenRequest {
+
         public TokenRequest(String tenantId, String username, String password) {
             this.auth.setTenantId(tenantId);
             this.auth.getPasswordCredentials().setUsername(username);
@@ -41,16 +43,19 @@ public class ObjectService {
 
         @Data
         public static class Auth {
+
             private String tenantId;
             private PasswordCredentials passwordCredentials = new PasswordCredentials();
         }
 
         @Data
         public static class PasswordCredentials {
+
             private String username;
             private String password;
         }
     }
+
     private String tokenId = null;
     private OffsetDateTime tokenExpireTime = null;
     @Value("${nhn.objectStorage.storageUrl}")
@@ -78,10 +83,12 @@ public class ObjectService {
         HttpEntity<TokenRequest> httpEntity = new HttpEntity<>(tokenRequest, headers);
 
         // 토큰 요청
-        ResponseEntity<String> response = this.restTemplate.exchange(identityUrl, HttpMethod.POST, httpEntity, String.class);
+        ResponseEntity<String> response = this.restTemplate.exchange(identityUrl, HttpMethod.POST,
+            httpEntity, String.class);
         String body = response.getBody();
         this.tokenId = body.substring(body.indexOf("id") + 5, body.indexOf("expires") - 3);
-        this.tokenExpireTime = OffsetDateTime.parse(body.substring(body.indexOf("expires") + 10, body.indexOf("tenant") - 3));
+        this.tokenExpireTime = OffsetDateTime.parse(
+            body.substring(body.indexOf("expires") + 10, body.indexOf("tenant") - 3));
     }
 
     private String getUrl(@NotNull String folderName, @NotNull String objectName) {
@@ -98,13 +105,14 @@ public class ObjectService {
     }
 
 
+    // TODO: 예외처리가 필요해보임.
     public String uploadObject(String folderName, final String base64String, String typeCheck) {
         if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
         byte[] fileData = Base64.getDecoder().decode(base64String);
         String contentType = mimeTypeCheck(fileData, typeCheck);
-        String objectName = UUID.randomUUID() + "." + FileService.getExtensionFromMimeType(contentType);
+        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
         String url = this.getUrl(folderName, objectName);
         if (base64String == null) {
             return null;
@@ -122,7 +130,8 @@ public class ObjectService {
         requestFactory.setBufferRequestBody(false);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
 
-        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(String.class, restTemplate.getMessageConverters());
+        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(
+            String.class, restTemplate.getMessageConverters());
 
         // API 호출
         restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
@@ -142,5 +151,23 @@ public class ObjectService {
 
         // API 호출
         this.restTemplate.exchange(imageUrl, HttpMethod.DELETE, requestHttpEntity, String.class);
+    }
+
+    public String getExtensionFromMimeType(String mimeType) {
+        // MIME 타입을 기반으로 파일 확장자를 매핑
+        switch (mimeType.toLowerCase()) {
+            case "image/jpeg":
+                return "jpg";
+            case "image/png":
+                return "png";
+            case "image/gif":
+                return "gif";
+            case "image/bmp":
+                return "bmp";
+            case "image/svg+xml":
+                return "svg";
+            default:
+                throw new IllegalArgumentException("지원하지 않는 파일유형입니다."); // 알려진 MIME 타입이 없는 경우
+        }
     }
 }

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.tag.TagResponse;
+import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
 
@@ -17,6 +18,7 @@ public class RecruitResponce {
 
     private String title;
     private int totalNumber;
+    private int current;
     private RecruitStatus status;
     private String due;
     private String content;
@@ -26,7 +28,7 @@ public class RecruitResponce {
     private String leader_nickname;
     private String leader_image;
     private List<TagResponse> tagList;
-    private List<RecruitRoleDTO> roleList;
+    private List<TeamJobDto> roleList;
     private TeamOperationFormat place;
     private String image;
     private String teamName;

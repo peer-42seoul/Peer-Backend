@@ -7,19 +7,20 @@ import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
 import peer.backend.dto.team.*;
-import peer.backend.entity.board.recruit.Recruit;
-import peer.backend.entity.board.recruit.RecruitApplicant;
 import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
-import peer.backend.repository.board.recruit.RecruitApplicantRepository;
-import peer.backend.repository.board.recruit.RecruitRepository;
+import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 
@@ -35,9 +36,9 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
-    private final RecruitRepository recruitRepository;
-    private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
+    private final TeamJobRepository teamJobRepository;
+    private final TeamUserJobRepository teamUserJobRepository;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
@@ -172,19 +173,18 @@ public class TeamService {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        List<RecruitApplicant> recruitApplicantList = recruitApplicantRepository.findByRecruitId(
-            teamId);
+        List<TeamUser> teamUserList = teamUserRepository.findByTeamId(teamId);
         List<TeamApplicantListDto> result = new ArrayList<>();
-        Recruit recruit = recruitRepository.findById(teamId)
+        Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        if (recruit.getStatus() != RecruitStatus.ONGOING) {
+        if (team.getStatus() != TeamStatus.RECRUITING) {
             throw new NotFoundException("모집이 진행중이 아닙니다.");
         }
         //questionList 이터레이트 하면서 dtoList만들기
-        for (RecruitApplicant recruitApplicant : recruitApplicantList) {
+        for (TeamUser teamUser : teamUserList) {
             ArrayList<RecruitAnswerDto> answerDtoList = new ArrayList<>();
-            List<String> answerList = recruitApplicant.getAnswerList();
-            List<RecruitInterview> questionList = recruitApplicant.getRecruit().getInterviews();
+            List<String> answerList = teamUser.getAnswers();
+            List<RecruitInterview> questionList = team.getRecruit().getInterviews();
             int index = 0;
             for (RecruitInterview question : questionList) {
                 RecruitAnswerDto answerDto = RecruitAnswerDto.builder()
@@ -198,31 +198,20 @@ public class TeamService {
             }
             result.add(TeamApplicantListDto.builder()
                 .answers(answerDtoList)
-                .name(recruitApplicant.getNickname())
-                .userId(recruitApplicant.getUserId())
+                .name(teamUser.getUser().getNickname())
+                .userId(teamUser.getUserId())
                 .build());
         }
         return result;
     }
 
     @Transactional
-    public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
+    public void acceptTeamApplicant(Long teamId, TeamUserJobPK teamUserJobId, User user) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(
-            applicantId, teamId);
-        if (recruitApplicant == null) {
-            throw new NotFoundException("존재하지 않는 지원자입니다.");
-        }
-        TeamUser newTeamUser = TeamUser.builder()
-            .teamId(teamId)
-            .userId(applicantId)
-            .role(TeamUserRoleType.MEMBER)
-            .review("")
-            .build();
-        teamUserRepository.save(newTeamUser);
-        recruitApplicantRepository.delete(recruitApplicant);
+        TeamUserJob teamUserJob = teamUserJobRepository.findById(teamUserJobId).orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
+        teamUserJob.acceptApplicant();
         //TODO: 신청자에게 알림을 보내야됨
     }
 
@@ -231,12 +220,11 @@ public class TeamService {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        RecruitApplicant recruitApplicant = recruitApplicantRepository.findByUserIdAndRecruitId(
-            applicantId, teamId);
+        TeamUser recruitApplicant = teamUserRepository.findByUserIdAndTeamId(applicantId, teamId);
         if (recruitApplicant == null) {
             throw new NotFoundException("존재하지 않는 지원자입니다.");
         }
-        recruitApplicantRepository.delete(recruitApplicant);
+        teamUserRepository.delete(recruitApplicant);
         //TODO: 신청자에게 알림을 보내야됨
     }
 
@@ -263,29 +251,48 @@ public class TeamService {
         }
     }
 
+    private void addRolesToTeam(Team team, List<TeamJobDto> roleList) {
+        if (roleList != null && !roleList.isEmpty()) {
+            for (TeamJobDto role : roleList) {
+                team.addRole(role);
+            }
+        }
+    }
+
+
+
     @TeamCreateTracking
     @Transactional
-    public Team createTeam(User user, RecruitCreateRequest request) {
+    public Team createTeam(User user, RecruitCreateRequest request) throws IllegalArgumentException {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
-            .dueTo(request.getDue())
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
-            .region1(request.getRegion().get(0))
-            .region2(request.getRegion().get(1))
-            .region3(null)
+            .region1(request.getRegion1())
+            .region2(request.getRegion2())
+            .dueTo(RecruitDueEnum.from(request.getDue()))
+            .maxMember(request.getMax())
             .build();
-        teamRepository.save(team);// 리더 추가
+        if (request.getRoleList() != null)
+            addRolesToTeam(team, request.getRoleList());
+        teamRepository.save(team);
+        // 리더 추가
         TeamUser teamUser = TeamUser.builder()
             .teamId(team.getId())
             .userId(user.getId())
             .role(TeamUserRoleType.LEADER)
-            .job("Leader")
             .build();
         teamUserRepository.save(teamUser);
+        request.getLeaderJob().forEach(
+                name -> teamJobRepository.findByTeamIdAndName(team.getId(), name).ifPresent(job -> teamUser.addTeamUserJob( TeamUserJob.builder()
+                        .teamJobId(job.getId())
+                        .teamUserId(teamUser.getId())
+                        .status(TeamUserStatus.APPROVED)
+                        .build()))
+        );
         return team;
     }
 }

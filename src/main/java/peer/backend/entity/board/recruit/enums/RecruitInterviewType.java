@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum RecruitInterviewType {
     CLOSE("CLOSE"),
     OPEN("OPEN"),
-    MULTIPLE("MULTIPLE"),
+    CHECK("CHECK"),
     RATIO("RATIO")
     ;
     private final String type;

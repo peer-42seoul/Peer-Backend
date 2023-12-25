@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
-import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.oauth.enums.LoginStatus;
 import peer.backend.oauth.enums.SocialLoginProvider;
@@ -23,6 +22,7 @@ import peer.backend.oauth.provider.GoogleUserInfo;
 import peer.backend.oauth.provider.OAuth2UserInfo;
 import peer.backend.service.SocialLoginService;
 import peer.backend.service.UserService;
+import peer.backend.service.blacklist.BlacklistService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserService userService;
     private final SocialLoginService socialLoginService;
+    private final BlacklistService blacklistService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -53,23 +54,29 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                 user = User.builder().email("register").build();
             } else {
                 // 연동
-                loginStatus = LoginStatus.LINK;
                 user = User.authenticationToUser(authentication);
                 if (this.alreadyLinkCheck(user, oAuth2UserInfo)) {
-                    throw new ConflictException("해당 소설 서비스로 이미 연동이 되어 있습니다!");
+                    loginStatus = LoginStatus.DUPLICATE;
+                } else {
+                    loginStatus = LoginStatus.LINK;
+                    this.socialLoginService.save(new SocialLogin(user, oAuth2UserInfo,
+                        userRequest.getAccessToken().getTokenValue(),
+                        socialEmail));
                 }
-                this.socialLoginService.save(new SocialLogin(user, oAuth2UserInfo,
-                    userRequest.getAccessToken().getTokenValue(),
-                    socialEmail));
             }
         } else {
             if (Objects.isNull(authentication)) {
                 // 소셜 로그인
-                loginStatus = LoginStatus.LOGIN;
                 user = this.userService.findById(socialInfo.getUser().getId());
+                if (this.blacklistService.isExistsByUserId(user.getId())) {
+                    loginStatus = LoginStatus.BLOCKED;
+                } else {
+                    loginStatus = LoginStatus.LOGIN;
+                }
             } else {
                 // 이중 연동
-                throw new ConflictException("이미 연동되어있는 계정입니다!");
+                user = User.authenticationToUser(authentication);
+                loginStatus = LoginStatus.ALREADY_LINK;
             }
         }
 

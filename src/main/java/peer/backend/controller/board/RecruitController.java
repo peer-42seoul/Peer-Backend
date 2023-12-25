@@ -1,34 +1,19 @@
 package peer.backend.controller.board;
 
 import io.swagger.annotations.ApiOperation;
-import java.io.IOException;
-import java.util.List;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
-import peer.backend.dto.board.recruit.ApplyRecruitRequest;
-import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.board.recruit.RecruitInterviewDto;
-import peer.backend.dto.board.recruit.RecruitListRequest;
-import peer.backend.dto.board.recruit.RecruitListResponse;
-import peer.backend.dto.board.recruit.RecruitResponce;
-import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
-import peer.backend.dto.board.recruit.RecruitUpdateResponse;
+import peer.backend.dto.board.recruit.*;
 import peer.backend.service.board.recruit.RecruitService;
+
+import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -41,8 +26,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
-    public RecruitResponce getRecruit(@PathVariable Long recruit_id, Authentication auth) {
-        return recruitService.getRecruit(recruit_id, auth);
+    public RecruitResponce getRecruit(@PathVariable("recruit_id") Long recruitId, Authentication auth) {
+        return recruitService.getRecruit(recruitId, auth);
     }
 
     @ApiOperation(value = "", notes = "조건에 따라 list를 반환한다.")
@@ -63,9 +48,10 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck
-    public void updateRecruit(@PathVariable Long recruit_id,
-        @ModelAttribute RecruitUpdateRequestDTO recruitUpdateRequestDTO) throws IOException {
-        recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
+    public Long updateRecruit(@PathVariable Long recruit_id,
+                              @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO,
+                              Authentication auth) {
+        return recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")
@@ -90,8 +76,9 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "글 수정을 위한 정보를 불러온다.")
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
-    public RecruitUpdateResponse getRecruitForEdit(@PathVariable Long recruit_id) {
-        return recruitService.getRecruitwithInterviewList(recruit_id);
+    public RecruitUpdateResponse getRecruitForEdit(@PathVariable("recruit_id") Long recruitId,
+                                                   Authentication auth) {
+        return recruitService.getRecruitwithInterviewList(recruitId);
     }
 
     @ApiOperation(value = "", notes = "모집글 지원을 위한 interviewList를 불러온다.")

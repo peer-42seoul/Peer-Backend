@@ -12,7 +12,7 @@ public class TeamListResponse {
     public TeamListResponse(Team team, TeamUser teamUser, int teamMemberCount) {
         this.id = team.getId().toString();
         this.name = team.getName();
-        this.dueTo = team.getDueTo();
+        this.dueTo = team.getDueTo().getLabel();
         this.status = team.getStatus().toString();
         this.role = teamUser.getRole().toString();
         this.type = team.getType().toString();
