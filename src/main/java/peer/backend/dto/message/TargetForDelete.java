@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TargetForDelete {
-    private Long targetId;
+    private Long conversationId;
 }
