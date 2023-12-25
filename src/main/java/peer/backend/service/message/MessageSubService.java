@@ -120,7 +120,7 @@ public class MessageSubService {
     public String makeFormattedDate(LocalDateTime value) {
 //        ZonedDateTime seoulTimeDate = value.atZone(ZoneId.of("Asia/Seoul"));
 //        ZonedDateTime seoulTimeDate = value.atZone(ZoneId.of("UTC"));
-        System.out.println("현재 존 :" + this.currnetTimezone);
+//        System.out.println("현재 존 :" + this.currnetTimezone);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 //        return seoulTimeDate.format(formatter);
         return value.format(formatter);

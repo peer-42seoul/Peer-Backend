@@ -108,7 +108,7 @@ public class MessageMainService {
      */
     @Async
     @Transactional
-    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, TargetDTO list){
+    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetForDelete> list){
         Long ret;
         ret = 0L;
         Optional<List<MessageIndex>> rawTargetsData = this.indexRepository.findByUserId(userId);
@@ -116,8 +116,8 @@ public class MessageMainService {
         if (rawTargetsData.isEmpty())
             return CompletableFuture.completedFuture(AsyncResult.success(0L));
         boolean check = false;
-        List<TargetForDelete> targetUserIds = list.getTarget();
-        for (TargetForDelete target : targetUserIds) {
+//        List<TargetForDelete> targetUserIds = list;
+        for (TargetForDelete target : list) {
             for (MessageIndex data : targetData) {
                 if (data.getUserIdx1().equals(target.getTargetId())) {
                     data.setUser2delete(true);
