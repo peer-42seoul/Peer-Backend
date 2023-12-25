@@ -76,30 +76,19 @@ public class MessageMainService {
               Page<MessagePiece> data = this.pieceRepository.findTopByTargetConversationIdOrderByCreatedAtDesc(msg.getConversationId(), pageable);
               MessagePiece conversation = data.getContent().get(0);
             // 상대방 확인
-            if (msg.getUserIdx1().equals(msgOwner.getId())) {
-                if (msg.isUser1delete()){
-                    continue;
+            try {
+                if (msg.getUserIdx1().equals(msgOwner.getId()) && !msg.isUser1delete()) {
+                    target = this.userRepository.findById(msg.getUserIdx2()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
+                } else if (msg.getUserIdx2().equals(msgOwner.getId()) && !msg.isUser2delete()) {
+                    target = this.userRepository.findById(msg.getUserIdx1()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
                 }
-                else {
-                    try {
-                        target = this.userRepository.findById(msg.getUserIdx2()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
-                    } catch (NotFoundException e) {
-                        return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-                    }
+                if (target != null) {
                     retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+                    target = null;
                 }
-            } else if (msg.getUserIdx2().equals(msgOwner.getId())) {
-                if (msg.isUser2delete()){
-                    continue;
-                }
-                else {
-                    try {
-                        target = this.userRepository.findById(msg.getUserIdx1()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
-                    } catch (NotFoundException e) {
-                        return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-                    }
-                    retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
-                }
+            }
+            catch (NotFoundException e) {
+                return CompletableFuture.completedFuture((AsyncResult.failure(e)));
             }
         }
         return CompletableFuture.completedFuture(AsyncResult.success(retList));
