@@ -65,8 +65,9 @@ public class MessaageController {
 
     @ApiOperation(value = "", notes = "유저의 쪽지 목록 중 일부를 삭제 한다.")
     @DeleteMapping("/delete-message")
-    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody TargetDTO body) {
+    public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody List<TargetForDelete>  body) {
         CompletableFuture<AsyncResult<Long>> deleted;
+        System.out.println(body.get(0).getTargetId());
         deleted = this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
         try {
             Long finished = deleted.get().getResult();

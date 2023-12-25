@@ -3,7 +3,6 @@ package peer.backend.service.message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectDeletedException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,14 +12,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
-import peer.backend.dto.security.Message;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
@@ -30,9 +27,6 @@ import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.swing.text.html.Option;
-import java.io.IOException;
-import java.net.SocketOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -82,22 +76,19 @@ public class MessageMainService {
               Page<MessagePiece> data = this.pieceRepository.findTopByTargetConversationIdOrderByCreatedAtDesc(msg.getConversationId(), pageable);
               MessagePiece conversation = data.getContent().get(0);
             // 상대방 확인
-            if (msg.getUserIdx1().equals(msgOwner.getId())) {
-                if (msg.isUser1delete()){
-                    continue;
+            try {
+                if (msg.getUserIdx1().equals(msgOwner.getId()) && !msg.isUser1delete()) {
+                    target = this.userRepository.findById(msg.getUserIdx2()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
+                } else if (msg.getUserIdx2().equals(msgOwner.getId()) && !msg.isUser2delete()) {
+                    target = this.userRepository.findById(msg.getUserIdx1()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
                 }
-                else {
-                    target = this.userRepository.findById(msg.getUserIdx2()).get();
+                if (target != null) {
                     retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+                    target = null;
                 }
-            } else if (msg.getUserIdx2().equals(msgOwner.getId())) {
-                if (msg.isUser2delete()){
-                    continue;
-                }
-                else {
-                    target = this.userRepository.findById(msg.getUserIdx1()).get();
-                    retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
-                }
+            }
+            catch (NotFoundException e) {
+                return CompletableFuture.completedFuture((AsyncResult.failure(e)));
             }
         }
         return CompletableFuture.completedFuture(AsyncResult.success(retList));
@@ -117,16 +108,16 @@ public class MessageMainService {
      */
     @Async
     @Transactional
-    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, TargetDTO list){
+    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetForDelete> list){
         Long ret;
         ret = 0L;
         Optional<List<MessageIndex>> rawTargetsData = this.indexRepository.findByUserId(userId);
         List<MessageIndex> targetData = rawTargetsData.orElseGet(() -> null);
-        if (rawTargetsData == null)
+        if (rawTargetsData.isEmpty())
             return CompletableFuture.completedFuture(AsyncResult.success(0L));
         boolean check = false;
-        List<TargetForDelete> targetUserIds = list.getTarget();
-        for (TargetForDelete target : targetUserIds) {
+//        List<TargetForDelete> targetUserIds = list;
+        for (TargetForDelete target : list) {
             for (MessageIndex data : targetData) {
                 if (data.getUserIdx1().equals(target.getTargetId())) {
                     data.setUser2delete(true);
@@ -294,7 +285,7 @@ public class MessageMainService {
      * @param message : 메시지 내용
      * @return
      */
-    @Transactional(readOnly = false)
+    @Transactional
     public Msg sendMessage(Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         long targetId = message.getTargetId();
         MessageIndex index;
