@@ -108,27 +108,23 @@ public class MessageMainService {
      */
     @Async
     @Transactional
-    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, List<TargetForDelete> list){
+    public CompletableFuture<AsyncResult<Long>> deleteLetterList(long userId, TargetDTO list){
         Long ret;
         ret = 0L;
         Optional<List<MessageIndex>> rawTargetsData = this.indexRepository.findByUserId(userId);
         List<MessageIndex> targetData = rawTargetsData.orElseGet(() -> null);
         if (rawTargetsData.isEmpty())
             return CompletableFuture.completedFuture(AsyncResult.success(0L));
-        boolean check = false;
-//        List<TargetForDelete> targetUserIds = list;
-        for (TargetForDelete target : list) {
+        List<TargetForDelete> targetUserIds = list.getTarget();
+        for (TargetForDelete target : targetUserIds) {
             for (MessageIndex data : targetData) {
-                if (data.getUserIdx1().equals(target.getTargetId())) {
-                    data.setUser2delete(true);
-                    check = true;
-                }
-                if (data.getUserIdx2().equals(target.getTargetId())) {
-                    data.setUser1delete(true);
-                    check = true;
-                }
-                if (check) {
-                    check = false;
+                if (target.getConversationId().equals(data.getConversationId())) {
+                    if (data.getUserIdx1().equals(userId)) {
+                        data.setUser1delete(true);
+                    }
+                    if (data.getUserIdx2().equals(userId)) {
+                        data.setUser2delete(true);
+                    }
                     if (data.isUser1delete() && data.isUser2delete()) {
                         this.indexRepository.delete(data);
                         ret++;
@@ -137,7 +133,7 @@ public class MessageMainService {
                     else {
                         this.indexRepository.save(data);
                         ret++;
-                        break ;
+                        break;
                     }
                 }
             }
