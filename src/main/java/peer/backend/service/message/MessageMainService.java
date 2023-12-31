@@ -76,30 +76,19 @@ public class MessageMainService {
               Page<MessagePiece> data = this.pieceRepository.findTopByTargetConversationIdOrderByCreatedAtDesc(msg.getConversationId(), pageable);
               MessagePiece conversation = data.getContent().get(0);
             // 상대방 확인
-            if (msg.getUserIdx1().equals(msgOwner.getId())) {
-                if (msg.isUser1delete()){
-                    continue;
+            try {
+                if (msg.getUserIdx1().equals(msgOwner.getId()) && !msg.isUser1delete()) {
+                    target = this.userRepository.findById(msg.getUserIdx2()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
+                } else if (msg.getUserIdx2().equals(msgOwner.getId()) && !msg.isUser2delete()) {
+                    target = this.userRepository.findById(msg.getUserIdx1()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
                 }
-                else {
-                    try {
-                        target = this.userRepository.findById(msg.getUserIdx2()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
-                    } catch (NotFoundException e) {
-                        return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-                    }
+                if (target != null) {
                     retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
+                    target = null;
                 }
-            } else if (msg.getUserIdx2().equals(msgOwner.getId())) {
-                if (msg.isUser2delete()){
-                    continue;
-                }
-                else {
-                    try {
-                        target = this.userRepository.findById(msg.getUserIdx1()).orElseThrow(() -> new NotFoundException("해당 사용자는 존재하지 않습니다."));
-                    } catch (NotFoundException e) {
-                        return CompletableFuture.completedFuture((AsyncResult.failure(e)));
-                    }
-                    retList.add(this.subService.makeMsgObjectDTO(msg, target, conversation));
-                }
+            }
+            catch (NotFoundException e) {
+                return CompletableFuture.completedFuture((AsyncResult.failure(e)));
             }
         }
         return CompletableFuture.completedFuture(AsyncResult.success(retList));
@@ -126,20 +115,16 @@ public class MessageMainService {
         List<MessageIndex> targetData = rawTargetsData.orElseGet(() -> null);
         if (rawTargetsData.isEmpty())
             return CompletableFuture.completedFuture(AsyncResult.success(0L));
-        boolean check = false;
         List<TargetForDelete> targetUserIds = list.getTarget();
         for (TargetForDelete target : targetUserIds) {
             for (MessageIndex data : targetData) {
-                if (data.getUserIdx1().equals(target.getTargetId())) {
-                    data.setUser2delete(true);
-                    check = true;
-                }
-                if (data.getUserIdx2().equals(target.getTargetId())) {
-                    data.setUser1delete(true);
-                    check = true;
-                }
-                if (check) {
-                    check = false;
+                if (target.getConversationId().equals(data.getConversationId())) {
+                    if (data.getUserIdx1().equals(userId)) {
+                        data.setUser1delete(true);
+                    }
+                    if (data.getUserIdx2().equals(userId)) {
+                        data.setUser2delete(true);
+                    }
                     if (data.isUser1delete() && data.isUser2delete()) {
                         this.indexRepository.delete(data);
                         ret++;
@@ -148,7 +133,7 @@ public class MessageMainService {
                     else {
                         this.indexRepository.save(data);
                         ret++;
-                        break ;
+                        break;
                     }
                 }
             }
