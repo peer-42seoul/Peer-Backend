@@ -11,6 +11,7 @@ import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
@@ -286,13 +287,18 @@ public class TeamService {
             .role(TeamUserRoleType.LEADER)
             .build();
         teamUserRepository.save(teamUser);
-        request.getLeaderJob().forEach(
-                name -> teamJobRepository.findByTeamIdAndName(team.getId(), name).ifPresent(job -> teamUser.addTeamUserJob( TeamUserJob.builder()
-                        .teamJobId(job.getId())
-                        .teamUserId(teamUser.getId())
-                        .status(TeamUserStatus.APPROVED)
-                        .build()))
-        );
+        TeamJob leader = TeamJob.builder()
+                .team(team)
+                .name("Leader")
+                .max(1)
+                .build();
+        teamJobRepository.save(leader);
+        TeamUserJob userLeader = TeamUserJob.builder()
+                .teamJobId(leader.getId())
+                .teamUserId(teamUser.getId())
+                .status(TeamUserStatus.APPROVED)
+                .build();
+        teamUserJobRepository.save(userLeader);
         return team;
     }
 }
