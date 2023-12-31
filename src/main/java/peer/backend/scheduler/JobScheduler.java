@@ -1,4 +1,4 @@
-package peer.backend.batch;
+package peer.backend.scheduler;
 
 
 import java.util.HashMap;
@@ -14,6 +14,7 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import peer.backend.batch.JobConfig;
 
 @Slf4j
 @Component
