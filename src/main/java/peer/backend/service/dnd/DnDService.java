@@ -41,7 +41,6 @@ public class DnDService {
             else
                 ret = this.peerLogDnDRepository.save(saveData);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("DB Server makes an error.");
         }
         return ret;
