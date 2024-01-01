@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.temp.RequestDnDDTO;
+import peer.backend.dto.dnd.RequestDnDDTO;
 import peer.backend.mongo.entity.TeamDnD;
 import peer.backend.service.dnd.DnDService;
 
@@ -26,7 +26,7 @@ public class DnDController {
     }
 
     @PostMapping("/read")
-    public ResponseEntity<?> read(@RequestBody RequestDnDDTO data) {
+    public ResponseEntity<?> read(@RequestBody peer.backend.dto.dnd.RequestDnDDTO data) {
         TeamDnD ret;
         try {
             ret = this.dndService.getDnD(data);

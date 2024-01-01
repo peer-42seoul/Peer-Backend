@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import peer.backend.dto.temp.RequestDnDDTO;
+import peer.backend.dto.dnd.RequestDnDDTO;
 import peer.backend.entity.team.Team;
 import peer.backend.mongo.entity.TeamDnD;
 import peer.backend.mongo.repository.PeerLogDnDRepository;
