@@ -83,7 +83,6 @@ public class DnDService {
                 ret = this.peerLogDnDRepository.save(data);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new Exception("DnD file update failed!");
         }
         return ret;
