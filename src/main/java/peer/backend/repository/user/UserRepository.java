@@ -1,5 +1,7 @@
 package peer.backend.repository.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import peer.backend.entity.user.User;
@@ -24,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<List<User>> findByEmailOrNickname(String email, String nickname);
 
     boolean existsByEmail(String email);
+
+    @Query(value = "SELECT u FROM User u WHERE u.nickname LIKE %:keyword%", countQuery = "SELECT count(w) FROM Wallet w")
+    Page<User> findByNicknameContainingFromPageable(Pageable pageable, String keyword);
 }

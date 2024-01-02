@@ -32,4 +32,8 @@ public class UserService {
     public Page<User> getUserListFromPageable(Pageable pageable) {
         return this.userRepository.findAll(pageable);
     }
+
+    public Page<User> searchUserListByNicknameFromPageable(Pageable pageable, String keyword) {
+        return this.userRepository.findByNicknameContainingFromPageable(pageable, keyword);
+    }
 }
