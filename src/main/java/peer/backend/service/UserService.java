@@ -2,6 +2,8 @@ package peer.backend.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
@@ -27,4 +29,7 @@ public class UserService {
             .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
     }
 
+    public Page<User> getUserListFromPageable(Pageable pageable) {
+        return this.userRepository.findAll(pageable);
+    }
 }
