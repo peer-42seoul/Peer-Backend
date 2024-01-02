@@ -56,7 +56,7 @@ public class DnDService {
             ret = this.peerLogDnDRepository.findByTeamId(data.getTeamId());
         }
         if (ret == null) {
-            throw new NoSuchElementException("There is no DnD Data");
+            return null;
         }
         return ret;
     }
