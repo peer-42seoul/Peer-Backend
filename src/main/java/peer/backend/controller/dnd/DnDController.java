@@ -17,7 +17,7 @@ public class DnDController {
     private final DnDService dndService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(Authentication auth, @RequestBody TeamDnD data) {
+    public ResponseEntity<Object> create(Authentication auth, @RequestBody TeamDnD data) {
         TeamDnD ret;
 
         if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
@@ -27,13 +27,13 @@ public class DnDController {
         try {
             ret = this.dndService.createDnD(data);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<TeamDnD>(ret,HttpStatus.CREATED);
+        return new ResponseEntity<>(ret,HttpStatus.CREATED);
     }
 
     @PostMapping("/read")
-    public ResponseEntity<?> read(Authentication auth, @RequestBody peer.backend.dto.dnd.RequestDnDDTO data) {
+    public ResponseEntity<Object> read(Authentication auth, @RequestBody peer.backend.dto.dnd.RequestDnDDTO data) {
         TeamDnD ret;
 
         if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
@@ -45,13 +45,13 @@ public class DnDController {
             if (ret == null)
                 return new ResponseEntity<>("There is no that DnD data", HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<TeamDnD>(ret,HttpStatus.OK);
+        return new ResponseEntity<>(ret,HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> update(Authentication auth, @RequestBody TeamDnD data) {
+    public ResponseEntity<Object> update(Authentication auth, @RequestBody TeamDnD data) {
         TeamDnD ret;
 
         if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
@@ -61,13 +61,13 @@ public class DnDController {
         try{
             ret = this.dndService.updateDnD(data);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<TeamDnD>(ret, HttpStatus.OK);
+        return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(Authentication auth, @RequestBody RequestDnDDTO data) {
+    public ResponseEntity<Object> delete(Authentication auth, @RequestBody RequestDnDDTO data) {
 
         if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -76,7 +76,7 @@ public class DnDController {
         try {
             this.dndService.deleteDnD(data);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
