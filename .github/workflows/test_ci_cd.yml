@@ -2,9 +2,9 @@ name: Test_CI/CD
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main", "dev", "test" ]
   pull_request:
-    branches: [ "main", dev ]
+    branches: [ "main", dev, "test" ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
   # workflow_call:
 
@@ -73,7 +73,7 @@ jobs:
         host: ${{ secrets.TEST_DEV_HOST }}
         port: ${{ secrets.TEST_DEV_PORT }}
         username: ${{ secrets.TEST_DEV_USERNAME }}
-        key: ${{ secrets.DEV_KEY }}
+        password: ${{ secrets.TEST_DEV_PASSWORD }}
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker rm -f $(docker ps -qa)
