@@ -89,9 +89,6 @@ public class DnDService {
         else {
             ret = this.peerLogDnDRepository.findByTeamId(data.getTeamId());
         }
-        if (ret == null) {
-            return null;
-        }
         return ret;
     }
 
