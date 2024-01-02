@@ -1,12 +1,24 @@
 package peer.backend.service.team;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.team.*;
+import peer.backend.dto.team.TeamApplicantListDto;
+import peer.backend.dto.team.TeamInfoResponse;
+import peer.backend.dto.team.TeamJobDto;
+import peer.backend.dto.team.TeamListResponse;
+import peer.backend.dto.team.TeamMemberDto;
+import peer.backend.dto.team.TeamSettingDto;
+import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.composite.TeamUserJobPK;
@@ -14,7 +26,12 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
-import peer.backend.entity.team.enums.*;
+import peer.backend.entity.team.enums.TeamMemberStatus;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamStatus;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.IllegalArgumentException;
@@ -24,11 +41,6 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
-
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,7 +55,7 @@ public class TeamService {
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
-                == TeamUserRoleType.LEADER;
+            == TeamUserRoleType.LEADER;
     }
 
     @Transactional
@@ -211,7 +223,8 @@ public class TeamService {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        TeamUserJob teamUserJob = teamUserJobRepository.findById(teamUserJobId).orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
+        TeamUserJob teamUserJob = teamUserJobRepository.findById(teamUserJobId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
         teamUserJob.acceptApplicant();
         //TODO: 신청자에게 알림을 보내야됨
     }
@@ -261,10 +274,10 @@ public class TeamService {
     }
 
 
-
     @TeamCreateTracking
     @Transactional
-    public Team createTeam(User user, RecruitCreateRequest request) throws IllegalArgumentException {
+    public Team createTeam(User user, RecruitCreateRequest request)
+        throws IllegalArgumentException {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
@@ -277,8 +290,9 @@ public class TeamService {
             .dueTo(RecruitDueEnum.from(request.getDue()))
             .maxMember(request.getMax())
             .build();
-        if (request.getRoleList() != null)
+        if (request.getRoleList() != null) {
             addRolesToTeam(team, request.getRoleList());
+        }
         teamRepository.save(team);
         // 리더 추가
         TeamUser teamUser = TeamUser.builder()
@@ -288,17 +302,22 @@ public class TeamService {
             .build();
         teamUserRepository.save(teamUser);
         TeamJob leader = TeamJob.builder()
-                .team(team)
-                .name("Leader")
-                .max(1)
-                .build();
+            .team(team)
+            .name("Leader")
+            .max(1)
+            .build();
         teamJobRepository.save(leader);
         TeamUserJob userLeader = TeamUserJob.builder()
-                .teamJobId(leader.getId())
-                .teamUserId(teamUser.getId())
-                .status(TeamUserStatus.APPROVED)
-                .build();
+            .teamJobId(leader.getId())
+            .teamUserId(teamUser.getId())
+            .status(TeamUserStatus.APPROVED)
+            .build();
         teamUserJobRepository.save(userLeader);
         return team;
+    }
+
+    @Transactional
+    public Page<Team> getTeamListFromPageable(Pageable pageable) {
+        return this.teamRepository.findAll(pageable);
     }
 }
