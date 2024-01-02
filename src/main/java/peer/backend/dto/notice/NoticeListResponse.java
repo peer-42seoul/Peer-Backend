@@ -14,7 +14,7 @@ public class NoticeListResponse {
 
     public NoticeListResponse(Notice notice) {
         this.noticeId = notice.getId();
-        this.noticeStatus = notice.getStatus();
+        this.noticeStatus = notice.getNoticeStatus();
         this.title = notice.getTitle();
         this.image = notice.getImage();
     }

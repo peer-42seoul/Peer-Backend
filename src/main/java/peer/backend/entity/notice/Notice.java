@@ -1,6 +1,7 @@
 package peer.backend.entity.notice;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -49,12 +50,20 @@ public class Notice extends BaseEntity {
 
     @Column(nullable = false)
     @Convert(converter = NoticeStatusConverter.class)
-    private NoticeStatus status;
+    private NoticeStatus noticeStatus;
 
     @Column(nullable = false)
     @Convert(converter = NotificationConverter.class)
-    private Notification notification;
+    private NoticeNotification noticeNotification;
 
     @Column
     private LocalDateTime reservationDate;
+
+    public void setNoticeStatus(NoticeStatus status) {
+        if (status.equals(NoticeStatus.PUBLISHED)) {
+            ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+            this.setCreatedAt(LocalDateTime.now(seoulZone));
+        }
+        this.noticeStatus = status;
+    }
 }

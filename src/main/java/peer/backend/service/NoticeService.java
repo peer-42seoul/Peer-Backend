@@ -13,7 +13,7 @@ import peer.backend.dto.notice.CreateNoticeRequest;
 import peer.backend.dto.notice.UpdateNoticeRequest;
 import peer.backend.entity.notice.Notice;
 import peer.backend.entity.notice.NoticeStatus;
-import peer.backend.entity.notice.Notification;
+import peer.backend.entity.notice.NoticeNotification;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.notice.NoticeRepository;
@@ -46,7 +46,7 @@ public class NoticeService {
 
     @Transactional
     public List<Notice> getNoticeListByNoticeStatus(NoticeStatus status) {
-        return this.noticeRepository.findAllByStatus(status);
+        return this.noticeRepository.findAllByNoticeStatus(status);
     }
 
     @Transactional
@@ -70,13 +70,14 @@ public class NoticeService {
             .title(request.getTitle())
             .writer(request.getWriter())
             .content(request.getContent())
-            .status(this.getNoticeStatusFromNotification(request.getNotification()))
-            .notification(request.getNotification())
+            .noticeStatus(this.getNoticeStatusFromNotification(request.getNoticeNotification()))
+            .noticeNotification(request.getNoticeNotification())
             .image(imageUrl)
             .view(0L)
             .build();
 
-        if (request.getNotification().equals(Notification.RESERVATION) && Objects.nonNull(
+        if (request.getNoticeNotification().equals(NoticeNotification.RESERVATION)
+            && Objects.nonNull(
             request.getReservationDate())) {
             this.setNoticeReservationDate(notice, request.getReservationDate());
         }
@@ -90,26 +91,27 @@ public class NoticeService {
         notice.setWriter(request.getWriter());
         notice.setContent(request.getContent());
         // notification이 수정됐다!!
-        if (!notice.getNotification().equals(request.getNotification())) {
+        if (!notice.getNoticeNotification().equals(request.getNoticeNotification())) {
             // 공지사항이 게재 or 숨김 상태일 경우
-            if (notice.getStatus().equals(NoticeStatus.PUBLISHED) || notice.getStatus()
+            if (notice.getNoticeStatus().equals(NoticeStatus.PUBLISHED) || notice.getNoticeStatus()
                 .equals(NoticeStatus.HIDING)) {
                 throw new ConflictException("공지사항이 게재거나 숨김 상태일때는 알림 여부를 변경할 수 없습니다.");
                 // 공지사항이 예약 상태일 경우
             } else {
                 // 알림 여부 없음으로 변경
-                if (request.getNotification().equals(Notification.NONE)) {
-                    notice.setStatus(NoticeStatus.PUBLISHED);
+                if (request.getNoticeNotification().equals(NoticeNotification.NONE)) {
+                    notice.setNoticeStatus(NoticeStatus.PUBLISHED);
                     // 알림 여부 즉시로 변경
-                } else if (request.getNotification().equals(Notification.IMMEDIATELY)) {
+                } else if (request.getNoticeNotification().equals(NoticeNotification.IMMEDIATELY)) {
                     // TODO: 알림 보내는 함수 호출 필요.
-                    notice.setStatus(NoticeStatus.PUBLISHED);
+                    notice.setNoticeStatus(NoticeStatus.PUBLISHED);
                 }
             }
         } else {
             // 공지사항이 알림 상태인데 notification도 그대로고 얘가 예약 상태일경우 -> 이때만 예약 시간 수정 필요.
-            if (notice.getStatus().equals(NoticeStatus.RESERVATION) && notice.getNotification()
-                .equals(Notification.RESERVATION)) {
+            if (notice.getNoticeStatus().equals(NoticeStatus.RESERVATION)
+                && notice.getNoticeNotification()
+                .equals(NoticeNotification.RESERVATION)) {
                 this.setNoticeReservationDate(notice, request.getReservationDate());
             }
         }
@@ -128,12 +130,12 @@ public class NoticeService {
         } else if (this.isShowPossible(notice, status)) {
             throw new ConflictException("숨김 상태가 아닌 공지사항을 게재 처리 할 수 없습니다.");
         }
-        notice.setStatus(status);
+        notice.setNoticeStatus(status);
     }
 
-    private NoticeStatus getNoticeStatusFromNotification(Notification notification) {
-        if (notification.equals(Notification.NONE) || notification.equals(
-            Notification.IMMEDIATELY)) {
+    private NoticeStatus getNoticeStatusFromNotification(NoticeNotification noticeNotification) {
+        if (noticeNotification.equals(NoticeNotification.NONE) || noticeNotification.equals(
+            NoticeNotification.IMMEDIATELY)) {
             return NoticeStatus.PUBLISHED;
         }
         return NoticeStatus.RESERVATION;
@@ -146,12 +148,12 @@ public class NoticeService {
     }
 
     private boolean isHidePossible(Notice notice, NoticeStatus status) {
-        return status.equals(NoticeStatus.HIDING) && !notice.getStatus()
+        return status.equals(NoticeStatus.HIDING) && !notice.getNoticeStatus()
             .equals(NoticeStatus.PUBLISHED);
     }
 
     private boolean isShowPossible(Notice notice, NoticeStatus status) {
-        return status.equals(NoticeStatus.PUBLISHED) && !notice.getStatus()
+        return status.equals(NoticeStatus.PUBLISHED) && !notice.getNoticeStatus()
             .equals(NoticeStatus.HIDING);
     }
 

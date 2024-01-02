@@ -1,6 +1,7 @@
 package peer.backend.entity.banner;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -49,4 +50,12 @@ public class Banner extends BaseEntity {
 
     @Column
     private String noticeUrl;
+
+    public void setBannerStatus(BannerStatus bannerStatus) {
+        if (bannerStatus.equals(BannerStatus.ONGOING)) {
+            ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+            this.setCreatedAt(LocalDateTime.now(seoulZone));
+        }
+        this.bannerStatus = bannerStatus;
+    }
 }
