@@ -1,5 +1,6 @@
 package peer.backend.controller;
 
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,7 @@ public class AdminController {
     @GetMapping("user/nickname")
     public ResponseEntity<Page<UserDefaultResponse>> searchUserDefaultListByNickname(
         Pageable pageable,
-        @RequestBody KeywordRequest request) {
+        @RequestBody @Valid KeywordRequest request) {
         Page<User> userList = this.userService.searchUserListByNicknameFromPageable(pageable,
             request.getKeyword());
         return ResponseEntity.ok().body(userList.map(UserDefaultResponse::new));
@@ -42,6 +43,14 @@ public class AdminController {
     @GetMapping("team")
     public ResponseEntity<Page<TeamDefaultResponse>> getTeamDefaultList(Pageable pageable) {
         Page<Team> teamList = this.teamService.getTeamListFromPageable(pageable);
+        return ResponseEntity.ok().body(teamList.map(TeamDefaultResponse::new));
+    }
+
+    @GetMapping("team/name-leader")
+    public ResponseEntity<Page<TeamDefaultResponse>> searcTeamDefaultListByNameOrLeader(
+        Pageable pageable, @RequestBody @Valid KeywordRequest request) {
+        Page<Team> teamList = this.teamService.getTeamListByNameOrLeaderFromPageable(pageable,
+            request.getKeyword());
         return ResponseEntity.ok().body(teamList.map(TeamDefaultResponse::new));
     }
 }
