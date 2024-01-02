@@ -7,5 +7,5 @@ import peer.backend.entity.notice.NoticeStatus;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
-    public List<Notice> findAllByStatus(NoticeStatus status);
+    public List<Notice> findAllByNoticeStatus(NoticeStatus status);
 }

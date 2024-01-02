@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Notification {
+public enum NoticeNotification {
     NONE("없음", 1L),
     IMMEDIATELY("즉시", 2L),
     RESERVATION("예약", 3L);
@@ -18,8 +18,8 @@ public enum Notification {
     private final Long code;
 
     @JsonCreator
-    public static Notification from(String value) {
-        for (Notification type : Notification.values()) {
+    public static NoticeNotification from(String value) {
+        for (NoticeNotification type : NoticeNotification.values()) {
             if (type.getValue().equals(value)) {
                 return type;
             }
@@ -32,8 +32,8 @@ public enum Notification {
         return value;
     }
 
-    public static Notification ofCode(Long dbData) {
-        return Arrays.stream(Notification.values())
+    public static NoticeNotification ofCode(Long dbData) {
+        return Arrays.stream(NoticeNotification.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 유형입니다."));

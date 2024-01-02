@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import peer.backend.annotation.ValidEnum;
-import peer.backend.entity.notice.Notification;
+import peer.backend.entity.notice.NoticeNotification;
 
 @Getter
 public class CreateNoticeRequest {
@@ -23,8 +23,8 @@ public class CreateNoticeRequest {
     @NotBlank(message = "이미지는 필수입니다.")
     private String image;
 
-    @ValidEnum(enumClass = Notification.class)
-    private Notification notification;
+    @ValidEnum(enumClass = NoticeNotification.class)
+    private NoticeNotification noticeNotification;
 
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime reservationDate;
