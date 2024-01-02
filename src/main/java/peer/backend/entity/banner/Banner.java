@@ -1,4 +1,4 @@
-package peer.backend.entity.notice;
+package peer.backend.entity.banner;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,56 +14,48 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.DynamicUpdate;
-import peer.backend.converter.NoticeStatusConverter;
-import peer.backend.converter.NotificationConverter;
+import peer.backend.converter.BannerStatusConverter;
+import peer.backend.converter.BannerTypeConverter;
 import peer.backend.entity.BaseEntity;
 
+@Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamicUpdate
-@Entity
-@Table(name = "notice")
-public class Notice extends BaseEntity {
+@Builder
+@Table(name = "banner")
+public class Banner extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
+    @Convert(converter = BannerTypeConverter.class)
+    private BannerType bannerType;
+
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
-    private String writer;
+    private String imageUrl;
 
     @Column(nullable = false)
-    private String content;
-
-    @Column(nullable = false)
-    private String image;
-
-    @Column(nullable = false)
-    private Long view;
-
-    @Column(nullable = false)
-    @Convert(converter = NoticeStatusConverter.class)
-    private NoticeStatus noticeStatus;
-
-    @Column(nullable = false)
-    @Convert(converter = NotificationConverter.class)
-    private NoticeNotification noticeNotification;
+    @Convert(converter = BannerStatusConverter.class)
+    private BannerStatus bannerStatus;
 
     @Column
     private LocalDateTime reservationDate;
 
-    public void setNoticeStatus(NoticeStatus status) {
-        if (status.equals(NoticeStatus.PUBLISHED)) {
+    @Column
+    private String noticeUrl;
+
+    public void setBannerStatus(BannerStatus bannerStatus) {
+        if (bannerStatus.equals(BannerStatus.ONGOING)) {
             ZoneId seoulZone = ZoneId.of("Asia/Seoul");
             this.setCreatedAt(LocalDateTime.now(seoulZone));
         }
-        this.noticeStatus = status;
+        this.bannerStatus = bannerStatus;
     }
 }
