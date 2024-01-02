@@ -2,15 +2,19 @@ package peer.backend.service.dnd;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.dnd.RequestDnDDTO;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.TeamDnD;
 import peer.backend.mongo.repository.PeerLogDnDRepository;
 import peer.backend.mongo.repository.TeamDnDRepository;
 import peer.backend.repository.team.TeamRepository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -21,6 +25,36 @@ public class DnDService {
     private final TeamDnDRepository teamDnDRepository;
     private final PeerLogDnDRepository peerLogDnDRepository;
     private final TeamRepository teamRepository;
+
+    private static final String DND_MAIN_IDENTIFIER = "dnd-sub";
+
+    private RedisTemplate<String, List<TeamUser>> redisTemplate;
+
+
+    public boolean checkValidMemberFromTeam(Long teamId, User requester) {
+        List<TeamUser> members = this.getTeamUserInDB(teamId);
+        return members.stream().noneMatch(member -> member.getUserId().equals(requester.getId()));
+    }
+
+    private List<TeamUser> getTeamUserInRedis(Long teamId) {
+        return this.redisTemplate.opsForValue().get(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER);
+    }
+
+    private void saveTeamUserToRedis(List<TeamUser> members, Long teamId) {
+        redisTemplate.opsForValue().set(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER, members);
+    }
+
+    private List<TeamUser> getTeamUserInDB(Long teamId) {
+        List<TeamUser> userList = this.getTeamUserInRedis(teamId);
+        if (userList == null) {
+            userList = teamRepository.
+                    findById(teamId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 팀입니다."))
+                    .getTeamUsers();
+            this.saveTeamUserToRedis(userList, teamId);
+        }
+
+        return userList;
+    }
 
     @Transactional
     public TeamDnD createDnD(TeamDnD data) throws RuntimeException {

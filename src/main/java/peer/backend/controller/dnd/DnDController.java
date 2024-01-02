@@ -3,8 +3,10 @@ package peer.backend.controller.dnd;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.dnd.RequestDnDDTO;
+import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.TeamDnD;
 import peer.backend.service.dnd.DnDService;
 
@@ -15,8 +17,13 @@ public class DnDController {
     private final DnDService dndService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody TeamDnD data) {
+    public ResponseEntity<?> create(Authentication auth, @RequestBody TeamDnD data) {
         TeamDnD ret;
+
+        if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         try {
             ret = this.dndService.createDnD(data);
         } catch (Exception e) {
@@ -26,8 +33,13 @@ public class DnDController {
     }
 
     @PostMapping("/read")
-    public ResponseEntity<?> read(@RequestBody peer.backend.dto.dnd.RequestDnDDTO data) {
+    public ResponseEntity<?> read(Authentication auth, @RequestBody peer.backend.dto.dnd.RequestDnDDTO data) {
         TeamDnD ret;
+
+        if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         try {
             ret = this.dndService.getDnD(data);
             if (ret == null)
@@ -39,8 +51,13 @@ public class DnDController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> update(@RequestBody TeamDnD data) {
+    public ResponseEntity<?> update(Authentication auth, @RequestBody TeamDnD data) {
         TeamDnD ret;
+
+        if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         try{
             ret = this.dndService.updateDnD(data);
         } catch (Exception e) {
@@ -50,7 +67,12 @@ public class DnDController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestBody RequestDnDDTO data) {
+    public ResponseEntity<?> delete(Authentication auth, @RequestBody RequestDnDDTO data) {
+
+        if (this.dndService.checkValidMemberFromTeam(data.getTeamId(), User.authenticationToUser(auth))){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         try {
             this.dndService.deleteDnD(data);
         } catch (Exception e) {
