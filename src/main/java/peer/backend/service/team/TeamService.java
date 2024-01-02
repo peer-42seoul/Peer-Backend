@@ -320,4 +320,9 @@ public class TeamService {
     public Page<Team> getTeamListFromPageable(Pageable pageable) {
         return this.teamRepository.findAll(pageable);
     }
+
+    @Transactional
+    public Page<Team> getTeamListByNameOrLeaderFromPageable(Pageable pageable, String keyword) {
+        return this.teamRepository.findByNameAndLeaderContainingFromPageable(pageable, keyword);
+    }
 }

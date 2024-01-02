@@ -27,6 +27,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    @Query(value = "SELECT u FROM User u WHERE u.nickname LIKE %:keyword%", countQuery = "SELECT count(w) FROM Wallet w")
+    @Query(value = "SELECT u FROM User u WHERE u.nickname LIKE %:keyword%", countQuery = "SELECT count(u) FROM User u")
     Page<User> findByNicknameContainingFromPageable(Pageable pageable, String keyword);
 }
