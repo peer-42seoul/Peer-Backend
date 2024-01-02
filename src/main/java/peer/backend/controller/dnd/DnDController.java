@@ -31,7 +31,7 @@ public class DnDController {
         try {
             ret = this.dndService.getDnD(data);
             if (ret == null)
-                return new ResponseEntity<>("There is no that DnD data", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("There is no that DnD data", HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
