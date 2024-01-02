@@ -34,7 +34,8 @@ public class FavoriteService {
                 "SELECT r FROM User u " +
                     "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
                     "JOIN Recruit r ON rf.recruit.id = r.id " +
-                    "WHERE u.id = :userId AND r.type = :teamType", Recruit.class)
+                        "JOIN Team k On r.id = k.id " +
+                    "WHERE u.id = :userId AND k.type = :teamType", Recruit.class)
             .setParameter("userId", userId)
             .setParameter("teamType", type)
             .getResultList();
@@ -87,7 +88,8 @@ public class FavoriteService {
                 "SELECT rf FROM User u " +
                     "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
                     "JOIN Recruit r ON rf.recruit.id = r.id " +
-                    "WHERE u.id = :userId AND r.type = :teamType", RecruitFavorite.class)
+                        "JOIN Team k On r.id = k.id " +
+                    "WHERE u.id = :userId AND k.type = :teamType", RecruitFavorite.class)
             .setParameter("userId", user.getId())
             .setParameter("teamType", TeamType.valueOf(type))
             .getResultList();
