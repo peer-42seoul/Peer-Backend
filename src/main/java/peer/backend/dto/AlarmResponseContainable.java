@@ -1,5 +1,5 @@
 package peer.backend.dto;
 
-public class AlarmResponseContainable {
+public abstract class AlarmResponseContainable {
 
 }
