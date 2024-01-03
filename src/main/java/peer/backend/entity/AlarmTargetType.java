@@ -35,6 +35,6 @@ public enum AlarmTargetType {
         return Arrays.stream(AlarmTargetType.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 유형입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 타겟 유형입니다."));
     }
 }
