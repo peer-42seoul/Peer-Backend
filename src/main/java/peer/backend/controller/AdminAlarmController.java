@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.AlarmResponse;
-import peer.backend.dto.adminAlarm.AlarmIdRequest;
-import peer.backend.dto.adminAlarm.AlarmListResponse;
-import peer.backend.dto.adminAlarm.SendAlarmRequest;
-import peer.backend.dto.adminAlarm.UpdateAlarmRequest;
+import peer.backend.dto.admin.alarm.AlarmIdRequest;
+import peer.backend.dto.admin.alarm.AlarmListResponse;
+import peer.backend.dto.admin.alarm.SendAlarmRequest;
+import peer.backend.dto.admin.alarm.UpdateAlarmRequest;
 
 @RestController
 @RequiredArgsConstructor

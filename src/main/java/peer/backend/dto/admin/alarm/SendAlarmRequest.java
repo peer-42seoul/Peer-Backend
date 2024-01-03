@@ -1,4 +1,4 @@
-package peer.backend.dto.adminAlarm;
+package peer.backend.dto.admin.alarm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
