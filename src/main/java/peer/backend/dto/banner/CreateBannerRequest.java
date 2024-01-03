@@ -27,5 +27,5 @@ public class CreateBannerRequest {
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime reservationDate;
 
-    private String noticeUrl;
+    private String announcementUrl;
 }

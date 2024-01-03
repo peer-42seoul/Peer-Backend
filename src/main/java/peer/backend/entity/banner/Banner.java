@@ -49,7 +49,7 @@ public class Banner extends BaseEntity {
     private LocalDateTime reservationDate;
 
     @Column
-    private String noticeUrl;
+    private String announcementUrl;
 
     public void setBannerStatus(BannerStatus bannerStatus) {
         if (bannerStatus.equals(BannerStatus.ONGOING)) {

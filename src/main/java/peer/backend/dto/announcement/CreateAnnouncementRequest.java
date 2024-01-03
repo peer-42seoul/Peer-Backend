@@ -1,4 +1,4 @@
-package peer.backend.dto.notice;
+package peer.backend.dto.announcement;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import peer.backend.annotation.ValidEnum;
-import peer.backend.entity.notice.NoticeNotification;
+import peer.backend.entity.announcement.AnnouncementNoticeStatus;
 
 @Getter
-public class CreateNoticeRequest {
+public class CreateAnnouncementRequest {
 
     @NotBlank(message = "제목은 필수입니다.")
     private String title;
@@ -23,8 +23,8 @@ public class CreateNoticeRequest {
     @NotBlank(message = "이미지는 필수입니다.")
     private String image;
 
-    @ValidEnum(enumClass = NoticeNotification.class)
-    private NoticeNotification noticeNotification;
+    @ValidEnum(enumClass = AnnouncementNoticeStatus.class)
+    private AnnouncementNoticeStatus announcementNotification;
 
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime reservationDate;

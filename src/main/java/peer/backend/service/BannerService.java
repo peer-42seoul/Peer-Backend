@@ -84,7 +84,7 @@ public class BannerService {
             .imageUrl(imageUrl)
             .bannerStatus(
                 this.getBannerStatusFromBannerReservationType(request.getBannerReservationType()))
-            .noticeUrl(request.getNoticeUrl())
+            .announcementUrl(request.getAnnouncementUrl())
             .build();
 
         if (request.getBannerReservationType().equals(BannerReservationType.RESERVATION)
@@ -98,7 +98,7 @@ public class BannerService {
     private void updateBannerFromUpdateBannerRequest(Banner banner, UpdateBannerRequest request) {
         banner.setBannerType(request.getBannerType());
         banner.setTitle(request.getTitle());
-        banner.setNoticeUrl(request.getNoticeUrl());
+        banner.setAnnouncementUrl(request.getAnnouncementUrl());
         // BannerReservationType이 즉시일 경우
         if (request.getBannerReservationType().equals(BannerReservationType.IMMEDIATELY)) {
             // Banner의 상태가 예약일 경우
