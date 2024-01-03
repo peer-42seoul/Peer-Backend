@@ -7,7 +7,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import peer.backend.annotation.ValidEnum;
-import peer.backend.entity.TargetType;
+import peer.backend.entity.AlarmTargetType;
 
 @Getter
 public class SendAlarmRequest {
@@ -23,6 +23,6 @@ public class SendAlarmRequest {
 
     private List<Long> idList;
 
-    @ValidEnum(enumClass = TargetType.class)
-    private TargetType targetType;
+    @ValidEnum(enumClass = AlarmTargetType.class)
+    private AlarmTargetType alarmTargetType;
 }
