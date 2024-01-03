@@ -31,4 +31,5 @@ public class AdminAlarmController {
         // TODO: get a reserved alarm list and mapping to dto
         return ResponseEntity.ok().build();
     }
+
 }
