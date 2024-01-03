@@ -10,7 +10,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 
 @Getter
-public class TeamDefaultResponse extends AlarmResponseContainable {
+public class TeamDefaultResponse implements AlarmResponseContainable {
 
     private final Long teamId;
     private final TeamType teamType;
