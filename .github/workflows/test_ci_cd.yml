@@ -74,9 +74,10 @@ jobs:
         port: ${{ secrets.TEST_DEV_PORT }}
         username: ${{ secrets.TEST_DEV_USERNAME }}
         password: ${{ secrets.TEST_DEV_PASSWORD }}
+        debug: true
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker rm -f $(docker ps -qa)
-          docker run -d -p 80:8080 -p 8081-8082:8081-8082 -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+          docker run -d -p ${{ secrets.TEST_DEV_PORT }}:8080 -p 8081-8082:8081-8082 -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker container prune -f
           docker image prune -f
