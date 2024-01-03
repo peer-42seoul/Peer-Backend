@@ -5,7 +5,7 @@ import peer.backend.dto.AlarmResponseContainable;
 import peer.backend.entity.user.User;
 
 @Getter
-public class UserDefaultResponse extends AlarmResponseContainable {
+public class UserDefaultResponse implements AlarmResponseContainable {
 
     private final Long userId;
     private final String nickname;
