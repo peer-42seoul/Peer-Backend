@@ -1,4 +1,4 @@
-package peer.backend.dto.adminAlarm;
+package peer.backend.dto.admin.alarm;
 
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
