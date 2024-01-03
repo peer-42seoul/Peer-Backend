@@ -1,4 +1,4 @@
-package peer.backend.entity.notice;
+package peer.backend.entity.announcement;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum NoticeStatus {
+public enum AnnouncementStatus {
     PUBLISHED("게재", 1L),
     RESERVATION("예약", 2L),
     HIDING("숨김", 3L);
@@ -18,8 +18,8 @@ public enum NoticeStatus {
     private final Long code;
 
     @JsonCreator
-    public static NoticeStatus from(String value) {
-        for (NoticeStatus status : NoticeStatus.values()) {
+    public static AnnouncementStatus from(String value) {
+        for (AnnouncementStatus status : AnnouncementStatus.values()) {
             if (status.getValue().equals(value)) {
                 return status;
             }
@@ -32,8 +32,8 @@ public enum NoticeStatus {
         return value;
     }
 
-    public static NoticeStatus ofCode(Long dbData) {
-        return Arrays.stream(NoticeStatus.values())
+    public static AnnouncementStatus ofCode(Long dbData) {
+        return Arrays.stream(AnnouncementStatus.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 상태입니다."));

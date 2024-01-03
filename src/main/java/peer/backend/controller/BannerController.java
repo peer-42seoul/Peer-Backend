@@ -2,7 +2,6 @@ package peer.backend.controller;
 
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,17 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.banner.BannerIdRequest;
 import peer.backend.dto.banner.BannerListResponse;
 import peer.backend.dto.banner.BannerResponse;
 import peer.backend.dto.banner.CreateBannerRequest;
 import peer.backend.dto.banner.UpdateBannerRequest;
-import peer.backend.dto.notice.NoticeResponse;
 import peer.backend.entity.banner.Banner;
 import peer.backend.entity.banner.BannerStatus;
-import peer.backend.entity.notice.Notice;
 import peer.backend.service.BannerService;
 
 @RestController

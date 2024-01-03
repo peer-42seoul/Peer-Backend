@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.time.LocalDateTime;
 import lombok.Getter;
-import peer.backend.entity.BaseEntity;
 import peer.backend.entity.banner.Banner;
 import peer.backend.entity.banner.BannerStatus;
 import peer.backend.entity.banner.BannerType;
@@ -18,14 +17,14 @@ public class BannerResponse {
     private final String image;
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime date;
-    private final String noticeUrl;
+    private final String getReservationDate;
 
     public BannerResponse(Banner banner) {
         this.bannerStatus = banner.getBannerStatus();
         this.bannerType = banner.getBannerType();
         this.title = banner.getTitle();
         this.image = banner.getImageUrl();
-        this.noticeUrl = banner.getNoticeUrl();
+        this.getReservationDate = banner.getAnnouncementUrl();
         if (this.bannerStatus.equals(BannerStatus.RESERVATION)) {
             this.date = banner.getReservationDate();
         } else {
