@@ -63,7 +63,7 @@ jobs:
       run: |
         ./gradlew bootjar
         docker login -u ${{ secrets.TEST_DOCKER_USERNAME }} -p ${{ secrets.TEST_DOCKER_PASSWORD }}
-        docker build -f Dockerfile-dev -t ${{ secrets.TEST_DEV_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }} .
+        docker build -f Dockerfile-dev -t ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }} .
         docker push ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
 #      working-directory: ./backend
 
