@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.BlacklistFreeTracking;
 import peer.backend.annotation.tracking.UserBanTracking;
 import peer.backend.entity.blacklist.Blacklist;
 import peer.backend.entity.blacklist.BlacklistType;
 import peer.backend.entity.report.ReportHandleType;
 import peer.backend.entity.user.User;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.blacklist.BlacklistRepository;
 import peer.backend.service.UserService;
 
@@ -48,9 +50,13 @@ public class BlacklistService {
         this.blacklistRepository.save(new Blacklist(user, type, content));
     }
 
+    @BlacklistFreeTracking
     @Transactional
-    public void deleteBlacklist(Long blacklistId) {
-        this.blacklistRepository.deleteById(blacklistId);
+    public Long deleteBlacklist(Long blacklistId) {
+        Blacklist blacklist = this.getBlacklist(blacklistId);
+        Long userId = blacklist.getUser().getId();
+        this.blacklistRepository.delete(blacklist);
+        return userId;
     }
 
     @Transactional
@@ -68,5 +74,11 @@ public class BlacklistService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public Blacklist getBlacklist(Long blacklistId) {
+        return this.blacklistRepository.findById(blacklistId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 아이디입니다."));
     }
 }

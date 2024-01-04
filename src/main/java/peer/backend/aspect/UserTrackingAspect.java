@@ -48,6 +48,10 @@ public class UserTrackingAspect {
     public void userReport() {
     }
 
+    @Pointcut("@annotation(peer.backend.annotation.tracking.BlacklistFreeTracking)")
+    public void blacklistFree() {
+    }
+
     @Order(2)
     @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
@@ -105,6 +109,13 @@ public class UserTrackingAspect {
         User reportedUser = report.getToUser();
         UserTracking userTracking = this.userTrackingRepository.findByUserId(reportedUser.getId());
         userTracking.setReportCount(userTracking.getReportCount() + 1);
+        this.userTrackingRepository.save(userTracking);
+    }
+
+    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.blacklistFree()", returning = "userId")
+    public void blacklistFreeTracking(Long userId) {
+        UserTracking userTracking = this.userTrackingRepository.findByUserId(userId);
+        userTracking.setStatus(UserTrackingStatus.NORMAL);
         this.userTrackingRepository.save(userTracking);
     }
 }
