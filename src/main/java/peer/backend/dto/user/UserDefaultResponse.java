@@ -1,10 +1,11 @@
 package peer.backend.dto.user;
 
 import lombok.Getter;
+import peer.backend.dto.NoticeResponseContainable;
 import peer.backend.entity.user.User;
 
 @Getter
-public class UserDefaultResponse {
+public class UserDefaultResponse implements NoticeResponseContainable {
 
     private final Long userId;
     private final String nickname;

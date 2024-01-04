@@ -1,4 +1,4 @@
-package peer.backend.entity.notice;
+package peer.backend.entity.announcement;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,8 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
-import peer.backend.converter.NoticeStatusConverter;
-import peer.backend.converter.NotificationConverter;
+import peer.backend.converter.AnnouncementNoticeStatusConverter;
+import peer.backend.converter.AnnouncementStatusConverter;
 import peer.backend.entity.BaseEntity;
 
 @Getter
@@ -26,8 +26,8 @@ import peer.backend.entity.BaseEntity;
 @AllArgsConstructor
 @DynamicUpdate
 @Entity
-@Table(name = "notice")
-public class Notice extends BaseEntity {
+@Table(name = "Announcement")
+public class Announcement extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,21 +49,21 @@ public class Notice extends BaseEntity {
     private Long view;
 
     @Column(nullable = false)
-    @Convert(converter = NoticeStatusConverter.class)
-    private NoticeStatus noticeStatus;
+    @Convert(converter = AnnouncementStatusConverter.class)
+    private AnnouncementStatus announcementStatus;
 
     @Column(nullable = false)
-    @Convert(converter = NotificationConverter.class)
-    private NoticeNotification noticeNotification;
+    @Convert(converter = AnnouncementNoticeStatusConverter.class)
+    private AnnouncementNoticeStatus announcementNoticeStatus;
 
     @Column
     private LocalDateTime reservationDate;
 
-    public void setNoticeStatus(NoticeStatus status) {
-        if (status.equals(NoticeStatus.PUBLISHED)) {
+    public void setAnnouncementStatus(AnnouncementStatus status) {
+        if (status.equals(AnnouncementStatus.PUBLISHED)) {
             ZoneId seoulZone = ZoneId.of("Asia/Seoul");
             this.setCreatedAt(LocalDateTime.now(seoulZone));
         }
-        this.noticeStatus = status;
+        this.announcementStatus = status;
     }
 }

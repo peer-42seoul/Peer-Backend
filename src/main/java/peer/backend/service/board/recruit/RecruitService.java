@@ -221,7 +221,7 @@ public class RecruitService {
         return RecruitResponce.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
-            .region(new ArrayList<>(List.of(team.getRegion1(), team.getRegion2())))
+            .region((Objects.isNull(team.getRecruit()) || Objects.isNull(team.getRegion2())? null : new ArrayList<>(List.of(team.getRegion1(), team.getRegion2()))))
             .status(recruit.getStatus())
             .totalNumber(recruit.getTeam().getTeamUsers().size())
             .current(teamUserJobRepository.findByTeamUserTeamIdAndStatus(team.getId(), TeamUserStatus.APPROVED).size())
