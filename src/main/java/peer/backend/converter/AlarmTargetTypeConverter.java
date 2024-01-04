@@ -1,17 +1,17 @@
 package peer.backend.converter;
 
 import javax.persistence.AttributeConverter;
-import peer.backend.entity.AlarmTargetType;
+import peer.backend.entity.NoticeTargetType;
 
-public class AlarmTargetTypeConverter implements AttributeConverter<AlarmTargetType, Long> {
+public class AlarmTargetTypeConverter implements AttributeConverter<NoticeTargetType, Long> {
 
     @Override
-    public Long convertToDatabaseColumn(AlarmTargetType attribute) {
+    public Long convertToDatabaseColumn(NoticeTargetType attribute) {
         return attribute.getCode();
     }
 
     @Override
-    public AlarmTargetType convertToEntityAttribute(Long dbData) {
-        return AlarmTargetType.ofCode(dbData);
+    public NoticeTargetType convertToEntityAttribute(Long dbData) {
+        return NoticeTargetType.ofCode(dbData);
     }
 }

@@ -1,4 +1,4 @@
-package peer.backend.dto.admin.alarm;
+package peer.backend.dto.admin.notice;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -8,10 +8,10 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class UpdateAlarmRequest {
+public class UpdateNoticeRequest {
 
     @NotNull(message = "알림 Id는 필수입니다!")
-    private Long alarmId;
+    private Long noticeId;
 
     @NotBlank(message = "제목은 필수입니다!")
     private String title;

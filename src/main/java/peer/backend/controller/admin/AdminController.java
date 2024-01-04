@@ -1,4 +1,4 @@
-package peer.backend.controller;
+package peer.backend.controller.admin;
 
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
