@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AlarmTargetType {
+public enum NoticeTargetType {
     USER("user", 1L),
     TEAM("team", 2L);
 
@@ -17,8 +17,8 @@ public enum AlarmTargetType {
     private final Long code;
 
     @JsonCreator
-    public static AlarmTargetType from(String value) {
-        for (AlarmTargetType type : AlarmTargetType.values()) {
+    public static NoticeTargetType from(String value) {
+        for (NoticeTargetType type : NoticeTargetType.values()) {
             if (type.getValue().equals(value)) {
                 return type;
             }
@@ -31,8 +31,8 @@ public enum AlarmTargetType {
         return value;
     }
 
-    public static AlarmTargetType ofCode(Long dbData) {
-        return Arrays.stream(AlarmTargetType.values())
+    public static NoticeTargetType ofCode(Long dbData) {
+        return Arrays.stream(NoticeTargetType.values())
             .filter(v -> v.getCode().equals(dbData))
             .findAny()
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 타겟 유형입니다."));

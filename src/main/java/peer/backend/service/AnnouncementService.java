@@ -74,13 +74,13 @@ public class AnnouncementService {
             .content(request.getContent())
             .announcementStatus(
                 this.getAnnouncementStatusFromAnnouncementNoticeStatus(
-                    request.getAnnouncementNotification()))
-            .announcementNoticeStatus(request.getAnnouncementNotification())
+                    request.getAnnouncementNoticeStatus()))
+            .announcementNoticeStatus(request.getAnnouncementNoticeStatus())
             .image(imageUrl)
             .view(0L)
             .build();
 
-        if (request.getAnnouncementNotification().equals(AnnouncementNoticeStatus.RESERVATION)
+        if (request.getAnnouncementNoticeStatus().equals(AnnouncementNoticeStatus.RESERVATION)
             && Objects.nonNull(
             request.getReservationDate())) {
             this.setAnnouncementReservationDate(announcement, request.getReservationDate());
@@ -98,7 +98,7 @@ public class AnnouncementService {
         announcement.setContent(request.getContent());
         // notification이 수정됐다!!
         if (!announcement.getAnnouncementNoticeStatus()
-            .equals(request.getAnnouncementNotification())) {
+            .equals(request.getAnnouncementNoticeStatus())) {
             // 공지사항이 게재 or 숨김 상태일 경우
             if (announcement.getAnnouncementStatus().equals(
                 AnnouncementStatus.PUBLISHED) || announcement.getAnnouncementStatus()
@@ -107,10 +107,10 @@ public class AnnouncementService {
                 // 공지사항이 예약 상태일 경우
             } else {
                 // 알림 여부 없음으로 변경
-                if (request.getAnnouncementNotification().equals(AnnouncementNoticeStatus.NONE)) {
+                if (request.getAnnouncementNoticeStatus().equals(AnnouncementNoticeStatus.NONE)) {
                     announcement.setAnnouncementStatus(AnnouncementStatus.PUBLISHED);
                     // 알림 여부 즉시로 변경
-                } else if (request.getAnnouncementNotification()
+                } else if (request.getAnnouncementNoticeStatus()
                     .equals(AnnouncementNoticeStatus.IMMEDIATELY)) {
                     // TODO: 알림 보내는 함수 호출 필요.
                     announcement.setAnnouncementStatus(AnnouncementStatus.PUBLISHED);
