@@ -24,7 +24,7 @@ public class CreateAnnouncementRequest {
     private String image;
 
     @ValidEnum(enumClass = AnnouncementNoticeStatus.class)
-    private AnnouncementNoticeStatus announcementNotification;
+    private AnnouncementNoticeStatus announcementNoticeStatus;
 
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime reservationDate;

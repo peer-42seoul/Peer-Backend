@@ -1,7 +1,7 @@
 package peer.backend.dto.team;
 
 import lombok.Getter;
-import peer.backend.dto.AlarmResponseContainable;
+import peer.backend.dto.NoticeResponseContainable;
 import peer.backend.dto.user.UserDefaultResponse;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
@@ -10,7 +10,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 
 @Getter
-public class TeamDefaultResponse implements AlarmResponseContainable {
+public class TeamDefaultResponse implements NoticeResponseContainable {
 
     private final Long teamId;
     private final TeamType teamType;
