@@ -12,6 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import peer.backend.entity.blacklist.Blacklist;
+import peer.backend.entity.report.Report;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.UserTracking;
@@ -41,6 +42,10 @@ public class UserTrackingAspect {
 
     @Pointcut("@annotation(peer.backend.annotation.tracking.UserBanTracking)")
     public void userBan() {
+    }
+
+    @Pointcut("@annotation(peer.backend.annotation.tracking.UserReportTracking)")
+    public void userReport() {
     }
 
     @Order(2)
@@ -95,4 +100,11 @@ public class UserTrackingAspect {
         this.userTrackingRepository.saveAll(userTrackingList);
     }
 
+    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userReport()", returning = "report")
+    public void userReportTracking(Report report) {
+        User reportedUser = report.getToUser();
+        UserTracking userTracking = this.userTrackingRepository.findByUserId(reportedUser.getId());
+        userTracking.setReportCount(userTracking.getReportCount() + 1);
+        this.userTrackingRepository.save(userTracking);
+    }
 }
