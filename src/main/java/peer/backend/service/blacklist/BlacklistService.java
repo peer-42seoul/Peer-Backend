@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.UserBanTracking;
 import peer.backend.entity.blacklist.Blacklist;
 import peer.backend.entity.blacklist.BlacklistType;
 import peer.backend.entity.report.ReportHandleType;
@@ -22,8 +23,9 @@ public class BlacklistService {
     private final BlacklistRepository blacklistRepository;
     private final UserService userService;
 
+    @UserBanTracking
     @Transactional
-    public void addBlacklistToUserList(List<User> userList,
+    public List<Blacklist> addBlacklistToUserList(List<User> userList,
         BlacklistType type, String content) {
         List<Blacklist> blacklist = new ArrayList<>();
 
@@ -32,6 +34,7 @@ public class BlacklistService {
         }
 
         this.blacklistRepository.saveAll(blacklist);
+        return blacklist;
     }
 
     @Transactional

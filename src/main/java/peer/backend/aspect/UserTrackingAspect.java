@@ -2,6 +2,7 @@ package peer.backend.aspect;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -10,6 +11,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import peer.backend.entity.blacklist.Blacklist;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.UserTracking;
@@ -35,6 +37,10 @@ public class UserTrackingAspect {
 
     @Pointcut("@annotation(peer.backend.annotation.tracking.UserWithdrawalTracking)")
     public void userWithdrawal() {
+    }
+
+    @Pointcut("@annotation(peer.backend.annotation.tracking.UserBanTracking)")
+    public void userBan() {
     }
 
     @Order(2)
@@ -78,4 +84,15 @@ public class UserTrackingAspect {
         userTracking.setStatus(UserTrackingStatus.WITHDRAWAL);
         this.userTrackingRepository.save(userTracking);
     }
+
+    @AfterReturning(pointcut = "peer.backend.aspect.UserTrackingAspect.userBan()", returning = "blacklist")
+    public void userBanTracking(List<Blacklist> blacklist) {
+        List<Long> userIdList = blacklist.stream().map(b -> b.getUser().getId())
+            .collect(Collectors.toList());
+        List<UserTracking> userTrackingList = this.userTrackingRepository.findAllByUserIdIn(
+            userIdList);
+        userTrackingList.forEach(userTracking -> userTracking.setStatus(UserTrackingStatus.BAN));
+        this.userTrackingRepository.saveAll(userTrackingList);
+    }
+
 }
