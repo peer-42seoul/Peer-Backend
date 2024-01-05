@@ -111,8 +111,8 @@ public class RecruitService {
         Root<Recruit> recruit = cq.from(Recruit.class);
         List<Predicate> predicates = new ArrayList<>();
 
-
-        Join<Recruit, Team> teamJoin = recruit.join("team"); // Assuming "team" is the name of the field in Recruit entity that references Team entity
+        Join<Recruit, Team> teamJoin = recruit.join(
+            "team"); // Assuming "team" is the name of the field in Recruit entity that references Team entity
 
         // query 생성
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
@@ -212,19 +212,21 @@ public class RecruitService {
         recruit.setHit(recruit.getHit() + 1);
         List<TeamJobDto> jobDtoList = new ArrayList<>();
         teamJobs.forEach(
-                        role -> jobDtoList.add(
-                                new TeamJobDto(
-                                        role.getName(),
-                                        role.getMax(),
-                                        role.getCurrent())));
+            role -> jobDtoList.add(
+                new TeamJobDto(
+                    role.getName(),
+                    role.getMax(),
+                    role.getCurrent())));
         Team team = recruit.getTeam();
         return RecruitResponce.builder()
             .title(recruit.getTitle())
             .content(recruit.getContent())
-            .region((Objects.isNull(team.getRecruit()) || Objects.isNull(team.getRegion2())? null : new ArrayList<>(List.of(team.getRegion1(), team.getRegion2()))))
+            .region((Objects.isNull(team.getRecruit()) || Objects.isNull(team.getRegion2()) ? null
+                : new ArrayList<>(List.of(team.getRegion1(), team.getRegion2()))))
             .status(recruit.getStatus())
             .totalNumber(recruit.getTeam().getTeamUsers().size())
-            .current(teamUserJobRepository.findByTeamUserTeamIdAndStatus(team.getId(), TeamUserStatus.APPROVED).size())
+            .current(teamUserJobRepository.findByTeamUserTeamIdAndStatus(team.getId(),
+                TeamUserStatus.APPROVED).size())
             .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
@@ -247,7 +249,8 @@ public class RecruitService {
         List<TeamJob> teamJobs = recruit.getTeam().getJobs();
         List<TeamJobDto> roleDtoList = new ArrayList<>();
         teamJobs.forEach(
-                        role -> roleDtoList.add(new TeamJobDto(role.getName(), role.getMax(), role.getCurrent())));
+            role -> roleDtoList.add(
+                new TeamJobDto(role.getName(), role.getMax(), role.getCurrent())));
         Team team = recruit.getTeam();
         //TODO:DTO 항목 추가 필요
         return RecruitUpdateResponse.builder()
@@ -256,13 +259,16 @@ public class RecruitService {
             .region1(team.getRegion1())
             .region2(team.getRegion2())
             .status(recruit.getStatus())
-            .totalNumber(team.getType().equals(TeamType.STUDY)? team.getMaxMember() : teamJobs.stream().mapToInt(TeamJob::getMax).sum())
+            .totalNumber(team.getType().equals(TeamType.STUDY) ? team.getMaxMember()
+                : teamJobs.stream().mapToInt(TeamJob::getMax).sum())
             .current(team.getTeamUsers().size())
             .due(team.getDueTo().getLabel())
             .link(recruit.getLink())
             .leader_id(recruit.getWriterId())
-            .leader_nickname(Objects.isNull(recruit.getWriter()) ? null : recruit.getWriter().getNickname())
-            .leader_image(Objects.isNull(recruit.getWriter()) ? null : recruit.getWriter().getImageUrl())
+            .leader_nickname(
+                Objects.isNull(recruit.getWriter()) ? null : recruit.getWriter().getNickname())
+            .leader_image(
+                Objects.isNull(recruit.getWriter()) ? null : recruit.getWriter().getImageUrl())
             .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
             .roleList(roleDtoList)
             .interviewList(getInterviewList(recruit_id))
@@ -326,7 +332,7 @@ public class RecruitService {
 
     @Transactional
     @RecruitWritingTracking
-    public String createRecruit(RecruitCreateRequest request, Authentication auth) {
+    public Recruit createRecruit(RecruitCreateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
         //동일한 팀 이름 검사
         teamRepository.findByName(request.getName()).ifPresent(
@@ -340,17 +346,18 @@ public class RecruitService {
 
         //모집게시글 생성
         Recruit recruit = recruitRepository.save(createRecruitFromDto(request, team, user));
-        if (request.getTagList() != null)
+        if (request.getTagList() != null) {
             recruit.setRecruitTags(request.getTagList().stream()
                 .map(e -> (new RecruitTag(recruit.getId(), e))).collect(
                     Collectors.toList()));
-        return recruit.getId().toString();
+        }
+        return recruit;
     }
 
     @Transactional
     public void applyRecruit(Long recruit_id, ApplyRecruitRequest request, Authentication auth) {
         Recruit recruit = recruitRepository.findById(recruit_id)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
         Team team = recruit.getTeam();
 
@@ -358,30 +365,33 @@ public class RecruitService {
 
         if (Objects.isNull(teamUser)) {
             teamUser = TeamUser.builder()
-                    .teamId(team.getId())
-                    .userId(user.getId())
-                    .role(TeamUserRoleType.MEMBER)
-                    .answers(request.getAnswerList())
-                    .build();
+                .teamId(team.getId())
+                .userId(user.getId())
+                .role(TeamUserRoleType.MEMBER)
+                .answers(request.getAnswerList())
+                .build();
             teamUserRepository.save(teamUser);
-        }
-        else {
-            if (team.getType().equals(TeamType.STUDY))
+        } else {
+            if (team.getType().equals(TeamType.STUDY)) {
                 throw new IllegalArgumentException("이미 신청했습니다.");
+            }
             teamUser.getTeamUserJobs().forEach(job -> {
-                if (job.getTeamJob().getName().equals(request.getRole()))
+                if (job.getTeamJob().getName().equals(request.getRole())) {
                     throw new java.lang.IllegalArgumentException("이미 신청했습니다.");
+                }
             });
         }
 
         if (team.getType().equals(TeamType.PROJECT)) {
             teamUser.addTeamUserJob(
-                    TeamUserJob.builder()
-                            .teamUserId(teamUser.getId())
-                            .teamJobId(teamJobRepository.findByTeamIdAndName(team.getId(), request.getRole())
-                                    .orElseThrow( () -> new IllegalArgumentException("존재하지 않는 역할입니다.")).getId())
-                            .status(TeamUserStatus.PENDING)
-                            .build()
+                TeamUserJob.builder()
+                    .teamUserId(teamUser.getId())
+                    .teamJobId(
+                        teamJobRepository.findByTeamIdAndName(team.getId(), request.getRole())
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할입니다."))
+                            .getId())
+                    .status(TeamUserStatus.PENDING)
+                    .build()
             );
         }
     }
@@ -402,9 +412,10 @@ public class RecruitService {
             recruit.update(recruitUpdateRequestDTO);
             objectService.deleteObject(recruit.getThumbnailUrl());
             recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
-                    "recruit/" + recruit_id, "image"));
-        } else
+                "recruit/" + recruit_id, "image"));
+        } else {
             recruit.update(recruitUpdateRequestDTO);
+        }
         return recruit.getId();
     }
 }
