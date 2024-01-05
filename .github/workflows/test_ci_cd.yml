@@ -2,9 +2,9 @@ name: Test_CI/CD
 
 on:
   push:
-    branches: [ "main", "dev", "test" ]
+    branches: [ "main", "test" ]
   pull_request:
-    branches: [ "main", dev, "test" ]
+    branches: [ "main", "test" ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
   # workflow_call:
 
