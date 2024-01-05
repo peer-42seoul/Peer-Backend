@@ -48,7 +48,7 @@ jobs:
       run: ./gradlew test
       
   deploy-dev:
-    if: github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push')
+    if: github.ref == 'refs/heads/test' && (github.event.pull_request.merged == true || github.event_name == 'push')
     needs: build
     runs-on: ubuntu-latest
 
@@ -63,7 +63,7 @@ jobs:
       run: |
         ./gradlew bootjar
         docker login -u ${{ secrets.TEST_DOCKER_USERNAME }} -p ${{ secrets.TEST_DOCKER_PASSWORD }}
-        docker build -f Dockerfile-dev -t ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }} .
+        docker build -f Dockerfile-test -t ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }} .
         docker push ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
 #      working-directory: ./backend
 
