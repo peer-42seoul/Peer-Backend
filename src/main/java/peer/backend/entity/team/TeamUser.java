@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
@@ -48,6 +49,10 @@ public class TeamUser {
 
     @ElementCollection
     private List<String> answers;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private TeamUserStatus status;
 
     public void grantLeader(TeamUserRoleType teamUserRoleType) {
         this.role = teamUserRoleType;

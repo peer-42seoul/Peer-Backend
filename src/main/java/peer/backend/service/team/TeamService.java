@@ -257,9 +257,11 @@ public class TeamService {
     public List<TeamMemberDto> getTeamMemberList(Long teamId, User user) {
         Team team = this.teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
-        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
-            return team.getTeamUsers().stream().map(TeamMemberDto::new)
-                .collect(Collectors.toList());
+        if (teamUserRepository.existsByUserIdAndTeamIdAndStatus(user.getId(), teamId, TeamUserStatus.APPROVED)) {
+            return teamUserRepository.findByTeamIdAndStatus(teamId, TeamUserStatus.APPROVED)
+                    .stream()
+                    .map(TeamMemberDto::new)
+                    .collect(Collectors.toList());
         } else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
