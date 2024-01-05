@@ -8,17 +8,21 @@ import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import peer.backend.config.SocketIoConfig;
 import peer.backend.config.jwt.TokenProvider;
+import peer.backend.dto.socket.whoURDTO;
+import peer.backend.dto.socket.yesWhoUAreDTO;
 import peer.backend.entity.user.User;
+import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.socket.SocketServerService;
 
+import java.util.EventListener;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -28,26 +32,25 @@ import peer.backend.dto.socket.tempDTO;
 @Slf4j
 @RequestMapping("/")
 public class SocketIoServerController {
-    private final SocketIOServer server;
     private final SocketServerService socketServerService;
     private final UserRepository userRepository;
-
-    @Autowired
-    private TokenProvider tokenProvider;
-
     private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    public SocketIoServerController(SocketIoConfig config, SocketServerService socketServerService, UserRepository userRepository, RedisTemplate<String, String> redisTemplate) {
-        this.server = config.socketIOServer();
+    public SocketIoServerController(SocketIoConfig config,
+                                    SocketServerService socketServerService,
+                                    UserRepository userRepository,
+                                    RedisTemplate<String, String> redisTemplate) {
+        SocketIOServer server = config.socketIOServer();
         this.socketServerService = socketServerService;
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
-        this.server.start();
-        this.server.addConnectListener(onUserConnectWithSocket);
-        this.server.addDisconnectListener(onUserDisconnectWithSocket);
+        server.start();
+        server.addConnectListener(onUserConnectWithSocket);
+        server.addDisconnectListener(onUserDisconnectWithSocket);
 
-        this.server.addEventListener("checkOnline", tempDTO.class, IsHeOnline);
+        server.addEventListener("checkOnline", tempDTO.class, IsHeOnline);
+        server.addEventListener("whoAmI", whoURDTO.class, whoAmI);
 
     }
 
@@ -55,14 +58,12 @@ public class SocketIoServerController {
         @Override
         public void onConnect(SocketIOClient client) {
             log.info("Socket is Connected : " + client.getSessionId());
-            List<String> token = client.getHandshakeData().getUrlParams().get("token");
-            if (!tokenProvider.validateToken(token.get(0))) {
-                log.info("Wrong Token! Connection is closed!");
-                client.disconnect();
+            String token = client.getHandshakeData().getUrlParams().get("token").get(0);
+
+            if (!socketServerService.checkValidationWithToken(client, token))
                 return;
-            }
-            Authentication userJwt = tokenProvider.getAuthentication(token.get(0));
-            User user = User.authenticationToUser(userJwt);
+            User user = socketServerService.getUserWithToken(token);
+
             log.info(user.getName() + " is Online Status");
             redisTemplate.opsForValue().set("onlineStatus:" + user.getId(), client.getSessionId().toString());
         }
@@ -72,9 +73,8 @@ public class SocketIoServerController {
     public DisconnectListener onUserDisconnectWithSocket = new DisconnectListener() {
         @Override
         public void onDisconnect(SocketIOClient client) {
-            List<String> token = client.getHandshakeData().getUrlParams().get("token");
-            Authentication userJwt = tokenProvider.getAuthentication(token.get(0));
-            User user = User.authenticationToUser(userJwt);
+            String token = client.getHandshakeData().getUrlParams().get("token").get(0);
+            User user = socketServerService.getUserWithToken(token);
             redisTemplate.delete("onlineStatus:" + user.getId());
             log.info(user.getName() + " is offline Status");
             log.info("Socket is disconnected : " + client.getSessionId());
@@ -84,7 +84,7 @@ public class SocketIoServerController {
     public DataListener<tempDTO> IsHeOnline = new DataListener<>() {
         @Override
         public void onData(SocketIOClient client, tempDTO data, AckRequest ackSender) throws Exception {
-            Long userId;
+            long userId;
             User user;
             try {
                 userId = Long.parseLong(data.getData());
@@ -103,6 +103,28 @@ public class SocketIoServerController {
                 log.info(user.getNickname() + " is offline!");
                 client.sendEvent("checkOnline", user.getNickname() + " is offline!");
             }
+        }
+    };
+
+    public DataListener<whoURDTO> whoAmI = new DataListener<>() {
+        @Override
+        public void onData(SocketIOClient client, whoURDTO data, AckRequest ackSender){
+            String token = client.getHandshakeData().getUrlParams().get("token").get(0);
+            if (!socketServerService.checkValidationWithToken(client, token))
+                return ;
+            User target = socketServerService.getUserWithToken(token);
+            yesWhoUAreDTO result = null;
+            try {
+               result = socketServerService.makeUserInfo(target, data);
+            } catch (NoSuchElementException e) {
+                client.sendEvent("whoAmI", e.getMessage());
+            }
+            if (result == null) {
+                client.sendEvent("whoAmI", "잘못된 요청입니다.");
+                client.disconnect();
+                return;
+            }
+            client.sendEvent("whoAmI", result);
         }
     };
 }
