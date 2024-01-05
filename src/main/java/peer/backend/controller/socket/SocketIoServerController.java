@@ -116,8 +116,9 @@ public class SocketIoServerController {
             yesWhoUAreDTO result = null;
             try {
                result = socketServerService.makeUserInfo(target, data);
-            } catch (NoSuchElementException e) {
+            } catch (Exception e) {
                 client.sendEvent("whoAmI", e.getMessage());
+                return;
             }
             if (result == null) {
                 client.sendEvent("whoAmI", "잘못된 요청입니다.");

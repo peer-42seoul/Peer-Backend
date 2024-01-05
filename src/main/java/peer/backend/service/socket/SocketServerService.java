@@ -16,6 +16,7 @@ import peer.backend.entity.user.User;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -50,6 +51,7 @@ public class SocketServerService {
         return User.authenticationToUser(jwt);
     }
 
+    @Transactional
     public yesWhoUAreDTO makeUserInfo(User target, whoURDTO data) {
         yesWhoUAreDTO result;
         if (data.getTeamId() == null && data.getTeamName() == null) {
@@ -79,7 +81,7 @@ public class SocketServerService {
             TeamUser user = teamData
                     .getTeamUsers()
                     .stream()
-                    .filter((member -> member.getId().equals(target.getId())))
+                    .filter((member -> member.getUserId().equals(target.getId())))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("멤버로 존재하지 않습니다."));
             result = yesWhoUAreDTO.builder()
