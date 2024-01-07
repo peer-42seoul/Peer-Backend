@@ -67,5 +67,5 @@ public class Notification extends BaseEntity {
     private LocalDateTime scheduledTime;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
-    private List<NotificationTarget> targets = new ArrayList<>();
+    private List<NotificationTarget> targets;
 }
