@@ -20,6 +20,7 @@ public class RecruitUpdateResponse {
 
     private String title;
     private int totalNumber;
+    private int current;
     private RecruitStatus status;
     private String due;
     private String content;
@@ -37,4 +38,5 @@ public class RecruitUpdateResponse {
     private String place;
     private String type;
     private String name;
+    private String image;
 }

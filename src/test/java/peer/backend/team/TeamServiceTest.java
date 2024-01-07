@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import peer.backend.dto.team.TeamListResponse;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
@@ -64,14 +65,13 @@ public class TeamServiceTest {
             .id(1L)
             .name("test")
             .type(TeamType.STUDY)
-            .dueTo("10월")
+            .dueTo(RecruitDueEnum.EIGHT_MONTHS)
             .operationFormat(TeamOperationFormat.ONLINE)
             .status(TeamStatus.ONGOING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
             .region1("test")
             .region2("test")
-            .region3("test")
             .build();
     }
 

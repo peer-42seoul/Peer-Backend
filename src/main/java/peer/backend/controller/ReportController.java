@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.report.ReportProcessingRequest;
+import peer.backend.dto.report.ReportHandleRequest;
 import peer.backend.dto.report.ReportRequest;
 import peer.backend.dto.report.ReportResponse;
 import peer.backend.entity.blacklist.BlacklistType;
 import peer.backend.entity.report.Report;
-import peer.backend.entity.report.ReportProcessingType;
+import peer.backend.entity.report.ReportHandleType;
 import peer.backend.entity.report.ReportStatus;
 import peer.backend.entity.user.User;
 import peer.backend.service.blacklist.BlacklistService;
@@ -37,7 +37,7 @@ public class ReportController {
     public void report(Authentication authentication, @RequestBody @Valid
     ReportRequest request) {
         User user = User.authenticationToUser(authentication);
-        this.reportService.save(user.getId(), request.getUserId(), request.getType(),
+        this.reportService.save(user, request.getUserId(), request.getType(),
             request.getContent());
     }
 
@@ -48,13 +48,13 @@ public class ReportController {
     }
 
     @PostMapping("/api/v1/admin/report")
-    public void reportProcessing(@RequestBody @Valid ReportProcessingRequest request) {
-        if (request.getType().equals(ReportProcessingType.PERMANENT_BAN)) {
+    public void handleReport(@RequestBody @Valid ReportHandleRequest request) {
+        if (request.getType().equals(ReportHandleType.PERMANENT_BAN)) {
             List<Report> reportList = this.reportService.getReportListToIdListWithoutStatus(
                 request.getIdList(), ReportStatus.COMPLETED);
             Set<User> userSet = reportList.stream().map(Report::getToUser)
                 .collect(Collectors.toSet());
-            BlacklistType type = this.blacklistService.getBlacklistTypeToReportProcessingType(
+            BlacklistType type = this.blacklistService.getBlacklistTypeToReportHandleType(
                 request.getType());
             this.blacklistService.addBlacklistToUserList(List.copyOf(userSet), type,
                 request.getContent());

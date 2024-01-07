@@ -18,6 +18,7 @@ public class RecruitResponce {
 
     private String title;
     private int totalNumber;
+    private int current;
     private RecruitStatus status;
     private String due;
     private String content;

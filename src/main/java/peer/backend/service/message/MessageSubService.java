@@ -59,7 +59,7 @@ public class MessageSubService {
      * @return try - catch 문을 활용해서 받거나 아니면 Exception을 발생시킬 수 있다.
      */
     @Transactional(readOnly = true)
-    public List<MessageIndex> getMessageIndexList(long userId) {
+    public List<MessageIndex> getMessageIndexList(long userId) throws NoSuchElementException {
         Optional<List<MessageIndex>> listData = this.indexRepository.findByUserId(userId);
         List<MessageIndex> retData = null;
         return retData = listData.orElseThrow(() -> new NoSuchElementException("There are no messges"));
@@ -120,7 +120,7 @@ public class MessageSubService {
     public String makeFormattedDate(LocalDateTime value) {
 //        ZonedDateTime seoulTimeDate = value.atZone(ZoneId.of("Asia/Seoul"));
 //        ZonedDateTime seoulTimeDate = value.atZone(ZoneId.of("UTC"));
-        System.out.println("현재 존 :" + this.currnetTimezone);
+//        System.out.println("현재 존 :" + this.currnetTimezone);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 //        return seoulTimeDate.format(formatter);
         return value.format(formatter);

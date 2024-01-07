@@ -21,9 +21,13 @@ import peer.backend.oauth.enums.LoginStatus;
 @Slf4j
 public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    private static final String LOGIN_URL = "/login/oauth";
+    private static final String REGISTER_URL = "/privacy";
+    private static final String LINK_URL = "/my-page/profile";
+    private static final String ERROR_URL = "/login/forbidden";
+
     @Value("${url.dev-domain-url}")
     private String REDIRECT_URL;
-
 
     private final TokenProvider tokenProvider;
 
@@ -38,12 +42,12 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
         LoginStatus loginStatus = principalDetails.getLoginStatus();
         String redirectUrl = REDIRECT_URL;
 
-        if (loginStatus == LoginStatus.LOGIN) {
+        if (loginStatus.equals(LoginStatus.LOGIN)) {
             log.info("토큰과 함께 홈으로 리다이렉트");
             String accessToken = this.tokenProvider.createAccessToken(user);
             String refreshToken = this.tokenProvider.createRefreshToken(user);
 
-            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/login/oauth")
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + LOGIN_URL)
                 .queryParam("accessToken", accessToken)
                 .build()
                 .toUriString();
@@ -55,15 +59,21 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             cookie.setSecure(true);
 
             response.addCookie(cookie);
-        } else if (loginStatus == LoginStatus.REGISTER) {
+        } else if (loginStatus.equals(LoginStatus.REGISTER)) {
             log.info("회원가입 화면으로 리다이렉트");
-            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/privacy")
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + REGISTER_URL)
                 .queryParam("social-email", principalDetails.getSocialEmail())
                 .build()
                 .toUriString();
-        } else {
-            redirectUrl += "/my-page/profile";
+        } else if (loginStatus.equals(LoginStatus.LINK)) {
+            redirectUrl += LINK_URL;
             log.info("연동된 경우니 마이페이지로 리다이렉트");
+        } else {
+            String code = loginStatus.getValue();
+            redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + ERROR_URL)
+                .queryParam("code", code)
+                .build()
+                .toUriString();
         }
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);

@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.AntPathMatcher;
 import peer.backend.controller.team.TeamController;
 import peer.backend.dto.team.TeamListResponse;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.*;
@@ -56,14 +57,13 @@ public class TeamControllerTest {
         team = Team.builder()
             .name("test")
             .type(TeamType.STUDY)
-            .dueTo(LocalDate.now().toString())
+            .dueTo(RecruitDueEnum.EIGHT_MONTHS)
             .operationFormat(TeamOperationFormat.ONLINE)
             .status(TeamStatus.ONGOING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
             .region1("test")
             .region2("test")
-            .region3("test")
             .build();
 //
 //        teamUser = TeamUser.builder()

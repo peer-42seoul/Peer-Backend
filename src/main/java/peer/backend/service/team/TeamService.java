@@ -1,33 +1,46 @@
 package peer.backend.service.team;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
-import peer.backend.dto.team.*;
-import peer.backend.entity.board.recruit.Recruit;
-//import peer.backend.entity.board.recruit.RecruitApplicant;
+import peer.backend.dto.team.TeamApplicantListDto;
+import peer.backend.dto.team.TeamInfoResponse;
+import peer.backend.dto.team.TeamJobDto;
+import peer.backend.dto.team.TeamListResponse;
+import peer.backend.dto.team.TeamMemberDto;
+import peer.backend.dto.team.TeamSettingDto;
+import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.board.recruit.RecruitInterview;
-import peer.backend.entity.board.recruit.enums.RecruitStatus;
+import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
-import peer.backend.entity.team.enums.*;
+import peer.backend.entity.team.TeamUserJob;
+import peer.backend.entity.team.enums.TeamMemberStatus;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamStatus;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
-//import peer.backend.repository.board.recruit.RecruitApplicantRepository;
-import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
+import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
-
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,14 +49,13 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
-    private final RecruitRepository recruitRepository;
-//    private final RecruitApplicantRepository recruitApplicantRepository;
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
+    private final TeamUserJobRepository teamUserJobRepository;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
-                == TeamUserRoleType.LEADER;
+            == TeamUserRoleType.LEADER;
     }
 
     @Transactional
@@ -207,15 +219,13 @@ public class TeamService {
     }
 
     @Transactional
-    public void acceptTeamApplicant(Long teamId, Long applicantId, User user) {
+    public void acceptTeamApplicant(Long teamId, TeamUserJobPK teamUserJobId, User user) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(applicantId, teamId);
-        if (teamUser == null) {
-            throw new NotFoundException("존재하지 않는 지원자입니다.");
-        }
-        teamUser.acceptApplicant();
+        TeamUserJob teamUserJob = teamUserJobRepository.findById(teamUserJobId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
+        teamUserJob.acceptApplicant();
         //TODO: 신청자에게 알림을 보내야됨
     }
 
@@ -263,24 +273,26 @@ public class TeamService {
         }
     }
 
+
     @TeamCreateTracking
     @Transactional
-    public Team createTeam(User user, RecruitCreateRequest request) {
+    public Team createTeam(User user, RecruitCreateRequest request)
+        throws IllegalArgumentException {
         Team team = Team.builder()
             .name(request.getName())
             .type(TeamType.valueOf(request.getType()))
-            .dueTo(request.getDue())
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
             .isLock(false)
-            .region1(request.getRegion().get(0))
-            .region2(request.getRegion().get(1))
-            .region3(null)
-            .maxMember(0)
+            .region1(request.getRegion1())
+            .region2(request.getRegion2())
+            .dueTo(RecruitDueEnum.from(request.getDue()))
+            .maxMember(request.getMax())
             .build();
-        if (request.getRoleList() != null)
+        if (request.getRoleList() != null) {
             addRolesToTeam(team, request.getRoleList());
+        }
         teamRepository.save(team);
         // 리더 추가
         TeamUser teamUser = TeamUser.builder()
@@ -288,11 +300,29 @@ public class TeamService {
             .userId(user.getId())
             .role(TeamUserRoleType.LEADER)
             .build();
-        if (request.getLeaderJob() != null)
-            teamUser.addJob(teamJobRepository.findByName(request.getLeaderJob())
-                    .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다.")));
         teamUserRepository.save(teamUser);
-
+        TeamJob leader = TeamJob.builder()
+            .team(team)
+            .name("Leader")
+            .max(1)
+            .build();
+        teamJobRepository.save(leader);
+        TeamUserJob userLeader = TeamUserJob.builder()
+            .teamJobId(leader.getId())
+            .teamUserId(teamUser.getId())
+            .status(TeamUserStatus.APPROVED)
+            .build();
+        teamUserJobRepository.save(userLeader);
         return team;
+    }
+
+    @Transactional
+    public Page<Team> getTeamListFromPageable(Pageable pageable) {
+        return this.teamRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public Page<Team> getTeamListByNameOrLeaderFromPageable(Pageable pageable, String keyword) {
+        return this.teamRepository.findByNameAndLeaderContainingFromPageable(pageable, keyword);
     }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.UserReportTracking;
 import peer.backend.entity.report.Report;
 import peer.backend.entity.report.ReportStatus;
 import peer.backend.entity.report.ReportType;
@@ -24,10 +25,9 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
 
+    @UserReportTracking
     @Transactional
-    public void save(Long fromId, Long toId, ReportType type, String content) {
-        User from = userRepository.findById(fromId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
+    public Report save(User from, Long toId, ReportType type, String content) {
         User to = userRepository.findById(toId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
 
@@ -35,7 +35,7 @@ public class ReportService {
             throw new ConflictException("자기 자신은 신고할 수 없습니다.");
         }
 
-        this.reportRepository.save(new Report(from, to, type, content));
+        return this.reportRepository.save(new Report(from, to, type, content));
     }
 
     @Transactional

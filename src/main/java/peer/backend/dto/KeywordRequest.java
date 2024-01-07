@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class KeywordDTO {
+public class KeywordRequest {
 
     @NotBlank(message = "키워드가 비어있습니다!")
     private String keyword;

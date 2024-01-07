@@ -1,25 +1,20 @@
 package peer.backend.config.jwt;
 
-import java.time.LocalDate;
 import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 import peer.backend.entity.user.User;
-import peer.backend.service.UserDetailsServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("token provider Test")
 public class TokenProviderTest {
 
-    @Mock
-    private UserDetailsServiceImpl userDetailsService;
     @InjectMocks
     private TokenProvider tokenProvider;
 

@@ -12,8 +12,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecruitApplicantPK implements Serializable {
-    private Long userId;
-    private Long recruitId;
-    private String job;
+public class TeamUserJobPK implements Serializable {
+    private Long teamUserId;
+    private Long teamJobId;
 }

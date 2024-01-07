@@ -1,11 +1,11 @@
 package peer.backend.entity.team;
 
 import lombok.*;
-import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.team.enums.TeamUserStatus;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -21,20 +21,24 @@ public class TeamJob {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruit_id")
-    private Recruit recruit;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @OneToMany(mappedBy = "teamJob", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<TeamUserJob> teamUserJobs;
 
     @Column(nullable = false, length = 10)
     private String name;
     @Column(nullable = false)
     private Integer max;
-    @Column
-    private Integer current;
 
-    @ManyToMany(mappedBy = "jobs")
-    List<TeamUser> users = new ArrayList<>();
+
+    public int getCurrent(){
+        if (Objects.isNull(this.teamUserJobs))
+            return 0;
+        else
+            return teamUserJobs.stream().filter(
+                            job -> job.getStatus().equals(TeamUserStatus.APPROVED))
+                    .collect(Collectors.toList()).size();
+    }
 }
