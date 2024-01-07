@@ -1,7 +1,6 @@
 package peer.backend.service.noti;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +42,9 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationTarget alarmTargetFromDto(AlarmTargetDto dto) {
         return NotificationTarget.builder()
                 .target(dto.getUserId())
-                .event(dto.getAlarm())
+                .specificNoti(dto.getAlarm())
                 .alarmType(dto.getAlarmType())
-                .read(false)
+                .checked(false)
                 .deleted(false)
                 .build();
     }

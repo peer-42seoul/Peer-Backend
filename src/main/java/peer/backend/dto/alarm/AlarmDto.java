@@ -1,5 +1,6 @@
 package peer.backend.dto.alarm;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,5 +20,5 @@ public class AlarmDto {
     private Long target;
     private String link;
     private Priority priority;
-    private Date scheduledTime;
+    private LocalDateTime scheduledTime;
 }

@@ -4,17 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +25,6 @@ import peer.backend.entity.noti.enums.TargetType;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
-@Table(name = "notification")
 public class Notification extends BaseEntity {
 
     @Id
@@ -66,6 +56,9 @@ public class Notification extends BaseEntity {
     @Column
     private LocalDateTime scheduledTime;
 
-    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "specificNoti", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<NotificationTarget> targets;
+//
+//    @OneToMany(mappedBy = "targetNotification", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    private List<NotificationTargetUser> lists;
 }
