@@ -118,6 +118,7 @@ public class SocketIoServerController {
                result = socketServerService.makeUserInfo(target, data);
             } catch (Exception e) {
                 client.sendEvent("whoAmI", e.getMessage());
+                client.disconnect();
                 return;
             }
             if (result == null) {
