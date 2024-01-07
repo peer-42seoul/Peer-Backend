@@ -47,9 +47,6 @@ public class TeamUser {
     @OneToMany(mappedBy = "teamUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamUserJob> teamUserJobs;
 
-    @ElementCollection
-    private List<String> answers;
-
     @Column
     @Enumerated(EnumType.STRING)
     private TeamUserStatus status;
@@ -57,12 +54,14 @@ public class TeamUser {
     public void grantLeader(TeamUserRoleType teamUserRoleType) {
         this.role = teamUserRoleType;
     }
+    public void grantMember(){
+        this.status = TeamUserStatus.APPROVED;
+    }
 
     public void addTeamUserJob(TeamUserJob teamUserJob) {
         if (teamUserJobs == null) {
             teamUserJobs = new ArrayList<>();
         }
-
         teamUserJobs.add(teamUserJob);
     }
 }

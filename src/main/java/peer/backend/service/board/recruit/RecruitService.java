@@ -16,6 +16,7 @@ import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitFavoritePK;
+import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
@@ -23,6 +24,7 @@ import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
 import peer.backend.exception.NotFoundException;
@@ -354,6 +356,8 @@ public class RecruitService {
         User user = User.authenticationToUser(auth);
         Team team = recruit.getTeam();
 
+        TeamJob teamJob = teamJobRepository.findByTeamIdAndName(recruit_id, request.getRole())
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
         TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(user.getId(), team.getId());
 
         if (Objects.isNull(teamUser)) {
@@ -361,29 +365,19 @@ public class RecruitService {
                     .teamId(team.getId())
                     .userId(user.getId())
                     .role(TeamUserRoleType.MEMBER)
-                    .answers(request.getAnswerList())
+                    .status(TeamUserStatus.PENDING)
                     .build();
             teamUserRepository.save(teamUser);
-        }
-        else {
-            if (team.getType().equals(TeamType.STUDY))
-                throw new IllegalArgumentException("이미 신청했습니다.");
-            teamUser.getTeamUserJobs().forEach(job -> {
-                if (job.getTeamJob().getName().equals(request.getRole()))
-                    throw new java.lang.IllegalArgumentException("이미 신청했습니다.");
-            });
+        } else if (teamUserJobRepository.existsById(new TeamUserJobPK(teamUser.getId(), teamJob.getId()))) {
+            throw new ConflictException("이미 지원하였습니다.");
         }
 
-        if (team.getType().equals(TeamType.PROJECT)) {
-            teamUser.addTeamUserJob(
-                    TeamUserJob.builder()
-                            .teamUserId(teamUser.getId())
-                            .teamJobId(teamJobRepository.findByTeamIdAndName(team.getId(), request.getRole())
-                                    .orElseThrow( () -> new IllegalArgumentException("존재하지 않는 역할입니다.")).getId())
-                            .status(TeamUserStatus.PENDING)
-                            .build()
-            );
-        }
+        teamUser.addTeamUserJob(TeamUserJob.builder()
+                .teamJobId(teamJob.getId())
+                .teamUserId(teamUser.getId())
+                .status(TeamUserStatus.PENDING)
+                .answers(request.getAnswerList())
+                .build());
     }
 
     @Transactional

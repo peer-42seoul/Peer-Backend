@@ -186,35 +186,39 @@ public class TeamService {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        List<TeamUser> teamUserList = teamUserRepository.findByTeamId(teamId);
-        List<TeamApplicantListDto> result = new ArrayList<>();
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (team.getStatus() != TeamStatus.RECRUITING) {
             throw new NotFoundException("모집이 진행중이 아닙니다.");
         }
-        //questionList 이터레이트 하면서 dtoList만들기
-        for (TeamUser teamUser : teamUserList) {
-            ArrayList<RecruitAnswerDto> answerDtoList = new ArrayList<>();
-            List<String> answerList = teamUser.getAnswers();
+
+        List<TeamUserJob> applicants = teamUserJobRepository.findByTeamJobTeamIdAndStatus(team, TeamUserStatus.PENDING);
+
+        List<TeamApplicantListDto> result = new ArrayList<>();
+        for (TeamUserJob applicant : applicants) {
+            List<RecruitAnswerDto> answerDtoList = new ArrayList<>();
+            List<String> answerList = applicant.getAnswers();
             List<RecruitInterview> questionList = team.getRecruit().getInterviews();
             int index = 0;
             for (RecruitInterview question : questionList) {
                 RecruitAnswerDto answerDto = RecruitAnswerDto.builder()
-                    .question(question.getQuestion())
-                    .answer(answerList.get(index))
-                    .type(question.getType().toString())
-                    .option(question.getOptions())
-                    .build();
+                        .question(question.getQuestion())
+                        .answer(answerList.get(index))
+                        .type(question.getType().toString())
+                        .option(question.getOptions())
+                        .build();
                 index++;
                 answerDtoList.add(answerDto);
             }
+            User applicantUser = applicant.getTeamUser().getUser();
             result.add(TeamApplicantListDto.builder()
-                .answers(answerDtoList)
-                .name(teamUser.getUser().getNickname())
-                .userId(teamUser.getUserId())
-                .build());
+                    .answers(answerDtoList)
+                    .name(applicantUser.getNickname())
+                    .userId(applicantUser.getId())
+                    .applyId(new TeamUserJobPK(applicant.getTeamUserId(), applicant.getTeamJobId()))
+                    .build());
         }
+
         return result;
     }
 
@@ -301,6 +305,7 @@ public class TeamService {
             .teamId(team.getId())
             .userId(user.getId())
             .role(TeamUserRoleType.LEADER)
+            .status(TeamUserStatus.APPROVED)
             .build();
         teamUserRepository.save(teamUser);
         TeamJob leader = TeamJob.builder()
@@ -315,6 +320,15 @@ public class TeamService {
             .status(TeamUserStatus.APPROVED)
             .build();
         teamUserJobRepository.save(userLeader);
+
+        if (team.getType().equals(TeamType.STUDY)) {
+            TeamJob study = TeamJob.builder()
+                    .team(team)
+                    .name(TeamType.STUDY.getValue())
+                    .max(request.getMax())
+                    .build();
+            teamJobRepository.save(study);
+        }
         return team;
     }
 
