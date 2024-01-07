@@ -35,21 +35,24 @@ public class SocketIoServerController {
     private final SocketServerService socketServerService;
     private final UserRepository userRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final TokenProvider tokenProvider;
 
     @Autowired
     public SocketIoServerController(SocketIoConfig config,
                                     SocketServerService socketServerService,
                                     UserRepository userRepository,
+                                    TokenProvider tokenProvider,
                                     RedisTemplate<String, String> redisTemplate) {
         SocketIOServer server = config.socketIOServer();
         this.socketServerService = socketServerService;
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
+        this.tokenProvider = tokenProvider;
         server.start();
         server.addConnectListener(onUserConnectWithSocket);
         server.addDisconnectListener(onUserDisconnectWithSocket);
 
-        server.addEventListener("checkOnline", tempDTO.class, IsHeOnline);
+        server.addEventListener("checkOnline", tempDTO.class, isHeOnline);
         server.addEventListener("whoAmI", whoURDTO.class, whoAmI);
 
     }
@@ -62,7 +65,7 @@ public class SocketIoServerController {
 
             if (!socketServerService.checkValidationWithToken(client, token))
                 return;
-            User user = socketServerService.getUserWithToken(token);
+            User user = tokenProvider.getUserWithToken(token);
 
             log.info(user.getName() + " is Online Status");
             redisTemplate.opsForValue().set("onlineStatus:" + user.getId(), client.getSessionId().toString());
@@ -74,14 +77,14 @@ public class SocketIoServerController {
         @Override
         public void onDisconnect(SocketIOClient client) {
             String token = client.getHandshakeData().getUrlParams().get("token").get(0);
-            User user = socketServerService.getUserWithToken(token);
+            User user = tokenProvider.getUserWithToken(token);
             redisTemplate.delete("onlineStatus:" + user.getId());
             log.info(user.getName() + " is offline Status");
             log.info("Socket is disconnected : " + client.getSessionId());
         }
     };
 
-    public DataListener<tempDTO> IsHeOnline = new DataListener<>() {
+    public DataListener<tempDTO> isHeOnline = new DataListener<>() {
         @Override
         public void onData(SocketIOClient client, tempDTO data, AckRequest ackSender) throws Exception {
             long userId;
@@ -112,7 +115,7 @@ public class SocketIoServerController {
             String token = client.getHandshakeData().getUrlParams().get("token").get(0);
             if (!socketServerService.checkValidationWithToken(client, token))
                 return ;
-            User target = socketServerService.getUserWithToken(token);
+            User target = tokenProvider.getUserWithToken(token);
             yesWhoUAreDTO result = null;
             try {
                result = socketServerService.makeUserInfo(target, data);

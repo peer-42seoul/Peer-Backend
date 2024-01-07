@@ -142,4 +142,9 @@ public class TokenProvider {
             .parseClaimsJws(accessToken).getBody().getExpiration();
         return (expiration.getTime() - new Date().getTime());
     }
+
+    public User getUserWithToken(String token) {
+        Authentication jwt = this.getAuthentication(token);
+        return User.authenticationToUser(jwt);
+    }
 }

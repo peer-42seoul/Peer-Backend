@@ -3,9 +3,7 @@ package peer.backend.service.socket;
 import com.corundumstudio.socketio.SocketIOClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.config.jwt.TokenProvider;
 import peer.backend.dto.socket.whoURDTO;
@@ -14,10 +12,8 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.User;
 import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.team.TeamUserRepository;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -27,15 +23,10 @@ public class SocketServerService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final TeamRepository teamRepository;
-    private final TeamUserRepository teamUserRepository;
-
-    @Autowired
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
     public boolean IsOnline(User user) {
-        if (redisTemplate.opsForValue().get("onlineStatus:" + user.getId()) != null)
-            return true;
-        return false;
+        return redisTemplate.opsForValue().get("onlineStatus:" + user.getId()) != null;
     }
 
     public boolean checkValidationWithToken(SocketIOClient client, String token) {
@@ -44,11 +35,6 @@ public class SocketServerService {
         log.info("Wrong Token! Connection is closed!");
         client.disconnect();
         return false;
-    }
-
-    public User getUserWithToken(String token) {
-        Authentication jwt = tokenProvider.getAuthentication(token);
-        return User.authenticationToUser(jwt);
     }
 
     @Transactional
