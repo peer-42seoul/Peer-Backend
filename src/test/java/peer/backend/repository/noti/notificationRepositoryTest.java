@@ -1,42 +1,31 @@
-package peer.backend.repository.alarm;
+package peer.backend.repository.noti;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import peer.backend.entity.alarm.Alarm;
-import peer.backend.entity.alarm.enums.Priority;
-import peer.backend.entity.alarm.enums.TargetType;
+import peer.backend.entity.noti.Notification;
+import peer.backend.entity.noti.enums.Priority;
+import peer.backend.entity.noti.enums.TargetType;
 import peer.backend.entity.user.User;
-import peer.backend.repository.team.TeamRepository;
-import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.transaction.Transactional;
 
 import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("알림 저장소 테스트")
 @Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest
-class AlarmRepositoryTest {
+class notificationRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
     @Autowired
-    AlarmRepository alarmRepository;
+    NotificationRepository notificationRepository;
     @BeforeEach
     void beforeEach() {
         User user = User.builder()
@@ -57,8 +46,8 @@ class AlarmRepositoryTest {
     }
 
     @DisplayName("전체 알림 생성")
-    Alarm crateAlarmAll() {
-        return Alarm.builder()
+    Notification crateAlarmAll() {
+        return Notification.builder()
                 .id(1L)
                 .title("test")
                 .message("message")
@@ -71,8 +60,8 @@ class AlarmRepositoryTest {
                 .build();
     }
     @DisplayName("특정 대상 알림 생성")
-    Alarm createAlarmCertain() {
-        return Alarm.builder()
+    Notification createAlarmCertain() {
+        return Notification.builder()
                 .id(1L)
                 .title("test")
                 .message("message")

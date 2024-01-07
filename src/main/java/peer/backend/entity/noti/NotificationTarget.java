@@ -1,7 +1,5 @@
-package peer.backend.entity.alarm;
+package peer.backend.entity.noti;
 
-import java.util.Date;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -11,17 +9,20 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.alarm.enums.Priority;
-import peer.backend.entity.alarm.enums.TargetType;
+import peer.backend.entity.noti.enums.AlarmType;
 
 @Entity
 @Getter
@@ -30,32 +31,30 @@ import peer.backend.entity.alarm.enums.TargetType;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "alarm")
-public class Alarm extends BaseEntity {
+@DynamicUpdate
+@Table(name = "notification_target")
+public class NotificationTarget extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alarm_id")
-    private Long id;
-    @Column
-    private String title;
-    @Column
-    private String message;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TargetType targetType;
+    private Long notificationTargetId;
+
     @Column
     private Long target;
+
     @Column
-    private String link;
-    @Column(nullable = false)
-    private Boolean sent;
+    private Boolean read;
+
+    @Column
+    private Boolean deleted;
+
+    @Column
     @Enumerated(EnumType.STRING)
-    private Priority priority;
-    @Column()
-    private Date scheduledTime;
+    private AlarmType alarmType;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "notification_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Notification event;
 
-    @OneToMany(mappedBy = "alarm", fetch = FetchType.LAZY)
-    private List<AlarmTarget> alarmTargets;
 }
