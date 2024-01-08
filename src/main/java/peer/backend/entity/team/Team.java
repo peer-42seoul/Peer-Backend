@@ -5,6 +5,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
 import peer.backend.dto.team.TeamJobDto;
+import peer.backend.dto.team.TeamJobRequestDto;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
@@ -42,6 +43,7 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RecruitDueEnum dueTo;
+    @Column
     private int dueValue;
 
     @Column()
@@ -123,6 +125,17 @@ public class Team extends BaseEntity {
                 .build());
     }
 
+    public void addRole(TeamJobRequestDto role) {
+        if (this.getJobs() == null) {
+            this.jobs = new ArrayList<>();
+        }
+        this.jobs.add(TeamJob.builder()
+                .name(role.getName())
+                .max(role.getMax())
+                .team(this)
+                .build());
+    }
+
 
     @PrePersist
     @PreUpdate
@@ -131,7 +144,6 @@ public class Team extends BaseEntity {
         if (this.dueTo != null) {
             this.dueValue = this.dueTo.getValue();
         }
-        this.maxMember = (this.getJobs() == null ? null:  this.getJobs().stream().mapToInt(TeamJob::getMax).sum());
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {

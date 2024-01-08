@@ -9,6 +9,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.exception.IllegalArgumentException;
 
 import javax.persistence.Lob;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
