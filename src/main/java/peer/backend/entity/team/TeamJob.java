@@ -2,13 +2,11 @@ package peer.backend.entity.team;
 
 import lombok.*;
 import peer.backend.dto.team.TeamJobRequestDto;
-import peer.backend.dto.team.TeamJobUpdateDto;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.exception.ConflictException;
 
 import javax.persistence.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Entity
 @Getter
@@ -37,9 +35,8 @@ public class TeamJob {
 
 
     public int getCurrent(){
-        return teamUserJobs.stream().filter(
-                job -> job.getStatus().equals(TeamUserStatus.APPROVED))
-                .collect(Collectors.toList()).size();
+        return (int) teamUserJobs.stream().filter(
+                job -> job.getStatus().equals(TeamUserStatus.APPROVED)).count();
     }
 
     public void update(TeamJobRequestDto request){

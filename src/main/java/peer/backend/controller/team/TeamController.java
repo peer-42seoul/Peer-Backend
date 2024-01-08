@@ -18,7 +18,6 @@ import peer.backend.service.team.TeamService;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Secured("USER_ROLE")
 @RestController
@@ -84,7 +83,7 @@ public class TeamController {
     }
 
     @PutMapping("/applicant/accept/{teamId}")
-    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") TeamUserJobPK applicantId, @RequestParam("job") String job, Authentication authentication) {
+    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") TeamUserJobPK applicantId, Authentication authentication) {
         User thisUser =  User.authenticationToUser(authentication);
         this.teamService.acceptTeamApplicant(teamId, applicantId, thisUser);
         return this.teamService.getTeamApplicantList(teamId, thisUser);
