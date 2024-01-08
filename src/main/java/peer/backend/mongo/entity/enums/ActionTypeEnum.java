@@ -12,11 +12,12 @@ import lombok.RequiredArgsConstructor;
 public enum ActionTypeEnum {
 
     REGISTRATION("가입", 1L),
-    WRITING("글쓰기", 2L),
+    RECRUIT_WRITING("모집 글쓰기", 2L),
     COMMENTING("댓글쓰기", 3L),
     WITHDRAWAL("탈퇴", 4L),
     TEAM_FORMATION("팀 결성", 5L),
-    EVENT("이벤트", 6L);
+    EVENT("이벤트", 6L),
+    TEAM_POST_WRITING("팀 게시판 글쓰기", 7L);
 
     private final String value;
     private final Long code;
