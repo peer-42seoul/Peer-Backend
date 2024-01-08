@@ -210,6 +210,7 @@ public class TeamService {
             result.add(TeamApplicantListDto.builder()
                     .answers(answerDtoList)
                     .name(applicantUser.getNickname())
+                    .jobName(applicant.getTeamJob().getName())
                     .userId(applicantUser.getId())
                     .applyId(new TeamUserJobPK(applicant.getTeamUserId(), applicant.getTeamJobId()))
                     .build());
