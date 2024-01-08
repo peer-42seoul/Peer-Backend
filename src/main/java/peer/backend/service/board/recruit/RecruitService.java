@@ -24,10 +24,9 @@ import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
 import peer.backend.entity.team.enums.*;
 import peer.backend.entity.user.User;
-import peer.backend.exception.ConflictException;
+import peer.backend.exception.*;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
-import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
@@ -361,6 +360,8 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
+        if (user.getId().equals(recruit.getWriterId()))
+            throw new BadRequestException("모집글 작성자는 팀에 지원할 수 없습니다.");
         Team team = recruit.getTeam();
 
         TeamJob teamJob = teamJobRepository.findByTeamIdAndName(recruit_id, request.getRole())
