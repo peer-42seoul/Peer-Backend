@@ -83,14 +83,14 @@ public class TeamController {
     }
 
     @PutMapping("/applicant/accept/{teamId}")
-    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") TeamUserJobPK applicantId, Authentication authentication) {
+    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestBody TeamUserJobPK applicantId, Authentication authentication) {
         User thisUser =  User.authenticationToUser(authentication);
         this.teamService.acceptTeamApplicant(teamId, applicantId, thisUser);
         return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
     @PutMapping("/applicant/reject/{teamId}")
-    public List<TeamApplicantListDto> rejectTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
+    public List<TeamApplicantListDto> rejectTeamApplicant(@PathVariable() Long teamId, @RequestBody TeamUserJobPK applicantId, Authentication authentication) {
         User thisUser =  User.authenticationToUser(authentication);
         this.teamService.rejectTeamApplicant(teamId, applicantId, thisUser);
         return this.teamService.getTeamApplicantList(teamId, thisUser);
