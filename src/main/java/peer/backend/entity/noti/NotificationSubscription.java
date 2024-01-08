@@ -1,4 +1,4 @@
-package peer.backend.entity.alarm;
+package peer.backend.entity.noti;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
@@ -14,17 +14,16 @@ import peer.backend.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "subscription")
-public class Subscription extends BaseEntity {
+@Table(name = "notification_subscription")
+public class NotificationSubscription extends BaseEntity {
     @Id
     @Column(name = "subscription_id")
     private Long id;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @Column(name = "firebase_token")
     private String firebaseToken;
+
+    @ManyToOne()
+    @JoinColumn(name = "id")
+    private User user;
 }

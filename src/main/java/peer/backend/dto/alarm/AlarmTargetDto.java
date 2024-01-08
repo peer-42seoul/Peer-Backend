@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.alarm.Alarm;
-import peer.backend.entity.alarm.enums.AlarmType;
+import peer.backend.entity.noti.Notification;
+import peer.backend.entity.noti.enums.AlarmType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,7 +13,7 @@ import peer.backend.entity.alarm.enums.AlarmType;
 @Builder
 public class AlarmTargetDto {
     private Long userId;
-    private Alarm alarm;
+    private Notification alarm;
     private AlarmType alarmType;
     private Boolean read;
     private Boolean deleted;

@@ -1,4 +1,4 @@
-package peer.backend.entity.alarm.enums;
+package peer.backend.entity.noti.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

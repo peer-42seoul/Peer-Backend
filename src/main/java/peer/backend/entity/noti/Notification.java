@@ -1,5 +1,7 @@
-package peer.backend.entity.alarm;
+package peer.backend.entity.noti;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -18,10 +20,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.alarm.enums.Priority;
-import peer.backend.entity.alarm.enums.TargetType;
+import peer.backend.entity.noti.enums.Priority;
+import peer.backend.entity.noti.enums.TargetType;
 
 @Entity
 @Getter
@@ -30,32 +33,39 @@ import peer.backend.entity.alarm.enums.TargetType;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "alarm")
-public class Alarm extends BaseEntity {
+@DynamicUpdate
+@Table(name = "notification")
+public class Notification extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alarm_id")
-    private Long id;
+    private Long notificationId;
+
     @Column
     private String title;
+
     @Column
     private String message;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TargetType targetType;
+
     @Column
     private Long target;
+
     @Column
     private String link;
+
     @Column(nullable = false)
     private Boolean sent;
+
     @Enumerated(EnumType.STRING)
     private Priority priority;
-    @Column()
-    private Date scheduledTime;
 
+    @Column
+    private LocalDateTime scheduledTime;
 
-    @OneToMany(mappedBy = "alarm", fetch = FetchType.LAZY)
-    private List<AlarmTarget> alarmTargets;
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<NotificationTarget> targets;
 }

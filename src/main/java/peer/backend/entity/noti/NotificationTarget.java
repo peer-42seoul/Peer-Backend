@@ -1,4 +1,4 @@
-package peer.backend.entity.alarm;
+package peer.backend.entity.noti;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,9 +17,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.alarm.enums.AlarmType;
+import peer.backend.entity.noti.enums.AlarmType;
 
 @Entity
 @Getter
@@ -28,18 +31,16 @@ import peer.backend.entity.alarm.enums.AlarmType;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "alarm_target")
-public class AlarmTarget extends BaseEntity {
+@DynamicUpdate
+@Table(name = "notification_target")
+public class NotificationTarget extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long notificationTargetId;
 
-    @Column(name = "target")
+    @Column
     private Long target;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "alarm_id")
-    private Alarm alarm;
 
     @Column
     private Boolean read;
@@ -50,4 +51,10 @@ public class AlarmTarget extends BaseEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private AlarmType alarmType;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "notification_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Notification event;
+
 }

@@ -1,4 +1,4 @@
-package peer.backend.service.alarm;
+package peer.backend.service.noti;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -6,16 +6,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import peer.backend.dto.alarm.AlarmDto;
-import peer.backend.entity.alarm.Alarm;
-import peer.backend.entity.alarm.enums.Priority;
-import peer.backend.entity.alarm.enums.TargetType;
+import peer.backend.entity.noti.Notification;
+import peer.backend.entity.noti.enums.Priority;
+import peer.backend.entity.noti.enums.TargetType;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TeamService Test")
-class AlarmServiceTest {
+class notificationServiceTest {
 
     @InjectMocks
-    private AlarmServiceImpl alarmService;
+    private NotificationServiceImpl alarmService;
 
     AlarmDto getAlarmDtoSupport() {
         return AlarmDto.builder()
@@ -31,7 +31,7 @@ class AlarmServiceTest {
         AlarmDto dto = getAlarmDtoSupport().builder()
                 .targetType(TargetType.CERTAIN)
                 .build();
-        Alarm alarm = alarmService.alarmFromDto(dto);
+        Notification alarm = alarmService.alarmFromDto(dto);
 
 
 

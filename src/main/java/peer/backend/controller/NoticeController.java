@@ -13,41 +13,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.alarm.AlarmDto;
-import peer.backend.entity.alarm.Alarm;
+import peer.backend.entity.noti.Notification;
 import peer.backend.entity.user.User;
-import peer.backend.service.alarm.AlarmAdminService;
-import peer.backend.service.alarm.AlarmService;
+import peer.backend.service.noti.NotificationAdminService;
+import peer.backend.service.noti.NotificationService;
 
 @RequiredArgsConstructor
 @RestController
 @Slf4j
 public class NoticeController {
-    private final AlarmService alarmService;
-    private final AlarmAdminService alarmAdminService;
+    private final NotificationService notificationService;
+    private final NotificationAdminService notificationAdminService;
 
     @PutMapping("/api/v1/admin/noti/save")
     public ResponseEntity<Object> saveAlarmAdmin(@RequestBody AlarmDto dto) {
-        Alarm alarm = alarmService.saveAlarm(dto);
+        Notification alarm = notificationService.saveAlarm(dto);
 
         return ResponseEntity.ok().build();
     }
     @GetMapping("/api/v1/admin/noti/spring")
     public ResponseEntity<Object> getAlarm(@RequestParam(value = "type") String type) {
-        List<Alarm> alarms = alarmAdminService.getAlarm(type);
+        List<Notification> alarms = notificationAdminService.getAlarm(type);
         return ResponseEntity.ok().body(alarms);
     }
 
     @PutMapping("/api/v1/noti/save")
     public ResponseEntity<Object> saveAlarm(@RequestBody AlarmDto dto) {
-        Alarm alarm = alarmService.saveAlarm(dto);
-        alarmService.saveAlarmTarget(alarm);
+        Notification alarm = notificationService.saveAlarm(dto);
+        notificationService.saveAlarmTarget(alarm);
 
         return ResponseEntity.ok().build();
     }
     @GetMapping("/api/v1/noti/general")
     public ResponseEntity<Object> getAlarmGeneral(Authentication authentication) {
         User user = User.authenticationToUser(authentication);
-        List<Alarm> alarms = alarmService.getAlarmGeneral(user.getId());
+        List<Notification> alarms = notificationService.getAlarmGeneral(user.getId());
         return ResponseEntity.ok().body(alarms);
     }
 
@@ -57,7 +57,7 @@ public class NoticeController {
     }
     @DeleteMapping("")
     public ResponseEntity<Object> deleteAlarm(@RequestParam Long id) {
-        alarmService.deleteAlarm(id);
+        notificationService.deleteAlarm(id);
         return ResponseEntity.ok().build();
     }
 }
