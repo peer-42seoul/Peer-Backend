@@ -1,17 +1,7 @@
 package peer.backend.entity.noti;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +22,6 @@ import peer.backend.entity.noti.enums.AlarmType;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
-@Table(name = "notification_target")
 public class NotificationTarget extends BaseEntity {
 
     @Id
@@ -43,7 +32,7 @@ public class NotificationTarget extends BaseEntity {
     private Long target;
 
     @Column
-    private Boolean read;
+    private Boolean checked;
 
     @Column
     private Boolean deleted;
@@ -52,9 +41,9 @@ public class NotificationTarget extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AlarmType alarmType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notification_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Notification event;
+    private Notification specificNoti;
 
 }

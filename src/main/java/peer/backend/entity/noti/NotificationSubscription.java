@@ -17,8 +17,8 @@ import peer.backend.entity.BaseEntity;
 @Table(name = "notification_subscription")
 public class NotificationSubscription extends BaseEntity {
     @Id
-    @Column(name = "subscription_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long subscriptionId;
 
     @Column(name = "firebase_token")
     private String firebaseToken;
