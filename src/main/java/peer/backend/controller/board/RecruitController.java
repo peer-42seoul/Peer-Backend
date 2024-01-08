@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
+import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.service.board.recruit.RecruitService;
 
 import javax.validation.Valid;
@@ -26,7 +27,8 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")
-    public RecruitResponce getRecruit(@PathVariable("recruit_id") Long recruitId, Authentication auth) {
+    public RecruitResponce getRecruit(@PathVariable("recruit_id") Long recruitId,
+        Authentication auth) {
         return recruitService.getRecruit(recruitId, auth);
     }
 
@@ -42,15 +44,16 @@ public class RecruitController {
     @PostMapping("/write")
     public String createRecruit(@RequestBody @Valid RecruitCreateRequest request,
         Authentication auth) {
-        return recruitService.createRecruit(request, auth);
+        Recruit recruit = this.recruitService.createRecruit(request, auth);
+        return recruit.getId().toString();
     }
 
     @ApiOperation(value = "", notes = "모집글을 업데이트 한다. 팀도 함께 업데이트 한다.")
     @PutMapping("/{recruit_id}")
     @AuthorCheck
     public Long updateRecruit(@PathVariable Long recruit_id,
-                              @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO,
-                              Authentication auth) {
+        @RequestBody @Valid RecruitUpdateRequestDTO recruitUpdateRequestDTO,
+        Authentication auth) {
         return recruitService.updateRecruit(recruit_id, recruitUpdateRequestDTO);
     }
 
@@ -77,7 +80,7 @@ public class RecruitController {
     @GetMapping("/edit/{recruit_id}")
     @AuthorCheck
     public RecruitUpdateResponse getRecruitForEdit(@PathVariable("recruit_id") Long recruitId,
-                                                   Authentication auth) {
+        Authentication auth) {
         return recruitService.getRecruitwithInterviewList(recruitId);
     }
 
