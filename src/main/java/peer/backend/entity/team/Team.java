@@ -42,6 +42,7 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RecruitDueEnum dueTo;
+    @Column
     private int dueValue;
 
     @Column()
@@ -131,7 +132,6 @@ public class Team extends BaseEntity {
         if (this.dueTo != null) {
             this.dueValue = this.dueTo.getValue();
         }
-        this.maxMember = (this.getJobs() == null ? null:  this.getJobs().stream().mapToInt(TeamJob::getMax).sum());
     }
 
     public boolean deleteTeamUser(Long deletingToUserId) {
