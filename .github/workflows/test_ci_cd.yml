@@ -77,6 +77,7 @@ jobs:
         debug: true
         script: |
           docker pull ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
+          docker rm -f ${{ secrets.Test_DOCKER_IMAGE }}
           docker run -d -p ${{ secrets.TEST_BASE_PORT }}:8080 -p 8081-8082:8081-8082 -v $HOME/logs:/logs ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
           docker container prune -f
           docker image prune -f
