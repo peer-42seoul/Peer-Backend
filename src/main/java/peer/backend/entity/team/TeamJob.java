@@ -41,4 +41,13 @@ public class TeamJob {
                             job -> job.getStatus().equals(TeamUserStatus.APPROVED))
                     .collect(Collectors.toList()).size();
     }
+
+    public void increase() {
+        this.max++;
+    }
+
+    public void decrease() {
+        if (this.max > 0)
+            this.max--;
+    }
 }

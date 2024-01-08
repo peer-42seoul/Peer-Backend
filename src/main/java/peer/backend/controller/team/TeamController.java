@@ -108,4 +108,9 @@ public class TeamController {
         User user = User.authenticationToUser(authentication);
         return this.teamService.getTeamMemberList(teamId, user);
     }
+
+    @PutMapping("/setting/job/{jobId}")
+    public Long increaseTeamJobNumber(@PathVariable Long jobId, Authentication auth){
+        return teamService.increaseTeamJobNumber()
+    }
 }

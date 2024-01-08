@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
@@ -340,5 +342,14 @@ public class TeamService {
     @Transactional
     public Page<Team> getTeamListByNameOrLeaderFromPageable(Pageable pageable, String keyword) {
         return this.teamRepository.findByNameAndLeaderContainingFromPageable(pageable, keyword);
+    }
+
+    @Transactional
+    public Long increaseTeamJobNumber(Long jobId, Authentication auth){
+        User user = User.authenticationToUser(auth);
+        TeamJob job = teamJobRepository.findById(jobId).orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
+        if (!isLeader(job.getTeam().getId(), user))
+            throw new ForbiddenException("리더가 아닙니다.");
+        job.increase();
     }
 }
