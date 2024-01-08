@@ -17,8 +17,8 @@ public class TeamSettingDto {
 
     public TeamSettingDto(Team team, List<TeamUser> teamUserList) {
         this.team = new TeamSettingInfoDto(team);
-        this.member = new ArrayList<>();
         this.job = team.getJobs().stream().map(TeamJobSettingDto::new).collect(Collectors.toList());
+        this.member = new ArrayList<>();
         for (TeamUser teamUser: teamUserList) {
             if (teamUser.getStatus().equals(TeamUserStatus.APPROVED))
                 this.member.add(new TeamMemberDto(teamUser));
