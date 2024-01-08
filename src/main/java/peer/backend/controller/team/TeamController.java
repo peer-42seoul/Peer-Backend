@@ -16,9 +16,9 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.service.team.TeamService;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Secured("USER_ROLE")
 @RestController
@@ -45,7 +45,7 @@ public class TeamController {
 
     @ApiOperation(value = "TEAM-LIST", notes = "POST-팀 정보를 설정합니다.")
     @PostMapping("/setting/{teamId}")
-    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) throws IOException {
+    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) {
         this.teamService.updateTeamSetting(teamId, teamSettingInfoDto, User.authenticationToUser(authentication));
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -109,8 +109,18 @@ public class TeamController {
         return this.teamService.getTeamMemberList(teamId, user);
     }
 
-    @PutMapping("/setting/job/{jobId}")
-    public Long increaseTeamJobNumber(@PathVariable Long jobId, Authentication auth){
-        return teamService.increaseTeamJobNumber()
+    @PutMapping("/setting/change")
+    public ResponseEntity<Object> updateTeamJobSetting(@RequestBody TeamJobUpdateDto job, Authentication auth){
+        return teamService.updateTeamJob(job, auth);
+    }
+
+    @PostMapping("/setting/job/add/{teamId}")
+    public ResponseEntity<Object> createTeamJob(@PathVariable Long teamId, @RequestBody TeamJobCreateRequest job, Authentication auth){
+        return teamService.createTeamJob(teamId, job, auth);
+    }
+
+    @DeleteMapping("/setting/job/delete/{jobId}")
+    public ResponseEntity<Object>deleteTeamJob(@PathVariable Long jobId, Authentication auth){
+        return teamService.deleteTeamJob(jobId, auth);
     }
 }
