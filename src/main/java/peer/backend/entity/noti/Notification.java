@@ -58,7 +58,4 @@ public class Notification extends BaseEntity {
 
     @OneToMany(mappedBy = "specificNoti", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<NotificationTarget> targets;
-//
-//    @OneToMany(mappedBy = "targetNotification", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    private List<NotificationTargetUser> lists;
 }
