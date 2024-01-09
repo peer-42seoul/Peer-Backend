@@ -22,6 +22,7 @@ import java.util.Objects;
 @NoArgsConstructor
 public class RecruitCreateRequest {
 
+    @NotNull
     private String image;
     @NotNull
     @Size(min = 2, max = 30, message = "팀이름은 2글자 이상 30글자 이하로 작성해주세요.")

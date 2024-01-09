@@ -88,6 +88,10 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
+    public Integer getMaxMember() {
+        return getJobs().stream().mapToInt(TeamJob::getMax).sum();
+    }
+
 
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
