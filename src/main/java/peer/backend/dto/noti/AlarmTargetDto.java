@@ -1,4 +1,4 @@
-package peer.backend.dto.alarm;
+package peer.backend.dto.noti;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

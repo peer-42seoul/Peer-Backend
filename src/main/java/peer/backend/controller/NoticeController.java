@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.alarm.AlarmDto;
+import peer.backend.dto.noti.AlarmDto;
 import peer.backend.entity.noti.Notification;
 import peer.backend.entity.user.User;
 import peer.backend.service.noti.NotificationAdminService;

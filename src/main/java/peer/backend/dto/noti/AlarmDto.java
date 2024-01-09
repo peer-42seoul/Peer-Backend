@@ -1,7 +1,7 @@
-package peer.backend.dto.alarm;
+package peer.backend.dto.noti;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

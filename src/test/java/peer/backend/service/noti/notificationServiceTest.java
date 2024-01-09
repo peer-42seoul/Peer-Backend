@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.dto.alarm.AlarmDto;
+import peer.backend.dto.noti.AlarmDto;
 import peer.backend.entity.noti.Notification;
 import peer.backend.entity.noti.enums.Priority;
 import peer.backend.entity.noti.enums.TargetType;
