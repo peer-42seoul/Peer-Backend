@@ -72,11 +72,11 @@ public class RecruitService {
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
-    public void changeRecruitFavorite(Authentication auth, Long recruit_id, RecruitFavoriteEnum type) {
+    public void changeRecruitFavorite(Authentication auth, Long recruitId, RecruitFavoriteEnum type) {
         User user = User.authenticationToUser(auth);
-        if (!recruitRepository.existsById(recruit_id))
+        if (!recruitRepository.existsById(recruitId))
             throw new NotFoundException("존재하지 않는 모집글입니다.");
-        recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruit_id))
+        recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
             .ifPresentOrElse(
                     favorite -> {
                         if (favorite.getType().equals(type)){
@@ -89,7 +89,7 @@ public class RecruitService {
                 () -> {
                     RecruitFavorite newFavorite = new RecruitFavorite();
                     newFavorite.setUserId(user.getId());
-                    newFavorite.setRecruitId(recruit_id);
+                    newFavorite.setRecruitId(recruitId);
                     newFavorite.setType(type);
                     recruitFavoriteRepository.save(newFavorite);
                 });
