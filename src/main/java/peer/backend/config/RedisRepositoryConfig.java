@@ -10,7 +10,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import peer.backend.dto.dnd.TeamMember;
+import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.SocialLogin;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -41,6 +45,15 @@ public class RedisRepositoryConfig {
     @Bean
     public RedisTemplate<String, SocialLogin> socialInfoRedis() {
         RedisTemplate<String, SocialLogin> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(SocialLogin.class));
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, List<TeamMember>> userInfoRedis() {
+        RedisTemplate<String, List<TeamMember>> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(SocialLogin.class));

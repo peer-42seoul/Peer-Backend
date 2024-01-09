@@ -1,25 +1,30 @@
 package peer.backend.service.dnd;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.dnd.RequestDnDDTO;
+import peer.backend.dto.dnd.TeamMember;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.mongo.entity.TeamDnD;
 import peer.backend.mongo.repository.PeerLogDnDRepository;
 import peer.backend.mongo.repository.TeamDnDRepository;
 import peer.backend.repository.team.TeamRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DnDService {
 
     private final TeamDnDRepository teamDnDRepository;
@@ -28,28 +33,45 @@ public class DnDService {
 
     private static final String DND_MAIN_IDENTIFIER = "dnd-sub";
 
-    private RedisTemplate<String, List<TeamUser>> redisTemplate;
+    private final RedisTemplate<String, List<TeamMember>> redisTemplate;
 
 
     public boolean checkValidMemberFromTeam(Long teamId, User requester) {
-        List<TeamUser> members = this.getTeamUserInDB(teamId);
+        List<TeamMember> members = this.getTeamUserInDB(teamId);
         return members.stream().noneMatch(member -> member.getUserId().equals(requester.getId()));
     }
 
-    private List<TeamUser> getTeamUserInRedis(Long teamId) {
-        return this.redisTemplate.opsForValue().get(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER);
+    private List<TeamMember> getTeamUserInRedis(Long teamId) {
+        List<TeamMember> result = redisTemplate.opsForValue().get(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER);
+        return result;
     }
 
-    private void saveTeamUserToRedis(List<TeamUser> members, Long teamId) {
+    @Transactional
+    public void saveTeamUserToRedis(List<TeamMember> members, Long teamId) {
         redisTemplate.opsForValue().set(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER, members);
     }
 
-    private List<TeamUser> getTeamUserInDB(Long teamId) {
-        List<TeamUser> userList = this.getTeamUserInRedis(teamId);
-        if (userList == null) {
-            userList = teamRepository.
+    @Transactional
+    public List<TeamMember> getTeamUserInDB(Long teamId) {
+        List<TeamMember> userList;
+        List<TeamUser> rowDatas;
+            userList = this.getTeamUserInRedis(teamId);
+
+         if(userList == null) {
+             userList = new ArrayList<>();
+            rowDatas = teamRepository.
                     findById(teamId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 팀입니다."))
                     .getTeamUsers();
+             List<TeamMember> finalUserList = userList;
+             rowDatas.forEach(element -> {
+                if (element.getStatus().equals(TeamUserStatus.APPROVED)){
+                    TeamMember target = TeamMember.builder()
+                            .userId(element.getUserId())
+                            .teamId(element.getTeamId())
+                            .build();
+                    finalUserList.add(target);
+                }
+            });
             this.saveTeamUserToRedis(userList, teamId);
         }
 
