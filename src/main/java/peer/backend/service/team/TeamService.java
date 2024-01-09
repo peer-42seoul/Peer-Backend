@@ -2,6 +2,7 @@ package peer.backend.service.team;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,7 @@ public class TeamService {
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
+    private final EntityManager em;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
@@ -207,6 +210,7 @@ public class TeamService {
             result.add(TeamApplicantListDto.builder()
                     .answers(answerDtoList)
                     .name(applicantUser.getNickname())
+                    .jobName(applicant.getTeamJob().getName())
                     .userId(applicantUser.getId())
                     .applyId(new TeamUserJobPK(applicant.getTeamUserId(), applicant.getTeamJobId()))
                     .build());
@@ -227,15 +231,17 @@ public class TeamService {
     }
 
     @Transactional
-    public void rejectTeamApplicant(Long teamId, Long applicantId, User user) {
+    public void rejectTeamApplicant(Long teamId, TeamUserJobPK applicantId, User user) {
         if (!isLeader(teamId, user)) {
             throw new ForbiddenException("팀장이 아닙니다.");
         }
-        TeamUser recruitApplicant = teamUserRepository.findByUserIdAndTeamId(applicantId, teamId);
-        if (recruitApplicant == null) {
-            throw new NotFoundException("존재하지 않는 지원자입니다.");
-        }
-        teamUserRepository.delete(recruitApplicant);
+        TeamUserJob teamUserJob = teamUserJobRepository.findById(applicantId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 지원자입니다."));
+        teamUserJobRepository.delete(teamUserJob);
+        em.flush();
+        TeamUser teamUser = teamUserJob.getTeamUser();
+        if (teamUser.getTeamUserJobs().isEmpty())
+            teamUserRepository.delete(teamUser);
         //TODO: 신청자에게 알림을 보내야됨
     }
 
