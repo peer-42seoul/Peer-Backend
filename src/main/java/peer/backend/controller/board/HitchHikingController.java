@@ -31,7 +31,7 @@ public class HitchHikingController {
 
     }
     @PostMapping("/dislike/{recruitId}")
-    public void HitchDislike(@PathVariable Long recruitId, Authentication auth){
+    public void hitchDislike(@PathVariable Long recruitId, Authentication auth){
         recruitService.changeRecruitFavorite(auth, recruitId, RecruitFavoriteEnum.DISLIKE);
     }
 }

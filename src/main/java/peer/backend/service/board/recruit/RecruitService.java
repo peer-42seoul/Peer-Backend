@@ -74,13 +74,12 @@ public class RecruitService {
 
     public void changeRecruitFavorite(Authentication auth, Long recruit_id, RecruitFavoriteEnum type) {
         User user = User.authenticationToUser(auth);
-        Recruit recruit = recruitRepository.findById(recruit_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+        if (!recruitRepository.existsById(recruit_id))
+            throw new NotFoundException("존재하지 않는 모집글입니다.");
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruit_id))
             .ifPresentOrElse(
                     favorite -> {
                         if (favorite.getType().equals(type)){
-                            System.out.println("here");
                             recruitFavoriteRepository.delete(favorite);}
                         else {
                             favorite.setType(type);
