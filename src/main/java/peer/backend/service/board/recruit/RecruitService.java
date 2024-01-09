@@ -77,7 +77,16 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruit_id))
-            .ifPresentOrElse(recruitFavoriteRepository::delete,
+            .ifPresentOrElse(
+                    favorite -> {
+                        if (favorite.getType().equals(type)){
+                            System.out.println("here");
+                            recruitFavoriteRepository.delete(favorite);}
+                        else {
+                            favorite.setType(type);
+                            recruitFavoriteRepository.save(favorite);
+                        }
+                    },
                 () -> {
                     RecruitFavorite newFavorite = new RecruitFavorite();
                     newFavorite.setUserId(user.getId());
