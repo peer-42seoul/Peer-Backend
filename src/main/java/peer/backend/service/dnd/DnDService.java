@@ -31,7 +31,7 @@ public class DnDService {
     private final PeerLogDnDRepository peerLogDnDRepository;
     private final TeamRepository teamRepository;
 
-    private static final String DND_MAIN_IDENTIFIER = "dnd-sub";
+    private static final String DND_MAIN_IDENTIFIER = "dnd-main-validation-list:";
 
     private final RedisTemplate<String, List<TeamMember>> redisTemplate;
 
@@ -42,16 +42,13 @@ public class DnDService {
     }
 
     private List<TeamMember> getTeamUserInRedis(Long teamId) {
-        List<TeamMember> result = redisTemplate.opsForValue().get(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER);
-        return result;
+        return redisTemplate.opsForValue().get(DND_MAIN_IDENTIFIER + teamId);
     }
 
-    @Transactional
     public void saveTeamUserToRedis(List<TeamMember> members, Long teamId) {
-        redisTemplate.opsForValue().set(Long.toString(teamId) + "-" + DND_MAIN_IDENTIFIER, members);
+        redisTemplate.opsForValue().set(DND_MAIN_IDENTIFIER + teamId, members);
     }
 
-    @Transactional
     public List<TeamMember> getTeamUserInDB(Long teamId) {
         List<TeamMember> userList;
         List<TeamUser> rowDatas;
