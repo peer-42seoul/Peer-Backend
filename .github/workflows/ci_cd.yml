@@ -1,11 +1,11 @@
 name: CI/CD
 
 on:
-  push:
-    branches: [ "main", "dev" ]
-  pull_request:
-    branches: [ "main", dev ]
-    types: [ "opened", "reopened", "synchronize", "closed" ]
+  # push:
+  #   branches: [ "main", "dev" ]
+  # pull_request:
+  #   branches: [ "main", dev ]
+  #   types: [ "opened", "reopened", "synchronize", "closed" ]
   repository_dispatch:
     types: [ resources_update ]
 
