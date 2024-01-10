@@ -96,6 +96,7 @@ public class TeamController {
         return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
+    //TODO: need validator
     @GetMapping("/main/{teamId}")
     public TeamInfoResponse getTeamInfo(@PathVariable() Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
