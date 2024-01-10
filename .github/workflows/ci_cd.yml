@@ -9,8 +9,8 @@ on:
   repository_dispatch:
     types: [ resources_update ]
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
 #env:
 #  WORKING_DIRECTORY: ./backend
