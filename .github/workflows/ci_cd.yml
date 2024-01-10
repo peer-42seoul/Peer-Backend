@@ -7,7 +7,7 @@ on:
     branches: [ "main", dev ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
   repository_dispatch:
-    types: [ resources-update ]
+    types: [ resources_update ]
 
 permissions:
   contents: read
