@@ -4,8 +4,8 @@ import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import peer.backend.entity.noti.Notification;
-import peer.backend.entity.noti.enums.AlarmType;
+import peer.backend.entity.noti.old.Notification;
+import peer.backend.entity.noti.old.enums.AlarmType;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 

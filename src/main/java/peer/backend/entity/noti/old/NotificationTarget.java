@@ -1,4 +1,4 @@
-package peer.backend.entity.noti;
+package peer.backend.entity.noti.old;
 
 import javax.persistence.*;
 
@@ -12,7 +12,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.noti.enums.AlarmType;
+import peer.backend.entity.noti.old.enums.AlarmType;
 
 @Entity
 @Getter

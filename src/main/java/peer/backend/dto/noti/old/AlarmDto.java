@@ -1,4 +1,4 @@
-package peer.backend.dto.noti;
+package peer.backend.dto.noti.old;
 
 import java.time.LocalDateTime;
 
@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.noti.enums.Priority;
-import peer.backend.entity.noti.enums.TargetType;
+import peer.backend.entity.noti.old.enums.Priority;
+import peer.backend.entity.noti.old.enums.TargetType;
 
 @AllArgsConstructor
 @NoArgsConstructor

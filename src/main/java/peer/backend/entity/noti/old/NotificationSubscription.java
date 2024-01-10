@@ -1,4 +1,4 @@
-package peer.backend.entity.noti;
+package peer.backend.entity.noti.old;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;

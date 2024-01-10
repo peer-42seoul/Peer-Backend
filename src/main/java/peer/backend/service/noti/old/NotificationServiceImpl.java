@@ -1,4 +1,4 @@
-package peer.backend.service.noti;
+package peer.backend.service.noti.old;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import peer.backend.dto.noti.AlarmDto;
-import peer.backend.dto.noti.AlarmTargetDto;
-import peer.backend.entity.noti.Notification;
-import peer.backend.entity.noti.NotificationTarget;
-import peer.backend.entity.noti.enums.AlarmType;
+import peer.backend.dto.noti.old.AlarmDto;
+import peer.backend.dto.noti.old.AlarmTargetDto;
+import peer.backend.entity.noti.old.Notification;
+import peer.backend.entity.noti.old.NotificationTarget;
+import peer.backend.entity.noti.old.enums.AlarmType;
 import peer.backend.repository.noti.NotificationRepository;
 import peer.backend.repository.noti.NotificationTargetRepository;
 

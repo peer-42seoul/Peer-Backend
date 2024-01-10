@@ -1,10 +1,10 @@
-package peer.backend.service.noti;
+package peer.backend.service.noti.old;
 
 import java.util.List;
-import peer.backend.dto.noti.AlarmDto;
-import peer.backend.dto.noti.AlarmTargetDto;
-import peer.backend.entity.noti.Notification;
-import peer.backend.entity.noti.NotificationTarget;
+import peer.backend.dto.noti.old.AlarmDto;
+import peer.backend.dto.noti.old.AlarmTargetDto;
+import peer.backend.entity.noti.old.Notification;
+import peer.backend.entity.noti.old.NotificationTarget;
 
 public interface NotificationService {
     public Notification saveAlarm(AlarmDto data);

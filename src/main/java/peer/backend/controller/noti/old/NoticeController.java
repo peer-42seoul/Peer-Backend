@@ -1,4 +1,4 @@
-package peer.backend.controller;
+package peer.backend.controller.noti.old;
 
 
 import java.util.List;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.noti.AlarmDto;
-import peer.backend.entity.noti.Notification;
+import peer.backend.dto.noti.old.AlarmDto;
+import peer.backend.entity.noti.old.Notification;
 import peer.backend.entity.user.User;
-import peer.backend.service.noti.NotificationAdminService;
-import peer.backend.service.noti.NotificationService;
+import peer.backend.service.noti.old.NotificationAdminService;
+import peer.backend.service.noti.old.NotificationService;
 
 @RequiredArgsConstructor
 @RestController

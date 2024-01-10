@@ -1,8 +1,6 @@
-package peer.backend.entity.noti;
+package peer.backend.entity.noti.old;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 
@@ -14,8 +12,8 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.entity.BaseEntity;
-import peer.backend.entity.noti.enums.Priority;
-import peer.backend.entity.noti.enums.TargetType;
+import peer.backend.entity.noti.old.enums.Priority;
+import peer.backend.entity.noti.old.enums.TargetType;
 
 @Entity
 @Getter

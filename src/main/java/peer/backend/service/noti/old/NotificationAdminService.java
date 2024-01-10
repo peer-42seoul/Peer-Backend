@@ -1,12 +1,12 @@
-package peer.backend.service.noti;
+package peer.backend.service.noti.old;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import peer.backend.dto.noti.AlarmDto;
-import peer.backend.entity.noti.Notification;
+import peer.backend.dto.noti.old.AlarmDto;
+import peer.backend.entity.noti.old.Notification;
 import peer.backend.repository.noti.NotificationRepository;
 import peer.backend.repository.noti.NotificationTargetRepository;
 

@@ -1,4 +1,4 @@
-package peer.backend.entity.noti.enums;
+package peer.backend.entity.noti.old.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

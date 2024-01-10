@@ -1,11 +1,11 @@
-package peer.backend.dto.noti;
+package peer.backend.dto.noti.old;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.noti.Notification;
-import peer.backend.entity.noti.enums.AlarmType;
+import peer.backend.entity.noti.old.Notification;
+import peer.backend.entity.noti.old.enums.AlarmType;
 
 @AllArgsConstructor
 @NoArgsConstructor

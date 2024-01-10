@@ -31,7 +31,7 @@ import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
-import peer.backend.entity.noti.NotificationSubscription;
+import peer.backend.entity.noti.old.NotificationSubscription;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
 import peer.backend.oauth.PrincipalDetails;

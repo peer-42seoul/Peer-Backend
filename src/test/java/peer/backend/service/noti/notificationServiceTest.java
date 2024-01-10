@@ -5,10 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import peer.backend.dto.noti.AlarmDto;
-import peer.backend.entity.noti.Notification;
-import peer.backend.entity.noti.enums.Priority;
-import peer.backend.entity.noti.enums.TargetType;
+import peer.backend.dto.noti.old.AlarmDto;
+import peer.backend.entity.noti.old.Notification;
+import peer.backend.entity.noti.old.enums.Priority;
+import peer.backend.entity.noti.old.enums.TargetType;
+import peer.backend.service.noti.old.NotificationServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TeamService Test")
