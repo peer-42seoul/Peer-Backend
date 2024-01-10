@@ -14,6 +14,7 @@ import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.recruit.RecruitInterview;
+import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.composite.TeamUserJobPK;
@@ -71,18 +72,25 @@ public class RecruitService {
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
-    public void changeRecruitFavorite(Authentication auth, Long recruit_id) {
+    public void changeRecruitFavorite(Authentication auth, Long recruitId, RecruitFavoriteEnum type) {
         User user = User.authenticationToUser(auth);
-        Recruit recruit = recruitRepository.findById(recruit_id)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
-        recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruit_id))
-            .ifPresentOrElse(recruitFavoriteRepository::delete,
+        if (!recruitRepository.existsById(recruitId))
+            throw new NotFoundException("존재하지 않는 모집글입니다.");
+        recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
+            .ifPresentOrElse(
+                    favorite -> {
+                        if (favorite.getType().equals(type)){
+                            recruitFavoriteRepository.delete(favorite);}
+                        else {
+                            favorite.setType(type);
+                            recruitFavoriteRepository.save(favorite);
+                        }
+                    },
                 () -> {
                     RecruitFavorite newFavorite = new RecruitFavorite();
-                    newFavorite.setUser(user);
-                    newFavorite.setRecruit(recruit);
                     newFavorite.setUserId(user.getId());
-                    newFavorite.setRecruitId(recruit_id);
+                    newFavorite.setRecruitId(recruitId);
+                    newFavorite.setType(type);
                     recruitFavoriteRepository.save(newFavorite);
                 });
     }
@@ -183,17 +191,12 @@ public class RecruitService {
                 recruit2.getStatus().toString(),
                 // TODO:  맞나 성능 개선이 필요한거 같기도
                 this.tagService.recruitTagListToTagResponseList(recruit2.getRecruitTags()),
-//                recruit2.getRecruitTags().stream().map(RecruitTag::getTag)
-//                    .collect(Collectors.toList())
-//                    .stream().map(
-//                        TagResponse::new).collect(Collectors.toList()),
-//                TagListManager.getRecruitTags(recruit2.getTags()),
                 recruit2.getId(),
                 ((auth != null) &&
-                    (recruitFavoriteRepository
-                        .findById(new RecruitFavoritePK(User.authenticationToUser(auth).getId(),
-                            recruit2.getId()))
-                        .isPresent()))))
+                        (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                                User.authenticationToUser(auth).getId(),
+                                recruit2.getId(),
+                                RecruitFavoriteEnum.LIKE)))))
             .collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -238,9 +241,12 @@ public class RecruitService {
             .place(team.getOperationFormat())
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
-            .isFavorite((auth != null) && recruitFavoriteRepository.findById(
-                    new RecruitFavoritePK(User.authenticationToUser(auth).getId(), recruit_id))
-                .isPresent())
+            .isFavorite((auth != null) &&
+                    recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                            User.authenticationToUser(auth).getId(),
+                            recruit_id,
+                            RecruitFavoriteEnum.LIKE)
+            )
             .build();
     }
 
