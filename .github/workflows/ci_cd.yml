@@ -6,7 +6,8 @@ on:
   pull_request:
     branches: [ "main", dev ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
-  # workflow_call:
+  repository_dispatch:
+    types: [ resources-update ]
 
 permissions:
   contents: read
