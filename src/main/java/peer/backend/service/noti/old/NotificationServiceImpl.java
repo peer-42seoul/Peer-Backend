@@ -11,8 +11,8 @@ import peer.backend.dto.noti.old.AlarmTargetDto;
 import peer.backend.entity.noti.old.Notification;
 import peer.backend.entity.noti.old.NotificationTarget;
 import peer.backend.entity.noti.old.enums.AlarmType;
-import peer.backend.repository.noti.NotificationRepository;
-import peer.backend.repository.noti.NotificationTargetRepository;
+import peer.backend.repository.noti.old.NotificationRepository;
+import peer.backend.repository.noti.old.NotificationTargetRepository;
 
 @Service
 @RequiredArgsConstructor

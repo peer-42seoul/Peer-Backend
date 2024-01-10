@@ -1,4 +1,4 @@
-package peer.backend.repository.noti;
+package peer.backend.repository.noti.old;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import peer.backend.entity.noti.old.NotificationSubscription;
