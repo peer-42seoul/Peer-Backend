@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import peer.backend.entity.noti.enums.MessageType;
 import peer.backend.entity.noti.enums.NotificationPriority;
-import peer.backend.entity.noti.old.NotificationTarget;
-import peer.backend.entity.noti.old.enums.TargetType;
+import peer.backend.entity.noti.enums.TargetType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,7 +23,6 @@ import java.util.List;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
     public Long id;
 
     @Column

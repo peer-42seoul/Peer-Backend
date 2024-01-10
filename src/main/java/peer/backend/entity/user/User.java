@@ -33,7 +33,6 @@ import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.noti.NotificationSubscriptionKeys;
 import peer.backend.entity.noti.NotificationTarget;
-import peer.backend.entity.noti.old.NotificationSubscription;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
 import peer.backend.oauth.PrincipalDetails;
