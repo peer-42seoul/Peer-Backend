@@ -259,13 +259,20 @@ public class TeamService {
 
     @Transactional
     public TeamInfoResponse getTeamInfo(Long teamId, User user) {
+//        Team team = this.teamRepository.findById(teamId)
+//            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+//        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
+//            if (checkValidationForApprovedOrNot(user, team))
+//                return new TeamInfoResponse(team);
+//            else
+//                throw new UnauthorizedException("팀 멤버로 승인되어 있지 않습니다.");
+//        } else {
+//            throw new ForbiddenException("팀에 속해있지 않습니다.");
+//        }
         Team team = this.teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
-        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
-            if (checkValidationForApprovedOrNot(user, team))
-                return new TeamInfoResponse(team);
-            else
-                throw new UnauthorizedException("팀 멤버로 승인되어 있지 않습니다.");
+                .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+        if (teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), teamId)) {
+            return new TeamInfoResponse(team);
         } else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
         }
