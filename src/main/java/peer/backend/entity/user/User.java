@@ -137,9 +137,6 @@ public class User extends BaseEntity implements Login {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLike> postLikes;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<NotificationSubscription> tokens;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<NotificationSubscriptionKeys> tokens;
 
