@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import peer.backend.entity.BaseEntity;
+import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.user.User;
 
@@ -36,4 +37,7 @@ public class RecruitFavorite extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruit_id")
     private Recruit recruit;
+
+    @Enumerated(EnumType.STRING)
+    private RecruitFavoriteEnum type;
 }

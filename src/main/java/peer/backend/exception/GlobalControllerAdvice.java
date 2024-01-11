@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
+
+    @ExceptionHandler(value = OutOfRangeException.class)
+    public ResponseEntity outOfRangeException(OutOfRangeException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     public ResponseEntity missingServletRequestParameterException(MissingServletRequestParameterException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

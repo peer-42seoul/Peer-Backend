@@ -15,6 +15,6 @@ public interface TeamUserJobRepository extends JpaRepository<TeamUserJob, TeamUs
     @Query("SELECT tuj FROM TeamUserJob tuj WHERE tuj.teamUser.teamId = :teamId AND tuj.status = :status")
     List<TeamUserJob> findByTeamUserTeamIdAndStatus(Long teamId, TeamUserStatus status);
 
-    @Query("SELECT tuj FROM TeamUserJob tuj WHERE tuj.teamJob.team = :teamId AND tuj.status = :status")
+    @Query("SELECT tuj FROM TeamUserJob tuj WHERE tuj.teamJob.team = :team AND tuj.status = :status")
     List<TeamUserJob> findByTeamJobTeamIdAndStatus(Team team, TeamUserStatus status);
 }

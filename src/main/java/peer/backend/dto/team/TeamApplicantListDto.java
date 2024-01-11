@@ -18,5 +18,6 @@ public class TeamApplicantListDto {
     String name;
     Long userId;
     TeamUserJobPK applyId;
+    String jobName;
     List<RecruitAnswerDto> answers;
 }

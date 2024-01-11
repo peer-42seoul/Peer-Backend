@@ -16,7 +16,6 @@ import peer.backend.exception.BadRequestException;
 import peer.backend.service.team.TeamService;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class TeamController {
 
     @ApiOperation(value = "TEAM-LIST", notes = "POST-팀 정보를 설정합니다.")
     @PostMapping("/setting/{teamId}")
-    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) throws IOException {
+    public ResponseEntity<?> updateTeamSetting(@PathVariable() Long teamId, @RequestBody @Valid TeamSettingInfoDto teamSettingInfoDto, Authentication authentication) {
         this.teamService.updateTeamSetting(teamId, teamSettingInfoDto, User.authenticationToUser(authentication));
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -84,14 +83,14 @@ public class TeamController {
     }
 
     @PutMapping("/applicant/accept/{teamId}")
-    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") TeamUserJobPK applicantId, @RequestParam("job") String job, Authentication authentication) {
+    public List<TeamApplicantListDto> acceptTeamApplicant(@PathVariable() Long teamId, @RequestBody TeamUserJobPK applicantId, Authentication authentication) {
         User thisUser =  User.authenticationToUser(authentication);
         this.teamService.acceptTeamApplicant(teamId, applicantId, thisUser);
         return this.teamService.getTeamApplicantList(teamId, thisUser);
     }
 
     @PutMapping("/applicant/reject/{teamId}")
-    public List<TeamApplicantListDto> rejectTeamApplicant(@PathVariable() Long teamId, @RequestParam("userId") Long applicantId, Authentication authentication) {
+    public List<TeamApplicantListDto> rejectTeamApplicant(@PathVariable() Long teamId, @RequestBody TeamUserJobPK applicantId, Authentication authentication) {
         User thisUser =  User.authenticationToUser(authentication);
         this.teamService.rejectTeamApplicant(teamId, applicantId, thisUser);
         return this.teamService.getTeamApplicantList(teamId, thisUser);
@@ -107,5 +106,20 @@ public class TeamController {
     public List<TeamMemberDto> getTeamMember(@PathVariable() Long teamId, Authentication authentication) {
         User user = User.authenticationToUser(authentication);
         return this.teamService.getTeamMemberList(teamId, user);
+    }
+
+    @PutMapping("/setting/change")
+    public ResponseEntity<Object> updateTeamJobSetting(@RequestBody TeamJobUpdateDto job, Authentication auth){
+        return teamService.updateTeamJob(job, auth);
+    }
+
+    @PostMapping("/setting/job/add/{teamId}")
+    public ResponseEntity<Object> createTeamJob(@PathVariable Long teamId, @RequestBody TeamJobCreateRequest job, Authentication auth){
+        return teamService.createTeamJob(teamId, job, auth);
+    }
+
+    @DeleteMapping("/setting/job/delete/{jobId}")
+    public ResponseEntity<Object>deleteTeamJob(@PathVariable Long jobId, Authentication auth){
+        return teamService.deleteTeamJob(jobId, auth);
     }
 }
