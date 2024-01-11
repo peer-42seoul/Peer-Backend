@@ -7,7 +7,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import peer.backend.entity.user.Login;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.enums.Role;
 import peer.backend.service.PrincipalDetailsService;
+import peer.backend.service.UtilService;
 
 @Component
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ import peer.backend.service.PrincipalDetailsService;
 public class TokenProvider {
 
     private final PrincipalDetailsService principalDetailsService;
+    private final UtilService utilService;
 
     @Value("${jwt.token.secret}")
     private String secretKey;
@@ -101,10 +105,18 @@ public class TokenProvider {
      */
     public String resolveAccessToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (Objects.nonNull(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         bearerToken = req.getParameter("accessToken");
+        if (Objects.nonNull(bearerToken)) {
+            return bearerToken;
+        }
+        Cookie[] cookies = req.getCookies();
+        Cookie cookie = this.utilService.getCookieByName(cookies, "adminToken");
+        if (Objects.nonNull(cookie)) {
+            bearerToken = cookie.getValue();
+        }
         return bearerToken;
     }
 

@@ -11,6 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import peer.backend.entity.action.Wallet;
 import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.team.Post;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
@@ -44,6 +45,10 @@ public class ActionTrackingAspect {
     public void userWithdrawal() {
     }
 
+    @Pointcut("@annotation(peer.backend.annotation.tracking.PostCreateTracking)")
+    public void postCreate() {
+    }
+
     @Order(0)
     @AfterReturning(pointcut = "peer.backend.aspect.ActionTrackingAspect.userRegistration()", returning = "user")
     public void userRegistrationTracking(User user) {
@@ -62,7 +67,7 @@ public class ActionTrackingAspect {
 
     @AfterReturning(pointcut = "peer.backend.aspect.ActionTrackingAspect.recruitWriting()", returning = "recruit")
     public void recruitWriting(Recruit recruit) throws Throwable {
-        ActionTypeEnum actionTypeEnum = ActionTypeEnum.WRITING;
+        ActionTypeEnum actionTypeEnum = ActionTypeEnum.RECRUIT_WRITING;
         Wallet wallet = this.walletService.getWalletToActionTypeCode(actionTypeEnum.getCode());
         User user = this.userService.findByEmail(recruit.getWriter().getEmail());
 
@@ -87,6 +92,19 @@ public class ActionTrackingAspect {
 
         ActionTracking actionTracking = ActionTracking.builder()
             .userId(user.getId())
+            .actionTypeEnum(actionTypeEnum)
+            .wallet(wallet.getValue())
+            .build();
+        this.actionTrackingRepository.save(actionTracking);
+    }
+
+    @AfterReturning(pointcut = "postCreate()", returning = "post")
+    public void postCreate(Post post) {
+        ActionTypeEnum actionTypeEnum = ActionTypeEnum.TEAM_POST_WRITING;
+        Wallet wallet = this.walletService.getWalletToActionTypeCode(actionTypeEnum.getCode());
+
+        ActionTracking actionTracking = ActionTracking.builder()
+            .userId(post.getUser().getId())
             .actionTypeEnum(actionTypeEnum)
             .wallet(wallet.getValue())
             .build();

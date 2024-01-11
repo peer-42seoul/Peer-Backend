@@ -5,8 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
+import peer.backend.entity.composite.TeamUserJobPK;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +17,7 @@ import java.util.ArrayList;
 public class TeamApplicantListDto {
     String name;
     Long userId;
-    ArrayList<RecruitAnswerDto> answers;
+    TeamUserJobPK applyId;
+    String jobName;
+    List<RecruitAnswerDto> answers;
 }

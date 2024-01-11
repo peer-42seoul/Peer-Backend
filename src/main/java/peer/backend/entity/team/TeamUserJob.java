@@ -5,6 +5,7 @@ import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.enums.TeamUserStatus;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -37,7 +38,11 @@ public class TeamUserJob {
     @Column
     private TeamUserStatus status;
 
+    @ElementCollection
+    private List<String> answers;
+
     public void acceptApplicant(){
         this.status = TeamUserStatus.APPROVED;
+        this.getTeamUser().grantMember();
     }
 }

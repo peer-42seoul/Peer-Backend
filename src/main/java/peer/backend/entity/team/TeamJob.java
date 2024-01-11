@@ -1,11 +1,12 @@
 package peer.backend.entity.team;
 
 import lombok.*;
+import peer.backend.dto.team.TeamJobRequestDto;
 import peer.backend.entity.team.enums.TeamUserStatus;
+import peer.backend.exception.ConflictException;
 
 import javax.persistence.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,11 +35,17 @@ public class TeamJob {
 
 
     public int getCurrent(){
-        if (Objects.isNull(this.teamUserJobs))
-            return 0;
-        else
-            return teamUserJobs.stream().filter(
-                            job -> job.getStatus().equals(TeamUserStatus.APPROVED))
-                    .collect(Collectors.toList()).size();
+        return (int) teamUserJobs.stream().filter(
+                job -> job.getStatus().equals(TeamUserStatus.APPROVED)).count();
     }
+
+    public void update(TeamJobRequestDto request){
+        this.name = request.getName();
+        if (this.getCurrent() <= request.getMax() )
+            this.max = request.getMax();
+        else
+            throw new ConflictException("현재 역할에 배정된 인원보다 적은 수로 설정할 수 없습니다.");
+    }
+
+
 }

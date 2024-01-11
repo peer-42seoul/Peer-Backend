@@ -2,9 +2,9 @@ name: Test_CI/CD
 
 on:
   push:
-    branches: [ "main", "dev", "test" ]
+    branches: [ "main", "test" ]
   pull_request:
-    branches: [ "main", dev, "test" ]
+    branches: [ "main", "test" ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
   # workflow_call:
 
@@ -28,7 +28,7 @@ jobs:
       with:
         submodules: true
         token: ${{secrets.TOKEN}}
-    
+
     - name: Set up JDK 11
       uses: actions/setup-java@v3
       with:
@@ -46,9 +46,9 @@ jobs:
 
     - name: Test with Gradle
       run: ./gradlew test
-      
+
   deploy-dev:
-    if: github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push')
+    if: github.ref == 'refs/heads/test' && (github.event.pull_request.merged == true || github.event_name == 'push')
     needs: build
     runs-on: ubuntu-latest
 
@@ -63,7 +63,7 @@ jobs:
       run: |
         ./gradlew bootjar
         docker login -u ${{ secrets.TEST_DOCKER_USERNAME }} -p ${{ secrets.TEST_DOCKER_PASSWORD }}
-        docker build -f Dockerfile-dev -t ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }} .
+        docker build -f Dockerfile-test -t ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }} .
         docker push ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
 #      working-directory: ./backend
 
@@ -77,7 +77,7 @@ jobs:
         debug: true
         script: |
           docker pull ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
-          docker rm -f $(docker ps -qa)
-          docker run -d -p 80:8080 -p 8081-8082:8081-8082 -v $HOME/logs:/logs ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
+          docker rm -f ${{ secrets.Test_DOCKER_IMAGE }}
+          docker run --network peer_peer_test -d -p ${{ secrets.TEST_BASE_PORT }}:8080 -p 8081-8082:8081-8082 -v $HOME/logs:/logs ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
           docker container prune -f
           docker image prune -f
