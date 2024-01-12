@@ -9,5 +9,5 @@ public enum TargetType {
     ALL("ALL"),
     CERTAIN("CERTAIN");
 
-    private final String targetType;
+    private final String value;
 }

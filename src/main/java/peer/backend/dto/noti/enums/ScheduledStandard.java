@@ -9,5 +9,5 @@ public enum ScheduledStandard {
     BEFORE("BEFORE"),
     AFTER("AFTER");
 
-    private final String scheduledStandard;
+    private final String value;
 }

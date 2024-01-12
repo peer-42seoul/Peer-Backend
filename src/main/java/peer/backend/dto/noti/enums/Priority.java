@@ -9,5 +9,5 @@ public enum Priority {
     IMMEDIATE("IMMEDIATE"),
     SCHEDULED("SCHEDULED"),
     FORCED("FORCED");
-    private final String priority;
+    private final String value;
 }

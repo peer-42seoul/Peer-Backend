@@ -10,5 +10,5 @@ public enum NotificationPriority {
     SCHEDULED("SCHEDULED"),
     FORCE("FORCED");
 
-    private final String notificationPriority;
+    private final String value;
 }

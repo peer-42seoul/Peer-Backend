@@ -12,5 +12,5 @@ public enum NotificationTargetType {
     TEAM("TEAM"),
     USER("USER");
 
-    private final String notificationTargetType;
+    private final String value;
 }
