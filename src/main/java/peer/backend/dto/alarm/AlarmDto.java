@@ -1,13 +1,13 @@
 package peer.backend.dto.alarm;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.noti.enums.Priority;
-import peer.backend.entity.noti.enums.TargetType;
+import peer.backend.dto.noti.enums.Priority;
+import peer.backend.dto.noti.enums.TargetType;
 
 @AllArgsConstructor
 @NoArgsConstructor

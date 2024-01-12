@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import peer.backend.entity.noti.enums.MessageType;
-import peer.backend.entity.noti.enums.NotificationPriority;
-import peer.backend.entity.noti.enums.TargetType;
+import peer.backend.dto.noti.enums.MessageType;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.TargetType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

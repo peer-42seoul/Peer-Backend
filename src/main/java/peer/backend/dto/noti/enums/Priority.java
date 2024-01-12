@@ -1,14 +1,13 @@
-package peer.backend.entity.noti.enums;
+package peer.backend.dto.noti.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum NotificationPriority {
+public enum Priority {
     IMMEDIATE("IMMEDIATE"),
     SCHEDULED("SCHEDULED"),
-    FORCE("FORCED");
-
-    private final String notificationPriority;
+    FORCED("FORCED");
+    private final String priority;
 }
