@@ -50,6 +50,13 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,6 +74,18 @@ public class TeamService {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
             == TeamUserRoleType.LEADER;
     }
+
+    private boolean checkValidationForApprovedOrNot(User user, Team team) {
+        AtomicBoolean result = new AtomicBoolean(false);
+
+        team.getTeamUsers().forEach(member -> {
+            if (member.getId().equals(user.getId())){
+                result.set(member.getStatus().equals(TeamUserStatus.APPROVED));
+            }
+        });
+        return result.get();
+    }
+
 
     @Transactional
     public List<TeamListResponse> getTeamList(TeamStatus teamStatus, User user) {
@@ -264,9 +283,19 @@ public class TeamService {
 
     @Transactional
     public TeamInfoResponse getTeamInfo(Long teamId, User user) {
+//        Team team = this.teamRepository.findById(teamId)
+//            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+//        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
+//            if (checkValidationForApprovedOrNot(user, team))
+//                return new TeamInfoResponse(team);
+//            else
+//                throw new UnauthorizedException("팀 멤버로 승인되어 있지 않습니다.");
+//        } else {
+//            throw new ForbiddenException("팀에 속해있지 않습니다.");
+//        }
         Team team = this.teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
-        if (teamUserRepository.existsByUserIdAndTeamId(user.getId(), teamId)) {
+                .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+        if (teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), teamId)) {
             return new TeamInfoResponse(team);
         } else {
             throw new ForbiddenException("팀에 속해있지 않습니다.");
