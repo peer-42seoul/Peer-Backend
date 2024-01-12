@@ -29,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u FROM User u WHERE u.nickname LIKE %:keyword%", countQuery = "SELECT count(u) FROM User u")
     Page<User> findByNicknameContainingFromPageable(Pageable pageable, String keyword);
+
+    List<User> findbyIdIn(List<Long> ids);
 }

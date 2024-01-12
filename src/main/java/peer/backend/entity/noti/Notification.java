@@ -2,12 +2,9 @@ package peer.backend.entity.noti;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import peer.backend.dto.noti.enums.MessageType;
+import lombok.*;
 import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.noti.enums.TargetType;
 
 import javax.persistence.*;
@@ -16,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,9 +46,9 @@ public class Notification {
     public NotificationPriority priority;
 
     @Column(nullable = false)
-    public MessageType messageType;
+    public NotificationType messageType;
 
-    @Column
+    @Column(nullable = true)
     @JsonSerialize
     @JsonDeserialize
     public LocalDateTime scheduledTime;

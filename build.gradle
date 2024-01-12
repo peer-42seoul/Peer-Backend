@@ -9,7 +9,7 @@ group = 'peer'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '11'
+    sourceCompatibility = "16"
 }
 
 configurations {
@@ -110,3 +110,4 @@ sonar {
         property "sonar.host.url", "https://sonarcloud.io"
     }
 }
+targetCompatibility = JavaVersion.VERSION_16

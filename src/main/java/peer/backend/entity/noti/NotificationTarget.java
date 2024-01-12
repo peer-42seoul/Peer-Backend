@@ -1,9 +1,6 @@
 package peer.backend.entity.noti;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
@@ -11,6 +8,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notification_target")
@@ -50,5 +48,6 @@ public class NotificationTarget {
         this.teamOK = user.isTeamAlarm();
         this.messageOk = user.isMessageAlarm();
         this.nightOk = user.isNightAlarm();
+        this.userId = user.getId();
     }
 }
