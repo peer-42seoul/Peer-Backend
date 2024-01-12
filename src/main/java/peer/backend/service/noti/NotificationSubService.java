@@ -52,10 +52,8 @@ public class NotificationSubService {
     }
 
     private List<NotificationTarget> makeNotificationTarget(List<User> target, Notification event){
-        List<NotificationTarget> result = null;
-        if(target.isEmpty())
-            return Collections.emptyList();
-        else{
+        List<NotificationTarget> result = target.isEmpty() ? Collections.emptyList() : new ArrayList<>();
+        if(!target.isEmpty()){
             for (User user : target) {
                 NotificationTarget element = NotificationTarget.builder()
                         .notificationId(event.getId())
@@ -143,11 +141,9 @@ public class NotificationSubService {
      * @return
      */
     public static List<Long> makeLongListWithUserList(List<User> users){
-        List<Long> result = null;
-        if (users.isEmpty()) {
-            return Collections.emptyList();
-        }
-        users.forEach(user -> result.add(user.getId()));
+        List<Long> result = users.isEmpty() ? Collections.emptyList() : new ArrayList<>();
+        if (!users.isEmpty())
+          users.forEach(user -> result.add(user.getId()));
         return result;
     }
 
@@ -157,10 +153,9 @@ public class NotificationSubService {
      * @return
      */
     public static List<Long> makeLongListWithTeamUser(List<TeamUser> users){
-        List<Long> result = null;
-        if (users.isEmpty())
-            return Collections.emptyList();
-        users.forEach(user -> result.add(user.getUserId()));
+        List<Long> result = users.isEmpty() ? Collections.emptyList() : new ArrayList<>();
+        if (!users.isEmpty())
+            users.forEach(user -> result.add(user.getId()));
         return result;
     }
 
@@ -170,14 +165,15 @@ public class NotificationSubService {
      * @return
      */
     public static List<Long> makeLongListWithTeam(List<Team> teams) throws NullPointerException {
-        List<Long> result = null;
-        if (teams.isEmpty())
-            return Collections.emptyList();
-        teams.forEach(team -> {
-            List<TeamUser> values = team.getTeamUsers();
-            List<Long> longParts = NotificationSubService.makeLongListWithTeamUser(values);
-            result.addAll(Objects.requireNonNull(longParts));
-        });
+        List<Long> result = teams.isEmpty() ? Collections.emptyList() : new ArrayList<>();
+        if (!teams.isEmpty())
+        {
+            teams.forEach(team -> {
+                List<TeamUser> values = team.getTeamUsers();
+                List<Long> longParts = NotificationSubService.makeLongListWithTeamUser(values);
+                result.addAll(Objects.requireNonNull(longParts));
+            });
+        }
         return result;
     }
 
