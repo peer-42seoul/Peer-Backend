@@ -1,64 +1,62 @@
 package peer.backend.entity.noti;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.*;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import peer.backend.entity.BaseEntity;
-import peer.backend.entity.noti.enums.Priority;
+import peer.backend.entity.noti.enums.MessageType;
+import peer.backend.entity.noti.enums.NotificationPriority;
 import peer.backend.entity.noti.enums.TargetType;
 
-@Entity
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
+@Entity
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-@DynamicUpdate
-public class Notification extends BaseEntity {
-
+@NoArgsConstructor
+@Table(name = "notification")
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long notificationId;
+    public Long id;
 
     @Column
-    private String title;
+    public String title;
 
     @Column
-    private String message;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TargetType targetType;
+    public String body;
 
     @Column
-    private Long target;
-
-    @Column
-    private String link;
+    public String linkData;
 
     @Column(nullable = false)
-    private Boolean sent;
+    public TargetType targetType;
 
-    @Enumerated(EnumType.STRING)
-    private Priority priority;
+    @OneToMany(mappedBy = "specificEvent", cascade = CascadeType.PERSIST)
+    public List<NotificationTarget> targets;
 
     @Column
-    private LocalDateTime scheduledTime;
+    public Boolean sent;
 
-    @OneToMany(mappedBy = "specificNoti", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<NotificationTarget> targets;
-//
-//    @OneToMany(mappedBy = "targetNotification", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    private List<NotificationTargetUser> lists;
+    @Column(nullable = false)
+    public NotificationPriority priority;
+
+    @Column(nullable = false)
+    public MessageType messageType;
+
+    @Column
+    @JsonSerialize
+    @JsonDeserialize
+    public LocalDateTime scheduledTime;
+
+    @Column
+    public Long totalCount;
+
+    @Column
+    public Long deleteCount;
 }

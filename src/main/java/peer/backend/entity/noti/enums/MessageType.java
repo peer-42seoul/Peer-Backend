@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum TargetType {
-    ALL("ALL"),
-    CERTAIN("CERTAIN");
+public enum MessageType {
+    SYSTEM("SYSTEM"),
+    MESSAGE("MESSAGE"),
+    TEAM("TEAM");
 
-    private final String targetType;
+    private final String messageType;
 }

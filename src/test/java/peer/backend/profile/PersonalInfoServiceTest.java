@@ -57,7 +57,10 @@ public class PersonalInfoServiceTest {
             .password(encoder.encode("test password"))
             .name(name)
             .nickname("test nickname")
-            .isAlarm(false)
+            .teamAlarm(true)
+            .nightAlarm(true)
+            .messageAlarm(true)
+            .keywordRecommendAlarm(true)
             .address("test address")
             .imageUrl("tes image URL")
             .build();

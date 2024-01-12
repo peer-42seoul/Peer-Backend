@@ -31,7 +31,8 @@ import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
-import peer.backend.entity.noti.NotificationSubscription;
+import peer.backend.entity.noti.NotificationSubscriptionKeys;
+import peer.backend.entity.noti.NotificationTarget;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
 import peer.backend.oauth.PrincipalDetails;
@@ -65,8 +66,18 @@ public class User extends BaseEntity implements Login {
     @Size(min = 2, max = 30)
     private String nickname;
 
-    @Column//(nullable = false)
-    private boolean isAlarm;
+    //TODO : 사용자 알림 설정 API 작성이 필요
+    @Column
+    private boolean keywordRecommendAlarm;
+    //TODO : 사용자 알림 설정 API 작성이 필요
+    @Column
+    private boolean teamAlarm;
+    //TODO : 사용자 알림 설정 API 작성이 필요
+    @Column
+    private boolean messageAlarm;
+    //TODO : 사용자 알림 설정 API 작성이 필요
+    @Column
+    private boolean nightAlarm;
 
     @Column//(nullable = false)
     private String address;
@@ -127,7 +138,10 @@ public class User extends BaseEntity implements Login {
     private List<PostLike> postLikes;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<NotificationSubscription> tokens;
+    private List<NotificationSubscriptionKeys> tokens;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    private List<NotificationTarget> myEvents;
 
     public static User authenticationToUser(Authentication authentication) {
         return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();
