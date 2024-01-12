@@ -13,7 +13,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notification_subscription_keys")
-public class NotificationSubscriptionKeys extends BaseEntity {
+public abstract class NotificationSubscriptionKeys extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

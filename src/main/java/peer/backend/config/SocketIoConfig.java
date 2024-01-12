@@ -37,8 +37,7 @@ public class SocketIoConfig {
         portConfig.setReuseAddress(true);
         config.setSocketConfig(portConfig);
 
-        SocketIOServer ss =  new SocketIOServer(config);
-        return ss;
+        return new SocketIOServer(config);
     }
 
 }
