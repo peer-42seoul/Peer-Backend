@@ -175,7 +175,7 @@ public class NotificationSubService {
             return null;
         teams.forEach(team -> {
             List<TeamUser> values = team.getTeamUsers();
-            List<Long> longParts = NotificationSubService.makeLongListWithTeamList(values);
+            List<Long> longParts = NotificationSubService.makeLongListWithTeamUser(values);
             result.addAll(Objects.requireNonNull(longParts));
         });
         return result;
