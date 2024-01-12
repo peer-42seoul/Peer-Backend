@@ -6,7 +6,7 @@
 //import org.hibernate.annotations.OnDeleteAction;
 //import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 //import peer.backend.entity.BaseEntity;
-//import peer.backend.entity.noti.enums.AlarmType;
+//import peer.backend.dto.noti.enums.AlarmType;
 //
 //import javax.persistence.*;
 //

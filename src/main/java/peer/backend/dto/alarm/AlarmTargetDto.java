@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.entity.noti.Notification;
-import peer.backend.entity.noti.enums.AlarmType;
+import peer.backend.dto.noti.enums.AlarmType;
 
 @AllArgsConstructor
 @NoArgsConstructor
