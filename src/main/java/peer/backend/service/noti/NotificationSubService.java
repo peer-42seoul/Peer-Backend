@@ -51,22 +51,26 @@ public class NotificationSubService {
         return query.getResultList();
     }
 
-    private List<NotificationTarget> makeNorificationTarget(List<User> target, Notification event){
-        List<NotificationTarget> result = new ArrayList<>();
-        target.forEach(user -> {
-            NotificationTarget element = NotificationTarget.builder()
-                    .notificationId(event.getId())
-                    .specificEvent(event)
-                    .build();
+    private List<NotificationTarget> makeNotificationTarget(List<User> target, Notification event){
+        List<NotificationTarget> result = null;
+        if(target.isEmpty())
+            return Collections.emptyList();
+        else{
+            for (User user : target) {
+                NotificationTarget element = NotificationTarget.builder()
+                        .notificationId(event.getId())
+                        .specificEvent(event)
+                        .build();
                 element.setAlarmOptions(user);
                 result.add(element);
-        });
+            }
+        }
         return result;
     }
 
     private List<NotificationTarget> makeTeamTargets(Notification event, List<Long> teamIds)
             throws NullPointerException{
-        List<NotificationTarget> result = new ArrayList<>();
+        List<NotificationTarget> result = null;
 
         Query query = entityManager.createQuery("SELECT u FROM User u JOIN TeamUser tu ON tu.userId = u.id " +
                 "JOIN Team t ON t.id = tu.teamId " +
@@ -79,7 +83,7 @@ public class NotificationSubService {
         if (targetTeamUsers.isEmpty()) {
             throw new NullPointerException("대상이 존재하지 않습니다.");
         } else {
-            result = this.makeNorificationTarget(users, event);
+            result = this.makeNotificationTarget(users, event);
         }
 
         return result;
@@ -87,12 +91,12 @@ public class NotificationSubService {
 
     private List<NotificationTarget> makeUserTargets(Notification event, List<Long> userIds)
             throws NullPointerException{
-        List<NotificationTarget> result = new ArrayList<>();
+        List<NotificationTarget> result = null;
         List<User> targetUsers = userRepository.findByIdIn(userIds);
         if (targetUsers.isEmpty()) {
             throw new NullPointerException("대상이 존재하지 않습니다.");
         } else {
-            result = this.makeNorificationTarget(targetUsers, event);
+            result = this.makeNotificationTarget(targetUsers, event);
         }
 
         return result;
@@ -139,13 +143,11 @@ public class NotificationSubService {
      * @return
      */
     public static List<Long> makeLongListWithUserList(List<User> users){
-        List<Long> result = new ArrayList<>();
+        List<Long> result = null;
         if (users.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
-        users.forEach(user -> {
-            result.add(user.getId());
-        });
+        users.forEach(user -> result.add(user.getId()));
         return result;
     }
 
@@ -155,12 +157,10 @@ public class NotificationSubService {
      * @return
      */
     public static List<Long> makeLongListWithTeamUser(List<TeamUser> users){
-        List<Long> result = new ArrayList<>();
+        List<Long> result = null;
         if (users.isEmpty())
-            return null;
-        users.forEach(user -> {
-            result.add(user.getUserId());
-        });
+            return Collections.emptyList();
+        users.forEach(user -> result.add(user.getUserId()));
         return result;
     }
 
@@ -169,10 +169,10 @@ public class NotificationSubService {
      * @param teams
      * @return
      */
-    public static List<Long> makeLongListWithTeam(List<Team> teams) {
-        List<Long> result = new ArrayList<>();
+    public static List<Long> makeLongListWithTeam(List<Team> teams) throws NullPointerException {
+        List<Long> result = null;
         if (teams.isEmpty())
-            return null;
+            return Collections.emptyList();
         teams.forEach(team -> {
             List<TeamUser> values = team.getTeamUsers();
             List<Long> longParts = NotificationSubService.makeLongListWithTeamUser(values);
@@ -311,7 +311,7 @@ public class NotificationSubService {
                                     @Nullable String url,
                                     @Nullable LocalDateTime time) {
         Notification event = this.notificationRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException("갱신 가능한 알림이 아닙니다."));
-        List<NotificationTarget> convertedTargets = new ArrayList<>();
+        List<NotificationTarget> convertedTargets = null;
 
         if (event.getTargetType().equals(TargetType.CERTAIN)) {
             List<NotificationTarget> earlyTargets = event.getTargets();
@@ -323,7 +323,8 @@ public class NotificationSubService {
             } else if (notiTarget != null && notiTarget.equals(NotificationTargetType.USER)) {
                 convertedTargets = this.makeUserTargets(event, targets);
             }
-            this.notificationTargetRepository.saveAll(convertedTargets);
+            if (convertedTargets != null)
+                this.notificationTargetRepository.saveAll(convertedTargets);
         }
 
         if (title != null)
@@ -332,7 +333,7 @@ public class NotificationSubService {
             event.setBody(body);
         if(url != null)
             event.setLinkData(url);
-        if(!event.sent)
+        if(event.sent.equals(Boolean.FALSE))
             event.setScheduledTime(time);
 
         return this.notificationRepository.save(event);
