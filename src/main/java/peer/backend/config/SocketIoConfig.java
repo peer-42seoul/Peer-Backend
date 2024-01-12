@@ -27,8 +27,6 @@ public class SocketIoConfig {
     @Value("${socket.io.host}")
     private String socketIoHost;
 
-    private SocketIOServer server;
-
     @Bean
     public SocketIOServer socketIOServer() {
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
@@ -38,8 +36,9 @@ public class SocketIoConfig {
         SocketConfig portConfig = new SocketConfig();
         portConfig.setReuseAddress(true);
         config.setSocketConfig(portConfig);
-        this.server = new SocketIOServer(config);
-        return server;
+
+        SocketIOServer ss =  new SocketIOServer(config);
+        return ss;
     }
 
 }

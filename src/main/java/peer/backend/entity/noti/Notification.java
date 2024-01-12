@@ -37,7 +37,8 @@ public class Notification {
     @Column(nullable = false)
     public TargetType targetType;
 
-    @OneToMany(mappedBy = "specificEvent", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "specificEvent",
+            cascade = CascadeType.PERSIST)
     public List<NotificationTarget> targets;
 
     @Column
