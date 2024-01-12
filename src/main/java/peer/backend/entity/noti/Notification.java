@@ -3,6 +3,8 @@ package peer.backend.entity.noti;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.dto.noti.enums.NotificationPriority;
 import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.noti.enums.TargetType;
@@ -14,12 +16,14 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate
+@DynamicInsert
 @Table(name = "notification")
-public abstract class Notification extends BaseEntity {
+public  class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;

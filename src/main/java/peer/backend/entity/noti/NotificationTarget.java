@@ -8,12 +8,12 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@Entity
 @Builder
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notification_target")
-public abstract class NotificationTarget extends BaseEntity {
+public class NotificationTarget extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
