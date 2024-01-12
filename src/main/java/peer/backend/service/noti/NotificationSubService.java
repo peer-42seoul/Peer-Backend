@@ -54,14 +54,14 @@ public class NotificationSubService {
     private List<NotificationTarget> makeNotificationTarget(List<User> target, Notification event){
         List<NotificationTarget> result = target.isEmpty() ? Collections.emptyList() : new ArrayList<>();
         if(!target.isEmpty()){
-            for (User user : target) {
+            target.forEach(user -> {
                 NotificationTarget element = NotificationTarget.builder()
                         .notificationId(event.getId())
                         .specificEvent(event)
                         .build();
                 element.setAlarmOptions(user);
                 result.add(element);
-            }
+            });
         }
         return result;
     }
