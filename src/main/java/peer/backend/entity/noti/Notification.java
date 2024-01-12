@@ -6,6 +6,7 @@ import lombok.*;
 import peer.backend.dto.noti.enums.NotificationPriority;
 import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.noti.enums.TargetType;
+import peer.backend.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,10 +19,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notification")
-public class Notification {
+public class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
+
+    @Column
+    public String imageUrl;
 
     @Column
     public String title;
@@ -36,7 +40,7 @@ public class Notification {
     public TargetType targetType;
 
     @OneToMany(mappedBy = "specificEvent",
-            cascade = CascadeType.PERSIST)
+            cascade = CascadeType.ALL)
     public List<NotificationTarget> targets;
 
     @Column

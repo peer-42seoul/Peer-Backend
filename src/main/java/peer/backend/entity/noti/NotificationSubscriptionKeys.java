@@ -1,6 +1,7 @@
 package peer.backend.entity.noti;
 
 import lombok.*;
+import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
@@ -12,7 +13,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notification_subscription_keys")
-public class NotificationSubscriptionKeys {
+public class NotificationSubscriptionKeys extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
