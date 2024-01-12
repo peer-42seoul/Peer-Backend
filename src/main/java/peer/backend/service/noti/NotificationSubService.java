@@ -154,7 +154,7 @@ public class NotificationSubService {
      * @param users
      * @return
      */
-    public static List<Long> makeLongListWithTeamList(List<TeamUser> users){
+    public static List<Long> makeLongListWithTeamUser(List<TeamUser> users){
         List<Long> result = new ArrayList<>();
         if (users.isEmpty())
             return null;
