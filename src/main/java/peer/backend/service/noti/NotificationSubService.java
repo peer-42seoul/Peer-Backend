@@ -111,21 +111,23 @@ public class NotificationSubService {
     private String makeImageUrlForNotification(NotificationType type, List<Long> targets){
         String imgUrl = null;
         switch (type) {
-            case SYSTEM -> {
+            case SYSTEM: {
                 imgUrl = SYSTEM_DEFAULT;
+                break;
             }
-            case TEAM -> {
+            case TEAM: {
                 if (targets.size() > 1)
                     imgUrl = SYSTEM_DEFAULT;
                 else if (targets.size() == 1)
                     imgUrl = getImgUrlWithTeamId(targets.get(0));
+                break ;
             }
-            case MESSAGE -> {
+            case MESSAGE: {
                 if (targets.size() > 1)
                     imgUrl = SYSTEM_DEFAULT;
                 else if (targets.size() == 1)
                     imgUrl = getImgUrlWithUserId(targets.get(0));
-
+                break;
             }
         }
         return imgUrl;

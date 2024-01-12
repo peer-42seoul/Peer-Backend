@@ -9,7 +9,7 @@ group = 'peer'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = "16"
+    sourceCompatibility = "11"
 }
 
 configurations {
