@@ -105,9 +105,21 @@ public class ProfileController {
         else if (profile.getNickname().length() > 7 || profile.getNickname().length() < 2) {
             throw new BadRequestException("닉네임은 2자 이상, 7자 이하여야 합니다.");
         }
-        if (profile.getIntroduction() != null && profile.getIntroduction().length() > 150) {
-            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
-        }
+//        String str = profile.getIntroduction();
+//        int total = str.length();
+//        int lineBreakerLength = 0;
+//
+//        for (int i = 0; i < str.length(); i++) {
+//            if (str.charAt(i) == '\r')
+//                lineBreakerLength++;
+//            i++;
+//        }
+//
+//        System.out.println("실제 길이 사이즈 : " + profile.getIntroduction().length());
+//        System.out.println("개행 길이 사이즈 : " + lineBreakerLength);
+//        if (profile.getIntroduction() != null && profile.getIntroduction().length() - lineBreakerLength > 150) {
+//            throw new BadRequestException("자기소개는 150자 이내여야 합니다.");
+//        }
         profileService.editProfile(auth, profile, convertBoolean(profile.getImageChange()));
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
