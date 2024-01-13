@@ -1,5 +1,6 @@
 package peer.backend.controller.team;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,9 +24,21 @@ public class TeamPageController {
     public static final String TEAM_URL = "/api/v1/team-page";
     @GetMapping("/posts/{boardId}")
     public BoardRes getPosts(@PathVariable("boardId") Long boardId, Pageable pageable) {
-        Page<Post> posts = teamPageService.getPostListByBoardId(pageable, boardId);
-        Board board = boardRepository.getById(boardId); // 가정: teamPageService에서 Board를 가져오는 메소드
-        return new BoardRes(board.getId(), board.getName(), posts);
+//        Page<Post> posts = teamPageService.getPostListByBoardId(pageable, boardId);
+        Optional<Board> boardOptional = boardRepository.findById(boardId);
+
+        if (boardOptional.isPresent()) {
+            Board board = boardOptional.get();
+
+            // 페이지네이션 적용을 위해 필요한 경우 추가 로직 구현
+            // 예: Page<Post> posts = someMethodToApplyPagination(board.getPosts(), pageable);
+
+            return new BoardRes(board.getId(), board.getName(), (Page<Post>) board.getPosts());
+        } else {
+            System.out.println("posts is empty");
+            Board board = boardRepository.findById(boardId).orElseThrow();
+            return new BoardRes(board.getId(), board.getName(), (Page<Post>) board.getPosts());
+        }
     }
 
 }
