@@ -1,8 +1,10 @@
 package peer.backend.service.team;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -49,14 +51,8 @@ import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
+import peer.backend.service.TeamUserService;
 import peer.backend.service.file.ObjectService;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -68,6 +64,7 @@ public class TeamService {
     private final ObjectService objectService;
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
+    private final TeamUserService teamUserService;
     private final EntityManager em;
 
     public boolean isLeader(Long teamId, User user) {
@@ -79,7 +76,7 @@ public class TeamService {
         AtomicBoolean result = new AtomicBoolean(false);
 
         team.getTeamUsers().forEach(member -> {
-            if (member.getId().equals(user.getId())){
+            if (member.getId().equals(user.getId())) {
                 result.set(member.getStatus().equals(TeamUserStatus.APPROVED));
             }
         });
@@ -197,7 +194,7 @@ public class TeamService {
     public void exitTeam(Long teamId, User user) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(user.getId(), teamId);
+        TeamUser teamUser = this.teamUserService.getTeamUser(user.getId(), teamId);
         if (!team.deleteTeamUser(teamUser.getUserId())) {
             throw new NotFoundException("탈퇴할 수 없습니다.");
         } else {
@@ -294,7 +291,7 @@ public class TeamService {
 //            throw new ForbiddenException("팀에 속해있지 않습니다.");
 //        }
         Team team = this.teamRepository.findById(teamId)
-                .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
+            .orElseThrow(() -> new NotFoundException("팀이 없습니다"));
         if (teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), teamId)) {
             return new TeamInfoResponse(team);
         } else {
@@ -397,12 +394,12 @@ public class TeamService {
                 TeamJob teamJob = teamJobRepository.findById(j.getId())
                     .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
                 Team team = teamJob.getTeam();
-            if (team.getType().equals(TeamType.STUDY)) {
-                throw new BadRequestException("스터디는 역할을 수정할 수 없습니다.");
-            }
-            if (!isLeader(team.getId(), user)) {
-                throw new ForbiddenException("리더가 아닙니다.");
-            }
+                if (team.getType().equals(TeamType.STUDY)) {
+                    throw new BadRequestException("스터디는 역할을 수정할 수 없습니다.");
+                }
+                if (!isLeader(team.getId(), user)) {
+                    throw new ForbiddenException("리더가 아닙니다.");
+                }
                 teamJob.update(j);
             }
         );
@@ -445,5 +442,33 @@ public class TeamService {
         teamJobRepository.delete(teamJob);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Transactional
+    public void quitTeam(User user, Long teamId) {
+        if (this.isLeader(teamId, user)) {
+            SecureRandom rm = new SecureRandom();
+            Team team = this.getTeamByTeamId(teamId);
+            List<TeamUser> teamUserList = team.getTeamUsers();
+            if (teamUserList.size() == 1) {
+                throw new ConflictException("팀 인원이 1명일 경우 팀을 나갈 수 없습니다. 해산하기나 완료하기를 해주십시오.");
+            }
+            teamUserList.forEach(teamUser -> {
+                if (teamUser.getUserId().equals(user.getId())) {
+                    teamUserList.remove(teamUser);
+                }
+            });
+            int randomIndex = rm.nextInt(teamUserList.size());
+            TeamUser teamUser = teamUserList.get(randomIndex);
+            teamUser.setRole(TeamUserRoleType.LEADER);
+        } else {
+            this.teamUserService.deleteTeamUser(user.getId(), teamId);
+        }
+    }
+
+    @Transactional
+    public Team getTeamByTeamId(Long teamId) {
+        return this.teamRepository.findById(teamId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 Id 입니다."));
     }
 }

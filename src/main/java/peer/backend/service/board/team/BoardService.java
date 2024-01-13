@@ -78,7 +78,7 @@ public class BoardService {
     @Transactional
     public void getBoardList(Long teamId, Authentication auth) {
         User user = User.authenticationToUser(auth);
-        if (teamUserRepository.findByUserIdAndTeamId(user.getId(), teamId) == null) {
+        if (teamUserRepository.findByUserIdAndTeamId(user.getId(), teamId).isEmpty()) {
             throw new ForbiddenException("팀 멤버가 아닙니다.");
         }
 
