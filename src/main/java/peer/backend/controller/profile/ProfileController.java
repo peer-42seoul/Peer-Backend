@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.annotation.OnlyEngKorNum;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
@@ -50,7 +51,7 @@ public class ProfileController {
 
     @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")
     @PostMapping("/signup/nickname") // "/membership/nickname/check" 로 테스트 진행 했음
-    public ResponseEntity<Object> isExistNickname(@RequestBody NicknameResponse nickname) {
+    public ResponseEntity<Object> isExistNickname(@RequestBody @Valid NicknameResponse nickname) {
         if (profileService.isExistNickname(nickname.getNickname())) {
             throw new ConflictException("이미 사용 중인 닉네임입니다.");
         }
