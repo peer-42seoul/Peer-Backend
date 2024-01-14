@@ -23,7 +23,6 @@ import peer.backend.service.teampage.TeamPageService;
 @RequestMapping(TeamPageController.TEAM_URL)
 public class TeamPageController {
     private final TeamPageService teamPageService;
-    private final BoardRepository boardRepository;
     private final BoardService boardService;
     public static final String TEAM_URL = "/api/v1/team-page";
 
