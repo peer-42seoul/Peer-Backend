@@ -21,14 +21,15 @@ import peer.backend.service.teampage.TeamPageService;
 public class TeamPageController {
     private final TeamPageService teamPageService;
     private final BoardRepository boardRepository;
+    private final BoardService boardService;
     public static final String TEAM_URL = "/api/v1/team-page";
+
     @GetMapping("/posts/{boardId}")
     public ResponseEntity<BoardRes> getPosts(@PathVariable("boardId") Long boardId, Pageable pageable) {
         Page<PostRes> postsPage = teamPageService.getPostsByBoardId(boardId, pageable);
 
         if (!postsPage.isEmpty()) {
-            Board board = boardRepository.findById(boardId)
-                    .orElseThrow(() -> new EntityNotFoundException("board not found"));
+            Board board = boardService.getBoardById(boardId);
             BoardRes res = new BoardRes(board.getId(), board.getName(), postsPage.getContent());
             return ResponseEntity.ok(res);
         } else {
