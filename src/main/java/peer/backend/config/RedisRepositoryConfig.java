@@ -1,5 +1,7 @@
 package peer.backend.config;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
@@ -8,9 +10,15 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import peer.backend.dto.dnd.TeamMember;
+import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.SocialLogin;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -44,6 +52,18 @@ public class RedisRepositoryConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(SocialLogin.class));
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, List<TeamMember>> userInfoRedis() {
+        RedisTemplate<String, List<TeamMember>> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, TeamMember.class);
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<List<TeamMember>>(type));
         return redisTemplate;
     }
 }

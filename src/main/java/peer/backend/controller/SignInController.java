@@ -44,6 +44,9 @@ public class SignInController {
     @Value("${jwt.token.validity-in-seconds-refresh}")
     private long refreshExpirationTime;
 
+    @Value("${jwt.token.validity-in-seconds}")
+    private long accessExpirationTime;
+
     private static final String DEV_DOMAIN_URL = "peer-test.co.kr";
 
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
@@ -118,13 +121,18 @@ public class SignInController {
 
     @PostMapping("/admin")
     public ResponseEntity<Object> adminLogin(
-        @RequestBody @Valid AdminLoginRequest adminLoginRequest) {
+        @RequestBody @Valid AdminLoginRequest adminLoginRequest, HttpServletResponse response) {
         String accessToken = loginService.adminLogin(adminLoginRequest.getId(),
             adminLoginRequest.getPassword());
 
-        LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
-        maps.put("accessToken", accessToken);
+        Cookie cookie = new Cookie("adminToken", accessToken);
+        cookie.setMaxAge((int) accessExpirationTime / 1000);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+//        cookie.setSecure(true);
 
-        return ResponseEntity.ok(maps);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().build();
     }
 }

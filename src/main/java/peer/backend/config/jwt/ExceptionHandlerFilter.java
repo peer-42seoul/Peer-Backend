@@ -34,6 +34,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
                 setErrorResponse(HttpStatus.CONFLICT, request, response, e);
             } else if (e instanceof ForbiddenException) {
                 setErrorResponse(HttpStatus.FORBIDDEN, request, response, e);
+            } else {
+                setErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, request, response, e);
             }
         }
     }

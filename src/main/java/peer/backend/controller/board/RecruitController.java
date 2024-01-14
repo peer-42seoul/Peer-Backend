@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Recruit;
+import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
 import peer.backend.service.board.recruit.RecruitService;
 
 import javax.validation.Valid;
@@ -72,7 +73,7 @@ public class RecruitController {
 
     @PostMapping("/favorite/{recruit_id}")
     public void goFavorite(@PathVariable Long recruit_id, Authentication auth) {
-        recruitService.changeRecruitFavorite(auth, recruit_id);
+        recruitService.changeRecruitFavorite(auth, recruit_id, RecruitFavoriteEnum.LIKE);
     }
 
     //TODO:admin에 tag 관리 기능이 만들어지면 해당 내용 수정 필요. 추후 글 생성, 수정이 어떻게 달라질지 몰라서 일단 동일한 기능이지만 api 분리해두었음.
