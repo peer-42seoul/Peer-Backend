@@ -1,18 +1,21 @@
 package peer.backend.controller.team;
 
-import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.team.BoardRes;
 import peer.backend.dto.team.PostRes;
+import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.repository.board.team.BoardRepository;
+import peer.backend.service.board.team.BoardService;
 import peer.backend.service.teampage.TeamPageService;
 
 @RestController
@@ -37,4 +40,10 @@ public class TeamPageController {
         }
     }
 
+    @GetMapping("/simple/{teamId}")
+    public ResponseEntity<List<SimpleBoardRes>> getSimpleBoardList(@PathVariable("teamId") Long teamId,
+                                                                   Authentication auth) {
+        List<SimpleBoardRes> boards = boardService.getSimpleBoards(teamId, auth);
+        return ResponseEntity.ok(boards);
+    }
 }
