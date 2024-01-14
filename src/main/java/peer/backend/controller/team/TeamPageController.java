@@ -1,5 +1,6 @@
 package peer.backend.controller.team;
 
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class TeamPageController {
     private final BoardService boardService;
     public static final String TEAM_URL = "/api/v1/team-page";
 
+    @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 글 목록을 가져옵니다.")
     @GetMapping("/posts/{boardId}")
     public ResponseEntity<BoardRes> getPosts(@PathVariable("boardId") Long boardId, Pageable pageable) {
         Page<PostRes> postsPage = teamPageService.getPostsByBoardId(boardId, pageable);
@@ -38,7 +40,7 @@ public class TeamPageController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @ApiOperation(value = "TEAM-PAGE", notes = "특정 팀에 게시판 목록을 가져옵니다.")
     @GetMapping("/simple/{teamId}")
     public ResponseEntity<List<SimpleBoardRes>> getSimpleBoardList(@PathVariable("teamId") Long teamId,
                                                                    Authentication auth) {
