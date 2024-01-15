@@ -19,6 +19,7 @@ import peer.backend.dto.team.BoardRes;
 import peer.backend.dto.team.PostRes;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
+import peer.backend.entity.board.team.Post;
 import peer.backend.service.board.team.BoardService;
 import peer.backend.service.teampage.TeamPageService;
 
@@ -56,6 +57,16 @@ public class TeamPageController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 특정 글을 가져옵니다.")
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<PostRes> getPost(@PathVariable("postId") Long postId) {
+        Post post = teamPageService.getPostById(postId);
+        System.out.println(post);
+        PostRes res = new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
+                post.getCreatedAt());
+        return ResponseEntity.ok(res);
     }
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 팀에 게시판 목록을 가져옵니다.")

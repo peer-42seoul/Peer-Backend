@@ -61,4 +61,13 @@ public class TeamPageService {
         return postRepository.save(post);
     }
 
+    @Transactional
+    public Post getPostById(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new NotFoundException("존재하지 않는 게시글입니다."));
+        post.increaseHit();
+        return postRepository.save(post);
+
+    }
+
 }
