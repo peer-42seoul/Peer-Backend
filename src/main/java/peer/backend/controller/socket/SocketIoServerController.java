@@ -129,7 +129,7 @@ public class SocketIoServerController {
                 client.disconnect();
                 return;
             }
-            client.sendEvent("whoAmI", result);
+            ackSender.sendAckData(result);
         }
     };
 }
