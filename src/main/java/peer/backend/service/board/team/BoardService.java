@@ -1,6 +1,10 @@
 package peer.backend.service.board.team;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +13,7 @@ import peer.backend.dto.board.team.BoardCreateRequest;
 import peer.backend.dto.board.team.BoardUpdateRequest;
 import peer.backend.dto.board.team.PostCreateRequest;
 import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.enums.BoardType;
@@ -82,6 +87,23 @@ public class BoardService {
             throw new ForbiddenException("팀 멤버가 아닙니다.");
         }
 
+    }
+
+    @Transactional
+    public List<SimpleBoardRes> getSimpleBoards(Long teamId, Authentication auth) {
+        User user = User.authenticationToUser(auth);
+        List<SimpleBoardRes> boards = boardRepository.findByTeamId(teamId)
+                .stream()
+                .map(board -> new SimpleBoardRes(board.getId(), board.getName()))
+                .collect(Collectors.toList());
+
+        return boards;
+    }
+
+    @Transactional
+    public Board getBoardById(Long boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
     }
 
 
