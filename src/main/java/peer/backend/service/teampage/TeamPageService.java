@@ -15,8 +15,8 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.BoardRepository;
-import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.board.team.PostRepository;
+import peer.backend.repository.team.TeamUserRepository;
 
 
 @Service
@@ -29,6 +29,14 @@ public class TeamPageService {
     @Transactional
     public Page<PostRes> getPostsByBoardId(Long boardId, Pageable pageable) {
         return postRepository.findPostsByBoardOrderByIdDesc(boardId, pageable)
+                .map(post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
+                        post.getCreatedAt()));
+    }
+
+
+    @Transactional
+    public Page<PostRes> getPostsByBoardIdWithKeyword(Long boardId, Pageable pageable, String keyword) {
+        return postRepository.findByBoardIdAndTitleOrContentContaining(boardId, keyword, pageable)
                 .map(post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
                         post.getCreatedAt()));
     }
@@ -52,4 +60,5 @@ public class TeamPageService {
         System.out.println(post);
         return postRepository.save(post);
     }
+
 }

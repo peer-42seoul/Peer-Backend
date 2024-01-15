@@ -1,5 +1,6 @@
 package peer.backend.repository.board.team;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "SELECT * FROM post WHERE board_id = :boardId ORDER BY id DESC",
             nativeQuery = true)
     Page<Post> findPostsByBoardOrderByIdDesc(Long boardId, Pageable pageable);
+
+
+    @Query("SELECT p FROM Post p WHERE p.board.id = :boardId AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword%)")
+    Page<Post> findByBoardIdAndTitleOrContentContaining(Long boardId, String keyword, Pageable pageable);
 }
