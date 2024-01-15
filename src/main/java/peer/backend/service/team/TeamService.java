@@ -471,4 +471,16 @@ public class TeamService {
         return this.teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 Id 입니다."));
     }
+
+    @Transactional
+    public void disperseTeam(User user, Long teamId) {
+        if (!this.isLeader(teamId, user)) {
+            throw new ForbiddenException("팀의 리더만 팀을 해산 할 수 있습니다!");
+        }
+        Team team = this.getTeamByTeamId(teamId);
+        if (team.getStatus().equals(TeamStatus.RECRUITING)) {
+            throw new ConflictException("팀이 모집 중 상태일 경우 팀을 해산 할 수 없습니다!");
+        }
+        team.setStatus(TeamStatus.DISPERSE);
+    }
 }

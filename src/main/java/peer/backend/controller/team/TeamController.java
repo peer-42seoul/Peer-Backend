@@ -164,4 +164,12 @@ public class TeamController {
         this.teamService.quitTeam(user, request.getTeamId());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/setting/disperse")
+    public ResponseEntity<Void> disperseTeam(@RequestBody @Valid TeamIdRequest request,
+        Authentication auth) {
+        User user = User.authenticationToUser(auth);
+        this.teamService.disperseTeam(user, request.getTeamId());
+        return ResponseEntity.ok().build();
+    }
 }
