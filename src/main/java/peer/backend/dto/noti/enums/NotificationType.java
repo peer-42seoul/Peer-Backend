@@ -11,5 +11,5 @@ public enum NotificationType {
     TEAM("TEAM"),
     SYSTEM("SYSTEM");
 
-    private final String notifiactionType;
+    private final String value;
 }

@@ -1,5 +1,6 @@
 package peer.backend.repository.team;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import peer.backend.entity.team.TeamUser;
@@ -25,4 +26,7 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     @Query("select t.role from TeamUser t where t.teamId = :teamId and t.userId = :userId")
     TeamUserRoleType findTeamUserRoleTypeByTeamIdAndUserId(Long teamId, Long userId);
+
+    @Query("select t from TeamUser t where t.teamId IN :ids")
+    List<TeamUser> findByIdIn(@Param("ids") List<Long> ids);
 }

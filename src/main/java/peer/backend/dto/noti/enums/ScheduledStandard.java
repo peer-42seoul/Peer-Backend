@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum MessageType {
-    SYSTEM("SYSTEM"),
-    MESSAGE("MESSAGE"),
-    TEAM("TEAM");
+public enum ScheduledStandard {
+    BEFORE("BEFORE"),
+    AFTER("AFTER");
 
-    private final String messageType;
+    private final String value;
 }

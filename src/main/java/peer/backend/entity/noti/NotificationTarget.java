@@ -1,20 +1,19 @@
 package peer.backend.entity.noti;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notification_target")
-public class NotificationTarget {
+public class NotificationTarget extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -50,5 +49,6 @@ public class NotificationTarget {
         this.teamOK = user.isTeamAlarm();
         this.messageOk = user.isMessageAlarm();
         this.nightOk = user.isNightAlarm();
+        this.userId = user.getId();
     }
 }
