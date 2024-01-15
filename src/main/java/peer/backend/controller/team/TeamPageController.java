@@ -9,13 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import peer.backend.dto.board.team.PostCreateRequest;
 import peer.backend.dto.team.BoardRes;
 import peer.backend.dto.team.PostRes;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
-import peer.backend.repository.board.team.BoardRepository;
 import peer.backend.service.board.team.BoardService;
 import peer.backend.service.teampage.TeamPageService;
 
@@ -46,5 +48,12 @@ public class TeamPageController {
                                                                    Authentication auth) {
         List<SimpleBoardRes> boards = boardService.getSimpleBoards(teamId, auth);
         return ResponseEntity.ok(boards);
+    }
+
+    @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판에 일반 작성 글 게시.")
+    @PostMapping("/posts/create")
+    public ResponseEntity createGeneralPost(@RequestBody PostCreateRequest postCreateRequest, Authentication auth) {
+        teamPageService.createGeneralPost(postCreateRequest, auth);
+        return ResponseEntity.ok().build();
     }
 }
