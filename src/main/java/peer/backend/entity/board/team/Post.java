@@ -57,6 +57,10 @@ public class Post extends BaseEntity{
         this.liked += 1;
     }
 
+    public void increaseHit() {
+        this.hit += 1;
+    }
+
     public void decreaseLike() {
         if (this.liked == 0)
             return ;

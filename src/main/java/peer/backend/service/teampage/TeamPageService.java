@@ -15,8 +15,8 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.BoardRepository;
-import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.board.team.PostRepository;
+import peer.backend.repository.team.TeamUserRepository;
 
 
 @Service
@@ -29,6 +29,14 @@ public class TeamPageService {
     @Transactional
     public Page<PostRes> getPostsByBoardId(Long boardId, Pageable pageable) {
         return postRepository.findPostsByBoardOrderByIdDesc(boardId, pageable)
+                .map(post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
+                        post.getCreatedAt()));
+    }
+
+
+    @Transactional
+    public Page<PostRes> getPostsByBoardIdWithKeyword(Long boardId, Pageable pageable, String keyword) {
+        return postRepository.findByBoardIdAndTitleOrContentContaining(boardId, keyword, pageable)
                 .map(post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
                         post.getCreatedAt()));
     }
@@ -49,7 +57,16 @@ public class TeamPageService {
                 .hit(0)
                 .user(user)
                 .image(request.getImage()).build();
-        System.out.println(post);
         return postRepository.save(post);
     }
+
+    @Transactional
+    public Post getPostById(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new NotFoundException("존재하지 않는 게시글입니다."));
+        post.increaseHit();
+        return postRepository.save(post);
+
+    }
+
 }
