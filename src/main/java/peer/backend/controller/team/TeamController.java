@@ -172,4 +172,12 @@ public class TeamController {
         this.teamService.disperseTeam(user, request.getTeamId());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/setting/finish")
+    public ResponseEntity<Void> finishTeam(@RequestBody @Valid TeamIdRequest request,
+        Authentication auth) {
+        User user = User.authenticationToUser(auth);
+        this.teamService.finishTeam(user, request.getTeamId());
+        return ResponseEntity.ok().build();
+    }
 }
