@@ -63,7 +63,6 @@ public class TeamPageController {
     @GetMapping("/post/{postId}")
     public ResponseEntity<PostRes> getPost(@PathVariable("postId") Long postId) {
         Post post = teamPageService.getPostById(postId);
-        System.out.println(post);
         PostRes res = new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
                 post.getCreatedAt());
         return ResponseEntity.ok(res);
