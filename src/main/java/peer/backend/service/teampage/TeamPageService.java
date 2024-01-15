@@ -57,7 +57,6 @@ public class TeamPageService {
                 .hit(0)
                 .user(user)
                 .image(request.getImage()).build();
-        System.out.println(post);
         return postRepository.save(post);
     }
 
