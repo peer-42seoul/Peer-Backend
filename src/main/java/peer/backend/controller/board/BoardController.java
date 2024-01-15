@@ -33,13 +33,13 @@ public class BoardController {
 
     @PutMapping("/{boardId}")
     public void updateBoard(@PathVariable("boardId") Long boardId,
-        @RequestBody BoardUpdateRequest request, Authentication auth) {
+                            @RequestBody BoardUpdateRequest request, Authentication auth) {
         boardService.updateBoard(boardId, request, auth);
     }
 
     @PutMapping("/post/{postId}")
     public void updatePost(@PathVariable("postId") Long postId,
-        @RequestBody PostUpdateRequest request, Authentication auth) {
+                           @RequestBody PostUpdateRequest request, Authentication auth) {
         boardService.updatePost(postId, request, auth);
     }
 
