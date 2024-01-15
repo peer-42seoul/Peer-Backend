@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
@@ -387,53 +386,52 @@ public class TeamService {
     }
 
     @Transactional
-    public ResponseEntity<Object> updateTeamJob(TeamJobUpdateDto request, Authentication auth) {
-        User user = User.authenticationToUser(auth);
-
-        request.getJob().forEach(j -> {
-                TeamJob teamJob = teamJobRepository.findById(j.getId())
-                    .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
-                Team team = teamJob.getTeam();
-                if (team.getType().equals(TeamType.STUDY)) {
-                    throw new BadRequestException("스터디는 역할을 수정할 수 없습니다.");
-                }
-                if (!isLeader(team.getId(), user)) {
-                    throw new ForbiddenException("리더가 아닙니다.");
-                }
-                teamJob.update(j);
-            }
-        );
+    public ResponseEntity<Object> updateTeamJob(TeamJobUpdateDto request, User user) {
+        TeamJob teamJob = teamJobRepository.findById(request.getJob().getId())
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
+        Team team = teamJob.getTeam();
+        if (team.getType().equals(TeamType.STUDY)) {
+            throw new BadRequestException("스터디는 역할을 수정할 수 없습니다.");
+        }
+        if (!isLeader(team.getId(), user)) {
+            throw new ForbiddenException("팀의 리더만 역할을 수정할 수 있습니다.");
+        }
+        if (teamJobRepository.existsByTeamIdAndName(team.getId(), request.getJob().getName())) {
+            throw new ConflictException("이미 존재하는 역할 이름 입니다.");
+        }
+        if (teamJob.getCurrent() > request.getJob().getMax()) {
+            throw new ConflictException("최대 인원 수가 현재 배정된 인원 수 보다 작습니다!");
+        }
+        teamJob.update(request.getJob());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Transactional
     public ResponseEntity<Object> createTeamJob(Long teamId, TeamJobCreateRequest request,
-        Authentication auth) {
-        User user = User.authenticationToUser(auth);
+        User user) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (team.getType().equals(TeamType.STUDY)) {
             throw new BadRequestException("스터디에는 역할을 추가할 수 없습니다.");
         }
         if (teamJobRepository.existsByTeamIdAndName(teamId, request.getJob().getName())) {
-            throw new ConflictException("이미 있는 역할입니다.");
+            throw new ConflictException("이미 존재하는 역할 이름 입니다.");
         }
         if (!isLeader(teamId, user)) {
-            throw new ForbiddenException("리더가 아닙니다.");
+            throw new ForbiddenException("팀의 리더만 역할을 추가할 수 있습니다.");
         }
         team.addRole(request.getJob());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<Object> deleteTeamJob(Long jobId, Authentication auth) {
-        User user = User.authenticationToUser(auth);
+    public ResponseEntity<Object> deleteTeamJob(Long jobId, User user) {
         TeamJob teamJob = teamJobRepository.findById(jobId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
         if (teamJob.getTeam().getType().equals(TeamType.STUDY)) {
             throw new BadRequestException("스터디는 역할을 수정할 수 없니다.");
         }
-        if (!Objects.isNull(teamJob.getTeamUserJobs()) && !teamJob.getTeamUserJobs().isEmpty()) {
+        if (Objects.nonNull(teamJob.getTeamUserJobs()) && !teamJob.getTeamUserJobs().isEmpty()) {
             throw new ConflictException("역할에 이미 배정된 인원이 있습니다.");
         }
         if (!isLeader(teamJob.getTeam().getId(), user)) {

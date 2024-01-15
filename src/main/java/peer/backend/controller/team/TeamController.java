@@ -140,21 +140,24 @@ public class TeamController {
         return this.teamService.getTeamMemberList(teamId, user);
     }
 
-    @PutMapping("/setting/change")
-    public ResponseEntity<Object> updateTeamJobSetting(@RequestBody TeamJobUpdateDto job,
+    @PutMapping("/setting/job/change")
+    public ResponseEntity<Object> updateTeamJobSetting(@RequestBody @Valid TeamJobUpdateDto job,
         Authentication auth) {
-        return teamService.updateTeamJob(job, auth);
+        User user = User.authenticationToUser(auth);
+        return teamService.updateTeamJob(job, user);
     }
 
     @PostMapping("/setting/job/add/{teamId}")
     public ResponseEntity<Object> createTeamJob(@PathVariable Long teamId,
-        @RequestBody TeamJobCreateRequest job, Authentication auth) {
-        return teamService.createTeamJob(teamId, job, auth);
+        @RequestBody @Valid TeamJobCreateRequest job, Authentication auth) {
+        User user = User.authenticationToUser(auth);
+        return teamService.createTeamJob(teamId, job, user);
     }
 
     @DeleteMapping("/setting/job/delete/{jobId}")
     public ResponseEntity<Object> deleteTeamJob(@PathVariable Long jobId, Authentication auth) {
-        return teamService.deleteTeamJob(jobId, auth);
+        User user = User.authenticationToUser(auth);
+        return teamService.deleteTeamJob(jobId, user);
     }
 
     @PostMapping("/setting/quit")
