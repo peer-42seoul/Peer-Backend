@@ -46,6 +46,12 @@ public class Post extends BaseEntity{
     private String image;
     private int liked;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<PostFile> files;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<PostLink> links;
+
     public void update(PostUpdateRequest request){
         this.title = request.getTitle();
         this.content = request.getContent();

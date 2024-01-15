@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.ShowcaseListResponse;
+import peer.backend.dto.board.team.ShowcaseResponse;
 import peer.backend.service.board.team.ShowcaseService;
 
 @RestController
@@ -30,6 +31,11 @@ public class ShowcaseController {
     @PostMapping("like/{id}")
     public int doLike(@PathVariable Long id, Authentication auth){
         return showcaseService.doLike(id, auth);
+    }
+
+    @GetMapping("/{showcaseId}")
+    public ShowcaseResponse getShowcase(@PathVariable Long showcaseId, Authentication auth){
+        showcaseService.getShowcase(showcaseId, auth);
     }
 
 }

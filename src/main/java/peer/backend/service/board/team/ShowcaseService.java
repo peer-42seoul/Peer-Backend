@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.board.team.ShowcaseListResponse;
+import peer.backend.dto.board.team.ShowcaseResponse;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.board.team.enums.BoardType;
@@ -19,6 +20,7 @@ import peer.backend.entity.board.team.enums.PostLikeType;
 import peer.backend.entity.composite.PostLikePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.User;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.PostLikeRepository;
 import peer.backend.repository.board.team.PostRepository;
@@ -112,5 +114,27 @@ public class ShowcaseService {
             showcase.increaseLike();
             return showcase.getLiked();
         }
+    }
+
+    public
+
+    @Transactional
+    public ShowcaseResponse getShowcase(Long showcaseId, Authentication auth){
+        Post showcase = postRepository.findById(showcaseId).orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
+        if (!showcase.getBoard().getType().equals(BoardType.SHOWCASE))
+            throw new IllegalArgumentException("쇼케이스 게시물이 아닙니다.");
+        User user = User.authenticationToUser(auth)
+        Team team = showcase.getBoard().getTeam();
+        return ShowcaseResponse.builder()
+                .content(showcase.getContent())
+                .image(showcase.getImage())
+                .start(team.getCreatedAt())
+                .end(team.getEnd())
+                .likeCount(showcase.getLiked())
+                .liked(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE)).isPresent())
+                .favorite(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE)).isPresent())
+                .author(user.getId().equals(showcase.getUser().getId()))
+                .
+
     }
 }
