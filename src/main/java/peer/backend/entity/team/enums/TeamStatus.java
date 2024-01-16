@@ -11,7 +11,8 @@ public enum TeamStatus {
     RECRUITING("RECRUITING"),
     BEFORE("BEFORE"),
     ONGOING("ONGOING"),
-    COMPLETE("COMPLETE");
+    COMPLETE("COMPLETE"),
+    DISPERSE("DISPERSE");
 
     private final String value;
 

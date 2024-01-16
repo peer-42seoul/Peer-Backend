@@ -1,6 +1,20 @@
 package peer.backend.service.board.recruit;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,7 +23,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
-import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.board.recruit.ApplyRecruitRequest;
+import peer.backend.dto.board.recruit.RecruitCreateRequest;
+import peer.backend.dto.board.recruit.RecruitInterviewDto;
+import peer.backend.dto.board.recruit.RecruitListRequest;
+import peer.backend.dto.board.recruit.RecruitListResponse;
+import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
@@ -23,11 +44,16 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
-import peer.backend.entity.team.enums.*;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
-import peer.backend.exception.*;
+import peer.backend.exception.BadRequestException;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
@@ -35,18 +61,9 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
+import peer.backend.service.TeamUserService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +79,7 @@ public class RecruitService {
     private final TeamUserRepository teamUserRepository;
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
+    private final TeamUserService teamUserService;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -72,20 +90,22 @@ public class RecruitService {
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
-    public void changeRecruitFavorite(Authentication auth, Long recruitId, RecruitFavoriteEnum type) {
+    public void changeRecruitFavorite(Authentication auth, Long recruitId,
+        RecruitFavoriteEnum type) {
         User user = User.authenticationToUser(auth);
-        if (!recruitRepository.existsById(recruitId))
+        if (!recruitRepository.existsById(recruitId)) {
             throw new NotFoundException("존재하지 않는 모집글입니다.");
+        }
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
             .ifPresentOrElse(
-                    favorite -> {
-                        if (favorite.getType().equals(type)){
-                            recruitFavoriteRepository.delete(favorite);}
-                        else {
-                            favorite.setType(type);
-                            recruitFavoriteRepository.save(favorite);
-                        }
-                    },
+                favorite -> {
+                    if (favorite.getType().equals(type)) {
+                        recruitFavoriteRepository.delete(favorite);
+                    } else {
+                        favorite.setType(type);
+                        recruitFavoriteRepository.save(favorite);
+                    }
+                },
                 () -> {
                     RecruitFavorite newFavorite = new RecruitFavorite();
                     newFavorite.setUserId(user.getId());
@@ -193,10 +213,10 @@ public class RecruitService {
                 this.tagService.recruitTagListToTagResponseList(recruit2.getRecruitTags()),
                 recruit2.getId(),
                 ((auth != null) &&
-                        (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
-                                User.authenticationToUser(auth).getId(),
-                                recruit2.getId(),
-                                RecruitFavoriteEnum.LIKE)))))
+                    (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                        User.authenticationToUser(auth).getId(),
+                        recruit2.getId(),
+                        RecruitFavoriteEnum.LIKE)))))
             .collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -242,10 +262,10 @@ public class RecruitService {
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
             .isFavorite((auth != null) &&
-                    recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
-                            User.authenticationToUser(auth).getId(),
-                            recruit_id,
-                            RecruitFavoriteEnum.LIKE)
+                recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                    User.authenticationToUser(auth).getId(),
+                    recruit_id,
+                    RecruitFavoriteEnum.LIKE)
             )
             .build();
     }
@@ -366,32 +386,36 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
-        if (user.getId().equals(recruit.getWriterId()))
+        if (user.getId().equals(recruit.getWriterId())) {
             throw new BadRequestException("모집글 작성자는 팀에 지원할 수 없습니다.");
+        }
         Team team = recruit.getTeam();
 
         TeamJob teamJob = teamJobRepository.findByTeamIdAndName(recruit_id, request.getRole())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
-        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(user.getId(), team.getId());
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
+
+        TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(user.getId(),
+            team.getId()).orElse(null);
 
         if (Objects.isNull(teamUser)) {
             teamUser = TeamUser.builder()
-                    .teamId(team.getId())
-                    .userId(user.getId())
-                    .role(TeamUserRoleType.MEMBER)
-                    .status(TeamUserStatus.PENDING)
-                    .build();
+                .teamId(team.getId())
+                .userId(user.getId())
+                .role(TeamUserRoleType.MEMBER)
+                .status(TeamUserStatus.PENDING)
+                .build();
             teamUserRepository.save(teamUser);
-        } else if (teamUserJobRepository.existsById(new TeamUserJobPK(teamUser.getId(), teamJob.getId()))) {
+        } else if (teamUserJobRepository.existsById(
+            new TeamUserJobPK(teamUser.getId(), teamJob.getId()))) {
             throw new ConflictException("이미 지원하였습니다.");
         }
 
         teamUser.addTeamUserJob(TeamUserJob.builder()
-                .teamJobId(teamJob.getId())
-                .teamUserId(teamUser.getId())
-                .status(TeamUserStatus.PENDING)
-                .answers(request.getAnswerList())
-                .build());
+            .teamJobId(teamJob.getId())
+            .teamUserId(teamUser.getId())
+            .status(TeamUserStatus.PENDING)
+            .answers(request.getAnswerList())
+            .build());
     }
 
     @Transactional
