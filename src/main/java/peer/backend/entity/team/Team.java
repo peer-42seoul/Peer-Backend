@@ -20,6 +20,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,6 +29,7 @@ import java.util.List;
 @Table(name = "team")
 @EqualsAndHashCode(callSuper = false)
 public class Team extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -114,8 +116,9 @@ public class Team extends BaseEntity {
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
         jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty())
+        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
             request.getRoleList().forEach(this::addRole);
+        }
     }
 
     public void addRole(TeamJobDto role) {
@@ -123,10 +126,10 @@ public class Team extends BaseEntity {
             this.jobs = new ArrayList<>();
         }
         this.jobs.add(TeamJob.builder()
-                .name(role.getName())
-                .max(role.getNumber())
-                .team(this)
-                .build());
+            .name(role.getName())
+            .max(role.getNumber())
+            .team(this)
+            .build());
     }
 
     public void addRole(TeamJobRequestDto role) {
@@ -134,10 +137,10 @@ public class Team extends BaseEntity {
             this.jobs = new ArrayList<>();
         }
         this.jobs.add(TeamJob.builder()
-                .name(role.getName())
-                .max(role.getMax())
-                .team(this)
-                .build());
+            .name(role.getName())
+            .max(role.getMax())
+            .team(this)
+            .build());
     }
 
 
@@ -155,7 +158,7 @@ public class Team extends BaseEntity {
     }
 
     public void grantLeaderPermission(Long grantingUserId, TeamUserRoleType teamUserRoleType) {
-        for (TeamUser teamUser: this.teamUsers) {
+        for (TeamUser teamUser : this.teamUsers) {
             if (teamUser.getUserId().equals(grantingUserId)) {
                 teamUser.grantLeader(teamUserRoleType);
             }

@@ -1,12 +1,13 @@
 package peer.backend.dto.team;
 
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
 public class TeamJobUpdateDto {
-    List<TeamJobRequestDto> job;
+
+    @NotNull
+    private TeamJobRequestDto job;
 }
