@@ -16,6 +16,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findPostsByBoardOrderByIdDesc(Long boardId, Pageable pageable);
 
 
-    @Query("SELECT p FROM Post p WHERE p.board.id = :boardId AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword%)")
+    @Query("SELECT p FROM Post p WHERE p.board.id = :boardId AND (p.title LIKE CONCAT('%', :keyword, '%') OR p.content LIKE CONCAT('%', :keyword, '%'))")
     Page<Post> findByBoardIdAndTitleOrContentContaining(Long boardId, String keyword, Pageable pageable);
 }
