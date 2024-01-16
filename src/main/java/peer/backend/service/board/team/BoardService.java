@@ -64,7 +64,7 @@ public class BoardService {
         Board board = boardRepository.findById(request.getBoardId()).orElseThrow(
             () -> new NotFoundException("존재하지 않는 게시판입니다."));
         Team team = board.getTeam();
-        if (board.getType().equals(BoardType.NOTICE) && !teamService.isLeader(team.getId(), user)) {
+        if (!teamService.isLeader(team.getId(), user)) {
             throw new ForbiddenException("팀 리더가 아닙니다.");
         }
         Post post = Post.builder()

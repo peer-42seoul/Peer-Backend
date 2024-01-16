@@ -2,6 +2,8 @@ package peer.backend.dto.user;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.user.User;
 
 import java.util.List;
 
@@ -10,5 +12,12 @@ import java.util.List;
 public class UserShowcaseResponse {
     private String image;
     private String nickname;
-    private List<String> role;
+    private String role;
+
+    public UserShowcaseResponse(TeamUser teamUser){
+        User user = teamUser.getUser();
+        this.image = user.getImageUrl();
+        this.nickname = user.getNickname();
+        this.role = teamUser.getTeamUserJobs().get(0).getTeamJob().getName();
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.ShowcaseListResponse;
 import peer.backend.dto.board.team.ShowcaseResponse;
+import peer.backend.dto.board.team.ShowcaseWriteResponse;
 import peer.backend.service.board.team.ShowcaseService;
 
 @RestController
@@ -28,14 +29,19 @@ public class ShowcaseController {
         return showcaseService.doFavorite(id, auth);
     }
 
-    @PostMapping("like/{id}")
+    @PostMapping("/like/{id}")
     public int doLike(@PathVariable Long id, Authentication auth){
         return showcaseService.doLike(id, auth);
     }
 
     @GetMapping("/{showcaseId}")
     public ShowcaseResponse getShowcase(@PathVariable Long showcaseId, Authentication auth){
-        showcaseService.getShowcase(showcaseId, auth);
+        return showcaseService.getShowcase(showcaseId, auth);
+    }
+
+    @GetMapping("/{teamId}")
+    public ShowcaseWriteResponse getTeamInfoForCreateShowcase(@PathVariable Long teamId, Authentication auth){
+        return showcaseService.getTeamInfoForCreateShowcase(teamId, auth);
     }
 
 }
