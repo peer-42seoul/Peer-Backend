@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,7 +35,8 @@ public class TeamPageController {
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 글 목록을 가져옵니다.")
     @GetMapping("/posts/{boardId}")
     public ResponseEntity<BoardRes> getPosts(@PathVariable("boardId") Long boardId, Pageable pageable) {
-        Page<PostRes> postsPage = teamPageService.getPostsByBoardId(boardId, pageable);
+        Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
+        Page<PostRes> postsPage = teamPageService.getPostsByBoardId(boardId, pageReq);
 
         if (!postsPage.isEmpty()) {
             Board board = boardService.getBoardById(boardId);
@@ -48,7 +50,8 @@ public class TeamPageController {
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판에 검색된 글 목록을 가져옵니다.")
     @GetMapping("/posts/search/{boardId}")
     public ResponseEntity<BoardRes> getPostsByKeyword(@PathVariable("boardId") Long boardId, Pageable pageable, @RequestParam(value = "keyword") String keyword) {
-        Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(boardId, pageable, keyword);
+        Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
+        Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(boardId, pageReq, keyword);
 
         if (!postsPage.isEmpty()) {
             Board board = boardService.getBoardById(boardId);
