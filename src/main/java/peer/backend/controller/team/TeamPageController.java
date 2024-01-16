@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.board.team.PostCreateRequest;
 import peer.backend.dto.team.BoardRes;
+import peer.backend.dto.team.PostDetail;
 import peer.backend.dto.team.PostRes;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
@@ -49,7 +50,8 @@ public class TeamPageController {
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판에 검색된 글 목록을 가져옵니다.")
     @GetMapping("/posts/search/{boardId}")
-    public ResponseEntity<BoardRes> getPostsByKeyword(@PathVariable("boardId") Long boardId, Pageable pageable, @RequestParam(value = "keyword") String keyword) {
+    public ResponseEntity<BoardRes> getPostsByKeyword(@PathVariable("boardId") Long boardId, Pageable pageable,
+                                                      @RequestParam(value = "keyword") String keyword) {
         Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(boardId, pageReq, keyword);
 
@@ -64,10 +66,10 @@ public class TeamPageController {
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 특정 글을 가져옵니다.")
     @GetMapping("/post/{postId}")
-    public ResponseEntity<PostRes> getPost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<PostDetail> getPost(@PathVariable("postId") Long postId) {
         Post post = teamPageService.getPostById(postId);
-        PostRes res = new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
-                post.getCreatedAt());
+        PostDetail res = new PostDetail(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getContent(),
+                post.getHit(), post.getCreatedAt());
         return ResponseEntity.ok(res);
     }
 
