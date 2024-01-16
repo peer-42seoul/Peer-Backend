@@ -71,7 +71,7 @@ public class Team extends BaseEntity {
 
     @Column(nullable = false)
     private Integer maxMember;
-    ;
+
     @Column(length = 10)
     private String region1;
 
