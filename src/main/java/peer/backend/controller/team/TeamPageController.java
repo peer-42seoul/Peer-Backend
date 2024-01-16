@@ -40,7 +40,6 @@ public class TeamPageController {
         Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(boardId, pageReq, keyword);
 
         if (!postsPage.isEmpty()) {
-            Board board = boardService.getBoardById(boardId);
             return ResponseEntity.ok(postsPage);
         } else {
             return ResponseEntity.notFound().build();
