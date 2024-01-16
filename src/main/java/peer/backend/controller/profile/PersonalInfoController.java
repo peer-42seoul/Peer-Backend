@@ -1,6 +1,8 @@
 package peer.backend.controller.profile;
 
 import io.swagger.annotations.ApiOperation;
+import java.util.HashMap;
+import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import peer.backend.dto.profile.request.ChangePasswordRequest;
 import peer.backend.dto.profile.request.PasswordRequest;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
@@ -34,19 +37,31 @@ public class PersonalInfoController {
     }
 
     @PostMapping("/check-password")
-    public ResponseEntity<Void> checkPassword(@RequestBody @Valid PasswordRequest request,
+    public ResponseEntity<Map<String, String>> checkPassword(
+        @RequestBody @Valid PasswordRequest request,
         Authentication auth) {
+        final int PASSWORD_CHANGE_CODE_EXPIRATION_MINUTE = 5;
         User user = User.authenticationToUser(auth);
+
         if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
             throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
         }
-        return ResponseEntity.ok().build();
+
+        String uuid = this.personalInfoService.getChangePasswordCode(user.getId());
+
+        HashMap<String, String> body = new HashMap<>();
+        body.put("code", uuid);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@RequestBody @Valid PasswordRequest request,
+    public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request,
         Authentication auth) {
         User user = User.authenticationToUser(auth);
+        if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
+            throw new ForbiddenException("유효하지 않은 코드입니다!");
+        }
         if (this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
             throw new ConflictException("현재 비밀번호와 일치합니다!");
         }

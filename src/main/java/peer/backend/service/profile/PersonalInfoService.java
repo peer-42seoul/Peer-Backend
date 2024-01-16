@@ -1,7 +1,11 @@
 package peer.backend.service.profile;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,9 @@ public class PersonalInfoService {
     private final SocialLoginRepository socialLoginRepository;
     private final SocialLoginService socialLoginService;
     private final BCryptPasswordEncoder encoder;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    final String CHANGE_PASSWORD_KEY = "chagePasswordKey: ";
 
     @Transactional(readOnly = true)
     public PersonalInfoResponse getPersonalInfo(Authentication auth) {
@@ -54,5 +61,27 @@ public class PersonalInfoService {
     public void changePassword(User user, String password) {
         user.setPassword(encoder.encode(password));
         this.userRepository.save(user);
+    }
+
+    public String getChangePasswordCode(Long userId) {
+        final int CHANGE_PASSWORD_CODE_EXPIRATION_MINUTE = 5;
+        UUID uuid = UUID.randomUUID();
+
+        this.redisTemplate.opsForValue()
+            .set(CHANGE_PASSWORD_KEY + userId.toString(),
+                uuid.toString(),
+                CHANGE_PASSWORD_CODE_EXPIRATION_MINUTE,
+                TimeUnit.MINUTES);
+
+        return uuid.toString();
+    }
+
+    public boolean checkChangePasswordCode(Long userId, String code) {
+        String savedCode = this.redisTemplate.opsForValue()
+            .get(CHANGE_PASSWORD_KEY + userId.toString());
+        if (Objects.isNull(savedCode)) {
+            return false;
+        }
+        return savedCode.equals(code);
     }
 }
