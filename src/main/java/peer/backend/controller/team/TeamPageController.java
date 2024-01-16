@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.board.team.PostCreateRequest;
-import peer.backend.dto.team.BoardRes;
 import peer.backend.dto.team.PostDetail;
 import peer.backend.dto.team.PostRes;
 import peer.backend.dto.team.SimpleBoardRes;
@@ -33,21 +32,6 @@ public class TeamPageController {
     private final BoardService boardService;
     public static final String TEAM_URL = "/api/v1/team-page";
 
-//    @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 글 목록을 가져옵니다.")
-//    @GetMapping("/posts/{boardId}")
-//    public ResponseEntity<BoardRes> getPosts(@PathVariable("boardId") Long boardId, Pageable pageable) {
-//        Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
-//        Page<PostRes> postsPage = teamPageService.getPostsByBoardId(boardId, pageReq);
-//
-//        if (!postsPage.isEmpty()) {
-//            Board board = boardService.getBoardById(boardId);
-//            BoardRes res = new BoardRes(board.getId(), board.getName(), postsPage.getContent());
-//            return ResponseEntity.ok(res);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
-
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판에 검색된 글 목록을 가져옵니다.")
     @GetMapping("/posts/{boardId}")
     public ResponseEntity<Page<PostRes>> getPostsByKeyword(@PathVariable("boardId") Long boardId, Pageable pageable,
@@ -57,7 +41,6 @@ public class TeamPageController {
 
         if (!postsPage.isEmpty()) {
             Board board = boardService.getBoardById(boardId);
-//            Page<BoardRes> boardResPage = postsPage.map(post -> new BoardRes(board.getId(), board.getName(), List.of(post)));
             return ResponseEntity.ok(postsPage);
         } else {
             return ResponseEntity.notFound().build();
