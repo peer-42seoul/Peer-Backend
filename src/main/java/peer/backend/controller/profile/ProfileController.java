@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.annotation.CustomSize;
 import peer.backend.annotation.OnlyEngKorNum;
+import peer.backend.dto.profile.SkillDTO;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
 import peer.backend.dto.profile.response.NicknameResponse;
@@ -16,6 +18,7 @@ import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
+import peer.backend.entity.tag.Tag;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
@@ -102,5 +105,19 @@ public class ProfileController {
         @ModelAttribute @Valid EditProfileRequest profile) throws IOException {
         profileService.editProfile(auth, profile, convertBoolean(profile.getImageChange()));
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "", notes = "사용자가 스킬 tag 를 검색한다.")
+    @GetMapping("/skill/search")
+    public ResponseEntity<?> getSkilsList(Authentication auth,
+                                         @RequestParam("keyword") String keyword) {
+        if (keyword.length() > 15 || keyword.length() < 2)
+            return new ResponseEntity<>("검색 가능한 글자 수는 최소 2자부터 최대 15자까지 입니다.", HttpStatus.BAD_REQUEST);
+
+        List<SkillDTO> result = this.profileService.searchTagsWithKeyword(keyword);
+        if (result.isEmpty())
+            return new ResponseEntity<>("태그가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

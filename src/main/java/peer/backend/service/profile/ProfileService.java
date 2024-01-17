@@ -1,26 +1,31 @@
 package peer.backend.service.profile;
 
+import antlr.actions.python.CodeLexer;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import peer.backend.dto.profile.SkillDTO;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.UserLinkResponse;
+import peer.backend.entity.tag.Tag;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.TagRepository;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.file.ObjectService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -29,6 +34,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final UserLinkRepository userLinkRepository;
     private final ObjectService objectService;
+    private final TagRepository tagRepository;
 
     private boolean isFileNotEmpty(MultipartFile imageFile) {
         return imageFile != null && !imageFile.isEmpty();
@@ -130,5 +136,22 @@ public class ProfileService {
         user.setNickname(profile.getNickname());
         user.setIntroduce(profile.getIntroduction());
         userRepository.save(user);
+    }
+
+    public List<SkillDTO> searchTagsWithKeyword(String keyword) {
+        List<Tag> datas = this.tagRepository.findAllByTagName(keyword);
+
+        if (datas.isEmpty())
+            return Collections.emptyList();
+        List<SkillDTO> result = new ArrayList<>();
+        for (Tag data: datas) {
+            SkillDTO element = SkillDTO.builder()
+                    .tagId(data.getId())
+                    .name(data.getName())
+                    .color(data.getColor())
+                    .build();
+            result.add(element);
+        }
+        return result;
     }
 }
