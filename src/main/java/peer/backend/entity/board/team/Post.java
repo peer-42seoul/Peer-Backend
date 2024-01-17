@@ -1,6 +1,7 @@
 package peer.backend.entity.board.team;
 
 import lombok.*;
+import peer.backend.dto.board.team.PostLinkResponse;
 import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
@@ -71,5 +72,17 @@ public class Post extends BaseEntity{
         if (this.liked == 0)
             return ;
         this.liked -= 1;
+    }
+    public void addLinks(List<PostLinkResponse> linkList){
+        if (this.links == null)
+            this.links = new ArrayList<>();
+        if (linkList != null && !linkList.isEmpty())
+            linkList.forEach(link -> this.links.add(new PostLink(link)));
+    }
+
+    public void addFile(String url){
+        if (this.files == null)
+            this.files = new ArrayList<>();
+        files.add(new PostFile(url));
     }
 }
