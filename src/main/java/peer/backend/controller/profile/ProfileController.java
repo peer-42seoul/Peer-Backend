@@ -127,7 +127,7 @@ public class ProfileController {
     public ResponseEntity<?> setSkillList(Authentication auth, @RequestBody() List<Long> ids){
         try {
             this.profileService.setUserSkills(User.authenticationToUser(auth), ids);
-        } catch (Exception e) {
+        } catch (BadRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);

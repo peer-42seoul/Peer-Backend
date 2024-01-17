@@ -157,13 +157,16 @@ public class ProfileService {
         return result;
     }
 
-    public void setUserSkills(User user, List<Long> tagIds) {
+    public void setUserSkills(User user, List<Long> tagIds) throws BadRequestException {
         if (tagIds.isEmpty())
             throw new BadRequestException("비정상적인 요청입니다.");
 
         List<Tag> tags = tagRepository.findAllByIdIn(tagIds);
         if (tags.isEmpty())
             throw new BadRequestException("비정상적인 skill을 선택하셨습니다.");
+        if (tags.size() != tagIds.size()) {
+            throw new BadRequestException("비정상적인 요청입니다.");
+        }
         List<UserSkill> skillList = new ArrayList<UserSkill>();
         for(Tag m : tags) {
             UserSkill hisSkil = UserSkill.builder()
@@ -174,6 +177,6 @@ public class ProfileService {
                     .build();
             skillList.add(hisSkil);
         };
-        skillList = this.userSkillsRepository.saveAll(skillList);
+        this.userSkillsRepository.saveAll(skillList);
     }
 }
