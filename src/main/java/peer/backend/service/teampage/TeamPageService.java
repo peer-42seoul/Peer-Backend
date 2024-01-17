@@ -27,18 +27,20 @@ public class TeamPageService {
     private final TeamUserRepository teamUserRepository;
 
     @Transactional
-    public Page<PostRes> getPostsByBoardId(Long boardId, Pageable pageable) {
-        return postRepository.findPostsByBoardOrderByIdDesc(boardId, pageable)
-                .map(post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
-                        post.getCreatedAt()));
-    }
-
-
-    @Transactional
     public Page<PostRes> getPostsByBoardIdWithKeyword(Long boardId, Pageable pageable, String keyword) {
-        return postRepository.findByBoardIdAndTitleOrContentContaining(boardId, keyword, pageable)
-                .map(post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
-                        post.getCreatedAt()));
+        Page<Post> posts;
+        if (keyword == null) {
+            posts = postRepository.findPostsByBoardOrderByIdDesc(boardId, pageable);
+            return posts.map(
+                    post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
+                            post.getCreatedAt()));
+        } else {
+            posts = postRepository.findByBoardIdAndTitleOrContentContaining(boardId, keyword,
+                    pageable);
+            return posts.map(
+                    post -> new PostRes(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getHit(),
+                            post.getCreatedAt()));
+        }
     }
 
     @Transactional
