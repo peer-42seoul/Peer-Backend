@@ -172,6 +172,18 @@ public class ProfileService {
         if (tagIds.isEmpty())
             throw new BadRequestException("비정상적인 요청입니다.");
 
+        List<UserSkill> earlyList = user.getSkills();
+        if (earlyList.size() + tagIds.size() > 10) {
+            throw new BadRequestException("스킬은 최대 10개까지 지정 가능합니다.");
+        }
+
+        earlyList.forEach(m -> {
+            for(Long id : tagIds) {
+                if (m.getTagId().equals(id))
+                    throw new BadRequestException("중복된 스킬은 입력이 불가능합니다.");
+            }
+        });
+
         List<Tag> tags = tagRepository.findAllByIdIn(tagIds);
         if (tags.isEmpty())
             throw new BadRequestException("비정상적인 skill을 선택하셨습니다.");
