@@ -1,6 +1,5 @@
 package peer.backend.service.profile;
 
-import antlr.actions.python.CodeLexer;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.core.Authentication;
@@ -14,6 +13,7 @@ import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.UserLinkResponse;
 import peer.backend.entity.tag.Tag;
+import peer.backend.entity.tag.UserSkill;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
@@ -21,6 +21,7 @@ import peer.backend.exception.NotFoundException;
 import peer.backend.repository.TagRepository;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.repository.user.UserSkillsRepository;
 import peer.backend.service.file.ObjectService;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class ProfileService {
     private final UserLinkRepository userLinkRepository;
     private final ObjectService objectService;
     private final TagRepository tagRepository;
+    private final UserSkillsRepository userSkillsRepository;
 
     private boolean isFileNotEmpty(MultipartFile imageFile) {
         return imageFile != null && !imageFile.isEmpty();
@@ -153,5 +155,25 @@ public class ProfileService {
             result.add(element);
         }
         return result;
+    }
+
+    public void setUserSkills(User user, List<Long> tagIds) {
+        if (tagIds.isEmpty())
+            throw new BadRequestException("비정상적인 요청입니다.");
+
+        List<Tag> tags = tagRepository.findAllByIdIn(tagIds);
+        if (tags.isEmpty())
+            throw new BadRequestException("비정상적인 skill을 선택하셨습니다.");
+        List<UserSkill> skillList = new ArrayList<UserSkill>();
+        for(Tag m : tags) {
+            UserSkill hisSkil = UserSkill.builder()
+                    .tagId(m.getId())
+                    .userId(user.getId())
+                    .user(user)
+                    .tag(m)
+                    .build();
+            skillList.add(hisSkil);
+        };
+        skillList = this.userSkillsRepository.saveAll(skillList);
     }
 }

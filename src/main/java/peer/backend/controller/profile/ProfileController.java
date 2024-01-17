@@ -19,6 +19,7 @@ import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
 import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.entity.tag.Tag;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
@@ -119,5 +120,16 @@ public class ProfileController {
             return new ResponseEntity<>("태그가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", notes = "사용자가 스킬을 등록한다.")
+    @PutMapping("/skill/regist")
+    public ResponseEntity<?> setSkillList(Authentication auth, @RequestBody() List<Long> ids){
+        try {
+            this.profileService.setUserSkills(User.authenticationToUser(auth), ids);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

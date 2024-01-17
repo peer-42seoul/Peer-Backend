@@ -17,7 +17,7 @@ import javax.persistence.*;
 @Table(name = "user_skills")
 @DynamicUpdate
 @DynamicInsert
-public class UserSkills extends BaseEntity {
+public class UserSkill extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

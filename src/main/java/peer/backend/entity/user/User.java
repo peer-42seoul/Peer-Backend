@@ -31,7 +31,7 @@ import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
-import peer.backend.entity.tag.UserSkills;
+import peer.backend.entity.tag.UserSkill;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
 import peer.backend.oauth.PrincipalDetails;
@@ -127,7 +127,7 @@ public class User extends BaseEntity implements Login {
     private List<PostLike> postLikes;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserSkills> skills;
+    private List<UserSkill> skills;
 
     public static User authenticationToUser(Authentication authentication) {
         return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();

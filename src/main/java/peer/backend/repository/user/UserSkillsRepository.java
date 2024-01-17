@@ -1,7 +1,7 @@
 package peer.backend.repository.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import peer.backend.entity.tag.UserSkills;
+import peer.backend.entity.tag.UserSkill;
 
-public interface UserSkillsRepository extends JpaRepository<UserSkills, Long> {
+public interface UserSkillsRepository extends JpaRepository<UserSkill, Long> {
 }
