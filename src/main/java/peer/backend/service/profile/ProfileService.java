@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.dto.profile.SkillDTO;
@@ -42,7 +43,7 @@ public class ProfileService {
         return imageFile != null && !imageFile.isEmpty();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MyProfileResponse getProfile(Authentication auth) {
         User user = User.authenticationToUser(auth);
         List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
@@ -55,13 +56,21 @@ public class ProfileService {
                     .build();
             links.add(userLink);
         }
+        List<UserSkill> skillList = user.getSkills();
+        List<Long> ids = new ArrayList<>();
+        for (UserSkill skill : skillList) {
+            ids.add(skill.getTagId());
+        }
+        List<SkillDTO> tagList = this.tagRepository.findSkillDTOByIdIn(ids);
         return MyProfileResponse.builder()
+                .id(user.getId())
                 .profileImageUrl(user.getImageUrl())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .association(user.getCompany())
                 .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
                 .linkList(links)
+                .skillList(tagList)
                 .build();
     }
 
@@ -140,6 +149,7 @@ public class ProfileService {
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public List<SkillDTO> searchTagsWithKeyword(String keyword) {
         List<Tag> datas = this.tagRepository.findAllByTagName(keyword);
 
@@ -157,6 +167,7 @@ public class ProfileService {
         return result;
     }
 
+    @Transactional
     public void setUserSkills(User user, List<Long> tagIds) throws BadRequestException {
         if (tagIds.isEmpty())
             throw new BadRequestException("비정상적인 요청입니다.");

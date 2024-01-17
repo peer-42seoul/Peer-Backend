@@ -13,11 +13,8 @@ import peer.backend.annotation.OnlyEngKorNum;
 import peer.backend.dto.profile.SkillDTO;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.LinkListRequest;
-import peer.backend.dto.profile.response.NicknameResponse;
+import peer.backend.dto.profile.response.*;
 import peer.backend.dto.profile.request.UserLinkRequest;
-import peer.backend.dto.profile.response.OtherProfileResponse;
-import peer.backend.dto.profile.response.OtherProfileImageUrlResponse;
-import peer.backend.dto.profile.response.OtherProfileNicknameResponse;
 import peer.backend.entity.tag.Tag;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
@@ -49,8 +46,10 @@ public class ProfileController {
     @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 조회하기")
     @GetMapping("/profile")
     public ResponseEntity<Object> getProfile(Authentication auth) {
-        return new ResponseEntity<>(
-            profileService.getProfile(auth), HttpStatus.OK);
+        MyProfileResponse result = this.profileService.getProfile(auth);
+        if (result == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "닉네임 중복 확인하기.")
