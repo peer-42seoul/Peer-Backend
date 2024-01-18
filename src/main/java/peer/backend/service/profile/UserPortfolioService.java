@@ -9,7 +9,6 @@ import peer.backend.dto.profile.response.PortfolioDTO;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.tag.RecruitTag;
-import peer.backend.entity.tag.Tag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.enums.TeamUserStatus;
@@ -23,14 +22,12 @@ import peer.backend.repository.board.team.PostRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.user.UserPortfolioRepository;
 import peer.backend.repository.user.UserRepository;
-
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserPortfolioService {
-
     private final UserPortfolioRepository userPortfolioRepository;
     private final TeamRepository teamRepository;
     private final PostRepository postRepository;
@@ -142,9 +139,6 @@ public class UserPortfolioService {
 
     @Transactional(readOnly = true)
     public List<PortfolioDTO> getMyPortfolioList(User user, Long page) {
-//        User proxyUser = this.userRepository.findById(user.getId()).get();
-
-//        List<UserPortfolio> targetList = proxyUser.getMyPortfolios();
         List<UserPortfolio> targetList = this.userPortfolioRepository.findByUserId(user.getId());
         if (targetList.isEmpty())
             return Collections.emptyList();
@@ -182,19 +176,6 @@ public class UserPortfolioService {
                 }
             });
         }
-        
-        // TODO: skillList 만들기
-        /**
-         * 1. List<Long> recruitIds 만들기
-         * 2. RecruitTag entity에서 전체 호출 (DB 1회 요청)
-         * -> List<RecruitTag> 생성
-         * -> Set<Long> tagId 모음 생성
-         * 3. Tag Repository에서 findAllBy로 찾아옴(DB 2회 요청)
-         * 4. 전체 DTO 기준으로, List<Recruit Tag> 에 해당 하는 것을 발견,
-         * tagId 를 찾고, List<Tag> 중에 발견하여 DTO 내부 List 에 add
-         */
-
-
         return result;
     }
 }

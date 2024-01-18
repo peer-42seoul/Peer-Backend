@@ -41,7 +41,6 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
-import peer.backend.entity.user.UserPortfolio;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;

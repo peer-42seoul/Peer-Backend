@@ -8,11 +8,9 @@ import org.hibernate.annotations.OnDeleteAction;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.team.Post;
-import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -26,7 +24,7 @@ import java.util.List;
 public class UserPortfolio extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column
     private Long userId;

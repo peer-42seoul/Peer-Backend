@@ -3,19 +3,16 @@ package peer.backend.controller.board;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.ShowcaseCreateDto;
 import peer.backend.dto.board.team.ShowcaseListResponse;
 import peer.backend.dto.board.team.ShowcaseResponse;
 import peer.backend.dto.board.team.ShowcaseWriteResponse;
-import peer.backend.entity.user.UserPortfolio;
 import peer.backend.service.board.team.ShowcaseService;
 import peer.backend.service.profile.UserPortfolioService;
 
 import javax.validation.Valid;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor

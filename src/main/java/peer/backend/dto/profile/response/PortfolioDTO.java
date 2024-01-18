@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import peer.backend.dto.profile.SkillDTO;
-import peer.backend.entity.tag.Tag;
 
 import java.util.List;
 

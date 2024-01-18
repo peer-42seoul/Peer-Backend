@@ -1,7 +1,6 @@
 package peer.backend.repository.board.recruit;
 
 import java.util.List;
-import java.util.Set;
 import javax.transaction.Transactional;
 
 import io.lettuce.core.dynamic.annotation.Param;
