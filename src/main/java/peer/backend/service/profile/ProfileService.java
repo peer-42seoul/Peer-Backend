@@ -48,6 +48,7 @@ public class ProfileService {
         User user = User.authenticationToUser(auth);
         List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
         List<UserLinkResponse> links = new ArrayList<>();
+        List<SkillDTO> tagList = null;
         for (UserLink link : userLinks) {
             UserLinkResponse userLink = UserLinkResponse.builder()
                     .id(link.getId())
@@ -57,11 +58,15 @@ public class ProfileService {
             links.add(userLink);
         }
         List<UserSkill> skillList = user.getSkills();
-        List<Long> ids = new ArrayList<>();
-        for (UserSkill skill : skillList) {
-            ids.add(skill.getTagId());
+        if (skillList != null) {
+            List<Long> ids = new ArrayList<>();
+            for (UserSkill skill : skillList) {
+                ids.add(skill.getTagId());
+            }
+            tagList = this.tagRepository.findSkillDTOByIdIn(ids);
+        } else {
+            tagList = Collections.emptyList();
         }
-        List<SkillDTO> tagList = this.tagRepository.findSkillDTOByIdIn(ids);
         return MyProfileResponse.builder()
                 .id(user.getId())
                 .profileImageUrl(user.getImageUrl())
