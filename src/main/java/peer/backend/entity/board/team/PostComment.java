@@ -1,6 +1,7 @@
 package peer.backend.entity.board.team;
 
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
 
@@ -11,10 +12,10 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostAnswer extends BaseEntity {
+public class PostComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_answer_id")
+    @Column(name = "post_comment_id")
     private Long id;
 
 
@@ -28,5 +29,9 @@ public class PostAnswer extends BaseEntity {
 
     @Lob
     private String content;
+
+    public void update(String comment){
+        this.content = comment;
+    }
 
 }

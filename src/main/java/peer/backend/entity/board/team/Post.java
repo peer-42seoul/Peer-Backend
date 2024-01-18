@@ -33,7 +33,7 @@ public class Post extends BaseEntity{
     private Board board;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<PostAnswer> comments = new ArrayList<>();
+    private List<PostComment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLike> postLike = new ArrayList<>();
@@ -93,7 +93,7 @@ public class Post extends BaseEntity{
     public void addComment(String content, User user){
         if (!Objects.nonNull(this.comments))
             comments = new ArrayList<>();
-        this.comments.add(PostAnswer.builder()
+        this.comments.add(PostComment.builder()
                 .post(this)
                 .user(user)
                 .content(content)

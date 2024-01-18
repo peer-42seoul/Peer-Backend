@@ -9,6 +9,7 @@ import peer.backend.dto.board.team.*;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
+import peer.backend.entity.board.team.PostComment;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamUserStatus;
@@ -17,6 +18,7 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.BoardRepository;
+import peer.backend.repository.board.team.PostAnswerRepository;
 import peer.backend.repository.board.team.PostRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
@@ -37,6 +39,7 @@ public class BoardService {
     private final TeamService teamService;
     private final ObjectService objectService;
     private final TeamUserRepository teamUserRepository;
+    private final PostAnswerRepository postAnswerRepository;
 
     @Transactional
     public void createBoard(BoardCreateRequest request, Authentication auth) {
@@ -178,5 +181,13 @@ public class BoardService {
         post.addComment(request.getContent(), user);
     }
 
-
+    @Transactional
+    public void updateComment(Long commentId,PostCommentUpdateRequest request, Authentication auth){
+        User user = User.authenticationToUser(auth);
+        PostComment comment = postAnswerRepository.findById(commentId)
+                        .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+        if (!user.equals(comment.getUser()))
+            throw new ForbiddenException("작성자가 아닙니다.");
+        comment.update(request.getContent());
+    }
 }
