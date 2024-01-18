@@ -20,6 +20,7 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.service.profile.ProfileService;
+import peer.backend.service.profile.UserPortfolioService;
 
 import javax.persistence.LockModeType;
 import javax.validation.Valid;
@@ -33,6 +34,7 @@ import java.util.List;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final UserPortfolioService userPortfolioService;
 
     private boolean convertBoolean(String boolString) throws BadRequestException{
         if (boolString.equals("TRUE"))
@@ -130,5 +132,26 @@ public class ProfileController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", notes = "사용자가 작업물의 공개 여부를 결정한다.")
+    @GetMapping("/myPortfolio")
+    public ResponseEntity<?> setVisibilityForMyPortfolio(Authentication auth
+            , @RequestParam("visibility") boolean visibility) {
+        try {
+            this.userPortfolioService.setVisibilityForMyPortfolioLogic(User.authenticationToUser(auth), visibility);
+        } catch (BadRequestException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", notes = "내 프로필 페이지에서 사용자의 작업물 리스트를 호출한다.")
+    @GetMapping("myPortfolio/list")
+    public ResponseEntity<?> getMyPortfolioList(Authentication auth, @RequestParam("page") Long number) {
+        List<PortfolioDTO> responseBody = this.userPortfolioService
+                .getMyPortfolioList(User.authenticationToUser(auth), number);
+
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }

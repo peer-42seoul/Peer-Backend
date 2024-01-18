@@ -10,7 +10,9 @@ import peer.backend.dto.board.team.ShowcaseCreateDto;
 import peer.backend.dto.board.team.ShowcaseListResponse;
 import peer.backend.dto.board.team.ShowcaseResponse;
 import peer.backend.dto.board.team.ShowcaseWriteResponse;
+import peer.backend.entity.user.UserPortfolio;
 import peer.backend.service.board.team.ShowcaseService;
+import peer.backend.service.profile.UserPortfolioService;
 
 import javax.validation.Valid;
 import java.util.Objects;
@@ -22,6 +24,7 @@ import java.util.Objects;
 public class ShowcaseController {
 
     private final ShowcaseService showcaseService;
+    private final UserPortfolioService userPortfolioService;
 
     @GetMapping("")
     public Page<ShowcaseListResponse> getShowcaseList(@RequestParam int page, @RequestParam int pageSize, Authentication auth){
@@ -51,7 +54,9 @@ public class ShowcaseController {
 
     @PostMapping("/write")
     public Long createShowcase(@RequestBody @Valid ShowcaseCreateDto request, Authentication auth) {
-        return showcaseService.createShowcase(request, auth);
+        Long result =  showcaseService.createShowcase(request, auth);
+        this.userPortfolioService.setWholeTeamUserWithShowcaseCreation(request.getTeamId(), result);
+        return result;
     }
 
 }
