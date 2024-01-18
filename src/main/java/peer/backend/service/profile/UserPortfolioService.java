@@ -39,6 +39,17 @@ public class UserPortfolioService {
     private final TagRepository tagRepository;
 
     @Transactional
+    public void setTeamLogoPath(Long teamId, String path) {
+        List<UserPortfolio> target = this.userPortfolioRepository.findByTeamId(teamId);
+        if (target.isEmpty())
+            return ;
+        else {
+            target.forEach(m -> m.setTeamLogo(path));
+            this.userPortfolioRepository.saveAll(target);
+        }
+    }
+
+    @Transactional
     public UserPortfolio makeUserPortfolio(User targetUser,
                                            Team targetTeam) {
         Recruit data = targetTeam.getRecruit();
@@ -124,7 +135,10 @@ public class UserPortfolioService {
 
     @Transactional(readOnly = true)
     public List<PortfolioDTO> getMyPortfolioList(User user, Long page) {
-        List<UserPortfolio> targetList = user.getMyPortfolios();
+//        User proxyUser = this.userRepository.findById(user.getId()).get();
+
+//        List<UserPortfolio> targetList = proxyUser.getMyPortfolios();
+        List<UserPortfolio> targetList = this.userPortfolioRepository.findByUserId(user.getId());
         if (targetList.isEmpty())
             return Collections.emptyList();
         List<PortfolioDTO> result = new ArrayList<>();
