@@ -1,6 +1,7 @@
 package peer.backend.service.board.team;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -189,5 +190,23 @@ public class BoardService {
         if (!user.equals(comment.getUser()))
             throw new ForbiddenException("작성자가 아닙니다.");
         comment.update(request.getContent());
+    }
+
+    @Transactional
+    public Page<PostCommentListResponse> getComments(Long postId, int page, int pageSize, Authentication auth){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        User user = User.authenticationToUser(auth);
+
+        boolean isApproved = teamUserRepository.existsByUserIdAndTeamIdAndStatus(
+                user.getId(),
+                post.getBoard().getTeam().getId(),
+                TeamUserStatus.APPROVED
+        );
+        if (!isApproved)
+            throw new ForbiddenException("권한이 없습니다.");
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
+        return comments.map(PostCommentListResponse::new);
     }
 }
