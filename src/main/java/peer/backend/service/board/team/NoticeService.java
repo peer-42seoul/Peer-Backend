@@ -2,15 +2,11 @@ package peer.backend.service.board.team;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import peer.backend.dto.board.team.BoardCreateRequest;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.team.Team;
-import peer.backend.entity.user.User;
-import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.BoardRepository;
 import peer.backend.repository.team.TeamRepository;
