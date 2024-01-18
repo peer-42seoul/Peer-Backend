@@ -181,8 +181,6 @@ public class ShowcaseService {
         User user = User.authenticationToUser(auth);
         if (!teamService.isLeader(team.getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
-        if (!team.getStatus().equals(TeamStatus.COMPLETE))
-            throw new ConflictException("프로젝트가 종료되지 않았습니다.");
         if (postRepository.findByBoardTeamIdAndBoardType(team.getId(), BoardType.SHOWCASE).isPresent())
             throw new ConflictException("이미 쇼케이스가 존재합니다.");
         if (!team.getStatus().equals(TeamStatus.COMPLETE))
