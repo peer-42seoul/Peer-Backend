@@ -177,4 +177,6 @@ public class BoardService {
             throw new ForbiddenException("권한이 없습니다.");
         post.addComment(request.getContent(), user);
     }
+
+
 }

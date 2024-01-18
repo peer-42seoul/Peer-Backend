@@ -52,7 +52,7 @@ public class BoardController {
         boardService.deletePost(postId, auth);
     }
 
-    @PostMapping("/post/answer")
+    @PostMapping("/post/comment")
     public void createComment(@RequestBody PostCommentRequest request, Authentication auth){
         boardService.createComment(request, auth);
     }
