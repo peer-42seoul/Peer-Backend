@@ -1,12 +1,16 @@
 package peer.backend.dto.team;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamUserStatus;
 
 @Getter
 @NoArgsConstructor
+@JsonIgnoreProperties(value = {"approved"})
 public class TeamListResponse {
 
     public TeamListResponse(Team team, TeamUser teamUser, int teamMemberCount) {
@@ -19,6 +23,7 @@ public class TeamListResponse {
         this.teamCount = String.format(teamMemberCount + " / " + team.getMaxMember());
         this.region = team.getRegion1();
         this.operationFormat = team.getOperationFormat().toString();
+        this.isApproved = teamUser.getStatus().equals(TeamUserStatus.APPROVED);
     }
 
     private String id;
@@ -30,5 +35,7 @@ public class TeamListResponse {
     private String teamCount; //"3 / 12"
     private String region;
     private String operationFormat;
+    @JsonProperty("isApproved")
+    private boolean isApproved;
     // TODO: 팀원 권한 추가 예정
 }
