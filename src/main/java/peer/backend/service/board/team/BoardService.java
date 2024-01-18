@@ -166,4 +166,10 @@ public class BoardService {
         }
         postRepository.delete(post);
     }
+
+//    @Transactional
+//    public void createAnswer(Long postId, Authentication auth){
+//        if (postRepository.existsById(postId))
+//            throw new ConflictException("")
+//    }
 }

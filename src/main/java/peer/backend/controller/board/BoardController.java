@@ -53,4 +53,6 @@ public class BoardController {
     public void deletePost(@PathVariable("postId") Long postId, Authentication auth) {
         boardService.deletePost(postId, auth);
     }
+
+//    public void createAnswer(d)
 }
