@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -32,7 +33,7 @@ public class Post extends BaseEntity{
     private Board board;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<PostAnswer> answers = new ArrayList<>();
+    private List<PostAnswer> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLike> postLike = new ArrayList<>();
@@ -87,5 +88,16 @@ public class Post extends BaseEntity{
                 .url(url)
                 .post(this)
                 .build());
+    }
+
+    public void addComment(String content, User user){
+        if (!Objects.nonNull(this.comments))
+            comments = new ArrayList<>();
+        this.comments.add(PostAnswer.builder()
+                .post(this)
+                .user(user)
+                .content(content)
+                .build()
+        );
     }
 }
