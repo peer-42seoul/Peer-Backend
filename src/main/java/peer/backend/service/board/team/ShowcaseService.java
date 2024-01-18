@@ -148,7 +148,7 @@ public class ShowcaseService {
         Team team = showcase.getBoard().getTeam();
         return ShowcaseResponse.builder()
                 .content(showcase.getContent())
-                .image(showcase.getImage())
+                .image(showcase.getFiles().get(0).getUrl())
                 .start(team.getCreatedAt().toString())
                 .end(team.getEnd().toString())
                 .likeCount(showcase.getLiked())
