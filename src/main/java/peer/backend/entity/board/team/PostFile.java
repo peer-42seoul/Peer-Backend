@@ -22,8 +22,4 @@ public class PostFile {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="post_id")
     private Post post;
-
-    public PostFile(String url){
-        this.url = url;
-    }
 }

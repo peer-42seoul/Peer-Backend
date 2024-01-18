@@ -83,6 +83,9 @@ public class Post extends BaseEntity{
     public void addFile(String url){
         if (this.files == null)
             this.files = new ArrayList<>();
-        files.add(new PostFile(url));
+        files.add(PostFile.builder()
+                .url(url)
+                .post(this)
+                .build());
     }
 }
