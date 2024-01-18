@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.*;
-import peer.backend.entity.board.team.PostAnswer;
 import peer.backend.service.board.team.BoardService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,7 +54,14 @@ public class BoardController {
     }
 
     @PostMapping("/post/comment")
-    public void createComment(@RequestBody PostCommentRequest request, Authentication auth){
+    public void createComment(@RequestBody @Valid PostCommentRequest request, Authentication auth){
         boardService.createComment(request, auth);
+    }
+
+    @PutMapping("/post/comment/{commentId}")
+    public void updateComment(@PathVariable Long commentId,
+                              @RequestBody @Valid PostCommentUpdateRequest request,
+                              Authentication auth){
+        boardService.updateComment(commentId, request, auth);
     }
 }
