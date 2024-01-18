@@ -62,7 +62,7 @@ public class UserPortfolio extends BaseEntity {
     private Recruit recruit;// : recruit 타입 객체에 연결되는 용도. fetch.LAZY 전략
 
     @Column
-    private Long showcaseId;
+    private Long showcaseId = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_showcase_id")
@@ -70,8 +70,8 @@ public class UserPortfolio extends BaseEntity {
     private Post post;// : 게시글, 1:N 으로 게시글에 연결되어 있다. fetch.LAZY 전략
 
     @Column
-    private Long peerlogId; // : Long // 일단은 peerlog 기능 전까지는 임시로 존재만한다.
+    private Long peerlogId = 0L; // : Long // 일단은 peerlog 기능 전까지는 임시로 존재만한다.
 
     @Column
-    private boolean visibility;// : boolean, default 는 true다. user 의 속성을 따라 지정된다.
+    private boolean visibility = true;// : boolean, default 는 true다. user 의 속성을 따라 지정된다.
 }

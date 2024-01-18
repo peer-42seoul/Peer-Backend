@@ -32,6 +32,7 @@ import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
+import peer.backend.service.profile.UserPortfolioService;
 import peer.backend.service.team.TeamService;
 
 @Secured("USER_ROLE")
@@ -42,6 +43,7 @@ public class TeamController {
 
     public static final String TEAM_URL = "/api/v1/team";
     private final TeamService teamService;
+    private final UserPortfolioService userPortfolioService;
 
     @ApiOperation(value = "C-MYPAGE-49 ~ 53", notes = "GET-유저가 속한 팀 리스트를 가져옵니다.")
     @GetMapping("/list")
@@ -181,6 +183,11 @@ public class TeamController {
         Authentication auth) {
         User user = User.authenticationToUser(auth);
         this.teamService.finishTeam(user, request.getTeamId());
+        try{
+            this.userPortfolioService.makeWholeTeamUserForPortfolio(request.getTeamId());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok().build();
     }
 }
