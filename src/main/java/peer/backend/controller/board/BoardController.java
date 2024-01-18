@@ -3,11 +3,10 @@ package peer.backend.controller.board;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.board.team.BoardCreateRequest;
-import peer.backend.dto.board.team.BoardUpdateRequest;
-import peer.backend.dto.board.team.PostCreateRequest;
-import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.board.team.*;
 import peer.backend.service.board.team.BoardService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,5 +51,17 @@ public class BoardController {
     @DeleteMapping("/post/{postId}")
     public void deletePost(@PathVariable("postId") Long postId, Authentication auth) {
         boardService.deletePost(postId, auth);
+    }
+
+    @PostMapping("/post/comment")
+    public void createComment(@RequestBody @Valid PostCommentRequest request, Authentication auth){
+        boardService.createComment(request, auth);
+    }
+
+    @PutMapping("/post/comment/{commentId}")
+    public void updateComment(@PathVariable Long commentId,
+                              @RequestBody @Valid PostCommentUpdateRequest request,
+                              Authentication auth){
+        boardService.updateComment(commentId, request, auth);
     }
 }

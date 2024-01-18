@@ -11,10 +11,11 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostAnswer extends BaseEntity {
+@EqualsAndHashCode(callSuper = false)
+public class PostComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_answer_id")
+    @Column(name = "post_comment_id")
     private Long id;
 
 
@@ -28,5 +29,9 @@ public class PostAnswer extends BaseEntity {
 
     @Lob
     private String content;
+
+    public void update(String comment){
+        this.content = comment;
+    }
 
 }

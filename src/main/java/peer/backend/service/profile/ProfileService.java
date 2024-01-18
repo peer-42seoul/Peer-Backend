@@ -4,23 +4,30 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import peer.backend.dto.profile.SkillDTO;
 import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
 import peer.backend.dto.profile.response.UserLinkResponse;
+import peer.backend.entity.tag.Tag;
+import peer.backend.entity.tag.UserSkill;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserLink;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.TagRepository;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.repository.user.UserSkillsRepository;
 import peer.backend.service.file.ObjectService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -29,16 +36,19 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final UserLinkRepository userLinkRepository;
     private final ObjectService objectService;
+    private final TagRepository tagRepository;
+    private final UserSkillsRepository userSkillsRepository;
 
     private boolean isFileNotEmpty(MultipartFile imageFile) {
         return imageFile != null && !imageFile.isEmpty();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MyProfileResponse getProfile(Authentication auth) {
         User user = User.authenticationToUser(auth);
         List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
         List<UserLinkResponse> links = new ArrayList<>();
+        List<SkillDTO> tagList = null;
         for (UserLink link : userLinks) {
             UserLinkResponse userLink = UserLinkResponse.builder()
                     .id(link.getId())
@@ -47,13 +57,25 @@ public class ProfileService {
                     .build();
             links.add(userLink);
         }
+        List<UserSkill> skillList = user.getSkills();
+        if (skillList != null) {
+            List<Long> ids = new ArrayList<>();
+            for (UserSkill skill : skillList) {
+                ids.add(skill.getTagId());
+            }
+            tagList = this.tagRepository.findSkillDTOByIdIn(ids);
+        } else {
+            tagList = Collections.emptyList();
+        }
         return MyProfileResponse.builder()
+                .id(user.getId())
                 .profileImageUrl(user.getImageUrl())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .association(user.getCompany())
                 .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
                 .linkList(links)
+                .skillList(tagList)
                 .build();
     }
 
@@ -130,5 +152,59 @@ public class ProfileService {
         user.setNickname(profile.getNickname());
         user.setIntroduce(profile.getIntroduction());
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SkillDTO> searchTagsWithKeyword(String keyword) {
+        List<Tag> datas = this.tagRepository.findAllByTagName(keyword);
+
+        if (datas.isEmpty())
+            return Collections.emptyList();
+        List<SkillDTO> result = new ArrayList<>();
+        for (Tag data: datas) {
+            SkillDTO element = SkillDTO.builder()
+                    .tagId(data.getId())
+                    .name(data.getName())
+                    .color(data.getColor())
+                    .build();
+            result.add(element);
+        }
+        return result;
+    }
+
+    @Transactional
+    public void setUserSkills(User user, List<Long> tagIds) throws BadRequestException {
+        if (tagIds.isEmpty())
+            throw new BadRequestException("비정상적인 요청입니다.");
+
+        List<UserSkill> earlyList = user.getSkills();
+        if (earlyList.size() + tagIds.size() > 10) {
+            throw new BadRequestException("스킬은 최대 10개까지 지정 가능합니다.");
+        }
+
+        earlyList.forEach(m -> {
+            for(Long id : tagIds) {
+                if (m.getTagId().equals(id))
+                    throw new BadRequestException("중복된 스킬은 입력이 불가능합니다.");
+            }
+        });
+
+        List<Tag> tags = tagRepository.findAllByIdIn(tagIds);
+        if (tags.isEmpty())
+            throw new BadRequestException("비정상적인 skill을 선택하셨습니다.");
+        if (tags.size() != tagIds.size()) {
+            throw new BadRequestException("비정상적인 요청입니다.");
+        }
+        List<UserSkill> skillList = new ArrayList<UserSkill>();
+        for(Tag m : tags) {
+            UserSkill hisSkil = UserSkill.builder()
+                    .tagId(m.getId())
+                    .userId(user.getId())
+                    .user(user)
+                    .tag(m)
+                    .build();
+            skillList.add(hisSkil);
+        };
+        this.userSkillsRepository.saveAll(skillList);
     }
 }
