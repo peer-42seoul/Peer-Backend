@@ -29,6 +29,8 @@ import peer.backend.dto.team.TeamSettingDto;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.board.team.Board;
+import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
@@ -46,6 +48,7 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.board.team.BoardRepository;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
@@ -64,6 +67,7 @@ public class TeamService {
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
     private final TeamUserService teamUserService;
+    private final BoardRepository boardRepository;
     private final EntityManager em;
 
     public boolean isLeader(Long teamId, User user) {
@@ -363,6 +367,13 @@ public class TeamService {
             .status(TeamUserStatus.APPROVED)
             .build();
         teamUserJobRepository.save(userLeader);
+
+        Board board = Board.builder()
+                .name("공지사항")
+                .type(BoardType.NOTICE)
+                .team(team)
+                .build();
+        boardRepository.save(board);
 
         if (team.getType().equals(TeamType.STUDY)) {
             TeamJob study = TeamJob.builder()
