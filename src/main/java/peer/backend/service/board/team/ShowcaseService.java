@@ -26,6 +26,7 @@ import peer.backend.entity.board.team.enums.PostLikeType;
 import peer.backend.entity.composite.PostLikePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
@@ -185,6 +186,8 @@ public class ShowcaseService {
             throw new ForbiddenException("리더가 아닙니다.");
         if (postRepository.findByBoardTeamIdAndBoardType(team.getId(), BoardType.SHOWCASE).isPresent())
             throw new ConflictException("이미 쇼케이스가 존재합니다.");
+        if (!team.getStatus().equals(TeamStatus.COMPLETE))
+            throw new ConflictException("프로젝트가 종료되지 않았습니다.");
         Board board = Board.builder()
                 .team(team)
                 .name("쇼케이스")
