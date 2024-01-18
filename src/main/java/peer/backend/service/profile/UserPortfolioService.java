@@ -41,9 +41,16 @@ public class UserPortfolioService {
     @Transactional
     public void setTeamLogoPath(Long teamId, String path) {
         List<UserPortfolio> target = this.userPortfolioRepository.findByTeamId(teamId);
-        if (target.isEmpty())
-            return ;
-        else {
+        if (!target.isEmpty()) {
+            target.forEach(m -> m.setTeamLogo(path));
+            this.userPortfolioRepository.saveAll(target);
+        }
+    }
+
+    @Transactional
+    public void setRecruitImagePath(Long recruitId, String path) {
+        List<UserPortfolio> target = this.userPortfolioRepository.findByRecruitId(recruitId);
+        if (!target.isEmpty()) {
             target.forEach(m -> m.setTeamLogo(path));
             this.userPortfolioRepository.saveAll(target);
         }

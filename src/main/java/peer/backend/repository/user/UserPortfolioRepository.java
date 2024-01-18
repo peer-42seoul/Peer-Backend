@@ -15,4 +15,6 @@ public interface UserPortfolioRepository extends JpaRepository<UserPortfolio, Lo
     @Query("SELECT m FROM UserPortfolio m WHERE m.teamId = :teamId")
     List<UserPortfolio> findByTeamId(@Param("teamId") long teamId);
 
+    @Query("SELECT m FROM UserPortfolio m WHERE m.recruitId = :recruitId")
+    List<UserPortfolio> findByRecruitId(@Param("recruitId") long recruitId);
 }
