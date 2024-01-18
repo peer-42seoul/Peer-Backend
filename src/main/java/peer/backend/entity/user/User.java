@@ -122,6 +122,12 @@ public class User extends BaseEntity implements Login {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     private List<Post> post;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserPortfolio> myPortfolios;
+
+    @Column
+    private boolean visibilityForPortfolio = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLike> postLikes;
 

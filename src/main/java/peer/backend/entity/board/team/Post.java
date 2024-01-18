@@ -4,6 +4,7 @@ import lombok.*;
 import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -38,6 +39,9 @@ public class Post extends BaseEntity{
 
     @Column(nullable = false)
     private String title;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<UserPortfolio> userPortfolioHistories;
 
     @Lob
     @NotNull

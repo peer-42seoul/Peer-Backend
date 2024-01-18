@@ -11,6 +11,7 @@ import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.team.enums.*;
+import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -89,6 +90,9 @@ public class Team extends BaseEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST)
+    private List<UserPortfolio> userPortfolioHistories;
 
     public Integer getMaxMember() {
         return getJobs().stream().mapToInt(TeamJob::getMax).sum();
