@@ -10,6 +10,7 @@ import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.board.team.Board;
 import peer.backend.entity.team.enums.*;
 
 import javax.persistence.*;
@@ -89,6 +90,12 @@ public class Team extends BaseEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards;
+
+    @Column
+    private String showcaseContent;
 
     public Integer getMaxMember() {
         return getJobs().stream().mapToInt(TeamJob::getMax).sum();
