@@ -1,23 +1,17 @@
 package peer.backend.service.board.team;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.annotation.tracking.PostCreateTracking;
-import peer.backend.dto.board.team.BoardCreateRequest;
-import peer.backend.dto.board.team.BoardUpdateRequest;
-import peer.backend.dto.board.team.PostCreateRequest;
-import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.board.team.*;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
@@ -28,6 +22,10 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -167,9 +165,16 @@ public class BoardService {
         postRepository.delete(post);
     }
 
-//    @Transactional
-//    public void createAnswer(Long postId, Authentication auth){
-//        if (postRepository.existsById(postId))
-//            throw new ConflictException("")
-//    }
+    @Transactional
+    public void createComment(PostCommentRequest request, Authentication auth){
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
+        User user = User.authenticationToUser(auth);
+        if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
+                User.authenticationToUser(auth).getId(),
+                request.getTeamId(),
+                TeamUserStatus.APPROVED))
+            throw new ForbiddenException("권한이 없습니다.");
+        post.addComment(request.getContent(), user);
+    }
 }
