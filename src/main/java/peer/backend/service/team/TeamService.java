@@ -112,6 +112,9 @@ public class TeamService {
 
     @Transactional
     public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) {
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
         String teamImage = teamSettingInfoDto.getTeamImage();
         if (teamImage != null) {
             if (teamImage.startsWith("data:image/png;base64")) {
@@ -122,9 +125,6 @@ public class TeamService {
                 teamImage = teamImage.replace("data:image/jpeg;base64,", "");
             }
             teamSettingInfoDto.setTeamImage(teamImage);
-        }
-        if (!isLeader(teamId, user)) {
-            throw new ForbiddenException("팀장이 아닙니다.");
         }
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
