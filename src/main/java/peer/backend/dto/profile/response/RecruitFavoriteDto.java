@@ -46,5 +46,6 @@ public class RecruitFavoriteDto {
         this.userImage = user.getImageUrl();
         this.status = team.getStatus().getValue();
         this.skillList = recruit.getRecruitTags().stream().map(RecruitTag::getSkillFromTag).collect(Collectors.toList());
+        this.isFavorite = true;
     }
 }
