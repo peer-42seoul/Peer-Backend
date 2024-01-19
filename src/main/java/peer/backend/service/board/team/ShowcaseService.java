@@ -2,7 +2,6 @@ package peer.backend.service.board.team;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -33,7 +32,6 @@ import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -85,11 +83,8 @@ public class ShowcaseService {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Post> posts = postRepository.findAllByBoardTypeOrderByCreatedAtDesc(BoardType.SHOWCASE,
             pageable);
-        List<ShowcaseListResponse> postDtoList = new ArrayList<>();
-        for (Post post : posts.getContent()) {
-            postDtoList.add(convertToDto(post, auth));
-        }
-        return new PageImpl<>(postDtoList, pageable, posts.getTotalElements());
+
+        return posts.map(post -> convertToDto(post, auth));
     }
 
     @Transactional
