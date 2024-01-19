@@ -1,13 +1,15 @@
 package peer.backend.controller.board;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.board.team.BoardCreateRequest;
-import peer.backend.dto.board.team.BoardUpdateRequest;
-import peer.backend.dto.board.team.PostCreateRequest;
-import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.board.team.*;
+import peer.backend.exception.OutOfRangeException;
 import peer.backend.service.board.team.BoardService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,5 +54,33 @@ public class BoardController {
     @DeleteMapping("/post/{postId}")
     public void deletePost(@PathVariable("postId") Long postId, Authentication auth) {
         boardService.deletePost(postId, auth);
+    }
+
+    @PostMapping("/post/comment")
+    public void createComment(@RequestBody @Valid PostCommentRequest request, Authentication auth) {
+        boardService.createComment(request, auth);
+    }
+
+    @PutMapping("/post/comment/{commentId}")
+    public void updateComment(@PathVariable Long commentId,
+                              @RequestBody @Valid PostCommentUpdateRequest request,
+                              Authentication auth) {
+        boardService.updateComment(commentId, request, auth);
+    }
+
+    @GetMapping("/post/comment/{postId}")
+    public Page<PostCommentListResponse> getComments(
+            @PathVariable Long postId,
+            @RequestParam int page,
+            @RequestParam int pageSize,
+            Authentication auth) {
+        if (page < 1 || pageSize < 0)
+            throw new OutOfRangeException("페이지는 1부터 시작합니다.");
+        return boardService.getComments(postId, page, pageSize, auth);
+    }
+
+    @DeleteMapping("/post/comment/{commentId}")
+    public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Authentication auth){
+        return boardService.deleteComment(commentId, auth);
     }
 }

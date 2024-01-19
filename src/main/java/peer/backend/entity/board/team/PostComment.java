@@ -11,14 +11,15 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostAnswer extends BaseEntity {
+@EqualsAndHashCode(callSuper = false)
+public class PostComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_answer_id")
+    @Column(name = "post_comment_id")
     private Long id;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -28,5 +29,9 @@ public class PostAnswer extends BaseEntity {
 
     @Lob
     private String content;
+
+    public void update(String comment){
+        this.content = comment;
+    }
 
 }

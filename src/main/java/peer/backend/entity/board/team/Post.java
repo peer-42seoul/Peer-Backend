@@ -5,11 +5,13 @@ import peer.backend.dto.board.team.PostLinkResponse;
 import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -32,13 +34,16 @@ public class Post extends BaseEntity{
     private Board board;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<PostAnswer> answers = new ArrayList<>();
+    private List<PostComment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLike> postLike = new ArrayList<>();
 
     @Column(nullable = false)
     private String title;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<UserPortfolio> userPortfolioHistories;
 
     @Lob
     @NotNull
@@ -83,6 +88,20 @@ public class Post extends BaseEntity{
     public void addFile(String url){
         if (this.files == null)
             this.files = new ArrayList<>();
-        files.add(new PostFile(url));
+        files.add(PostFile.builder()
+                .url(url)
+                .post(this)
+                .build());
+    }
+
+    public void addComment(String content, User user){
+        if (!Objects.nonNull(this.comments))
+            comments = new ArrayList<>();
+        this.comments.add(PostComment.builder()
+                .post(this)
+                .user(user)
+                .content(content)
+                .build()
+        );
     }
 }

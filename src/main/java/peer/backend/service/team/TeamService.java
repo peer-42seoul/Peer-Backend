@@ -29,6 +29,8 @@ import peer.backend.dto.team.TeamSettingDto;
 import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.board.recruit.RecruitInterview;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.board.team.Board;
+import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
@@ -46,12 +48,14 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.NotFoundException;
+import peer.backend.repository.board.team.BoardRepository;
 import peer.backend.repository.team.TeamJobRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TeamUserService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.profile.UserPortfolioService;
 
 @Slf4j
 @Service
@@ -64,7 +68,9 @@ public class TeamService {
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
     private final TeamUserService teamUserService;
+    private final BoardRepository boardRepository;
     private final EntityManager em;
+    private final UserPortfolioService userPortfolioService;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
@@ -112,6 +118,9 @@ public class TeamService {
 
     @Transactional
     public void updateTeamSetting(Long teamId, TeamSettingInfoDto teamSettingInfoDto, User user) {
+        if (!isLeader(teamId, user)) {
+            throw new ForbiddenException("팀장이 아닙니다.");
+        }
         String teamImage = teamSettingInfoDto.getTeamImage();
         if (teamImage != null) {
             if (teamImage.startsWith("data:image/png;base64")) {
@@ -122,9 +131,6 @@ public class TeamService {
                 teamImage = teamImage.replace("data:image/jpeg;base64,", "");
             }
             teamSettingInfoDto.setTeamImage(teamImage);
-        }
-        if (!isLeader(teamId, user)) {
-            throw new ForbiddenException("팀장이 아닙니다.");
         }
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
@@ -140,6 +146,7 @@ public class TeamService {
                         teamSettingInfoDto.getTeamImage(), "image");
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
+                    this.userPortfolioService.setTeamLogoPath(team.getId(), newImage);
                 } else {
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(null);
@@ -363,6 +370,13 @@ public class TeamService {
             .status(TeamUserStatus.APPROVED)
             .build();
         teamUserJobRepository.save(userLeader);
+
+        Board board = Board.builder()
+                .name("공지사항")
+                .type(BoardType.NOTICE)
+                .team(team)
+                .build();
+        boardRepository.save(board);
 
         if (team.getType().equals(TeamType.STUDY)) {
             TeamJob study = TeamJob.builder()

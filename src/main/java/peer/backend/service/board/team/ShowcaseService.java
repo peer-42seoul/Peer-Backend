@@ -1,18 +1,9 @@
 package peer.backend.service.board.team;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +17,7 @@ import peer.backend.entity.board.team.enums.PostLikeType;
 import peer.backend.entity.composite.PostLikePK;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamUser;
+import peer.backend.entity.team.enums.TeamStatus;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
@@ -39,6 +31,10 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,11 +83,8 @@ public class ShowcaseService {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Post> posts = postRepository.findAllByBoardTypeOrderByCreatedAtDesc(BoardType.SHOWCASE,
             pageable);
-        List<ShowcaseListResponse> postDtoList = new ArrayList<>();
-        for (Post post : posts.getContent()) {
-            postDtoList.add(convertToDto(post, auth));
-        }
-        return new PageImpl<>(postDtoList, pageable, posts.getTotalElements());
+
+        return posts.map(post -> convertToDto(post, auth));
     }
 
     @Transactional
@@ -148,13 +141,13 @@ public class ShowcaseService {
         Team team = showcase.getBoard().getTeam();
         return ShowcaseResponse.builder()
                 .content(showcase.getContent())
-                .image(showcase.getImage())
+                .image(showcase.getFiles().get(0).getUrl())
                 .start(team.getCreatedAt().toString())
                 .end(team.getEnd().toString())
                 .likeCount(showcase.getLiked())
                 .liked(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE)).isPresent())
                 .favorite(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE)).isPresent())
-                .author(user != null && user.getId().equals(showcase.getUser().getId()))
+                .author(auth != null && user.getId().equals(showcase.getUser().getId()))
                 .name(team.getName())
                 .skills(tagService.recruitTagListToTagResponseList(team.getRecruit().getRecruitTags()))
                 .member(getMembers(team.getTeamUsers()))
@@ -185,6 +178,8 @@ public class ShowcaseService {
             throw new ForbiddenException("리더가 아닙니다.");
         if (postRepository.findByBoardTeamIdAndBoardType(team.getId(), BoardType.SHOWCASE).isPresent())
             throw new ConflictException("이미 쇼케이스가 존재합니다.");
+        if (!team.getStatus().equals(TeamStatus.COMPLETE))
+            throw new ConflictException("프로젝트가 종료되지 않았습니다.");
         Board board = Board.builder()
                 .team(team)
                 .name("쇼케이스")
@@ -196,12 +191,13 @@ public class ShowcaseService {
                 .liked(0)
                 .hit(0)
                 .board(board)
+                .user(user)
                 .title(team.getName() + "'s showcase")
                 .build();
-        post.addLinks(request.getLinks());
         String filePath = "team/showcase/" + team.getName();
-        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         postRepository.save(post);
+        post.addLinks(request.getLinks());
+        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         return post.getId();
     }
 }

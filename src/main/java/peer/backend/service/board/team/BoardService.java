@@ -1,33 +1,36 @@
 package peer.backend.service.board.team;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.annotation.tracking.PostCreateTracking;
-import peer.backend.dto.board.team.BoardCreateRequest;
-import peer.backend.dto.board.team.BoardUpdateRequest;
-import peer.backend.dto.board.team.PostCreateRequest;
-import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.board.team.*;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
+import peer.backend.entity.board.team.PostComment;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.team.BoardRepository;
+import peer.backend.repository.board.team.PostCommentRepository;
 import peer.backend.repository.board.team.PostRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class BoardService {
     private final TeamService teamService;
     private final ObjectService objectService;
     private final TeamUserRepository teamUserRepository;
+    private final PostCommentRepository postCommentRepository;
 
     @Transactional
     public void createBoard(BoardCreateRequest request, Authentication auth) {
@@ -165,5 +169,56 @@ public class BoardService {
             objectService.deleteObject(post.getImage());
         }
         postRepository.delete(post);
+    }
+
+    @Transactional
+    public void createComment(PostCommentRequest request, Authentication auth){
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
+        User user = User.authenticationToUser(auth);
+        if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
+                User.authenticationToUser(auth).getId(),
+                request.getTeamId(),
+                TeamUserStatus.APPROVED))
+            throw new ForbiddenException("권한이 없습니다.");
+        post.addComment(request.getContent(), user);
+    }
+
+    @Transactional
+    public void updateComment(Long commentId,PostCommentUpdateRequest request, Authentication auth){
+        User user = User.authenticationToUser(auth);
+        PostComment comment = postCommentRepository.findById(commentId)
+                        .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+        if (!user.equals(comment.getUser()))
+            throw new ForbiddenException("작성자가 아닙니다.");
+        comment.update(request.getContent());
+    }
+
+    @Transactional
+    public Page<PostCommentListResponse> getComments(Long postId, int page, int pageSize, Authentication auth){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        User user = User.authenticationToUser(auth);
+
+        boolean isApproved = teamUserRepository.existsByUserIdAndTeamIdAndStatus(
+                user.getId(),
+                post.getBoard().getTeam().getId(),
+                TeamUserStatus.APPROVED
+        );
+        if (!isApproved)
+            throw new ForbiddenException("권한이 없습니다.");
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
+        return comments.map(PostCommentListResponse::new);
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteComment(Long commentId, Authentication auth){
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+        if (!comment.getUser().equals(User.authenticationToUser(auth)))
+            throw new ForbiddenException("작성자가 아닙니다");
+        postCommentRepository.delete(comment);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

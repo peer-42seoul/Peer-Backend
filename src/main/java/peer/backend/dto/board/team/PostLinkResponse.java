@@ -1,16 +1,14 @@
 package peer.backend.dto.board.team;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import peer.backend.entity.board.team.PostLink;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostLinkResponse {
     @NotNull
     @Pattern(regexp = "^[\\uAC00-\\uD7A3a-zA-Z0-9]+$")

@@ -3,18 +3,7 @@ package peer.backend.entity.user;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +13,7 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
@@ -31,6 +21,7 @@ import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
+import peer.backend.entity.tag.UserSkill;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
 import peer.backend.oauth.PrincipalDetails;
@@ -44,6 +35,8 @@ import peer.backend.oauth.PrincipalDetails;
 @Table(name = "user")
 @DynamicUpdate
 @DynamicInsert
+@NamedEntityGraph(name="User.withSkills"
+                    , attributeNodes = @NamedAttributeNode("skills"))
 public class User extends BaseEntity implements Login {
 
     @Id
@@ -122,8 +115,17 @@ public class User extends BaseEntity implements Login {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     private List<Post> post;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserPortfolio> myPortfolios;
+
+    @Column(insertable = true, updatable = true)
+    private boolean visibilityForPortfolio = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLike> postLikes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<UserSkill> skills;
 
     public static User authenticationToUser(Authentication authentication) {
         return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();
