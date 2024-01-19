@@ -10,7 +10,8 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 public enum BoardType {
     NORMAL("NORMAL"),
     ADMIN("ADMIN"),
-    SHOWCASE("SHOWCASE")
+    SHOWCASE("SHOWCASE"),
+    NOTICE("NOTICE")
     ;
     private final String type;
 

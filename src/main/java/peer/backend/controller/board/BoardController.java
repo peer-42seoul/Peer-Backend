@@ -2,6 +2,7 @@ package peer.backend.controller.board;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.*;
@@ -75,7 +76,11 @@ public class BoardController {
             Authentication auth) {
         if (page < 1 || pageSize < 0)
             throw new OutOfRangeException("페이지는 1부터 시작합니다.");
-        Page<PostCommentListResponse> result = boardService.getComments(postId, page - 1, pageSize, auth);
-        return result;
+        return boardService.getComments(postId, page, pageSize, auth);
+    }
+
+    @DeleteMapping("/post/comment/{commentId}")
+    public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Authentication auth){
+        return boardService.deleteComment(commentId, auth);
     }
 }
