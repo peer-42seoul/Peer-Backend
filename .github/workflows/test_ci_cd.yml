@@ -3,9 +3,9 @@ name: Test_CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "test" ]
+    branches: [ "main", "dev" ]
   pull_request:
-    branches: [ "main", "test" ]
+    branches: [ "main", "dev" ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
   # workflow_call:
 
@@ -78,7 +78,8 @@ jobs:
         debug: true
         script: |
           docker pull ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
-          docker rm -f ${{ secrets.Test_DOCKER_IMAGE }}
-          docker run --network ${{ secrets.TEST_NETWORK }} -d -p ${{ secrets.TEST_BASE_PORT }}:8080 -p 8081-8082:8081-8082 --ip ${{ secrets.TEST_PRIVATE_IP }} -v $HOME/logs:/logs ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
+          docker stop ${{ secrets.Test_DOCKER_IMAGE }}
+          docker rm ${{ secrets.Test_DOCKER_IMAGE }}
+          docker run --name=${{ secrets.Test_DOCKER_IMAGE }} --network ${{ secrets.TEST_NETWORK }} -d -p ${{ secrets.TEST_BASE_PORT }}:8080 -p 8081-8082:8081-8082 --ip ${{ secrets.TEST_PRIVATE_IP }} -v $HOME/logs:/logs ${{ secrets.TEST_DOCKER_USERNAME }}/${{ secrets.TEST_DOCKER_IMAGE }}
           docker container prune -f
           docker image prune -f
