@@ -23,7 +23,7 @@ import peer.backend.exception.NotFoundException;
 import peer.backend.repository.TagRepository;
 import peer.backend.repository.user.UserLinkRepository;
 import peer.backend.repository.user.UserRepository;
-import peer.backend.repository.user.UserSkillsRepository;
+import peer.backend.repository.user.UserSkillRepository;
 import peer.backend.service.file.ObjectService;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class ProfileService {
     private final UserLinkRepository userLinkRepository;
     private final ObjectService objectService;
     private final TagRepository tagRepository;
-    private final UserSkillsRepository userSkillsRepository;
+    private final UserSkillRepository userSkillsRepository;
 
     private boolean isFileNotEmpty(MultipartFile imageFile) {
         return imageFile != null && !imageFile.isEmpty();
@@ -215,14 +215,10 @@ public class ProfileService {
         if (tagList.isEmpty())
             throw new BadRequestException("비정상적인 요청입니다.");
 
-        List<UserSkill> earlyList = user.getSkills();
-        if (earlyList.size() + tagList.size() > 10) {
+        this.userSkillsRepository.deleteAllByUserId(user.getId());
+        if (tagList.size() > 10) {
             throw new BadRequestException("스킬은 최대 10개까지 지정 가능합니다.");
         }
-
-        earlyList.forEach(m -> {
-            tagList.removeIf(skill -> m.getTagId().equals(skill.getTagId()));
-        });
 
         List<Long> ids = new ArrayList<>();
         tagList.forEach(m -> ids.add(m.getTagId()));
