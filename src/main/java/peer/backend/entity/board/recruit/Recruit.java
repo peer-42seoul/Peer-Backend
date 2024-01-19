@@ -11,6 +11,7 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -66,6 +67,9 @@ public class Recruit extends BaseEntity {
     private List<RecruitTag> recruitTags = new ArrayList<>();
     @Column
     private Long writerId;
+
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserPortfolio> userPortfoliosHistories;
 
     public void update(RecruitUpdateRequestDTO request) {
         this.getTeam().update(request);

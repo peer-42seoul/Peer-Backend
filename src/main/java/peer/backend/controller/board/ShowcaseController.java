@@ -3,7 +3,6 @@ package peer.backend.controller.board;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.ShowcaseCreateDto;
@@ -11,9 +10,9 @@ import peer.backend.dto.board.team.ShowcaseListResponse;
 import peer.backend.dto.board.team.ShowcaseResponse;
 import peer.backend.dto.board.team.ShowcaseWriteResponse;
 import peer.backend.service.board.team.ShowcaseService;
+import peer.backend.service.profile.UserPortfolioService;
 
 import javax.validation.Valid;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +21,7 @@ import java.util.Objects;
 public class ShowcaseController {
 
     private final ShowcaseService showcaseService;
+    private final UserPortfolioService userPortfolioService;
 
     @GetMapping("")
     public Page<ShowcaseListResponse> getShowcaseList(@RequestParam int page, @RequestParam int pageSize, Authentication auth){
@@ -51,7 +51,9 @@ public class ShowcaseController {
 
     @PostMapping("/write")
     public Long createShowcase(@RequestBody @Valid ShowcaseCreateDto request, Authentication auth) {
-        return showcaseService.createShowcase(request, auth);
+        Long result =  showcaseService.createShowcase(request, auth);
+        this.userPortfolioService.setWholeTeamUserWithShowcaseCreation(request.getTeamId(), result);
+        return result;
     }
 
 }

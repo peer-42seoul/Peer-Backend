@@ -49,6 +49,7 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserPortfolio;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
@@ -63,6 +64,7 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.TeamUserService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.profile.UserPortfolioService;
 import peer.backend.service.team.TeamService;
 
 @Service
@@ -80,6 +82,7 @@ public class RecruitService {
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
     private final TeamUserService teamUserService;
+    private final UserPortfolioService userPortfolioService;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -435,6 +438,7 @@ public class RecruitService {
             objectService.deleteObject(recruit.getThumbnailUrl());
             recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                 "recruit/" + recruit_id, "image"));
+            this.userPortfolioService.setRecruitImagePath(recruit.getId(), recruit.getThumbnailUrl());
         } else {
             recruit.update(recruitUpdateRequestDTO);
         }
