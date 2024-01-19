@@ -154,4 +154,13 @@ public class ProfileController {
 
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "", notes = "내 프로필 페이지에서 사용자의 작업물 리스트를 호출한다.")
+    @GetMapping("otherPortfolio/list")
+    public ResponseEntity<?> getOtherPortfolioList(Authentication auth, @RequestParam("page") Long number) {
+        List<PortfolioDTO> responseBody = this.userPortfolioService
+                .getMyPortfolioList(User.authenticationToUser(auth), number);
+
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
 }
