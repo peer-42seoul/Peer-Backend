@@ -55,6 +55,7 @@ import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TeamUserService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.profile.UserPortfolioService;
 
 @Slf4j
 @Service
@@ -69,6 +70,7 @@ public class TeamService {
     private final TeamUserService teamUserService;
     private final BoardRepository boardRepository;
     private final EntityManager em;
+    private final UserPortfolioService userPortfolioService;
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
@@ -144,6 +146,7 @@ public class TeamService {
                         teamSettingInfoDto.getTeamImage(), "image");
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(newImage);
+                    this.userPortfolioService.setTeamLogoPath(team.getId(), newImage);
                 } else {
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(null);
