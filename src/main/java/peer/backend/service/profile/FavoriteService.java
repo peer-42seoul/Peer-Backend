@@ -27,38 +27,6 @@ import peer.backend.service.TagService;
 public class FavoriteService {
 
     private final RecruitFavoriteRepository recruitFavoriteRepository;
-    private final TagService tagService;
-
-    @PersistenceContext
-    private EntityManager em;
-
-    private List<Recruit> findAllBy(Long userId, TeamType type) {
-        // SELECT * FROM user
-        // JOIN recruit_favorite ON user.id = recruit_favorite.user_id
-        // JOIN recruit ON recruit_favorite.recruit_id = recruit.recruit_id
-        // WHERE user.id = ? AND recruit.type = ?
-        return em.createQuery(
-                "SELECT r FROM User u " +
-                    "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
-                    "JOIN Recruit r ON rf.recruit.id = r.id " +
-                        "JOIN Team k On r.id = k.id " +
-                    "WHERE u.id = :userId AND k.type = :teamType", Recruit.class)
-            .setParameter("userId", userId)
-            .setParameter("teamType", type)
-            .getResultList();
-    }
-
-    private List<Recruit> pagingBy(List<Recruit> retFind, int pageIndex, int pageSize) {
-        int first = (pageIndex - 1) * pageSize;
-        int last = pageIndex * pageSize;
-        if (retFind.size() < first) {
-            return new ArrayList<>();
-        }
-        if (retFind.size() < pageSize) {
-            return retFind;
-        }
-        return retFind.subList(first, last);
-    }
 
     @Transactional(readOnly = true)
     public Page<RecruitFavoriteDto> getFavorite(Authentication auth, String type, int pageIndex, int pageSize) {
