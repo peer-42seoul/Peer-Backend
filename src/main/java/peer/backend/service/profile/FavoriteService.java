@@ -70,45 +70,15 @@ public class FavoriteService {
                         TeamType.from(type),
                         PageRequest.of(pageIndex, pageSize));
         return  findRecruitFavorite.map(RecruitFavoriteDto::new);
-//        List<Recruit> retFind = findAllBy(user.getId(), TeamType.valueOf(type));
-//        List<Recruit> retPage = pagingBy(retFind, pageIndex, pageSize);
-//        List<RecruitListResponse> ret = new ArrayList<>();
-//        for (Recruit recruit : retPage) {
-//            RecruitListResponse recruitListResponse = RecruitListResponse.builder()
-//                .recruit_id(recruit.getId())
-//                .title(recruit.getTitle())
-//                .image(recruit.getThumbnailUrl())
-//                .user_id(recruit.getWriter() != null ? recruit.getWriterId() : -1)
-//                .user_nickname(recruit.getWriter() != null ? recruit.getWriter().getNickname() : "")
-//                .user_thumbnail(
-//                    recruit.getWriter() != null ? recruit.getWriter().getImageUrl() : null)
-//                .status(recruit.getStatus().getStatus())
-////                .tagList(TagListManager.getRecruitTags(recruit.getRecruitTags()))
-//                .tagList(this.tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
-//                .isFavorite(true)
-//                .build();
-//            ret.add(recruitListResponse);
-//        }
-//        return FavoritePage.builder()
-//            .postList(ret)
-//            .isLast(ret.isEmpty())
-//            .build();
     }
 
     @Transactional
     public void deleteAll(Authentication auth, String type) {
         User user = User.authenticationToUser(auth);
-        List<RecruitFavorite> toDelete = em.createQuery(
-                "SELECT rf FROM User u " +
-                    "JOIN RecruitFavorite rf ON u.id = rf.user.id " +
-                    "JOIN Recruit r ON rf.recruit.id = r.id " +
-                        "JOIN Team k On r.id = k.id " +
-                    "WHERE u.id = :userId AND k.type = :teamType", RecruitFavorite.class)
-            .setParameter("userId", user.getId())
-            .setParameter("teamType", TeamType.valueOf(type))
-            .getResultList();
-        for (RecruitFavorite recruitFavorite : toDelete) {
-            em.remove(recruitFavorite);
-        }
+        recruitFavoriteRepository
+                .deleteAllByUserIdAndTypeAndRecruitTeamType(
+                        user.getId(),
+                        RecruitFavoriteEnum.LIKE,
+                        TeamType.from(type));
     }
 }
