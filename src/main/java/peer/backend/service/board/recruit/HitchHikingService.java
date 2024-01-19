@@ -34,6 +34,7 @@ public class HitchHikingService {
                     PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending()));
             return recruitList.map(recruit ->
                     HitchListResponse.builder()
+                            .authorImage((recruit.getWriter() == null)? null : recruit.getWriter().getImageUrl())
                             .image(recruit.getThumbnailUrl())
                             .title(recruit.getTitle())
                             .teamName(recruit.getTeam().getName())
