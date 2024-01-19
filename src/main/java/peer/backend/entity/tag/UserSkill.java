@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_skills")
+@Table(name = "user_skill")
 @DynamicUpdate
 @DynamicInsert
 public class UserSkill extends BaseEntity {
