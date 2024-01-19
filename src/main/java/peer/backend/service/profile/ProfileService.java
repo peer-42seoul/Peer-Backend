@@ -12,6 +12,7 @@ import peer.backend.dto.profile.request.EditProfileRequest;
 import peer.backend.dto.profile.request.UserLinkRequest;
 import peer.backend.dto.profile.response.MyProfileResponse;
 import peer.backend.dto.profile.response.OtherProfileResponse;
+import peer.backend.dto.profile.response.OtherProfileResponseDTO;
 import peer.backend.dto.profile.response.UserLinkResponse;
 import peer.backend.entity.tag.Tag;
 import peer.backend.entity.tag.UserSkill;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +78,42 @@ public class ProfileService {
                 .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
                 .linkList(links)
                 .skillList(tagList)
+                .portfolioVisbility(user.isVisibilityForPortfolio())
+                .build();
+    }
+
+    @Transactional
+    public OtherProfileResponseDTO getOtherProfile(Long targetId) {
+        User user = this.userRepository.findById(targetId).orElseThrow(() -> new NoSuchElementException("대상이 존재하지 않습니다."));
+        List<UserLink> userLinks = userLinkRepository.findAllByUserId(user.getId());
+        List<UserLinkResponse> links = new ArrayList<>();
+        List<SkillDTO> tagList = null;
+        for (UserLink link : userLinks) {
+            UserLinkResponse userLink = UserLinkResponse.builder()
+                    .id(link.getId())
+                    .linkUrl(link.getLinkUrl())
+                    .linkName(link.getLinkName())
+                    .build();
+            links.add(userLink);
+        }
+        List<UserSkill> skillList = user.getSkills();
+        if (skillList != null) {
+            List<Long> ids = new ArrayList<>();
+            for (UserSkill skill : skillList) {
+                ids.add(skill.getTagId());
+            }
+            tagList = this.tagRepository.findSkillDTOByIdIn(ids);
+        } else {
+            tagList = Collections.emptyList();
+        }
+        return OtherProfileResponseDTO.builder()
+                .id(user.getId())
+                .profileImageUrl(user.getImageUrl())
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
+                .linkList(links)
+                .skillList(tagList)
+                .portfolioVisbility(user.isVisibilityForPortfolio())
                 .build();
     }
 
