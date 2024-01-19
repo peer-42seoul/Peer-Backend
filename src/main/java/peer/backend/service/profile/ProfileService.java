@@ -212,13 +212,12 @@ public class ProfileService {
 
     @Transactional
     public void setUserSkills(User user, List<SkillDTO> tagList) throws BadRequestException {
-        if (tagList.isEmpty())
-            throw new BadRequestException("비정상적인 요청입니다.");
-
         this.userSkillsRepository.deleteAllByUserId(user.getId());
         if (tagList.size() > 10) {
             throw new BadRequestException("스킬은 최대 10개까지 지정 가능합니다.");
         }
+        if(tagList.isEmpty())
+            return;
 
         List<Long> ids = new ArrayList<>();
         tagList.forEach(m -> ids.add(m.getTagId()));
