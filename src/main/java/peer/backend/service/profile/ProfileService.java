@@ -183,7 +183,7 @@ public class ProfileService {
         }
 
         earlyList.forEach(m -> {
-            tagList.removeIf(id -> m.getTagId().equals(id));
+            tagList.removeIf(skill -> m.getTagId().equals(skill.getTagId()));
         });
 
         List<Long> ids = new ArrayList<>();
