@@ -3,12 +3,10 @@ package peer.backend.controller.board;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.board.team.ShowcaseCreateDto;
-import peer.backend.dto.board.team.ShowcaseListResponse;
-import peer.backend.dto.board.team.ShowcaseResponse;
-import peer.backend.dto.board.team.ShowcaseWriteResponse;
+import peer.backend.dto.board.team.*;
 import peer.backend.service.board.team.ShowcaseService;
 import peer.backend.service.profile.UserPortfolioService;
 
@@ -42,6 +40,11 @@ public class ShowcaseController {
     @GetMapping("/{showcaseId}")
     public ShowcaseResponse getShowcase(@PathVariable Long showcaseId, Authentication auth){
         return showcaseService.getShowcase(showcaseId, auth);
+    }
+
+    @PutMapping("/edit/{showcaseId}")
+    public ResponseEntity<Object> updateShowcase(@PathVariable Long showcaseId, @RequestBody ShowcaseUpdateDto request, Authentication auth){
+        return showcaseService.updateShowcase(showcaseId, request, auth);
     }
 
     @GetMapping("/write/{teamId}")
