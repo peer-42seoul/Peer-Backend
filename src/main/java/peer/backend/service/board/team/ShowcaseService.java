@@ -228,7 +228,6 @@ public class ShowcaseService {
             throw new ForbiddenException("리더가 아닙니다.");
         objectService.deleteObject(post.getFiles().get(0).getUrl());
         boardRepository.delete(post.getBoard());
-        postRepository.delete(post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
