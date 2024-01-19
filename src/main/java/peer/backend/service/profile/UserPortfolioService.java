@@ -143,7 +143,6 @@ public class UserPortfolioService {
         if (targetList.isEmpty())
             return Collections.emptyList();
         List<PortfolioDTO> result = new ArrayList<>();
-        page++;
         long max = (6 * page);
         long initPoint = (max - 6);
         for (int i = (int) initPoint; i < max; i++) {
@@ -190,7 +189,6 @@ public class UserPortfolioService {
         if (targetList.isEmpty())
             return Collections.emptyList();
         List<PortfolioDTO> result = new ArrayList<>();
-        page++;
         long max = (6 * page);
         long initPoint = (max - 6);
         for (int i = (int) initPoint; i < max; i++) {
