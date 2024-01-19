@@ -69,7 +69,7 @@ public class FavoriteService {
                         RecruitFavoriteEnum.LIKE,
                         TeamType.from(type),
                         PageRequest.of(pageIndex, pageSize));
-        return  findRecruitFavorite.map(RecruitFavoriteDto::new);
+        return findRecruitFavorite.map(favorite -> new RecruitFavoriteDto(favorite, user));
     }
 
     @Transactional

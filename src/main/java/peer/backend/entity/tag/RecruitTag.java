@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import peer.backend.dto.profile.SkillDTO;
 import peer.backend.entity.board.recruit.Recruit;
 
 @Entity
@@ -44,5 +45,9 @@ public class RecruitTag {
     public RecruitTag(Long recruitId, Long tagId) {
         this.recruitId = recruitId;
         this.tagId = tagId;
+    }
+
+    public SkillDTO getSkillFromTag(){
+        return new SkillDTO(this.tag);
     }
 }
