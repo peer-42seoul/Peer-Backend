@@ -125,9 +125,9 @@ public class ProfileController {
 
     @ApiOperation(value = "", notes = "사용자가 스킬을 등록한다.")
     @PutMapping("/skill/regist")
-    public ResponseEntity<?> setSkillList(Authentication auth, @RequestBody() List<Long> ids){
+    public ResponseEntity<?> setSkillList(Authentication auth, @RequestBody() List<SkillDTO> skillsDTOList){
         try {
-            this.profileService.setUserSkills(User.authenticationToUser(auth), ids);
+            this.profileService.setUserSkills(User.authenticationToUser(auth), skillsDTOList);
         } catch (BadRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

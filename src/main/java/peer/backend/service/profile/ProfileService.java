@@ -173,26 +173,26 @@ public class ProfileService {
     }
 
     @Transactional
-    public void setUserSkills(User user, List<Long> tagIds) throws BadRequestException {
-        if (tagIds.isEmpty())
+    public void setUserSkills(User user, List<SkillDTO> tagList) throws BadRequestException {
+        if (tagList.isEmpty())
             throw new BadRequestException("비정상적인 요청입니다.");
 
         List<UserSkill> earlyList = user.getSkills();
-        if (earlyList.size() + tagIds.size() > 10) {
+        if (earlyList.size() + tagList.size() > 10) {
             throw new BadRequestException("스킬은 최대 10개까지 지정 가능합니다.");
         }
 
         earlyList.forEach(m -> {
-            for(Long id : tagIds) {
-                if (m.getTagId().equals(id))
-                    throw new BadRequestException("중복된 스킬은 입력이 불가능합니다.");
-            }
+            tagList.removeIf(skill -> m.getTagId().equals(skill.getTagId()));
         });
 
-        List<Tag> tags = tagRepository.findAllByIdIn(tagIds);
+        List<Long> ids = new ArrayList<>();
+        tagList.forEach(m -> ids.add(m.getTagId()));
+
+        List<Tag> tags = tagRepository.findAllByIdIn(ids);
         if (tags.isEmpty())
             throw new BadRequestException("비정상적인 skill을 선택하셨습니다.");
-        if (tags.size() != tagIds.size()) {
+        if (tags.size() != tagList.size()) {
             throw new BadRequestException("비정상적인 요청입니다.");
         }
         List<UserSkill> skillList = new ArrayList<UserSkill>();
