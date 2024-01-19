@@ -193,10 +193,10 @@ public class ShowcaseService {
                 .board(board)
                 .title(team.getName() + "'s showcase")
                 .build();
-        post.addLinks(request.getLinks());
         String filePath = "team/showcase/" + team.getName();
-        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         postRepository.save(post);
+        post.addLinks(request.getLinks());
+        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         return post.getId();
     }
 }
