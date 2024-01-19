@@ -147,7 +147,7 @@ public class ShowcaseService {
                 .likeCount(showcase.getLiked())
                 .liked(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE)).isPresent())
                 .favorite(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE)).isPresent())
-                .author(user != null && user.getId().equals(showcase.getUser().getId()))
+                .author(auth != null && user.getId().equals(showcase.getUser().getId()))
                 .name(team.getName())
                 .skills(tagService.recruitTagListToTagResponseList(team.getRecruit().getRecruitTags()))
                 .member(getMembers(team.getTeamUsers()))
@@ -191,12 +191,13 @@ public class ShowcaseService {
                 .liked(0)
                 .hit(0)
                 .board(board)
+                .user(user)
                 .title(team.getName() + "'s showcase")
                 .build();
-        post.addLinks(request.getLinks());
         String filePath = "team/showcase/" + team.getName();
-        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         postRepository.save(post);
+        post.addLinks(request.getLinks());
+        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         return post.getId();
     }
 }
