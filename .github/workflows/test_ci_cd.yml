@@ -1,6 +1,7 @@
 name: Test_CI/CD
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "test" ]
   pull_request:

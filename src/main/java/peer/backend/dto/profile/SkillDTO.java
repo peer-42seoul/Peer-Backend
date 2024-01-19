@@ -1,14 +1,12 @@
 package peer.backend.dto.profile;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class SkillDTO {
     private Long tagId;
     private String name;
