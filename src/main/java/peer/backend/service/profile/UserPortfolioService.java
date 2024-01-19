@@ -178,4 +178,51 @@ public class UserPortfolioService {
         }
         return result;
     }
+
+    @Transactional(readOnly = true)
+    public List<PortfolioDTO> getOtherPortfolioList(Long otherId, Long page) {
+        User targetUser = this.userRepository.findById(otherId).orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저입니다."));
+        if (!targetUser.isVisibilityForPortfolio())
+        {
+            return Collections.emptyList();
+        }
+        List<UserPortfolio> targetList = this.userPortfolioRepository.findByUserId(otherId);
+        if (targetList.isEmpty())
+            return Collections.emptyList();
+        List<PortfolioDTO> result = new ArrayList<>();
+        page++;
+        long max = (6 * page);
+        long initPoint = (max - 6);
+        for (int i = (int) initPoint; i < max; i++) {
+            if (targetList.size() > i + 1) {
+                result.add(this.makePortfolioDTO(targetList.get(i), false, true));
+            } else if (targetList.size() == i + 1) {
+                result.add(this.makePortfolioDTO(targetList.get(i), true, true));
+                break;
+            } else {
+                break ;
+            }
+        }
+
+        List<Long> targetRecruitIds = new ArrayList<>();
+        result.forEach(m -> targetRecruitIds.add(m.getRedirectionIds().get(0)));
+        List<RecruitTag> tagIdList = this.recruitTagRepository.findByRecruitIdIn(targetRecruitIds);
+        Set<Long> tagIds = new HashSet<>();
+        tagIdList.forEach(m -> tagIds.add(m.getTagId()));
+        List<SkillDTO> skillList = tagRepository.findSkillDTOByIdIn(new ArrayList<>(tagIds));
+
+        for (PortfolioDTO element: result){
+            Long recruitId = element.getRedirectionIds().get(0);
+            tagIdList.forEach(recruitTag -> {
+                if (recruitTag.getRecruitId().equals(recruitId)) {
+                    skillList.forEach(t ->{
+                        if (t.getTagId().equals(recruitTag.getTagId())){
+                            element.getTagList().add(t);
+                        }
+                    });
+                }
+            });
+        }
+        return result;
+    }
 }
