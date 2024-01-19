@@ -1,5 +1,6 @@
 package peer.backend.controller.profile;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -26,6 +27,7 @@ import javax.persistence.LockModeType;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,6 +51,20 @@ public class ProfileController {
     @GetMapping("/profile")
     public ResponseEntity<Object> getProfile(Authentication auth) {
         MyProfileResponse result = this.profileService.getProfile(auth);
+        if (result == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "C-MYPAGE-", notes = "사용자 프로필 정보 조회하기")
+    @GetMapping("/profile/otherUser")
+    public ResponseEntity<Object> getOtherProfile(Authentication auth, @Param("userId") Long userId) {
+        OtherProfileResponseDTO result;
+        try {
+             result = this.profileService.getOtherProfile(userId);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         if (result == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(result, HttpStatus.OK);
