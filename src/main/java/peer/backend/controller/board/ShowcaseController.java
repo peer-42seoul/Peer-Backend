@@ -59,4 +59,9 @@ public class ShowcaseController {
         return result;
     }
 
+    @DeleteMapping("/{showcaseId}")
+    public ResponseEntity<Object> deleteShowcase(@PathVariable Long showcaseId, Authentication auth){
+        return showcaseService.deleteShowcase(showcaseId, auth);
+    }
+
 }

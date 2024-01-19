@@ -218,4 +218,17 @@ public class ShowcaseService {
         objectService.deleteObject(temp);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Transactional
+    public ResponseEntity<Object> deleteShowcase(Long showcaseId, Authentication auth){
+        Post post = postRepository.findById(showcaseId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        Team team = post.getBoard().getTeam();
+        if (!teamService.isLeader(team.getId(), User.authenticationToUser(auth)))
+            throw new ForbiddenException("리더가 아닙니다.");
+        objectService.deleteObject(post.getFiles().get(0).getUrl());
+        boardRepository.delete(post.getBoard());
+        postRepository.delete(post);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
