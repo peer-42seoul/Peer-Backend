@@ -141,6 +141,7 @@ public class ShowcaseService {
             throw new IllegalArgumentException("쇼케이스 게시물이 아닙니다.");
         User user = (auth != null ? User.authenticationToUser(auth) : null);
         Team team = showcase.getBoard().getTeam();
+        showcase.increaseHit();
         return ShowcaseResponse.builder()
                 .content(showcase.getContent())
                 .image(showcase.getFiles().get(0).getUrl())
