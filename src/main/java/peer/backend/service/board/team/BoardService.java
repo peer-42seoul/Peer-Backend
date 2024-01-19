@@ -2,6 +2,8 @@ package peer.backend.service.board.team;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -208,5 +210,15 @@ public class BoardService {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
         return comments.map(PostCommentListResponse::new);
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteComment(Long commentId, Authentication auth){
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+        if (!comment.getUser().equals(User.authenticationToUser(auth)))
+            throw new ForbiddenException("작성자가 아닙니다");
+        postCommentRepository.delete(comment);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
