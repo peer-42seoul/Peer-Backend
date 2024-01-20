@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.*;
+import peer.backend.entity.user.User;
 import peer.backend.service.board.team.ShowcaseService;
 import peer.backend.service.profile.UserPortfolioService;
 
@@ -44,7 +45,7 @@ public class ShowcaseController {
 
     @PutMapping("/edit/{showcaseId}")
     public ResponseEntity<Object> updateShowcase(@PathVariable Long showcaseId, @RequestBody ShowcaseUpdateDto request, Authentication auth){
-        return showcaseService.updateShowcase(showcaseId, request, auth);
+        return showcaseService.updateShowcase(showcaseId, request, User.authenticationToUser(auth));
     }
 
     @GetMapping("/write/{teamId}")
@@ -61,7 +62,6 @@ public class ShowcaseController {
 
     @DeleteMapping("/{showcaseId}")
     public ResponseEntity<Object> deleteShowcase(@PathVariable Long showcaseId, Authentication auth){
-        return showcaseService.deleteShowcase(showcaseId, auth);
+        return showcaseService.deleteShowcase(showcaseId, User.authenticationToUser(auth));
     }
-
 }
