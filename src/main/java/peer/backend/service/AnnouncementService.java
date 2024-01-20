@@ -174,4 +174,10 @@ public class AnnouncementService {
         }
         announcement.setReservationDate(date);
     }
+
+    @Transactional
+    public Page<Announcement> getAnnouncementListByStatusAndPageable(AnnouncementStatus status,
+        Pageable pageable) {
+        return this.announcementRepository.findAllByAnnouncementStatus(status, pageable);
+    }
 }

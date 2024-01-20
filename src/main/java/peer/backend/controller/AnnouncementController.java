@@ -4,6 +4,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.announcement.CreateAnnouncementRequest;
+import peer.backend.dto.announcement.AboutAnnouncementListResponse;
 import peer.backend.dto.announcement.AnnouncementIdRequest;
 import peer.backend.dto.announcement.AnnouncementListResponse;
 import peer.backend.dto.announcement.AnnouncementResponse;
+import peer.backend.dto.announcement.CreateAnnouncementRequest;
 import peer.backend.dto.announcement.UpdateAnnouncementRequest;
 import peer.backend.entity.announcement.Announcement;
 import peer.backend.entity.announcement.AnnouncementStatus;
@@ -69,5 +71,13 @@ public class AnnouncementController {
     public void showAnnouncement(@RequestBody @Valid AnnouncementIdRequest request) {
         this.announcementService.setAnnouncementStatus(request.getAnnouncementId(),
             AnnouncementStatus.PUBLISHED);
+    }
+
+    @GetMapping("/about/announcement")
+    public ResponseEntity<Page<AboutAnnouncementListResponse>> getAboutAnnouncement(
+        Pageable pageable) {
+        Page<Announcement> announcementList = this.announcementService.getAnnouncementListByStatusAndPageable(
+            AnnouncementStatus.PUBLISHED, pageable);
+        return ResponseEntity.ok(announcementList.map(AboutAnnouncementListResponse::new));
     }
 }
