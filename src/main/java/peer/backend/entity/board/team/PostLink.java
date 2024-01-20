@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 import peer.backend.dto.board.team.PostLinkResponse;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class PostLink {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,9 +27,10 @@ public class PostLink {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public PostLink(PostLinkResponse request){
+    public PostLink(PostLinkResponse request, Post post){
         this.name = request.getName();
         this.url = request.getLink();
+        this.post = post;
     }
 
 }

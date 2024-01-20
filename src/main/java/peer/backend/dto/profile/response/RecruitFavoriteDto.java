@@ -35,15 +35,16 @@ public class RecruitFavoriteDto {
     @JsonProperty("isFavorite")
     private boolean isFavorite;
 
-    public RecruitFavoriteDto(RecruitFavorite favorite, User user){
+    public RecruitFavoriteDto(RecruitFavorite favorite){
         Recruit recruit = favorite.getRecruit();
+        User writer = recruit.getWriter();
         Team team = recruit.getTeam();
         this.recruit_id = recruit.getId();
         this.title = recruit.getTitle();
         this.image = recruit.getThumbnailUrl();
-        this.userId = user.getId();
-        this.userNickname = user.getNickname();
-        this.userImage = user.getImageUrl();
+        this.userId = recruit.getWriterId();
+        this.userNickname = (writer == null) ? "탈퇴한 유저" : writer.getNickname();
+        this.userImage = (writer == null) ? null : writer.getImageUrl();
         this.status = team.getStatus().getValue();
         this.skillList = recruit.getRecruitTags().stream().map(RecruitTag::getSkillFromTag).collect(Collectors.toList());
         this.isFavorite = true;

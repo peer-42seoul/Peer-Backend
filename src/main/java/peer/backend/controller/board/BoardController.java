@@ -13,12 +13,12 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/team/board")
+@RequestMapping("/api/v1/team")
 public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping("/create")
+    @PostMapping("/board/create")
     public void createBoard(@RequestBody BoardCreateRequest request, Authentication auth) {
         boardService.createBoard(request, auth);
     }
@@ -28,12 +28,12 @@ public class BoardController {
         boardService.createPost(request, auth);
     }
 
-    @GetMapping("/list/{teamId}")
+    @GetMapping("/board/list/{teamId}")
     public void getBoardList(@PathVariable("teamId") Long teamId, Authentication auth) {
         boardService.getBoardList(teamId, auth);
     }
 
-    @PutMapping("/{boardId}")
+    @PutMapping("/board/{boardId}")
     public void updateBoard(@PathVariable("boardId") Long boardId,
                             @RequestBody BoardUpdateRequest request, Authentication auth) {
         boardService.updateBoard(boardId, request, auth);
@@ -45,7 +45,7 @@ public class BoardController {
         boardService.updatePost(postId, request, auth);
     }
 
-    @DeleteMapping("/{boardId}")
+    @DeleteMapping("/board/{boardId}")
     public void deleteBoard(@PathVariable("boardId") Long id, Authentication auth) {
         boardService.deleteBoard(id, auth);
 
@@ -76,7 +76,7 @@ public class BoardController {
             Authentication auth) {
         if (page < 1 || pageSize < 0)
             throw new OutOfRangeException("페이지는 1부터 시작합니다.");
-        return boardService.getComments(postId, page, pageSize, auth);
+        return boardService.getComments(postId, page - 1, pageSize, auth);
     }
 
     @DeleteMapping("/post/comment/{commentId}")

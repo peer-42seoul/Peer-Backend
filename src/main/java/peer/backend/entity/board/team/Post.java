@@ -3,6 +3,7 @@ package peer.backend.entity.board.team;
 import lombok.*;
 import peer.backend.dto.board.team.PostLinkResponse;
 import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.board.team.ShowcaseUpdateDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserPortfolio;
@@ -62,6 +63,14 @@ public class Post extends BaseEntity{
         this.title = request.getTitle();
         this.content = request.getContent();
     }
+
+    public void update(ShowcaseUpdateDto request, String url){
+        this.content = request.getContent();
+        this.links.clear();
+        this.clearAndAddLink(request.getLinks());
+        this.clearAndAddFile(url);
+    }
+
     public void setImage(String url){
         this.image = url;
     }
@@ -82,7 +91,7 @@ public class Post extends BaseEntity{
         if (this.links == null)
             this.links = new ArrayList<>();
         if (linkList != null && !linkList.isEmpty())
-            linkList.forEach(link -> this.links.add(new PostLink(link)));
+            linkList.forEach(link -> this.links.add(new PostLink(link, this)));
     }
 
     public void addFile(String url){
@@ -92,6 +101,16 @@ public class Post extends BaseEntity{
                 .url(url)
                 .post(this)
                 .build());
+    }
+
+    public void clearAndAddLink(List<PostLinkResponse> link){
+        this.links.clear();
+        this.addLinks(link);
+    }
+
+    public void clearAndAddFile(String url){
+        this.files.clear();
+        addFile(url);
     }
 
     public void addComment(String content, User user){
