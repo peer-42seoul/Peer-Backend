@@ -1,6 +1,7 @@
 package peer.backend.service.team;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -515,6 +516,7 @@ public class TeamService {
             throw new ConflictException("팀이 모집 중 상태일 경우 팀을 완료 할 수 없습니다!");
         }
         team.setStatus(TeamStatus.COMPLETE);
+        team.setEnd(LocalDateTime.now());
     }
 
     private boolean validateRequestTeamStatusEnum(Team team,
