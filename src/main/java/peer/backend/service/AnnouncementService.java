@@ -40,8 +40,10 @@ public class AnnouncementService {
 
     @Transactional
     public Announcement getAnnouncement(Long announcementId) {
-        return this.announcementRepository.findById(announcementId)
+        Announcement announcement = this.announcementRepository.findById(announcementId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 Id 입니다."));
+        announcement.setView(announcement.getView() + 1);
+        return announcement;
     }
 
     @Transactional

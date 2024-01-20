@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.announcement.AboutAnnouncementListResponse;
+import peer.backend.dto.announcement.AboutAnnouncementResponse;
 import peer.backend.dto.announcement.AnnouncementIdRequest;
 import peer.backend.dto.announcement.AnnouncementListResponse;
 import peer.backend.dto.announcement.AnnouncementResponse;
@@ -74,10 +75,17 @@ public class AnnouncementController {
     }
 
     @GetMapping("/about/announcement")
-    public ResponseEntity<Page<AboutAnnouncementListResponse>> getAboutAnnouncement(
+    public ResponseEntity<Page<AboutAnnouncementListResponse>> getAboutAnnouncementList(
         Pageable pageable) {
         Page<Announcement> announcementList = this.announcementService.getAnnouncementListByStatusAndPageable(
             AnnouncementStatus.PUBLISHED, pageable);
         return ResponseEntity.ok(announcementList.map(AboutAnnouncementListResponse::new));
+    }
+
+    @GetMapping("/about/announcement/{announcementId}")
+    public ResponseEntity<AboutAnnouncementResponse> getAboutAnnouncement(
+        @PathVariable("announcementId") Long announcementId) {
+        Announcement announcement = this.announcementService.getAnnouncement(announcementId);
+        return ResponseEntity.ok(new AboutAnnouncementResponse(announcement));
     }
 }
