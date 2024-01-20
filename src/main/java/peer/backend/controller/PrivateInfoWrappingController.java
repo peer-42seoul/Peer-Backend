@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.privateInfo.InitSecretDTO;
 import peer.backend.dto.privateInfo.InitTokenDTO;
 import peer.backend.dto.privateInfo.PrivateTokenDTO;
+import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
 
 @RestController
@@ -33,7 +34,12 @@ public class PrivateInfoWrappingController {
     @ApiOperation(value = "", notes = "민감한 정보의 송신 용으로 사용되는 API 입니다. Seed와 Key를 제공합니다.")
     @PostMapping("/get")
     public ResponseEntity<?> getKeysForPrivacy(@RequestBody() InitTokenDTO data) {
-        Claims resolved = this.privateInfoWrappingService.parseInitToken(data.getToken());
+        Claims resolved;
+        try {
+            resolved = this.privateInfoWrappingService.parseInitToken(data);
+        } catch (BadRequestException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(resolved, HttpStatus.OK);
     }
 
