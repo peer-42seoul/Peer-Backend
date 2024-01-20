@@ -23,49 +23,49 @@ import peer.backend.service.AnnouncementService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/announcement")
+@RequestMapping("/api/v1")
 public class AnnouncementController {
 
     private final AnnouncementService announcementService;
 
     // TODO: 알림 enum이 예약일 경우 알림 예약 걸고(mayby spring batch?), 공지사항도 예약 걸어야됨.
-    @PostMapping
+    @PostMapping("/admin/announcement")
     public void writeAnnouncement(@RequestBody @Valid CreateAnnouncementRequest request) {
         this.announcementService.writeAnnouncement(request);
     }
 
-    @GetMapping
+    @GetMapping("/admin/announcement")
     public Page<AnnouncementListResponse> getAnnouncementList(Pageable pageable) {
         Page<Announcement> announcementList = this.announcementService.getAnnouncementList(
             pageable);
         return announcementList.map(AnnouncementListResponse::new);
     }
 
-    @GetMapping("{announcementId}")
+    @GetMapping("/admin/announcement/{announcementId}")
     public AnnouncementResponse getAnnouncement(
         @PathVariable("announcementId") Long announcementId) {
         Announcement announcement = this.announcementService.getAnnouncement(announcementId);
         return new AnnouncementResponse(announcement);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/admin/announcement")
     public void deleteAnnouncement(@RequestBody @Valid AnnouncementIdRequest request) {
         this.announcementService.deleteAnnouncement(request.getAnnouncementId());
     }
 
     // TODO: 지금은 단순 데이터를 수정만 하지만 알림이 추가되면 알림 여부에 따라 알림을 보낼지말지 추가되야함
-    @PutMapping
+    @PutMapping("/admin/announcement")
     public void updateAnnouncement(@RequestBody @Valid UpdateAnnouncementRequest request) {
         this.announcementService.updateAnnouncement(request);
     }
 
-    @PostMapping("hide")
+    @PostMapping("/admin/announcement/hide")
     public void hideAnnouncement(@RequestBody @Valid AnnouncementIdRequest request) {
         this.announcementService.setAnnouncementStatus(request.getAnnouncementId(),
             AnnouncementStatus.HIDING);
     }
 
-    @PostMapping("show")
+    @PostMapping("/admin/announcement/show")
     public void showAnnouncement(@RequestBody @Valid AnnouncementIdRequest request) {
         this.announcementService.setAnnouncementStatus(request.getAnnouncementId(),
             AnnouncementStatus.PUBLISHED);
