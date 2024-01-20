@@ -40,10 +40,8 @@ public class AnnouncementService {
 
     @Transactional
     public Announcement getAnnouncement(Long announcementId) {
-        Announcement announcement = this.announcementRepository.findById(announcementId)
+        return this.announcementRepository.findById(announcementId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 Id 입니다."));
-        announcement.setView(announcement.getView() + 1);
-        return announcement;
     }
 
     @Transactional
@@ -181,5 +179,11 @@ public class AnnouncementService {
     public Page<Announcement> getAnnouncementListByStatusAndPageable(AnnouncementStatus status,
         Pageable pageable) {
         return this.announcementRepository.findAllByAnnouncementStatus(status, pageable);
+    }
+
+    @Transactional
+    public void increaseView(Announcement announcement) {
+        announcement.setView(announcement.getView() + 1);
+        this.announcementRepository.save(announcement);
     }
 }

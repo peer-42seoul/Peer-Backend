@@ -48,6 +48,7 @@ public class AnnouncementController {
     public AnnouncementResponse getAnnouncement(
         @PathVariable("announcementId") Long announcementId) {
         Announcement announcement = this.announcementService.getAnnouncement(announcementId);
+        this.announcementService.increaseView(announcement);
         return new AnnouncementResponse(announcement);
     }
 
@@ -86,6 +87,7 @@ public class AnnouncementController {
     public ResponseEntity<AboutAnnouncementResponse> getAboutAnnouncement(
         @PathVariable("announcementId") Long announcementId) {
         Announcement announcement = this.announcementService.getAnnouncement(announcementId);
+        this.announcementService.increaseView(announcement);
         return ResponseEntity.ok(new AboutAnnouncementResponse(announcement));
     }
 }
