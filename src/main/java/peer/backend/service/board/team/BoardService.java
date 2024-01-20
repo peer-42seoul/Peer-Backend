@@ -178,7 +178,7 @@ public class BoardService {
         User user = User.authenticationToUser(auth);
         if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
                 User.authenticationToUser(auth).getId(),
-                request.getTeamId(),
+                post.getBoard().getTeam().getId(),
                 TeamUserStatus.APPROVED))
             throw new ForbiddenException("권한이 없습니다.");
         post.addComment(request.getContent(), user);

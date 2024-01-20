@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -200,5 +202,33 @@ public class ShowcaseService {
         post.addLinks(request.getLinks());
         post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
         return post.getId();
+    }
+
+    @Transactional
+    public ResponseEntity<Object> updateShowcase(Long showcaseId, ShowcaseUpdateDto request, User user){
+        Post post = postRepository.findById(showcaseId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        Team team = post.getBoard().getTeam();
+        if (!teamService.isLeader(team.getId(), user))
+            throw new ForbiddenException("리더가 아닙니다.");
+        String filePath = "team/showcase/" + post.getBoard().getTeam().getName();
+        String temp = post.getFiles().get(0).getUrl();
+        post.update(
+                request,
+                objectService.uploadObject(filePath, request.getImage(), "image"));
+        objectService.deleteObject(temp);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteShowcase(Long showcaseId, User user){
+        Post post = postRepository.findById(showcaseId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        Team team = post.getBoard().getTeam();
+        if (!teamService.isLeader(team.getId(), user))
+            throw new ForbiddenException("리더가 아닙니다.");
+        objectService.deleteObject(post.getFiles().get(0).getUrl());
+        boardRepository.delete(post.getBoard());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
