@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import peer.backend.dto.privateInfo.InitSecretDTO;
-import peer.backend.dto.privateInfo.InitTokenDTO;
+import peer.backend.dto.privateinfo.InitSecretDTO;
+import peer.backend.dto.privateinfo.InitTokenDTO;
 import peer.backend.exception.BadRequestException;
 
 import java.security.Key;

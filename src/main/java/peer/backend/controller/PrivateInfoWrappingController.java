@@ -5,14 +5,13 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import peer.backend.dto.privateInfo.InitSecretDTO;
-import peer.backend.dto.privateInfo.InitTokenDTO;
-import peer.backend.dto.privateInfo.PrivateTokenDTO;
+import peer.backend.dto.privateinfo.InitSecretDTO;
+import peer.backend.dto.privateinfo.InitTokenDTO;
+import peer.backend.dto.privateinfo.PrivateTokenDTO;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
 

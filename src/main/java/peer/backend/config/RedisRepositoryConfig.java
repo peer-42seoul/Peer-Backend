@@ -68,7 +68,7 @@ public class RedisRepositoryConfig {
     public RedisTemplate<Long, String> privateInformationApiInitRedis() {
         RedisTemplate<Long, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
-        redisTemplate.setKeySerializer(new GenericToStringSerializer<Long>(Long.class));
+        redisTemplate.setKeySerializer(new GenericToStringSerializer<>(Long.class));
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }

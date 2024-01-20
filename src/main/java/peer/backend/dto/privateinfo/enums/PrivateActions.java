@@ -1,4 +1,4 @@
-package peer.backend.dto.privateInfo.enums;
+package peer.backend.dto.privateinfo.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

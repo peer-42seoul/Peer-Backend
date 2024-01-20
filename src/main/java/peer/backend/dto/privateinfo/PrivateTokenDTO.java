@@ -1,7 +1,6 @@
-package peer.backend.dto.privateInfo;
+package peer.backend.dto.privateinfo;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter
