@@ -29,20 +29,18 @@ public class FavoriteService {
     private final RecruitFavoriteRepository recruitFavoriteRepository;
 
     @Transactional(readOnly = true)
-    public Page<RecruitFavoriteDto> getFavorite(Authentication auth, String type, int pageIndex, int pageSize) {
-        User user = User.authenticationToUser(auth);
+    public Page<RecruitFavoriteDto> getFavorite(User user, String type, int pageIndex, int pageSize) {
         Page<RecruitFavorite> findRecruitFavorite =
                 recruitFavoriteRepository.findByUserIdAndTypeAndRecruitTeamType(
                         user.getId(),
                         RecruitFavoriteEnum.LIKE,
                         TeamType.from(type),
                         PageRequest.of(pageIndex, pageSize));
-        return findRecruitFavorite.map(favorite -> new RecruitFavoriteDto(favorite, user));
+        return findRecruitFavorite.map(RecruitFavoriteDto::new);
     }
 
     @Transactional
-    public void deleteAll(Authentication auth, String type) {
-        User user = User.authenticationToUser(auth);
+    public void deleteAll(User user, String type) {
         recruitFavoriteRepository
                 .deleteAllByUserIdAndTypeAndRecruitTeamType(
                         user.getId(),
