@@ -5,30 +5,52 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.privateinfo.InitSecretDTO;
 import peer.backend.dto.privateinfo.InitTokenDTO;
 import peer.backend.dto.privateinfo.MainSeedDTO;
+import peer.backend.dto.privateinfo.PrivateDataDTO;
 import peer.backend.dto.privateinfo.enums.PrivateActions;
+import peer.backend.dto.profile.request.ChangePasswordRequest;
+import peer.backend.dto.profile.request.PasswordRequest;
+import peer.backend.dto.security.UserInfo;
+import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
+import peer.backend.exception.ConflictException;
+import peer.backend.exception.ForbiddenException;
+import peer.backend.service.profile.PersonalInfoService;
 
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 public class PrivateInfoWrappingService {
 
+    private final MemberService memberService;
+    private final PersonalInfoService personalInfoService;
     private final RedisTemplate<Long, String> redisTemplateForInitKey;
     private final RedisTemplate<String, String> redisTemplateForSecret;
 
     public PrivateInfoWrappingService(
             @Qualifier("redisTemplateForInitKey") RedisTemplate<Long, String> redisTemplateForInitKey,
-            RedisTemplate<String, String> redisTemplate) {
+            RedisTemplate<String, String> redisTemplate,
+            MemberService memberService,
+            PersonalInfoService personalInfoService) {
         this.redisTemplateForInitKey = redisTemplateForInitKey;
         this.redisTemplateForSecret = redisTemplate;
+        this.memberService = memberService;
+        this.personalInfoService = personalInfoService;
     }
 
 
@@ -46,10 +68,10 @@ public class PrivateInfoWrappingService {
         // 값 저장
         this.redisTemplateForSecret
                 .opsForValue()
-                .set(data.getCode(), data.getSeed());
+                .set(data.getCode().toString(), data.getSeed());
         // 5분 설정
         this.redisTemplateForSecret
-                .expire(data.getCode(), 5, TimeUnit.MINUTES);
+                .expire(data.getCode().toString(), 5, TimeUnit.MINUTES);
     }
 
     private void saveInitSecretToRedis(InitSecretDTO value) {
@@ -60,6 +82,17 @@ public class PrivateInfoWrappingService {
         // 5분 설정
         this.redisTemplateForInitKey
                 .expire(value.getCode(), 5, TimeUnit.MINUTES);
+    }
+
+    private void saveCodeAndActionToRedis(Long code, PrivateActions act) {
+        Long value = (long) act.getCode();
+        // 값 저장
+        this.redisTemplateForSecret
+                .opsForValue()
+                .set("act-" + code, value.toString());
+        // 5분 설정
+        this.redisTemplateForSecret
+                .expire("act-" + code, 5, TimeUnit.MINUTES);
     }
     private Long makeInitCode() {
         SecureRandom codeMaker = new SecureRandom();
@@ -125,6 +158,18 @@ public class PrivateInfoWrappingService {
         return result;
     }
 
+    private UserInfo getDataForSignUP(PrivateDataDTO data) {
+        return new UserInfo();
+    }
+
+    private PasswordRequest getDataForPasswordCheck(PrivateDataDTO data) {
+        return new PasswordRequest();
+    }
+
+    private ChangePasswordRequest getDataForPasswordChange(PrivateDataDTO data) {
+        return new ChangePasswordRequest();
+    }
+
     private MainSeedDTO makeTokenAndKey(PrivateActions type) {
         SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
 
@@ -139,23 +184,63 @@ public class PrivateInfoWrappingService {
         }
 
         // code 만들기
-        long result = randomMaker.nextLong() & Long.MAX_VALUE;
-        while(!this.checkCodeUniqueOrNotForToken(type.getDescription()
-                .getBytes(StandardCharsets.UTF_8)
-                .toString() + "_" + result)) {
+        Long result = randomMaker.nextLong() & Long.MAX_VALUE;
+        while(!this.checkCodeUniqueOrNotForToken(result.toString())) {
             result = randomMaker.nextLong() & Long.MAX_VALUE;
         }
 
+        // code, act 기억
+        this.saveCodeAndActionToRedis(result, type);
+
         MainSeedDTO data = MainSeedDTO.builder()
                 .seed(sb.toString())
-                .code(type.getDescription()
-                        .getBytes(StandardCharsets.UTF_8)
-                        .toString() + "_" + result)
+                .code(result)
                 .build();
         this.saveMainSeedToRedis(data);
 
         return data;
     }
 
+    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
+        Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
+        this.redisTemplateForSecret.delete("act-" + data.getCode());
+
+        if (type == PrivateActions.SIGNUP.getCode()){
+            // 회원가입 폼 제출 로직
+            System.out.println("여기로 들어왔음!!");
+//            UserInfo newUser = this.getDataForSignUP(data);
+//            this.memberService.signUp(newUser);
+//            return ResponseEntity.ok().build();
+
+        } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
+            // 비밀번호 확인 로직
+            System.out.println("여기로 들어왔음!! 2");
+//            PasswordRequest request = this.getDataForPasswordCheck(data);
+//            if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())){
+//                throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
+//            }
+//            String uuid = this.personalInfoService.getChangePasswordCode(user.getId());
+//            HashMap<String, String> body = new HashMap<>();
+//            body.put("code", uuid);
+//            return  ResponseEntity.status(HttpStatus.CREATED).body(body);
+
+        } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
+            // 비밀번호 변경 로직
+            System.out.println("여기로 들어왔음!! 3");
+//            ChangePasswordRequest request = this.getDataForPasswordChange(data);
+//
+//            if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
+//                throw new ForbiddenException("유효하지 않은 코드입니다!");
+//            }
+//            if (this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
+//                throw new ConflictException("현재 비밀번호와 일치합니다!");
+//            }
+//            this.personalInfoService.changePassword(user, request.getPassword());
+
+        } else  {
+            throw new BadRequestException("비 정상적인 접근입니다.");
+        }
+        return ResponseEntity.badRequest().build();
+    }
 }
 

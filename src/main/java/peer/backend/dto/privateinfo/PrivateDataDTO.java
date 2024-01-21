@@ -7,5 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PrivateDataDTO {
     private String token;
-    private String key;
+    private Long code;
 }
