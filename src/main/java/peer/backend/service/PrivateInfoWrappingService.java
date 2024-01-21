@@ -22,6 +22,7 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
+import peer.backend.exception.IllegalArgumentException;
 import peer.backend.service.profile.PersonalInfoService;
 
 import javax.validation.Validator;
@@ -175,37 +176,28 @@ public class PrivateInfoWrappingService {
                 .getBody();
     }
 
-    private UserInfo getDataForSignUP(PrivateDataDTO data) {
+    private UserInfo getDataForSignUP(PrivateDataDTO data) throws IllegalArgumentException {
         Claims target = this.parseSecretData(data);
-
-        @NotBlank(message = "이메일은 필수 항목입니다.")
-        @Email(message = "이메일형식에 맞지 않습니다.")
         String email = target.get("email", String.class);
         String password = target.get("password", String.class);;
         String nickname = target.get("nickname", String.class);;
         String name = target.get("name", String.class);;
         String socialEmail = target.get("socialEmail", String.class);;
-
         return new UserInfo(email, password, nickname, name, socialEmail);
     }
 
-    private PasswordRequest getDataForPasswordCheck(PrivateDataDTO data) {
+    private PasswordRequest getDataForPasswordCheck(PrivateDataDTO data) throws IllegalArgumentException {
         Claims target = this.parseSecretData(data);
         String password = target.get("password", String.class);
 
-        return PasswordRequest.builder()
-                .password(password)
-                .build();
+        return new PasswordRequest(password);
     }
 
-    private ChangePasswordRequest getDataForPasswordChange(PrivateDataDTO data) {
+    private ChangePasswordRequest getDataForPasswordChange(PrivateDataDTO data) throws IllegalArgumentException {
         Claims target = this.parseSecretData(data);
         String password = target.get("password", String.class);
         String code = target.get("code", String.class);
-        return ChangePasswordRequest.builder()
-                .password(password)
-                .code(code)
-                .build();
+        return new ChangePasswordRequest(password, code);
     }
 
     private MainSeedDTO makeTokenAndKey(PrivateActions type) {
@@ -246,14 +238,24 @@ public class PrivateInfoWrappingService {
         if (type == PrivateActions.SIGNUP.getCode()){
             // 회원가입 폼 제출 로직
             System.out.println("여기로 들어왔음!!");
-            UserInfo newUser = this.getDataForSignUP(data);
+            UserInfo newUser;
+            try {
+                newUser = this.getDataForSignUP(data); }
+            catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
             this.memberService.signUp(newUser);
             return ResponseEntity.ok().build();
 
         } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
             // 비밀번호 확인 로직
             System.out.println("여기로 들어왔음!! 2");
-            PasswordRequest request = this.getDataForPasswordCheck(data);
+            PasswordRequest request;
+            try {
+                request = this.getDataForPasswordCheck(data);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
             if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())){
                 throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
             }
@@ -265,8 +267,12 @@ public class PrivateInfoWrappingService {
         } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
             // 비밀번호 변경 로직
             System.out.println("여기로 들어왔음!! 3");
-            ChangePasswordRequest request = this.getDataForPasswordChange(data);
-
+            ChangePasswordRequest request;
+            try {
+                request = this.getDataForPasswordChange(data); }
+            catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
             if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
                 throw new ForbiddenException("유효하지 않은 코드입니다!");
             }
@@ -274,11 +280,10 @@ public class PrivateInfoWrappingService {
                 throw new ConflictException("현재 비밀번호와 일치합니다!");
             }
             this.personalInfoService.changePassword(user, request.getPassword());
-
+            return ResponseEntity.status(HttpStatus.OK).build();
         } else  {
             throw new BadRequestException("비 정상적인 접근입니다.");
         }
-        return ResponseEntity.badRequest().build();
     }
 }
 

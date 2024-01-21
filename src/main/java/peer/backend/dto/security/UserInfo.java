@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.entity.user.User;
+import peer.backend.exception.IllegalArgumentException;
 
 @Getter
 @NoArgsConstructor
@@ -45,7 +46,7 @@ public class UserInfo {
     @Email(message = "이메일 형식에 맞지 않습니다.")
     private String socialEmail;
 
-    public UserInfo(String email, String password, String nickname, String name, String socialEmail) {
+    public UserInfo(String email, String password, String nickname, String name, String socialEmail) throws IllegalArgumentException {
         String errorMessage = "";
         if (email.isBlank()) {
             errorMessage += "이메일은 필수 항목입니다.\n";
