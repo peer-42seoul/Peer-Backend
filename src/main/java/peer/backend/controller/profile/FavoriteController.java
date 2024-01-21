@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.profile.FavoritePage;
 import peer.backend.dto.profile.response.RecruitFavoriteDto;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.user.User;
