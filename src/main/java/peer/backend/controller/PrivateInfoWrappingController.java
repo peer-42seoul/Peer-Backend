@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.privateinfo.InitSecretDTO;
 import peer.backend.dto.privateinfo.InitTokenDTO;
+import peer.backend.dto.privateinfo.MainSeedDTO;
 import peer.backend.dto.privateinfo.PrivateTokenDTO;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
@@ -26,16 +27,19 @@ public class PrivateInfoWrappingController {
     @ApiOperation(value = "", notes = "민감한 정보를 전달 시작을 알리는 API. 최초 내용 전달을 위한 key와 code를 발급한다.")
     @PostMapping("/init")
     public ResponseEntity<?> initKeyForPrivacy() {
-        InitSecretDTO result = this.privateInfoWrappingService.makeInitSecret();
+        InitSecretDTO result = this.privateInfoWrappingService
+                .makeInitSecret();
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "민감한 정보의 송신 용으로 사용되는 API 입니다. Seed와 Key를 제공합니다.")
     @PostMapping("/get")
-    public ResponseEntity<?> getKeysForPrivacy(@RequestBody() InitTokenDTO data) {
-        Claims resolved;
+    public ResponseEntity<?> getKeysForPrivacy
+            (@RequestBody() InitTokenDTO data) {
+        MainSeedDTO resolved;
         try {
-            resolved = this.privateInfoWrappingService.parseInitToken(data);
+            resolved = this.privateInfoWrappingService
+                    .parseInitToken(data);
         } catch (BadRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -43,7 +47,7 @@ public class PrivateInfoWrappingController {
     }
 
     @ApiOperation(value = "", notes = "민감한 정보를 위한 수신합니다.")
-    @PostMapping("/send")
+    @PostMapping("/receive")
     public ResponseEntity<?> sendTokenAndKey(@RequestBody() PrivateTokenDTO token) {
         return new ResponseEntity<>(HttpStatus.OK);
     }

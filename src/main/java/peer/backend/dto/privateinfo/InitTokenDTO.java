@@ -1,10 +1,11 @@
 package peer.backend.dto.privateinfo;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Getter
-@RequiredArgsConstructor
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InitTokenDTO {
     private String token;
     private Long code;
