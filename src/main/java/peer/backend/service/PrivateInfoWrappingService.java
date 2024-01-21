@@ -12,6 +12,7 @@ import peer.backend.dto.privateinfo.MainSeedDTO;
 import peer.backend.dto.privateinfo.enums.PrivateActions;
 import peer.backend.exception.BadRequestException;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +32,24 @@ public class PrivateInfoWrappingService {
     }
 
 
-    private boolean checkCodeUniqueOrNot(Long key) {
+    private boolean checkCodeUniqueOrNotForInit(Long key) {
         String value = this.redisTemplateForInitKey.opsForValue().get(key);
         return value == null;
+    }
+
+    private boolean checkCodeUniqueOrNotForToken(String key) {
+        String value = this.redisTemplateForSecret.opsForValue().get(key);
+        return value == null;
+    }
+
+    private void saveMainSeedToRedis(MainSeedDTO data) {
+        // 값 저장
+        this.redisTemplateForSecret
+                .opsForValue()
+                .set(data.getCode(), data.getSeed());
+        // 5분 설정
+        this.redisTemplateForSecret
+                .expire(data.getCode(), 5, TimeUnit.MINUTES);
     }
 
     private void saveInitSecretToRedis(InitSecretDTO value) {
@@ -49,7 +65,7 @@ public class PrivateInfoWrappingService {
         SecureRandom codeMaker = new SecureRandom();
 
         long result = codeMaker.nextLong() & Long.MAX_VALUE;
-        while(!checkCodeUniqueOrNot(result)) {
+        while(!checkCodeUniqueOrNotForInit(result)) {
             result = codeMaker.nextLong() & Long.MAX_VALUE;
         }
         return result;
@@ -110,9 +126,36 @@ public class PrivateInfoWrappingService {
     }
 
     private MainSeedDTO makeTokenAndKey(PrivateActions type) {
-        //TODO : seed 만들기
-        //TODO : code 만들기
-        //
-        return new MainSeedDTO();
+        SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
+
+        // 256바이트 난수 생성을 위한 byte배열
+        byte[] values = new byte[256];
+        randomMaker.nextBytes(values);
+
+        // 16진수 문자열로 변환
+        StringBuilder sb = new StringBuilder();
+        for(byte b : values) {
+            sb.append(String.format("%02x", b));
+        }
+
+        // code 만들기
+        long result = randomMaker.nextLong() & Long.MAX_VALUE;
+        while(!this.checkCodeUniqueOrNotForToken(type.getDescription()
+                .getBytes(StandardCharsets.UTF_8)
+                .toString() + "_" + result)) {
+            result = randomMaker.nextLong() & Long.MAX_VALUE;
+        }
+
+        MainSeedDTO data = MainSeedDTO.builder()
+                .seed(sb.toString())
+                .code(type.getDescription()
+                        .getBytes(StandardCharsets.UTF_8)
+                        .toString() + "_" + result)
+                .build();
+        this.saveMainSeedToRedis(data);
+
+        return data;
     }
+
 }
+

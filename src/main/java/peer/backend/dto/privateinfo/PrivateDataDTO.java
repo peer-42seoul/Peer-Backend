@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PrivateTokenDTO {
+public class PrivateDataDTO {
     private String token;
     private String key;
 }
