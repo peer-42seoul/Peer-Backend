@@ -8,8 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
 import peer.backend.dto.privateinfo.InitSecretDTO;
 import peer.backend.dto.privateinfo.InitTokenDTO;
 import peer.backend.dto.privateinfo.MainSeedDTO;
@@ -25,9 +23,6 @@ import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.service.profile.PersonalInfoService;
 
-import javax.validation.Validator;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -42,19 +37,16 @@ public class PrivateInfoWrappingService {
     private final PersonalInfoService personalInfoService;
     private final RedisTemplate<Long, String> redisTemplateForInitKey;
     private final RedisTemplate<String, String> redisTemplateForSecret;
-    private final Validator validator;
 
     public PrivateInfoWrappingService(
             @Qualifier("redisTemplateForInitKey") RedisTemplate<Long, String> redisTemplateForInitKey,
             RedisTemplate<String, String> redisTemplate,
             MemberService memberService,
-            PersonalInfoService personalInfoService,
-            Validator validator) {
+            PersonalInfoService personalInfoService) {
         this.redisTemplateForInitKey = redisTemplateForInitKey;
         this.redisTemplateForSecret = redisTemplate;
         this.memberService = memberService;
         this.personalInfoService = personalInfoService;
-        this.validator = validator;
     }
 
 
@@ -152,7 +144,6 @@ public class PrivateInfoWrappingService {
         for (PrivateActions act : PrivateActions.values()) {
             if (act.getCode() == apiType) {
                 result = this.makeTokenAndKey(act);
-                System.out.println("성공적으로 조건을 발견하였습니다. : " + act.getDescription());
                 success = true;
             }
         }
@@ -237,7 +228,6 @@ public class PrivateInfoWrappingService {
 
         if (type == PrivateActions.SIGNUP.getCode()){
             // 회원가입 폼 제출 로직
-            System.out.println("여기로 들어왔음!!");
             UserInfo newUser;
             try {
                 newUser = this.getDataForSignUP(data); }
@@ -249,7 +239,6 @@ public class PrivateInfoWrappingService {
 
         } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
             // 비밀번호 확인 로직
-            System.out.println("여기로 들어왔음!! 2");
             PasswordRequest request;
             try {
                 request = this.getDataForPasswordCheck(data);
@@ -266,7 +255,6 @@ public class PrivateInfoWrappingService {
 
         } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
             // 비밀번호 변경 로직
-            System.out.println("여기로 들어왔음!! 3");
             ChangePasswordRequest request;
             try {
                 request = this.getDataForPasswordChange(data); }

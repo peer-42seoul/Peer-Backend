@@ -1,7 +1,5 @@
 package peer.backend.dto.profile.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import peer.backend.exception.IllegalArgumentException;
