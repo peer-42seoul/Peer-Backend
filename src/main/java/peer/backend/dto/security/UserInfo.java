@@ -13,12 +13,7 @@ import peer.backend.entity.user.User;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class UserInfo {
-
-    //    @NotBlank(message = "ID는 필수항목입니다.")
-//    private String userId;
     @NotBlank(message = "이메일은 필수항목입니다.")
     @Email(message = "이메일형식에 맞지 않습니다.")
     private String email;
@@ -30,8 +25,8 @@ public class UserInfo {
     private String password;
 
     @NotBlank(message = "닉네임은 필수항목입니다.")
-    @Size(min = 2, max = 7, message = "2글자 이상 7글자 이하여야 합니다!")
-    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,7}$", message = "한글, 대소문자, 숫자로만 이루어져야 합니다!")
+    @Size(min = 2, max = 30, message = "2글자 이상 30글자 이하여야 합니다!")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,30}$", message = "한글, 대소문자, 숫자로만 이루어져야 합니다!")
     private String nickname;
 
     @NotBlank(message = "이름은 필수항목입니다.")
@@ -49,6 +44,54 @@ public class UserInfo {
 //    private String address;
     @Email(message = "이메일 형식에 맞지 않습니다.")
     private String socialEmail;
+
+    public UserInfo(String email, String password, String nickname, String name, String socialEmail) {
+        String errorMessage = "";
+        if (email.isBlank()) {
+            errorMessage += "이메일은 필수 항목입니다.\n";
+        }
+        if(!email.isBlank() && !email.matches("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}")) {
+            errorMessage += "이메일형식에 맞지 않습니다.\n";
+        }
+        if (password.isBlank()){
+            errorMessage += "비밀번호는 필수항목입니다.\n";
+        }
+        if (!password.isBlank() && (password.length() < 8 || password.length() > 20)) {
+            errorMessage += "비밀번호는 반드시 8자 이상, 20자 이하여야 합니다.\n";
+        }
+        if (!password.isBlank() && !password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,20}$")) {
+            errorMessage += "대소문자, 숫자, 특수문자를 포함해야 합니다!\n";
+        }
+        if (nickname.isBlank()) {
+            errorMessage += "닉네임은 필수항목입니다.\n";
+        }
+        if (!nickname.isBlank() && (nickname.length() < 2 || nickname.length() > 30)) {
+            errorMessage += "닉네임은 2글자 이상 30글자 이하여야 합니다.\n";
+        }
+        if(!nickname.isBlank() && !nickname.matches("^[가-힣a-zA-Z0-9]{2,30}$")) {
+            errorMessage +="한글, 대소문자, 숫자로만 이루어져야 합니다!\n";
+        }
+        if (name.isBlank()) {
+            errorMessage += "이름은 필수항목입니다.\n";
+        }
+        if (!name.isBlank() && (name.length() < 2 || name.length() > 4)) {
+            errorMessage += "이름은 2글자 이상 4글자 이하여야 합니다.\n";
+        }
+        if (!name.isBlank() && !name.matches("^[가-힣]{2,4}$")) {
+            errorMessage += "이름은 한글로만 이루어져야 합니다!\n";
+        }
+        if (socialEmail != null && !socialEmail.matches("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}")) {
+            errorMessage += "Social 이메일이 형식에 맞지 않습니다.\n";
+        }
+        if (!errorMessage.isEmpty())
+            throw new IllegalArgumentException(errorMessage);
+
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.name = name;
+        this.socialEmail = socialEmail;
+    }
 
     public User convertUser() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
