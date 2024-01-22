@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.entity.user.User;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,6 +49,9 @@ public class UserInfo {
 //    private String address;
     @Email(message = "이메일 형식에 맞지 않습니다.")
     private String socialEmail;
+
+    private LocalDateTime serviceUseAgrement;
+    private LocalDateTime personalInformationUseAgreement;
 
     public User convertUser() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
