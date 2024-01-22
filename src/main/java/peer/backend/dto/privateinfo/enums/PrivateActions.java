@@ -1,10 +1,8 @@
 package peer.backend.dto.privateinfo.enums;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
 public enum PrivateActions {
     SIGNUP(662, "SIGNUP"),
     PASSWORDCHECK(1425, "PASSWORDCHECK"),
@@ -12,4 +10,8 @@ public enum PrivateActions {
 
     private final int code;
     private final String description;
+    PrivateActions(int value, String description) {
+        this.code = value;
+        this.description = description;
+    }
 }

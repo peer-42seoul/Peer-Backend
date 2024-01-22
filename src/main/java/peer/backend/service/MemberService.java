@@ -14,9 +14,11 @@ import peer.backend.dto.security.UserInfo;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.user.SocialLogin;
 import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserAgreements;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.user.SocialLoginRepository;
+import peer.backend.repository.user.UserAgreementsRepository;
 import peer.backend.repository.user.UserRepository;
 
 @Service
@@ -29,6 +31,7 @@ public class MemberService {
     private final SocialLoginService socialLoginService;
     private final RedisTemplate<String, SocialLogin> redisTemplate;
     private final UserService userService;
+    private final UserAgreementsRepository userAgreementsRepository;
 
     private final BCryptPasswordEncoder encoder;
 
@@ -57,6 +60,18 @@ public class MemberService {
                 throw new ConflictException("잘못된 소셜 로그인 이메일입니다!");
             }
         }
+        if (info.getServiceUseAgrement() != null && info.getPersonalInformationUseAgreement() != null) {
+            new UserAgreements();
+            UserAgreements agreements = UserAgreements
+                    .builder()
+                    .serviceUseAgrement(info.getServiceUseAgrement())
+                    .personalInformationUseAgreement(info.getPersonalInformationUseAgreement())
+                    .user(savedUser)
+                    .build();
+
+            this.userAgreementsRepository.save(agreements);
+        }
+
         return savedUser;
     }
 
