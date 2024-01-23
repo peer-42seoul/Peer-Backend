@@ -64,4 +64,14 @@ public class ShowcaseController {
     public ResponseEntity<Object> deleteShowcase(@PathVariable Long showcaseId, Authentication auth){
         return showcaseService.deleteShowcase(showcaseId, User.authenticationToUser(auth));
     }
+
+    @GetMapping("/page/{teamId}")
+    public ShowcasePageInfoResponse getShowcasePageInfo(@PathVariable Long teamId, Authentication auth){
+        return showcaseService.getShowcasePageInfo(teamId, User.authenticationToUser(auth));
+    }
+
+    @PostMapping("/public/{showcaseId}")
+    public boolean changeShowcasePublic(@PathVariable Long showcaseId, Authentication auth){
+        return showcaseService.changeShowcasePublic(showcaseId, User.authenticationToUser(auth));
+    }
 }
