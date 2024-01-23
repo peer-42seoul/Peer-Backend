@@ -1,9 +1,6 @@
 package peer.backend.dto.privateinfo.enums;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Getter
 public enum PrivateActions {
