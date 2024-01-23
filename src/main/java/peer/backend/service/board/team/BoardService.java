@@ -48,16 +48,16 @@ public class BoardService {
     public void createBoard(BoardCreateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Team team = teamRepository.findById(request.getTeamId()).orElseThrow(
-            () -> new NotFoundException("존재하지 않는 팀입니다."));
+                () -> new NotFoundException("존재하지 않는 팀입니다."));
         boardRepository.findByTeamAndName(team, request.getName()).ifPresent(board -> {
             throw new ConflictException("이미 존재하는 게시판입니다.");
         });
 
         Board board = Board.builder()
-            .team(team)
-            .name(request.getName())
-            .type(BoardType.from(request.getType()))
-            .build();
+                .team(team)
+                .name(request.getName())
+                .type(BoardType.from(request.getType()))
+                .build();
         boardRepository.save(board);
     }
 
@@ -66,21 +66,21 @@ public class BoardService {
     public Post createPost(PostCreateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Board board = boardRepository.findById(request.getBoardId()).orElseThrow(
-            () -> new NotFoundException("존재하지 않는 게시판입니다."));
+                () -> new NotFoundException("존재하지 않는 게시판입니다."));
         Team team = board.getTeam();
         if (!teamService.isLeader(team.getId(), user)) {
             throw new ForbiddenException("팀 리더가 아닙니다.");
         }
         Post post = Post.builder()
-            .board(board)
-            .title(request.getTitle())
-            .content(request.getContent())
-            .hit(0)
-            .user(user)
-            .image(request.getImage() == null ?
-                null : objectService.uploadObject(
-                request.getImage(), "board/" + board.getId(), "image"))
-            .build();
+                .board(board)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .hit(0)
+                .user(user)
+                .image(request.getImage() == null ?
+                        null : objectService.uploadObject(
+                        request.getImage(), "board/" + board.getId(), "image"))
+                .build();
         return postRepository.save(post);
     }
 
@@ -115,11 +115,11 @@ public class BoardService {
     public void updateBoard(Long boardId, BoardUpdateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Board board = boardRepository.findById(boardId).orElseThrow(
-            () -> new NotFoundException("존재하지 않는 게시판입니다."));
+                () -> new NotFoundException("존재하지 않는 게시판입니다."));
         boardRepository.findByTeamAndName(board.getTeam(), request.getName())
-            .ifPresent(tempBoard -> {
-                throw new ConflictException("이미 존재하는 게시판입니다.");
-            });
+                .ifPresent(tempBoard -> {
+                    throw new ConflictException("이미 존재하는 게시판입니다.");
+                });
         if (!teamService.isLeader(board.getTeam().getId(), user)) {
             throw new ForbiddenException("게시판을 수정할 권한이 없습니다.");
         }
@@ -130,16 +130,16 @@ public class BoardService {
     public void updatePost(Long postId, PostUpdateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Post post = postRepository.findById(postId).orElseThrow(
-            () -> new NotFoundException("존재하지 않는 게시글입니다."));
+                () -> new NotFoundException("존재하지 않는 게시글입니다."));
         if (!post.getUser().equals(user) && !teamService.isLeader(post.getBoard().getTeam().getId(),
-            user)) {
+                user)) {
             throw new ForbiddenException("게시글을 수정할 권한이 업습니다.");
         }
         post.update(request);
         if (request.getImage() != null) {
             objectService.deleteObject(post.getImage());
             objectService.uploadObject(request.getImage(), "board/" + post.getBoard().getId(),
-                "image");
+                    "image");
         }
 
     }
@@ -149,7 +149,7 @@ public class BoardService {
     public void deleteBoard(Long boardId, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Board board = boardRepository.findById(boardId).orElseThrow(
-            () -> new NotFoundException("존재하지 않는 게시판입니다."));
+                () -> new NotFoundException("존재하지 않는 게시판입니다."));
         if (!teamService.isLeader(board.getTeam().getId(), user)) {
             throw new ForbiddenException("팀을 삭제할 권한이 없습니다.");
         }
@@ -160,9 +160,9 @@ public class BoardService {
     public void deletePost(Long postId, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Post post = postRepository.findById(postId).orElseThrow(
-            () -> new NotFoundException("존재하지 않는 게시글입니다."));
+                () -> new NotFoundException("존재하지 않는 게시글입니다."));
         if (!post.getUser().equals(user) && !teamService.isLeader(post.getBoard().getTeam().getId(),
-            user)) {
+                user)) {
             throw new ForbiddenException("게시글을 삭제할 권한이 업습니다.");
         }
         if (post.getImage() != null) {
@@ -172,30 +172,32 @@ public class BoardService {
     }
 
     @Transactional
-    public void createComment(PostCommentRequest request, Authentication auth){
+    public void createComment(PostCommentRequest request, Authentication auth) {
         Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
         User user = User.authenticationToUser(auth);
         if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
                 User.authenticationToUser(auth).getId(),
                 post.getBoard().getTeam().getId(),
-                TeamUserStatus.APPROVED))
+                TeamUserStatus.APPROVED)) {
             throw new ForbiddenException("권한이 없습니다.");
+        }
         post.addComment(request.getContent(), user);
     }
 
     @Transactional
-    public void updateComment(Long commentId,PostCommentUpdateRequest request, Authentication auth){
+    public void updateComment(Long commentId, PostCommentUpdateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
         PostComment comment = postCommentRepository.findById(commentId)
-                        .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
-        if (!user.equals(comment.getUser()))
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+        if (!user.equals(comment.getUser())) {
             throw new ForbiddenException("작성자가 아닙니다.");
+        }
         comment.update(request.getContent());
     }
 
     @Transactional
-    public Page<PostCommentListResponse> getComments(Long postId, int page, int pageSize, Authentication auth){
+    public Page<PostCommentListResponse> getComments(Long postId, int page, int pageSize, Authentication auth) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
         User user = User.authenticationToUser(auth);
@@ -205,20 +207,36 @@ public class BoardService {
                 post.getBoard().getTeam().getId(),
                 TeamUserStatus.APPROVED
         );
-        if (!isApproved)
+        if (!isApproved) {
             throw new ForbiddenException("권한이 없습니다.");
+        }
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
         return comments.map(PostCommentListResponse::new);
     }
 
     @Transactional
-    public ResponseEntity<Object> deleteComment(Long commentId, Authentication auth){
+    public ResponseEntity<Object> deleteComment(Long commentId, Authentication auth) {
         PostComment comment = postCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
-        if (!comment.getUser().equals(User.authenticationToUser(auth)))
+        if (!comment.getUser().equals(User.authenticationToUser(auth))) {
             throw new ForbiddenException("작성자가 아닙니다");
+        }
         postCommentRepository.delete(comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public Board getNoticeBoard(Long teamId, User user) {
+        if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
+                user.getId(),
+                teamId,
+                TeamUserStatus.APPROVED)) {
+            throw new ForbiddenException("권한이 없습니다.");
+        }
+        teamRepository.findById(teamId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        return boardRepository.findByTeamIdAndType(teamId, BoardType.NOTICE)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 게시판입니다."));
+
     }
 }

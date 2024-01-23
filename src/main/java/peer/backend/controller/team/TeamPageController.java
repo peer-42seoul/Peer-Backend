@@ -21,6 +21,7 @@ import peer.backend.dto.team.PostRes;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
+import peer.backend.entity.user.User;
 import peer.backend.service.board.team.BoardService;
 import peer.backend.service.teampage.TeamPageService;
 
@@ -35,7 +36,7 @@ public class TeamPageController {
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판에 검색된 글 목록을 가져옵니다.")
     @GetMapping("/posts/{boardId}")
     public ResponseEntity<Page<PostRes>> getPostsByKeyword(@PathVariable("boardId") Long boardId, Pageable pageable,
-                                                      @RequestParam(value = "keyword") String keyword) {
+                                                           @RequestParam(value = "keyword") String keyword) {
         Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(boardId, pageReq, keyword);
 
@@ -75,5 +76,23 @@ public class TeamPageController {
     public ResponseEntity createNoticePost(@RequestBody PostCreateRequest postCreateRequest, Authentication auth) {
         teamPageService.createNoticePost(postCreateRequest, auth);
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation(value = "TEAM-PAGE-NOTICE", notes = "해당 팀에 공지사항 게시판 목록 가져오기.")
+    @GetMapping("/notice/{teamId}")
+    public ResponseEntity<Page<PostRes>> getNoticeBoardList(@PathVariable("teamId") Long teamId,
+                                                            Authentication auth,
+                                                            @RequestParam(value = "keyword") String keyword,
+                                                            Pageable pageable) {
+
+        User user = User.authenticationToUser(auth);
+        Board board = boardService.getNoticeBoard(teamId, user);
+        Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
+        Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(board.getId(), pageReq, keyword);
+        if (!postsPage.isEmpty()) {
+            return ResponseEntity.ok(postsPage);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
