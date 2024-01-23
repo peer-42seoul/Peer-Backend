@@ -28,7 +28,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -179,9 +179,7 @@ public class PrivateInfoWrappingService {
         String nickname = target.get("nickname", String.class);;
         String name = target.get("name", String.class);;
         String socialEmail = target.get("socialEmail", String.class);;
-        LocalDateTime useAgrement = target.get("serviceUseAgrement", LocalDateTime.class);;
-        LocalDateTime personalInfoAgrement = target.get("personalInformationUseAgreement", LocalDateTime.class);;
-        return new UserInfo(email, password, nickname, name, socialEmail, useAgrement, personalInfoAgrement);
+        return new UserInfo(email, password, nickname, name, socialEmail);
     }
 
     private PasswordRequest getDataForPasswordCheck(PrivateDataDTO data) throws IllegalArgumentException {
