@@ -233,10 +233,10 @@ public class BoardService {
                 TeamUserStatus.APPROVED)) {
             throw new ForbiddenException("공지사항을 가져올 권한이 없습니다.");
         }
-        teamRepository.findById(teamId)
+        Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        return boardRepository.findByTeamIdAndType(teamId, BoardType.NOTICE)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 게시판입니다."));
 
+        return boardRepository.findByTeamIdAndType(team.getId(), BoardType.NOTICE)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 공지사항 게시판입니다."));
     }
 }
