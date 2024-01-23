@@ -8,5 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 public class MainSeedDTO {
     private String seed;
-    private String code;
+    private Long code;
 }

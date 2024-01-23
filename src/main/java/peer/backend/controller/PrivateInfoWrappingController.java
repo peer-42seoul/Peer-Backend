@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,8 @@ import peer.backend.dto.privateinfo.InitSecretDTO;
 import peer.backend.dto.privateinfo.InitTokenDTO;
 import peer.backend.dto.privateinfo.MainSeedDTO;
 import peer.backend.dto.privateinfo.PrivateDataDTO;
+import peer.backend.entity.user.User;
+
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
 
@@ -47,7 +50,10 @@ public class PrivateInfoWrappingController {
 
     @ApiOperation(value = "", notes = "민감한 정보를 위한 수신합니다.")
     @PostMapping("/receive")
-    public ResponseEntity<?> sendTokenAndKey(@RequestBody() PrivateDataDTO token) {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> sendTokenAndKey(Authentication auth, @RequestBody() PrivateDataDTO token) {
+        User user = null;
+        if (auth != null)
+            user = User.authenticationToUser(auth);
+        return this.privateInfoWrappingService.processDataFromToken(user, token);
     }
 }
