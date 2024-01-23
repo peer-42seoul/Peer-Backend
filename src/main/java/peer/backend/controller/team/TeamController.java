@@ -183,7 +183,7 @@ public class TeamController {
         Authentication auth) {
         User user = User.authenticationToUser(auth);
         this.teamService.finishTeam(user, request.getTeamId());
-        try{
+        try {
             this.userPortfolioService.makeWholeTeamUserForPortfolio(request.getTeamId());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

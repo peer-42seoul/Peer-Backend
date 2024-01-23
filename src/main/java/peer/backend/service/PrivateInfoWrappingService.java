@@ -20,9 +20,12 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
+
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.service.profile.PersonalInfoService;
 
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -170,6 +173,7 @@ public class PrivateInfoWrappingService {
 
     private UserInfo getDataForSignUP(PrivateDataDTO data) throws IllegalArgumentException {
         Claims target = this.parseSecretData(data);
+  
         String email = target.get("email", String.class);
         String password = target.get("password", String.class);;
         String nickname = target.get("nickname", String.class);;
@@ -192,37 +196,6 @@ public class PrivateInfoWrappingService {
         String password = target.get("password", String.class);
         String code = target.get("code", String.class);
         return new ChangePasswordRequest(password, code);
-    }
-
-    private MainSeedDTO makeTokenAndKey(PrivateActions type) {
-        SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
-
-        // 256바이트 난수 생성을 위한 byte배열
-        byte[] values = new byte[256];
-        randomMaker.nextBytes(values);
-
-        // 16진수 문자열로 변환
-        StringBuilder sb = new StringBuilder();
-        for(byte b : values) {
-            sb.append(String.format("%02x", b));
-        }
-
-        // code 만들기
-        Long result = randomMaker.nextLong() & Long.MAX_VALUE;
-        while(!this.checkCodeUniqueOrNotForToken(result.toString())) {
-            result = randomMaker.nextLong() & Long.MAX_VALUE;
-        }
-
-        // code, act 기억
-        this.saveCodeAndActionToRedis(result, type);
-
-        MainSeedDTO data = MainSeedDTO.builder()
-                .seed(sb.toString())
-                .code(result)
-                .build();
-        this.saveMainSeedToRedis(data);
-
-        return data;
     }
 
     public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
@@ -275,6 +248,37 @@ public class PrivateInfoWrappingService {
         } else  {
             throw new BadRequestException("비 정상적인 접근입니다.");
         }
+    }
+
+    private MainSeedDTO makeTokenAndKey(PrivateActions type) {
+        SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
+
+        // 256바이트 난수 생성을 위한 byte배열
+        byte[] values = new byte[256];
+        randomMaker.nextBytes(values);
+
+        // 16진수 문자열로 변환
+        StringBuilder sb = new StringBuilder();
+        for(byte b : values) {
+            sb.append(String.format("%02x", b));
+        }
+
+        // code 만들기
+        Long result = randomMaker.nextLong() & Long.MAX_VALUE;
+        while(!this.checkCodeUniqueOrNotForToken(result.toString())) {
+            result = randomMaker.nextLong() & Long.MAX_VALUE;
+        }
+
+        // code, act 기억
+        this.saveCodeAndActionToRedis(result, type);
+
+        MainSeedDTO data = MainSeedDTO.builder()
+                .seed(sb.toString())
+                .code(result)
+                .build();
+        this.saveMainSeedToRedis(data);
+
+        return data;
     }
 }
 
