@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InitSecretDTO {
-    private String secret;
-    private Long code;
+public class MainSeedDTO {
+    private String seed;
+    private String code;
 }
