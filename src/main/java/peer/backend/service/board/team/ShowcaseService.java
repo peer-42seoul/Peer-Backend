@@ -231,4 +231,34 @@ public class ShowcaseService {
         boardRepository.delete(post.getBoard());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Transactional
+    public ShowcasePageInfoResponse getShowcasePageInfo(Long teamId, User user) {
+        if (!teamService.isLeader(teamId, user))
+            throw new ForbiddenException("리더가 아닙니다.");
+        Optional<Post> post = postRepository.findByBoardTeamIdAndBoardType(teamId, BoardType.SHOWCASE);
+        if (post.isEmpty())
+            return ShowcasePageInfoResponse.builder()
+                    .isPublihsed(false)
+                    .isPublic(false)
+                    .showcaseId(0L)
+                    .build();
+        Post showcase = post.get();
+        return ShowcasePageInfoResponse.builder()
+                .isPublihsed(true)
+                .isPublic(showcase.isPublic())
+                .showcaseId(showcase.getId())
+                .build();
+    }
+
+    @Transactional
+    public boolean changeShowcasePublic(Long showcaseId, User user){
+        Post post = postRepository.findById(showcaseId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
+        if (!teamService.isLeader(post.getBoard().getTeam().getId(), user))
+            throw new ForbiddenException("리더가 아닙니다.");
+        post.changeIsPublic();
+
+        return post.isPublic();
+    }
 }
