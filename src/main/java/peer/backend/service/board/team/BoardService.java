@@ -180,7 +180,7 @@ public class BoardService {
                 User.authenticationToUser(auth).getId(),
                 post.getBoard().getTeam().getId(),
                 TeamUserStatus.APPROVED)) {
-            throw new ForbiddenException("권한이 없습니다.");
+            throw new ForbiddenException("답글을 게시할 수 없습니다.");
         }
         post.addComment(request.getContent(), user);
     }
@@ -208,7 +208,7 @@ public class BoardService {
                 TeamUserStatus.APPROVED
         );
         if (!isApproved) {
-            throw new ForbiddenException("권한이 없습니다.");
+            throw new ForbiddenException("답글을 불러올 권한이 없습니다.");
         }
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
@@ -231,7 +231,7 @@ public class BoardService {
                 user.getId(),
                 teamId,
                 TeamUserStatus.APPROVED)) {
-            throw new ForbiddenException("권한이 없습니다.");
+            throw new ForbiddenException("공지사항을 가져올 권한이 없습니다.");
         }
         teamRepository.findById(teamId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
