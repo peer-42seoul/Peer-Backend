@@ -4,11 +4,14 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import peer.backend.entity.user.User;
 import peer.backend.exception.IllegalArgumentException;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -44,7 +47,16 @@ public class UserInfo {
     @Email(message = "이메일 형식에 맞지 않습니다.")
     private String socialEmail;
 
-    public UserInfo(String email, String password, String nickname, String name, String socialEmail) throws IllegalArgumentException {
+//    @JsonSerialize(using = LocalDateTimeSerializer.class)
+//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime serviceUseAgrement;
+
+//    @JsonSerialize(using = LocalDateTimeSerializer.class)
+//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime personalInformationUseAgreement;
+
+    public UserInfo(String email, String password, String nickname, String name, String socialEmail,
+                    LocalDateTime serviceUseAgrement, LocalDateTime personalInformationUseAgreement) throws IllegalArgumentException {
         String errorMessage = "";
         if (email.isBlank()) {
             errorMessage += "이메일은 필수 항목입니다.\n";
@@ -90,8 +102,9 @@ public class UserInfo {
         this.nickname = nickname;
         this.name = name;
         this.socialEmail = socialEmail;
+        this.serviceUseAgrement = serviceUseAgrement;
+        this.personalInformationUseAgreement = personalInformationUseAgreement;
     }
-
     public User convertUser() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return User.builder()
