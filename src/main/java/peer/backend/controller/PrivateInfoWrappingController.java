@@ -14,6 +14,7 @@ import peer.backend.dto.privateinfo.InitTokenDTO;
 import peer.backend.dto.privateinfo.MainSeedDTO;
 import peer.backend.dto.privateinfo.PrivateDataDTO;
 import peer.backend.entity.user.User;
+
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
 

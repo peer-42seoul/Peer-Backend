@@ -169,7 +169,7 @@ public class PrivateInfoWrappingService {
     private ChangePasswordRequest getDataForPasswordChange(PrivateDataDTO data) {
         return new ChangePasswordRequest();
     }
-
+  
     private MainSeedDTO makeTokenAndKey(PrivateActions type) {
         SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
 
@@ -242,5 +242,6 @@ public class PrivateInfoWrappingService {
         }
         return ResponseEntity.badRequest().build();
     }
+
 }
 
