@@ -70,7 +70,7 @@ public class TeamPageController {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "TEAM-PAGE-NOTICE", notes = "공지사항 게시판에 일반 작성 글 게시.")
+    @ApiOperation(value = "TEAM-PAGE-NOTICE", notes = "공지사항 게시판에 공지사항 글 게시.")
     @PostMapping("/notice/create")
     public ResponseEntity createNoticePost(@RequestBody PostCreateRequest postCreateRequest, Authentication auth) {
         teamPageService.createNoticePost(postCreateRequest, auth);
