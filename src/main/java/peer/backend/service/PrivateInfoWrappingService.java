@@ -158,18 +158,58 @@ public class PrivateInfoWrappingService {
         return result;
     }
 
+    private Claims parseSecretData(PrivateDataDTO data) {
+        String secret = this.redisTemplateForSecret
+                .opsForValue().get(data.getCode().toString());
+        this.redisTemplateForSecret.delete(data.getCode().toString());
+        if (secret == null)
+            throw new BadRequestException("비정상적인 접근입니다.");
+        Key key = Keys.hmacShaKeyFor(secret.getBytes());
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(data.getToken())
+                .getBody();
+    }
+
     private UserInfo getDataForSignUP(PrivateDataDTO data) {
-        return new UserInfo();
+        Claims target = this.parseSecretData(data);
+
+        String email = target.get("email", String.class);
+        String password = target.get("password", String.class);;
+        String nickname = target.get("nickname", String.class);;
+        String name = target.get("name", String.class);;
+        String socialEmail = target.get("socialEmail", String.class);;
+
+
+        return UserInfo.builder()
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .name(name)
+                .socialEmail(socialEmail)
+                .build();
     }
 
     private PasswordRequest getDataForPasswordCheck(PrivateDataDTO data) {
-        return new PasswordRequest();
+        Claims target = this.parseSecretData(data);
+        String password = target.get("password", String.class);
+
+        return PasswordRequest.builder()
+                .password(password)
+                .build();
     }
 
     private ChangePasswordRequest getDataForPasswordChange(PrivateDataDTO data) {
-        return new ChangePasswordRequest();
+        Claims target = this.parseSecretData(data);
+        String password = target.get("password", String.class);
+        String code = target.get("code", String.class);
+        return ChangePasswordRequest.builder()
+                .password(password)
+                .code(code)
+                .build();
     }
-  
+
     private MainSeedDTO makeTokenAndKey(PrivateActions type) {
         SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
 
@@ -199,6 +239,49 @@ public class PrivateInfoWrappingService {
         this.saveMainSeedToRedis(data);
 
         return data;
+    }
+
+    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
+        Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
+        this.redisTemplateForSecret.delete("act-" + data.getCode());
+
+        if (type == PrivateActions.SIGNUP.getCode()){
+            // 회원가입 폼 제출 로직
+            System.out.println("여기로 들어왔음!!");
+            UserInfo newUser = this.getDataForSignUP(data);
+            this.memberService.signUp(newUser);
+            return ResponseEntity.ok().build();
+
+        } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
+            // 비밀번호 확인 로직
+            System.out.println("여기로 들어왔음!! 2");
+            PasswordRequest request = this.getDataForPasswordCheck(data);
+            if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())){
+                throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
+            }
+            String uuid = this.personalInfoService.getChangePasswordCode(user.getId());
+            HashMap<String, String> body = new HashMap<>();
+            body.put("code", uuid);
+            return  ResponseEntity.status(HttpStatus.CREATED).body(body);
+
+        } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
+            // 비밀번호 변경 로직
+            System.out.println("여기로 들어왔음!! 3");
+            ChangePasswordRequest request = this.getDataForPasswordChange(data);
+
+            if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
+                throw new ForbiddenException("유효하지 않은 코드입니다!");
+            }
+            if (this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
+                throw new ConflictException("현재 비밀번호와 일치합니다!");
+            }
+            this.personalInfoService.changePassword(user, request.getPassword());
+
+        } else  {
+            throw new BadRequestException("비 정상적인 접근입니다.");
+        }
+        return ResponseEntity.badRequest().build();
+
     }
 
     public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
