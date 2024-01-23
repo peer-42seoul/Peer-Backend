@@ -78,7 +78,7 @@ jobs:
         debug: true
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
-          docker stop ${{ secrets.DOKCER_DEV_IMAGE }}
+          docker stop ${{ secrets.DOCKER_DEV_IMAGE }}
           
           docker rm ${{ secrets.DOCKER_DEV_IMAGE }}
           docker run --name=${{ secrets.DOCKER_DEV_IMAGE }} --network ${{ secrets.DEV_NETWORK }} -d -p 8080-8082:8080-8082 --ip ${{ secrets.DEV_APP_IP }} -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
