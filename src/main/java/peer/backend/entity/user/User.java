@@ -127,9 +127,6 @@ public class User extends BaseEntity implements Login {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<UserSkill> skills;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST)
-    private UserAgreements agreements;
-
     public static User authenticationToUser(Authentication authentication) {
         return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();
     }
