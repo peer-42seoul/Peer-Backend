@@ -23,7 +23,6 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 import peer.backend.service.profile.PersonalInfoService;
 
-import javax.validation.Valid;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -282,6 +281,50 @@ public class PrivateInfoWrappingService {
             throw new BadRequestException("비 정상적인 접근입니다.");
         }
         return ResponseEntity.badRequest().build();
+
     }
+
+    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
+        Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
+        this.redisTemplateForSecret.delete("act-" + data.getCode());
+
+        if (type == PrivateActions.SIGNUP.getCode()){
+            // 회원가입 폼 제출 로직
+            System.out.println("여기로 들어왔음!!");
+//            UserInfo newUser = this.getDataForSignUP(data);
+//            this.memberService.signUp(newUser);
+//            return ResponseEntity.ok().build();
+
+        } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
+            // 비밀번호 확인 로직
+            System.out.println("여기로 들어왔음!! 2");
+//            PasswordRequest request = this.getDataForPasswordCheck(data);
+//            if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())){
+//                throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
+//            }
+//            String uuid = this.personalInfoService.getChangePasswordCode(user.getId());
+//            HashMap<String, String> body = new HashMap<>();
+//            body.put("code", uuid);
+//            return  ResponseEntity.status(HttpStatus.CREATED).body(body);
+
+        } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
+            // 비밀번호 변경 로직
+            System.out.println("여기로 들어왔음!! 3");
+//            ChangePasswordRequest request = this.getDataForPasswordChange(data);
+//
+//            if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
+//                throw new ForbiddenException("유효하지 않은 코드입니다!");
+//            }
+//            if (this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
+//                throw new ConflictException("현재 비밀번호와 일치합니다!");
+//            }
+//            this.personalInfoService.changePassword(user, request.getPassword());
+
+        } else  {
+            throw new BadRequestException("비 정상적인 접근입니다.");
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
 }
 
