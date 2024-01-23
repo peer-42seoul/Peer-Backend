@@ -196,37 +196,6 @@ public class PrivateInfoWrappingService {
         return new ChangePasswordRequest(password, code);
     }
 
-    private MainSeedDTO makeTokenAndKey(PrivateActions type) {
-        SecureRandom randomMaker = new SecureRandom(type.getDescription().getBytes());
-
-        // 256바이트 난수 생성을 위한 byte배열
-        byte[] values = new byte[256];
-        randomMaker.nextBytes(values);
-
-        // 16진수 문자열로 변환
-        StringBuilder sb = new StringBuilder();
-        for(byte b : values) {
-            sb.append(String.format("%02x", b));
-        }
-
-        // code 만들기
-        Long result = randomMaker.nextLong() & Long.MAX_VALUE;
-        while(!this.checkCodeUniqueOrNotForToken(result.toString())) {
-            result = randomMaker.nextLong() & Long.MAX_VALUE;
-        }
-
-        // code, act 기억
-        this.saveCodeAndActionToRedis(result, type);
-
-        MainSeedDTO data = MainSeedDTO.builder()
-                .seed(sb.toString())
-                .code(result)
-                .build();
-        this.saveMainSeedToRedis(data);
-
-        return data;
-    }
-
     public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
         Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
         this.redisTemplateForSecret.delete("act-" + data.getCode());
@@ -309,91 +278,5 @@ public class PrivateInfoWrappingService {
 
         return data;
     }
-
-    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
-        Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
-        this.redisTemplateForSecret.delete("act-" + data.getCode());
-
-        if (type == PrivateActions.SIGNUP.getCode()){
-            // 회원가입 폼 제출 로직
-            System.out.println("여기로 들어왔음!!");
-            UserInfo newUser = this.getDataForSignUP(data);
-            this.memberService.signUp(newUser);
-            return ResponseEntity.ok().build();
-
-        } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
-            // 비밀번호 확인 로직
-            System.out.println("여기로 들어왔음!! 2");
-            PasswordRequest request = this.getDataForPasswordCheck(data);
-            if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())){
-                throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
-            }
-            String uuid = this.personalInfoService.getChangePasswordCode(user.getId());
-            HashMap<String, String> body = new HashMap<>();
-            body.put("code", uuid);
-            return  ResponseEntity.status(HttpStatus.CREATED).body(body);
-
-        } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
-            // 비밀번호 변경 로직
-            System.out.println("여기로 들어왔음!! 3");
-            ChangePasswordRequest request = this.getDataForPasswordChange(data);
-
-            if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
-                throw new ForbiddenException("유효하지 않은 코드입니다!");
-            }
-            if (this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
-                throw new ConflictException("현재 비밀번호와 일치합니다!");
-            }
-            this.personalInfoService.changePassword(user, request.getPassword());
-
-        } else  {
-            throw new BadRequestException("비 정상적인 접근입니다.");
-        }
-        return ResponseEntity.badRequest().build();
-
-    }
-
-    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
-        Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
-        this.redisTemplateForSecret.delete("act-" + data.getCode());
-
-        if (type == PrivateActions.SIGNUP.getCode()){
-            // 회원가입 폼 제출 로직
-            System.out.println("여기로 들어왔음!!");
-//            UserInfo newUser = this.getDataForSignUP(data);
-//            this.memberService.signUp(newUser);
-//            return ResponseEntity.ok().build();
-
-        } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
-            // 비밀번호 확인 로직
-            System.out.println("여기로 들어왔음!! 2");
-//            PasswordRequest request = this.getDataForPasswordCheck(data);
-//            if (!this.memberService.verificationPassword(request.getPassword(), user.getPassword())){
-//                throw new ForbiddenException("비밀번호가 일치하지 않습니다!");
-//            }
-//            String uuid = this.personalInfoService.getChangePasswordCode(user.getId());
-//            HashMap<String, String> body = new HashMap<>();
-//            body.put("code", uuid);
-//            return  ResponseEntity.status(HttpStatus.CREATED).body(body);
-
-        } else if (type == PrivateActions.PASSWORDMODIFY.getCode()) {
-            // 비밀번호 변경 로직
-            System.out.println("여기로 들어왔음!! 3");
-//            ChangePasswordRequest request = this.getDataForPasswordChange(data);
-//
-//            if (!this.personalInfoService.checkChangePasswordCode(user.getId(), request.getCode())) {
-//                throw new ForbiddenException("유효하지 않은 코드입니다!");
-//            }
-//            if (this.memberService.verificationPassword(request.getPassword(), user.getPassword())) {
-//                throw new ConflictException("현재 비밀번호와 일치합니다!");
-//            }
-//            this.personalInfoService.changePassword(user, request.getPassword());
-
-        } else  {
-            throw new BadRequestException("비 정상적인 접근입니다.");
-        }
-        return ResponseEntity.badRequest().build();
-    }
-
 }
 
