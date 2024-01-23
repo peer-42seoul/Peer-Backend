@@ -1,6 +1,7 @@
 package peer.backend.service.team;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -134,6 +135,15 @@ public class TeamService {
         }
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+
+        if (!this.validateUpdatable(team.getStatus())) {
+            throw new ConflictException("팀이 해산이나 완료 상태일 경우 정보를 수정할 수 없습니다!");
+        }
+
+        if (!this.validateRequestTeamStatusEnum(team, teamSettingInfoDto)) {
+            throw new BadRequestException("허용되지 않은 Enum값 입니다!");
+        }
+
         if (teamId.equals(Long.parseLong(teamSettingInfoDto.getId())) && isLeader(teamId, user)) {
             String filePath = "TeamImage";
             if (team.getTeamLogoPath() != null) {
@@ -372,10 +382,10 @@ public class TeamService {
         teamUserJobRepository.save(userLeader);
 
         Board board = Board.builder()
-                .name("공지사항")
-                .type(BoardType.NOTICE)
-                .team(team)
-                .build();
+            .name("공지사항")
+            .type(BoardType.NOTICE)
+            .team(team)
+            .build();
         boardRepository.save(board);
 
         if (team.getType().equals(TeamType.STUDY)) {
@@ -506,5 +516,20 @@ public class TeamService {
             throw new ConflictException("팀이 모집 중 상태일 경우 팀을 완료 할 수 없습니다!");
         }
         team.setStatus(TeamStatus.COMPLETE);
+        team.setEnd(LocalDateTime.now());
+    }
+
+    private boolean validateRequestTeamStatusEnum(Team team,
+        TeamSettingInfoDto teamSettingInfoDto) {
+        if (!team.getStatus().equals(teamSettingInfoDto.getStatus())) {
+            TeamStatus requestStatus = teamSettingInfoDto.getStatus();
+            return requestStatus.equals(TeamStatus.RECRUITING) || requestStatus.equals(
+                TeamStatus.BEFORE) || requestStatus.equals(TeamStatus.ONGOING);
+        }
+        return true;
+    }
+
+    private boolean validateUpdatable(TeamStatus status) {
+        return !status.equals(TeamStatus.DISPERSE) && !status.equals(TeamStatus.COMPLETE);
     }
 }
