@@ -36,9 +36,6 @@ public class UserAgreements extends BaseEntity {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime personalInformationUseAgreement;
 
-//    @Column
-//    private Long userId;
-
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
