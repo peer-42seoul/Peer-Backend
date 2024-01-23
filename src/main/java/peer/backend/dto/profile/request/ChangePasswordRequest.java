@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import peer.backend.exception.IllegalArgumentException;
 
 @Getter
+@Builder
 @NoArgsConstructor
 public class ChangePasswordRequest {
 
