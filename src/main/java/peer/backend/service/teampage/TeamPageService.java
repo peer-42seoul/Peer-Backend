@@ -63,6 +63,28 @@ public class TeamPageService {
     }
 
     @Transactional
+    public Post createNoticePost(PostCreateRequest request, Authentication auth) {
+        User user = User.authenticationToUser(auth);
+        Board board = boardRepository.findById(request.getBoardId()).orElseThrow(
+                () -> new NotFoundException("존재하지 않는 게시판입니다."));
+        if (!board.getType().getType().equals("NOTICE")) {
+            throw new ForbiddenException("공지사항 게시판이 아닙니다.");
+        }
+        Team team = board.getTeam();
+        if (!teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), team.getId())) {
+            throw new ForbiddenException("팀 리더가 아닙니다.");
+        }
+        Post post = Post.builder()
+                .board(board)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .hit(0)
+                .user(user)
+                .image(request.getImage()).build();
+        return postRepository.save(post);
+    }
+
+    @Transactional
     public Post getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시글입니다."));
