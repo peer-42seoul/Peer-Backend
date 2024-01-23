@@ -1,6 +1,7 @@
 package peer.backend.entity.board.team;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import peer.backend.dto.board.team.PostLinkResponse;
 import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.dto.board.team.ShowcaseUpdateDto;
@@ -43,6 +44,9 @@ public class Post extends BaseEntity{
     @Column(nullable = false)
     private String title;
 
+    @Column
+    private boolean isPublic = true;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<UserPortfolio> userPortfolioHistories;
 
@@ -58,6 +62,10 @@ public class Post extends BaseEntity{
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<PostLink> links;
+
+    public void changeIsPublic(){
+        this.isPublic = !this.isPublic;
+    }
 
     public void update(PostUpdateRequest request){
         this.title = request.getTitle();
