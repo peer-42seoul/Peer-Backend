@@ -153,6 +153,9 @@ public class BoardService {
         if (!teamService.isLeader(board.getTeam().getId(), user)) {
             throw new ForbiddenException("팀을 삭제할 권한이 없습니다.");
         }
+        if (board.getType().equals(BoardType.NOTICE)) {
+            throw new ForbiddenException("공지사항 게시판은 삭제할 수 없습니다.");
+        }
         boardRepository.delete(board);
     }
 
