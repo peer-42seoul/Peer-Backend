@@ -44,7 +44,7 @@ public class ShowcaseController {
     }
 
     @PutMapping("/edit/{showcaseId}")
-    public ResponseEntity<Object> updateShowcase(@PathVariable Long showcaseId, @RequestBody ShowcaseUpdateDto request, Authentication auth){
+    public ResponseEntity<Object> updateShowcase(@PathVariable Long showcaseId, @RequestBody @Valid ShowcaseUpdateDto request, Authentication auth){
         return showcaseService.updateShowcase(showcaseId, request, User.authenticationToUser(auth));
     }
 
