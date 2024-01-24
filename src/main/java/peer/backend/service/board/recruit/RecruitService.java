@@ -49,7 +49,6 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
-import peer.backend.entity.user.UserPortfolio;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
@@ -126,7 +125,7 @@ public class RecruitService {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
                 .type(question.getType().toString())
-                .options(question.getOptions())
+                .optionList(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
         }
