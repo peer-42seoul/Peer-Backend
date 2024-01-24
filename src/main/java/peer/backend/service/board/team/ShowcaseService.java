@@ -35,6 +35,7 @@ import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -213,10 +214,13 @@ public class ShowcaseService {
             throw new ForbiddenException("리더가 아닙니다.");
         String filePath = "team/showcase/" + post.getBoard().getTeam().getName();
         String temp = post.getFiles().get(0).getUrl();
-        post.update(
-                request,
-                objectService.uploadObject(filePath, request.getImage(), "image"));
-        objectService.deleteObject(temp);
+        if (Objects.nonNull(request.getImage())) {
+            post.update(
+                    request,
+                    objectService.uploadObject(filePath, request.getImage(), "image"));
+            objectService.deleteObject(temp);
+        } else
+            post.update(request, request.getImage());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
