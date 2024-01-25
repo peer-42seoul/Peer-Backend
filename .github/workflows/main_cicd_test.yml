@@ -110,9 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: create release
-        uses: actions/create-release@v1
-        env: 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1.13.0
         with: 
-          tag_name: ${{ needs.extract-version.outputs.version }}
-          release_name: ${{ needs.extract-version.outputs.version }}
+          tag: ${{ needs.extract-version.outputs.version }}
+          name: ${{ needs.extract-version.outputs.version }}
