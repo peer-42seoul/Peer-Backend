@@ -10,10 +10,11 @@ import java.util.List;
 @Builder
 public class OtherProfileResponseDTO {
     private Long id;
+    private String email;
     private String profileImageUrl;
     private String nickname;
     private String introduction;
     private List<UserLinkResponse> linkList;
     private List<SkillDTO> skillList;
-    private boolean portfolioVisbility;
+    private boolean portfolioVisibility;
 }

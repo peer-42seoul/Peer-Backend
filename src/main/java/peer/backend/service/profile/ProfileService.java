@@ -108,12 +108,13 @@ public class ProfileService {
         }
         return OtherProfileResponseDTO.builder()
                 .id(user.getId())
+                .email(user.getEmail())
                 .profileImageUrl(user.getImageUrl())
                 .nickname(user.getNickname())
                 .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
                 .linkList(links)
                 .skillList(tagList)
-                .portfolioVisbility(user.isVisibilityForPortfolio())
+                .portfolioVisibility(user.isVisibilityForPortfolio())
                 .build();
     }
 
