@@ -37,7 +37,8 @@ jobs:
       - name: extract version
         run: |
           export TEMP=$(echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
-          echo "VERSION=$TEMP" >> "$GITHUB_ENV"
+          echo "$TEMP"
+          echo "export VERSION=$TEMP" >> "$GITHUB_ENV"
 
   use-env-test:
     needs: extract-version
