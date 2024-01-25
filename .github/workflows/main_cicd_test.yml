@@ -29,6 +29,8 @@ jobs:
   extract-version:
     needs: check-merged
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract-version.outputs.version }}
     steps:
       - name: get repo
         uses: actions/checkout@v4
@@ -36,7 +38,29 @@ jobs:
           ref: ${{ env.GITHUB_SHA }}
       - name: extract version
         run: |
-          echo "VERSION=$(echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> "$GITHUB_ENV"
-      - name: use env test
+          echo "version=$(echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> "$GITHUB_OUTPUT"
+
+  use-output-test:
+    needs: extract-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: use output test
         run: |
-          echo "$VERSION"
+          echo "${{ needs.extract-version.outputs.version }}"
+
+  build:
+    needs: use-output-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: use output test
+        run: |
+          echo 'build'
+
+  use-output-test-2:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: use output test
+        run: |
+          echo "${{ needs.extract-version.outputs.version }}"
+  
