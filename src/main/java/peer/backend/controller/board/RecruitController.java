@@ -12,6 +12,7 @@ import peer.backend.annotation.AuthorCheck;
 import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
+import peer.backend.entity.user.User;
 import peer.backend.service.board.recruit.RecruitService;
 
 import javax.validation.Valid;
@@ -38,7 +39,7 @@ public class RecruitController {
     public Page<RecruitListResponse> getRecruitListByConditions(@Valid RecruitListRequest request,
         Authentication auth) {
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
-        return recruitService.getRecruitSearchList(pageable, request, auth);
+            return recruitService.getRecruitSearchList(pageable, request);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
@@ -89,6 +90,16 @@ public class RecruitController {
     @GetMapping("/interview/{post_id}")
     public List<RecruitInterviewDto> getInterviewList(@PathVariable Long post_id) {
         return recruitService.getInterviewList(post_id);
+    }
+
+    @GetMapping("/favorites")
+    public List<Boolean> getFavorite(@Valid RecruitListRequest request, Authentication auth) {
+        try {
+            User user = User.authenticationToUser(auth);
+            return recruitService.getFavoriteList(request, user);
+        } catch (NullPointerException e) {
+            return recruitService.getFavoriteList(request, null);
+        }
     }
 
 }
