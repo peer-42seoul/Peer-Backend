@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4    
         with:
           submodules: true
-          token: ${{secrets.TOKEN}}
+          token: ${{ secrets.TOKEN }}
       
       - name: Setup JDK 11
         uses: actions/setup-java@v3
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-          token: ${{secrets.TOKEN}}
+          token: ${{ secrets.TOKEN }}
   
       - name: Docker build & push
         run: |
@@ -110,5 +110,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: create release
-        run: |
-          echo 'create releas'
+        uses: actions/create-release@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with: 
+          tag_name: ${{ needs.extract-version.outputs.version }}
+          release_name: ${{ needs.extract-version.outputs.version }}
