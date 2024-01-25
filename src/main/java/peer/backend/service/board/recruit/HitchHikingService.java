@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.board.recruit.HitchListResponse;
 import peer.backend.dto.board.recruit.HitchResponse;
 import peer.backend.entity.board.recruit.Recruit;
@@ -25,6 +26,7 @@ public class HitchHikingService {
     private final TagService tagService;
 
 
+    @Transactional
     public Page<HitchListResponse> getHitchList(int page, int pageSize, String type){
             if (page < 1)
                 throw new OutOfRangeException("page 번호는 1부터 시작합니다.");
@@ -34,6 +36,7 @@ public class HitchHikingService {
                     PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending()));
             return recruitList.map(recruit ->
                     HitchListResponse.builder()
+                            .authorImage((recruit.getWriter() == null)? null : recruit.getWriter().getImageUrl())
                             .image(recruit.getThumbnailUrl())
                             .title(recruit.getTitle())
                             .teamName(recruit.getTeam().getName())
@@ -43,6 +46,7 @@ public class HitchHikingService {
             );
     }
 
+    @Transactional
     public HitchResponse getHitch(Long hitchId){
         Recruit recruit = recruitRepository.findById(hitchId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));

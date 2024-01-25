@@ -23,11 +23,14 @@ import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.team.TeamUserJob;
-import peer.backend.entity.team.enums.*;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
-import peer.backend.exception.*;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
+import peer.backend.exception.*;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
@@ -36,6 +39,7 @@ import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.profile.UserPortfolioService;
 import peer.backend.service.team.TeamService;
 
 import javax.persistence.EntityManager;
@@ -62,6 +66,7 @@ public class RecruitService {
     private final TeamUserRepository teamUserRepository;
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
+    private final UserPortfolioService userPortfolioService;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -72,20 +77,22 @@ public class RecruitService {
 //    private static final Pattern IMAGE_PATTERN = Pattern.compile("!\\[\\]\\(data:image.*?\\)");
 
 
-    public void changeRecruitFavorite(Authentication auth, Long recruitId, RecruitFavoriteEnum type) {
+    public void changeRecruitFavorite(Authentication auth, Long recruitId,
+        RecruitFavoriteEnum type) {
         User user = User.authenticationToUser(auth);
-        if (!recruitRepository.existsById(recruitId))
+        if (!recruitRepository.existsById(recruitId)) {
             throw new NotFoundException("존재하지 않는 모집글입니다.");
+        }
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
             .ifPresentOrElse(
-                    favorite -> {
-                        if (favorite.getType().equals(type)){
-                            recruitFavoriteRepository.delete(favorite);}
-                        else {
-                            favorite.setType(type);
-                            recruitFavoriteRepository.save(favorite);
-                        }
-                    },
+                favorite -> {
+                    if (favorite.getType().equals(type)) {
+                        recruitFavoriteRepository.delete(favorite);
+                    } else {
+                        favorite.setType(type);
+                        recruitFavoriteRepository.save(favorite);
+                    }
+                },
                 () -> {
                     RecruitFavorite newFavorite = new RecruitFavorite();
                     newFavorite.setUserId(user.getId());
@@ -103,7 +110,7 @@ public class RecruitService {
             RecruitInterviewDto recruitInterviewDto = RecruitInterviewDto.builder()
                 .question(question.getQuestion())
                 .type(question.getType().toString())
-                .options(question.getOptions())
+                .optionList(question.getOptions())
                 .build();
             result.add(recruitInterviewDto);
         }
@@ -111,8 +118,7 @@ public class RecruitService {
         return result;
     }
 
-    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable,
-        RecruitListRequest request, Authentication auth) {
+    public List<Recruit> getRecruitListByCriteria(RecruitListRequest request) {
         //TODO:favorite 등
         //query 생성 준비
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -121,13 +127,13 @@ public class RecruitService {
         List<Predicate> predicates = new ArrayList<>();
 
         Join<Recruit, Team> teamJoin = recruit.join(
-            "team"); // Assuming "team" is the name of the field in Recruit entity that references Team entity
+                "team"); // Assuming "team" is the name of the field in Recruit entity that references Team entity
 
         // query 생성
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
             List<RecruitStatus> statuses = request.getStatus().stream()
-                .map(RecruitStatus::from)
-                .collect(Collectors.toList());
+                    .map(RecruitStatus::from)
+                    .collect(Collectors.toList());
             predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
@@ -139,8 +145,8 @@ public class RecruitService {
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {
             List<TeamOperationFormat> places = request.getPlace().stream()
-                .map(TeamOperationFormat::valueOf)
-                .collect(Collectors.toList());
+                    .map(TeamOperationFormat::valueOf)
+                    .collect(Collectors.toList());
             predicates.add(teamJoin.get("operationFormat").in(places));
         }
         if (request.getRegion1() != null && !request.getRegion1().isEmpty()) {
@@ -151,7 +157,7 @@ public class RecruitService {
         }
         if (request.getDue() != null && !request.getDue().isEmpty()) {
             predicates.add(
-                cb.between(teamJoin.get("dueValue"), request.getStart(), request.getEnd()));
+                    cb.between(teamJoin.get("dueValue"), request.getStart(), request.getEnd()));
         }
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             predicates.add(cb.like(recruit.get("title"), "%" + request.getKeyword() + "%"));
@@ -179,7 +185,13 @@ public class RecruitService {
 
 // 쿼리 실행 부분
         TypedQuery<Recruit> query = em.createQuery(cq);
-        List<Recruit> recruits = query.getResultList();
+        return query.getResultList();
+    }
+
+    public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable,
+        RecruitListRequest request) {
+
+        List<Recruit> recruits = getRecruitListByCriteria(request);
 
         List<RecruitListResponse> results = recruits.stream()
             .map(recruit2 -> new RecruitListResponse(
@@ -191,12 +203,7 @@ public class RecruitService {
                 recruit2.getStatus().toString(),
                 // TODO:  맞나 성능 개선이 필요한거 같기도
                 this.tagService.recruitTagListToTagResponseList(recruit2.getRecruitTags()),
-                recruit2.getId(),
-                ((auth != null) &&
-                        (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
-                                User.authenticationToUser(auth).getId(),
-                                recruit2.getId(),
-                                RecruitFavoriteEnum.LIKE)))))
+                recruit2.getId()))
             .collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -242,10 +249,10 @@ public class RecruitService {
             .image(recruit.getThumbnailUrl())
             .teamName(recruit.getTeam().getName())
             .isFavorite((auth != null) &&
-                    recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
-                            User.authenticationToUser(auth).getId(),
-                            recruit_id,
-                            RecruitFavoriteEnum.LIKE)
+                recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                    User.authenticationToUser(auth).getId(),
+                    recruit_id,
+                    RecruitFavoriteEnum.LIKE)
             )
             .build();
     }
@@ -366,32 +373,36 @@ public class RecruitService {
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         User user = User.authenticationToUser(auth);
-        if (user.getId().equals(recruit.getWriterId()))
+        if (user.getId().equals(recruit.getWriterId())) {
             throw new BadRequestException("모집글 작성자는 팀에 지원할 수 없습니다.");
+        }
         Team team = recruit.getTeam();
 
         TeamJob teamJob = teamJobRepository.findByTeamIdAndName(recruit_id, request.getRole())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
-        TeamUser teamUser = teamUserRepository.findByUserIdAndTeamId(user.getId(), team.getId());
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
+
+        TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(user.getId(),
+            team.getId()).orElse(null);
 
         if (Objects.isNull(teamUser)) {
             teamUser = TeamUser.builder()
-                    .teamId(team.getId())
-                    .userId(user.getId())
-                    .role(TeamUserRoleType.MEMBER)
-                    .status(TeamUserStatus.PENDING)
-                    .build();
+                .teamId(team.getId())
+                .userId(user.getId())
+                .role(TeamUserRoleType.MEMBER)
+                .status(TeamUserStatus.PENDING)
+                .build();
             teamUserRepository.save(teamUser);
-        } else if (teamUserJobRepository.existsById(new TeamUserJobPK(teamUser.getId(), teamJob.getId()))) {
+        } else if (teamUserJobRepository.existsById(
+            new TeamUserJobPK(teamUser.getId(), teamJob.getId()))) {
             throw new ConflictException("이미 지원하였습니다.");
         }
 
         teamUser.addTeamUserJob(TeamUserJob.builder()
-                .teamJobId(teamJob.getId())
-                .teamUserId(teamUser.getId())
-                .status(TeamUserStatus.PENDING)
-                .answers(request.getAnswerList())
-                .build());
+            .teamJobId(teamJob.getId())
+            .teamUserId(teamUser.getId())
+            .status(TeamUserStatus.PENDING)
+            .answers(request.getAnswerList())
+            .build());
     }
 
     @Transactional
@@ -411,9 +422,23 @@ public class RecruitService {
             objectService.deleteObject(recruit.getThumbnailUrl());
             recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                 "recruit/" + recruit_id, "image"));
+            this.userPortfolioService.setRecruitImagePath(recruit.getId(), recruit.getThumbnailUrl());
         } else {
             recruit.update(recruitUpdateRequestDTO);
         }
         return recruit.getId();
+    }
+
+    @Transactional
+    public List<Boolean> getFavoriteList(RecruitListRequest request, User user)
+    {
+        List<Recruit> recruitList = getRecruitListByCriteria(request);
+
+        return recruitList.stream()
+                .map(recruit -> (user != null) && (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                                user.getId(),
+                                recruit.getId(),
+                                RecruitFavoriteEnum.LIKE))
+                ).collect(Collectors.toList());
     }
 }

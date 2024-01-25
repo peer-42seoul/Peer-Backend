@@ -11,6 +11,7 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.User;
+import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -67,6 +68,9 @@ public class Recruit extends BaseEntity {
     @Column
     private Long writerId;
 
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserPortfolio> userPortfoliosHistories;
+
     public void update(RecruitUpdateRequestDTO request) {
         this.getTeam().update(request);
         this.title = request.getTitle();
@@ -93,7 +97,7 @@ public class Recruit extends BaseEntity {
         this.interviews.add(RecruitInterview.builder()
             .question(interview.getQuestion())
             .type(RecruitInterviewType.valueOf(interview.getType()))
-            .options(interview.getOptions())
+            .options(interview.getOptionList())
             .recruit(this)
             .build());
     }

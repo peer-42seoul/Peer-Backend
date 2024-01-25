@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.tag.TagResponse;
 import peer.backend.entity.tag.RecruitTag;
@@ -24,10 +25,11 @@ public class TagService {
 
     @Transactional
     public void createTag(String name, String color) {
-        if (this.tagRepository.existsByName(name)) {
+        try {
+            this.tagRepository.saveAndFlush(new Tag(name, color));
+        } catch (DataIntegrityViolationException e) {
             throw new ConflictException("이미 존재하는 Tag 이름입니다!");
         }
-        this.tagRepository.save(new Tag(name, color));
     }
 
     @Transactional
@@ -43,12 +45,14 @@ public class TagService {
 
     @Transactional
     public void updateTag(Long tagId, String name, String color) {
-        if (this.tagRepository.existsByName(name)) {
+        try {
+            Tag tag = this.getTag(tagId);
+            tag.setName(name);
+            tag.setColor(color);
+            this.tagRepository.saveAndFlush(tag);
+        } catch (DataIntegrityViolationException e) {
             throw new ConflictException("이미 존재하는 Tag 이름입니다!");
         }
-        Tag tag = this.getTag(tagId);
-        tag.setName(name);
-        tag.setColor(color);
     }
 
     @Transactional

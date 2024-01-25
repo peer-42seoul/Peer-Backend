@@ -1,6 +1,30 @@
 package peer.backend.entity.team;
 
-import lombok.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
@@ -10,16 +34,17 @@ import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
-import peer.backend.entity.team.enums.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import peer.backend.entity.board.team.Board;
+import peer.backend.entity.team.enums.TeamMemberStatus;
+import peer.backend.entity.team.enums.TeamOperationFormat;
+import peer.backend.entity.team.enums.TeamStatus;
+import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.team.enums.TeamUserRoleType;
+import peer.backend.entity.user.UserPortfolio;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,6 +53,7 @@ import java.util.List;
 @Table(name = "team")
 @EqualsAndHashCode(callSuper = false)
 public class Team extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,7 +69,7 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RecruitDueEnum dueTo;
-    @Column
+    @Column(nullable = false)
     private int dueValue;
 
     @Column()
@@ -88,6 +114,15 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamJob> jobs;
 
+    @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST)
+    private List<UserPortfolio> userPortfolioHistories;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards;
+
+    @Column
+    private String showcaseContent;
+
     public Integer getMaxMember() {
         return getJobs().stream().mapToInt(TeamJob::getMax).sum();
     }
@@ -114,8 +149,9 @@ public class Team extends BaseEntity {
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
         jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty())
+        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
             request.getRoleList().forEach(this::addRole);
+        }
     }
 
     public void addRole(TeamJobDto role) {
@@ -123,10 +159,10 @@ public class Team extends BaseEntity {
             this.jobs = new ArrayList<>();
         }
         this.jobs.add(TeamJob.builder()
-                .name(role.getName())
-                .max(role.getNumber())
-                .team(this)
-                .build());
+            .name(role.getName())
+            .max(role.getNumber())
+            .team(this)
+            .build());
     }
 
     public void addRole(TeamJobRequestDto role) {
@@ -134,10 +170,10 @@ public class Team extends BaseEntity {
             this.jobs = new ArrayList<>();
         }
         this.jobs.add(TeamJob.builder()
-                .name(role.getName())
-                .max(role.getMax())
-                .team(this)
-                .build());
+            .name(role.getName())
+            .max(role.getMax())
+            .team(this)
+            .build());
     }
 
 
@@ -155,7 +191,7 @@ public class Team extends BaseEntity {
     }
 
     public void grantLeaderPermission(Long grantingUserId, TeamUserRoleType teamUserRoleType) {
-        for (TeamUser teamUser: this.teamUsers) {
+        for (TeamUser teamUser : this.teamUsers) {
             if (teamUser.getUserId().equals(grantingUserId)) {
                 teamUser.grantLeader(teamUserRoleType);
             }

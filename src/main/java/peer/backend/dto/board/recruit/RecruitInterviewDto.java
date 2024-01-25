@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 
 import java.util.List;
 
@@ -15,5 +14,5 @@ import java.util.List;
 public class RecruitInterviewDto {
     private String question;
     private String type;
-    private List<String> options;
+    private List<String> optionList;
 }

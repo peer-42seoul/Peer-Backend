@@ -10,10 +10,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.*;
 import peer.backend.dto.dnd.TeamMember;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.SocialLogin;
@@ -64,6 +61,15 @@ public class RedisRepositoryConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, TeamMember.class);
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<List<TeamMember>>(type));
+        return redisTemplate;
+    }
+
+    @Bean("redisTemplateForInitKey")
+    public RedisTemplate<Long, String> privateInformationApiInitRedis() {
+        RedisTemplate<Long, String> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setKeySerializer(new GenericToStringSerializer<>(Long.class));
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
 }
