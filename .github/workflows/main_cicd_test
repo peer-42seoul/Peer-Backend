@@ -3,7 +3,7 @@ name: Main Server CI/CD
 on:
   pull_request:
     branches: [ "main-cicd-test" ]
-    types: [ "close" ]
+    types: [ "closed" ]
 
 permissions:
   contents: read
