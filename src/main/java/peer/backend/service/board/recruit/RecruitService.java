@@ -189,7 +189,7 @@ public class RecruitService {
     }
 
     public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable,
-        RecruitListRequest request, User user) {
+        RecruitListRequest request) {
 
         List<Recruit> recruits = getRecruitListByCriteria(request);
 

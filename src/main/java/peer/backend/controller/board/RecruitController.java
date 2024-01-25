@@ -39,13 +39,7 @@ public class RecruitController {
     public Page<RecruitListResponse> getRecruitListByConditions(@Valid RecruitListRequest request,
         Authentication auth) {
         Pageable pageable = PageRequest.of(request.getPage() - 1, request.getPageSize());
-        try {
-            User user = User.authenticationToUser(auth);
-            return recruitService.getRecruitSearchList(pageable, request, user);
-        } catch (NullPointerException e) {
-            return recruitService.getRecruitSearchList(pageable, request, null);
-        }
-
+            return recruitService.getRecruitSearchList(pageable, request);
     }
 
     @ApiOperation(value = "", notes = "모집글과 팀을 함께 생성한다.")
