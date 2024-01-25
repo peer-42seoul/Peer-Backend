@@ -36,14 +36,7 @@ jobs:
           ref: ${{ env.GITHUB_SHA }}
       - name: extract version
         run: |
-          export TEMP=$(echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
-          echo "$TEMP"
-          echo "export VERSION=$TEMP" >> "$GITHUB_ENV"
-
-  use-env-test:
-    needs: extract-version
-    runs-on: ubuntu-latest
-    steps:
+          echo "VERSION=$(echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> "$GITHUB_ENV"
       - name: use env test
         run: |
           echo "$VERSION"
