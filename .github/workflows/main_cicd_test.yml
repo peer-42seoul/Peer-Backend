@@ -29,6 +29,10 @@ jobs:
     needs: check-merged
     runs-on: ubuntu-latest
     steps:
+      - name: get repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: extract version test
         run: |
-          echo '${{ github.event.pull_request.head.sha }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
+          echo '$(git show -s --format=%s)' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
