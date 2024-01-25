@@ -22,10 +22,11 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-    - run: |
-        echo 'The PR was merged'
+      - name: check branch
+    	  run: |
+          echo 'The PR was merged'
       
-	extract-version:
+  extract-version:
     needs: check-merged
     runs-on: ubuntu-latest
     steps:
@@ -38,9 +39,9 @@ jobs:
           echo $(echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}') >> "$GITHUB_ENV"
 
 	use-env-test:
-		needs: extract-version:
+		needs: extract-version
 		runs-on: ubuntu-latest
     steps:
-			- name: use env test:
+			- name: use env test
 				run: |
 					echo "$VERSION"
