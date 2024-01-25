@@ -22,7 +22,7 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: check branch
+      - name: check merged
     	  run: |
           echo 'The PR was merged'
       
