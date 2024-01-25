@@ -3,7 +3,7 @@ name: Main Server CI/CD
 on:
   pull_request:
     branches: [ "main" ]
-    types: [ "close" ]
+    types: [ "closed" ]
 
 permissions:
   contents: read
