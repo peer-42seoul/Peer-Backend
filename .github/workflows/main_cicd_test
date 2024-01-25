@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   check-branch:
-    if: contains(github.head_ref, 'Release')
+    if: contains(github.head_ref, 'release')
     runs-on: ubuntu-latest
     steps:
       - name: check branch
