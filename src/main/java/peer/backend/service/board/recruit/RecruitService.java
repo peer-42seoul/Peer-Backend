@@ -203,12 +203,7 @@ public class RecruitService {
                 recruit2.getStatus().toString(),
                 // TODO:  맞나 성능 개선이 필요한거 같기도
                 this.tagService.recruitTagListToTagResponseList(recruit2.getRecruitTags()),
-                recruit2.getId(),
-                ((user != null) &&
-                    (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
-                        user.getId(),
-                        recruit2.getId(),
-                        RecruitFavoriteEnum.LIKE)))))
+                recruit2.getId()))
             .collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
