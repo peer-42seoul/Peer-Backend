@@ -49,26 +49,18 @@ jobs:
         run: |
           echo "${{ needs.extract-version.outputs.version }}"
 
-  build:
-    needs: use-output-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: use output test
-        run: |
-          echo 'build'
-
   use-output-test-2:
-    needs: build
+    needs: extract-version
     runs-on: ubuntu-latest
     steps:
       - name: use output test 2
         run: |
-          echo "${{ needs.build.outputs.version }}"
+          echo "${{ needs.extract-version.outputs.version }}"
 
   use-output-test-3:
-    needs: use-output-test
+    needs: [extract-version, use-output-test]
     runs-on: ubuntu-latest
     steps:
       - name: use output test 3
         run: |
-          echo "${{ needs.use-output-test.outputs.version }}"
+          echo "${{ needs.extract-version.outputs.version }}"
