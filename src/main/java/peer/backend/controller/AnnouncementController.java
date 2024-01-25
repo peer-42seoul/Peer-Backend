@@ -74,20 +74,4 @@ public class AnnouncementController {
         this.announcementService.setAnnouncementStatus(request.getAnnouncementId(),
             AnnouncementStatus.PUBLISHED);
     }
-
-//    @GetMapping("/about/announcement")
-//    public ResponseEntity<Page<AboutAnnouncementListResponse>> getAboutAnnouncementList(
-//        Pageable pageable) {
-//        Page<Announcement> announcementList = this.announcementService.getAnnouncementListByStatusAndPageable(
-//            AnnouncementStatus.PUBLISHED, pageable);
-//        return ResponseEntity.ok(announcementList.map(AboutAnnouncementListResponse::new));
-//    }
-//
-//    @GetMapping("/about/announcement/{announcementId}")
-//    public ResponseEntity<AboutAnnouncementResponse> getAboutAnnouncement(
-//        @PathVariable("announcementId") Long announcementId) {
-//        Announcement announcement = this.announcementService.getAnnouncement(announcementId);
-//        this.announcementService.increaseView(announcement);
-//        return ResponseEntity.ok(new AboutAnnouncementResponse(announcement));
-//    }
 }
