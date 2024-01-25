@@ -1,0 +1,34 @@
+name: Main Server CI/CD
+
+on:
+  pull_request:
+    branches: [ "main-cicd-test" ]
+    types: [ "close" ]
+
+permissions:
+  contents: read
+
+jobs:
+  check-branch:
+    if: contains(github.head_ref, 'Release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: check branch
+        run: |
+          echo 'Passed the check to see if it was a release branch'
+
+  check-merged:
+    needs: check-branch
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo 'The PR was merged'
+      
+  extract-version-test:
+    needs: check-merged
+    runs-on: ubuntu-latest
+    steps:
+      - name: extract version test
+        run: |
+          echo '${{ github.event.head_commit.message }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
