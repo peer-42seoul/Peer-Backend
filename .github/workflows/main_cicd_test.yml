@@ -35,4 +35,4 @@ jobs:
           ref: ${{ env.GITHUB_SHA }}
       - name: extract version test
         run: |
-          echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)"
+          echo "$(git show -s --format=%s)" | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
