@@ -65,23 +65,26 @@ public class PrivateInfoWrappingService {
     }
 
     private void saveMainSeedToRedis(MainSeedDTO data) {
+        String code = data.getCode();
+
         // 값 저장
         this.redisTemplateForSecret
                 .opsForValue()
-                .set(data.getCode().toString(), data.getSeed());
+                .set(code, data.getSeed());
         // 5분 설정
         this.redisTemplateForSecret
-                .expire(data.getCode().toString(), 5, TimeUnit.MINUTES);
+                .expire(code, 5, TimeUnit.MINUTES);
     }
 
     private void saveInitSecretToRedis(InitSecretDTO value) {
         // 값 저장
+        Long code = Long.parseLong(value.getCode());
         this.redisTemplateForInitKey
                 .opsForValue()
-                .set(value.getCode(), value.getSecret());
+                .set(code, value.getSecret());
         // 5분 설정
         this.redisTemplateForInitKey
-                .expire(value.getCode(), 5, TimeUnit.MINUTES);
+                .expire(code, 5, TimeUnit.MINUTES);
     }
 
     private void saveCodeAndActionToRedis(Long code, PrivateActions act) {
@@ -120,7 +123,7 @@ public class PrivateInfoWrappingService {
         // sb 를 secret 으로 활용하면 됨
         InitSecretDTO result = InitSecretDTO.builder()
                 .secret(sb.toString())
-                .code(this.makeInitCode())
+                .code(this.makeInitCode().toString())
                 .build();
 
         this.saveInitSecretToRedis(result);
@@ -128,8 +131,8 @@ public class PrivateInfoWrappingService {
     }
 
     public MainSeedDTO parseInitToken(InitTokenDTO jwt) {
-        String secret = this.redisTemplateForInitKey.opsForValue().get(jwt.getCode());
-        this.redisTemplateForInitKey.delete(jwt.getCode());
+        String secret = this.redisTemplateForInitKey.opsForValue().get(Long.parseLong(jwt.getCode()));
+        this.redisTemplateForInitKey.delete(Long.parseLong(jwt.getCode()));
         if (secret == null)
             throw new BadRequestException("비정상적인 접근입니다.");
 
@@ -159,8 +162,8 @@ public class PrivateInfoWrappingService {
 
     private Claims parseSecretData(PrivateDataDTO data) {
         String secret = this.redisTemplateForSecret
-                .opsForValue().get(data.getCode().toString());
-        this.redisTemplateForSecret.delete(data.getCode().toString());
+                .opsForValue().get(data.getCode());
+        this.redisTemplateForSecret.delete(data.getCode());
         if (secret == null)
             throw new BadRequestException("비정상적인 접근입니다.");
         Key key = Keys.hmacShaKeyFor(secret.getBytes());
@@ -272,7 +275,7 @@ public class PrivateInfoWrappingService {
 
         MainSeedDTO data = MainSeedDTO.builder()
                 .seed(sb.toString())
-                .code(result)
+                .code(result.toString())
                 .build();
         this.saveMainSeedToRedis(data);
 

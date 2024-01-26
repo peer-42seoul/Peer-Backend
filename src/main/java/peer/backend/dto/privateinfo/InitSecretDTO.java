@@ -8,5 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 public class InitSecretDTO {
     private String secret;
-    private Long code;
+    private String code;
 }
