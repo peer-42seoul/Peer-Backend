@@ -12,6 +12,5 @@ public class ShowcaseUpdateDto {
     private String image;
     @NotNull
     private String content;
-    @NotNull
     private List<PostLinkResponse> links;
 }
