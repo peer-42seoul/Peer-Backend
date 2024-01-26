@@ -8,5 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 public class InitTokenDTO {
     private String token;
-    private Long code;
+    private String code;
 }
