@@ -25,9 +25,7 @@ import org.springframework.security.core.Authentication;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
-import peer.backend.entity.board.team.Board;
-import peer.backend.entity.board.team.Post;
-import peer.backend.entity.board.team.PostLike;
+import peer.backend.entity.board.team.*;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.enums.TeamMemberStatus;
@@ -123,13 +121,16 @@ class ShowcaseServiceTest {
             .title("12345")
             .user(user)
             .board(board)
+            .files(new ArrayList<>())
+            .links(new ArrayList<>())
             .build();
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         PrincipalDetails details = new PrincipalDetails(user);
         auth = new UsernamePasswordAuthenticationToken(details, details.getPassword(),
             details.getAuthorities());
-
+        post.getFiles().add(PostFile.builder().id(1L).url("hello").build());
+        post.getLinks().add(PostLink.builder().id(1L).name("hello").url("hell").build());
         posts.add(post);
 
         mockPost = mock(Post.class);
@@ -137,7 +138,7 @@ class ShowcaseServiceTest {
     }
 
     @Test
-    @DisplayName("쇼케이스 리스트 가져오기 테스티")
+    @DisplayName("쇼케이스 리스트 가져오기 테스트")
     void getShowCaseListTest() {
         when(postRepository.findAllByBoardTypeOrderByCreatedAtDesc(any(), any()))
             .thenReturn(new PageImpl<>(posts, PageRequest.of(0, 2), 1L));
