@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.DisperseTeamTracking;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
 import peer.backend.dto.board.recruit.RecruitCreateRequest;
@@ -494,8 +495,9 @@ public class TeamService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀 Id 입니다."));
     }
 
+    @DisperseTeamTracking
     @Transactional
-    public void disperseTeam(User user, Long teamId) {
+    public Team disperseTeam(User user, Long teamId) {
         if (!this.isLeader(teamId, user)) {
             throw new ForbiddenException("팀의 리더만 팀을 해산 할 수 있습니다!");
         }
@@ -504,6 +506,7 @@ public class TeamService {
             throw new ConflictException("팀이 모집 중 상태일 경우 팀을 해산 할 수 없습니다!");
         }
         team.setStatus(TeamStatus.DISPERSE);
+        return team;
     }
 
     @Transactional
