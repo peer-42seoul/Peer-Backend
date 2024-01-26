@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.tracking.CompleteTeamTracking;
 import peer.backend.annotation.tracking.DisperseTeamTracking;
 import peer.backend.annotation.tracking.TeamCreateTracking;
 import peer.backend.dto.board.recruit.RecruitAnswerDto;
@@ -509,8 +510,9 @@ public class TeamService {
         return team;
     }
 
+    @CompleteTeamTracking
     @Transactional
-    public void completeTeam(User user, Long teamId) {
+    public Team completeTeam(User user, Long teamId) {
         if (!this.isLeader(teamId, user)) {
             throw new ForbiddenException("팀의 리더만 팀을 완료 할 수 있습니다!");
         }
@@ -520,6 +522,7 @@ public class TeamService {
         }
         team.setStatus(TeamStatus.COMPLETE);
         team.setEnd(LocalDateTime.now());
+        return team;
     }
 
     private boolean validateRequestTeamStatusEnum(Team team,
