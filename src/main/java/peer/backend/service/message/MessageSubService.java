@@ -38,8 +38,7 @@ public class MessageSubService {
 
     private ZoneId currnetTimezone = ZoneId.systemDefault();
 
-    @Autowired
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     /**
      * DB 상에 저장된 대화 목록의 index 객체를 반환합니다.

@@ -40,7 +40,10 @@ public class KeywordAlarmServiceTest {
                 .email("test@email.com")
                 .name(name)
                 .nickname("test nickname")
-                .isAlarm(false)
+                .teamAlarm(true)
+                .nightAlarm(true)
+                .messageAlarm(true)
+                .keywordRecommendAlarm(true)
                 .address("test address")
                 .build();
         PrincipalDetails details = new PrincipalDetails(user);

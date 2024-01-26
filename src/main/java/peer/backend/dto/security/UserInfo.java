@@ -98,6 +98,11 @@ public class UserInfo {
             .email(this.email)
             .password(encoder.encode(this.password))
             .name(this.name)
-            .nickname(this.nickname).build();
+            .nickname(this.nickname)
+            .keywordRecommendAlarm(true)
+            .messageAlarm(true)
+            .nightAlarm(true)
+            .teamAlarm(true)
+            .build();
     }
 }

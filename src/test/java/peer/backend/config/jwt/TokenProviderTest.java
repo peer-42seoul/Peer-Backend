@@ -29,7 +29,11 @@ public class TokenProviderTest {
             .id(1L)
             .name("asdf").nickname("asdf")
             .password("asdf").email("asdf@asdf.com").address("asdf")
-            .isAlarm(false).certification(false)
+            .teamAlarm(true)
+            .nightAlarm(true)
+            .messageAlarm(true)
+            .keywordRecommendAlarm(true)
+            .certification(false)
             .imageUrl(null).company(null).introduce(null).representAchievement(null)
             .build();
 
