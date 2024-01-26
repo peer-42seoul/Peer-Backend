@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "dev", release-** ]
   pull_request:
-    branches: [ "main", dev ]
+    branches: [ "dev", release-** ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
 #  repository_dispatch:
 #    types: [ resources_update ]
@@ -43,7 +43,7 @@ jobs:
       
   deploy-dev:
 #    if: (github.event_name == 'repository_dispatch' && github.event.action == 'resources_update') || (github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push'))
-    if: github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push')
+    if: (github.ref == 'refs/heads/dev' || contains(github.head_ref, 'release')) && (github.event.pull_request.merged == true || github.event_name == 'push')
     needs: build
     runs-on: ubuntu-latest
 
