@@ -510,7 +510,7 @@ public class TeamService {
     }
 
     @Transactional
-    public void finishTeam(User user, Long teamId) {
+    public void completeTeam(User user, Long teamId) {
         if (!this.isLeader(teamId, user)) {
             throw new ForbiddenException("팀의 리더만 팀을 완료 할 수 있습니다!");
         }
