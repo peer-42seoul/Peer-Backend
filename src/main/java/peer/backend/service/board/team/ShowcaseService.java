@@ -62,7 +62,7 @@ public class ShowcaseService {
         Team team = post.getBoard().getTeam();
         return ShowcaseListResponse.builder()
             .id(post.getId())
-            .image(post.getImage())
+            .image(post.getFiles().get(0).getUrl())     // showcase에서 대표이미지는 항상 첫번째인덱스에 있습니다.
             .name(post.getBoard().getTeam().getName())
             .description(post.getContent())
             .skill(
