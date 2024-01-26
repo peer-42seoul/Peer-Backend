@@ -62,7 +62,7 @@ public class ShowcaseService {
         Team team = post.getBoard().getTeam();
         return ShowcaseListResponse.builder()
             .id(post.getId())
-            .image(post.getImage())
+            .image(post.getFiles().get(0).getUrl())
             .name(post.getBoard().getTeam().getName())
             .description(post.getContent())
             .skill(
