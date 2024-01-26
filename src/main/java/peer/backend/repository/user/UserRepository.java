@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import peer.backend.entity.user.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +31,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u FROM User u WHERE u.nickname LIKE %:keyword%", countQuery = "SELECT count(u) FROM User u")
     Page<User> findByNicknameContainingFromPageable(Pageable pageable, String keyword);
+
+    List<User> findByIdIn(List<Long> ids);
+
+    Long countByCreatedAtBefore(LocalDateTime time);
 }
