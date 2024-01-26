@@ -60,7 +60,7 @@ public class ContactUsService {
     }
 
     @Scheduled(cron = "0 0 4 * * ?")
-    public void mailToManeger() {
+    public void mailToManager() {
         List<ContactUs> mailsForManeger = this.contactUsRepository
                 .findAllForManeger();
         mailsForManeger.forEach(m ->{
