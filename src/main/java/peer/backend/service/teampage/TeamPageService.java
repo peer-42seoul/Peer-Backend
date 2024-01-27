@@ -49,7 +49,7 @@ public class TeamPageService {
         Board board = boardRepository.findById(request.getBoardId()).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시판입니다."));
         Team team = board.getTeam();
-        if (teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), team.getId())) {
+        if (!teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), team.getId())) {
             throw new ForbiddenException("해당 팀에 속해있지 않습니다.");
         }
         Post post = Post.builder()
