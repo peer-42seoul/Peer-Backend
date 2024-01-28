@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import peer.backend.dto.board.team.BoardPostRes;
 import peer.backend.dto.board.team.PostCreateRequest;
 import peer.backend.dto.team.PostDetail;
 import peer.backend.dto.team.PostRes;
@@ -62,16 +63,18 @@ public class TeamPageController {
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판에 일반 작성 글 게시.")
     @PostMapping("/posts/create")
-    public ResponseEntity createGeneralPost(@RequestBody PostCreateRequest postCreateRequest, Authentication auth) {
-        teamPageService.createGeneralPost(postCreateRequest, auth);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<BoardPostRes> createGeneralPost(@RequestBody PostCreateRequest postCreateRequest,
+                                                          Authentication auth) {
+        BoardPostRes res = BoardPostRes.from(teamPageService.createGeneralPost(postCreateRequest, auth));
+        return ResponseEntity.ok(res);
     }
 
     @ApiOperation(value = "TEAM-PAGE-NOTICE", notes = "공지사항 게시판에 공지사항 글 게시.")
     @PostMapping("/notice/create")
-    public ResponseEntity createNoticePost(@RequestBody PostCreateRequest postCreateRequest, Authentication auth) {
-        teamPageService.createNoticePost(postCreateRequest, auth);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<BoardPostRes> createNoticePost(@RequestBody PostCreateRequest postCreateRequest,
+                                                         Authentication auth) {
+        BoardPostRes res = BoardPostRes.from(teamPageService.createNoticePost(postCreateRequest, auth));
+        return ResponseEntity.ok(res);
     }
 
     @ApiOperation(value = "TEAM-PAGE-NOTICE", notes = "해당 팀에 공지사항 게시판 목록 가져오기.")
