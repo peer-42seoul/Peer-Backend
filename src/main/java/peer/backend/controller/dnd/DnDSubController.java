@@ -26,8 +26,8 @@ public class DnDSubController {
     public static final String CALENDAR_IDENTIFIER = "calendar";
     private final DnDSubService dnDSubService;
 
-    @GetMapping("calendar/team-list")
-    @ApiOperation(value = "", notes = "달력을 위한 팀 멤버 리스트를 제공합니다.")
+    @PostMapping("calendar/team-list")
+    @ApiOperation(value = "", notes = "달력을 위한 팀 멤버 리스트를 제공합니다. 임시용")
     public ResponseEntity<Object> getTeamMemberList(Authentication auth, @RequestBody long teamId) {
         Team target = this.dnDSubService.getTeamByTeamId(teamId);
 
