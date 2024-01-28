@@ -40,11 +40,7 @@ public class TeamPageController {
         Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(boardId, pageReq, keyword);
 
-        if (!postsPage.isEmpty()) {
-            return ResponseEntity.ok(postsPage);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(postsPage);
     }
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 특정 글을 가져옵니다.")
@@ -89,10 +85,10 @@ public class TeamPageController {
         Board board = boardService.getNoticeBoard(teamId, user);
         Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(board.getId(), pageReq, keyword);
-        if (!postsPage.isEmpty()) {
-            return ResponseEntity.ok(postsPage);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+//        if (!postsPage.isEmpty()) {
+        return ResponseEntity.ok(postsPage);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
     }
 }
