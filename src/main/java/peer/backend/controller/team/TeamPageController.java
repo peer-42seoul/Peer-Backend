@@ -88,10 +88,7 @@ public class TeamPageController {
         Board board = boardService.getNoticeBoard(teamId, user);
         Pageable pageReq = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize());
         Page<PostRes> postsPage = teamPageService.getPostsByBoardIdWithKeyword(board.getId(), pageReq, keyword);
-//        if (!postsPage.isEmpty()) {
+
         return ResponseEntity.ok(postsPage);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
     }
 }
