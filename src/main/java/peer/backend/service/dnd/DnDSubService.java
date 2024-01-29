@@ -70,7 +70,7 @@ public class DnDSubService {
         System.out.println("error 2");
         return target.getTeamUsers()
                 .stream()
-                .anyMatch(member -> member.getUserId().equals(requester.getId()));
+                .noneMatch(member -> member.getUserId().equals(requester.getId()));
     }
 
     public Long makeTemporaryEventId() {
