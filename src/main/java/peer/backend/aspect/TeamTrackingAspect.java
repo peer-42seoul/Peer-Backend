@@ -31,6 +31,14 @@ public class TeamTrackingAspect {
     public void teamUpdate() {
     }
 
+    @Pointcut("@annotation(peer.backend.annotation.tracking.DisperseTeamTracking)")
+    public void disperseTeam() {
+    }
+
+    @Pointcut("@annotation(peer.backend.annotation.tracking.CompleteTeamTracking)")
+    public void completeTeam() {
+    }
+
     @AfterReturning(pointcut = "peer.backend.aspect.TeamTrackingAspect.teamCreate()", returning = "team")
     public void teamCreateTracking(Team team) {
         TeamTracking teamTracking = TeamTracking.builder()
@@ -62,5 +70,19 @@ public class TeamTrackingAspect {
         this.teamTrackingRepository.save(teamTracking);
 
         return result;
+    }
+
+    @AfterReturning(pointcut = "peer.backend.aspect.TeamTrackingAspect.disperseTeam()", returning = "team")
+    public void disperseTeamTracking(Team team) {
+        TeamTracking teamTracking = this.teamTrackingRepository.findByTeamId(team.getId());
+        teamTracking.setTeamStatus(TeamStatus.DISPERSE);
+        this.teamTrackingRepository.save(teamTracking);
+    }
+
+    @AfterReturning(pointcut = "peer.backend.aspect.TeamTrackingAspect.completeTeam()", returning = "team")
+    public void completeTeamTracking(Team team) {
+        TeamTracking teamTracking = this.teamTrackingRepository.findByTeamId(team.getId());
+        teamTracking.setTeamStatus(TeamStatus.COMPLETE);
+        this.teamTrackingRepository.save(teamTracking);
     }
 }
