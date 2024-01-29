@@ -2,10 +2,10 @@ package peer.backend.service.dnd;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import peer.backend.dto.dnd.TeamMember;
 import peer.backend.dto.dndSub.CalendarEventDTO;
 import peer.backend.dto.dndSub.DeleteTargetDTO;
 import peer.backend.dto.dndSub.MemberDTO;
@@ -18,7 +18,6 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.user.UserRepository;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +29,31 @@ public class DnDSubService {
 
     private Long eventCnt = 0L;
 
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, List<TeamMember>> redisTemplate;
 
-    private final HashSet<CalendarEventDTO> tempMemeoryEventList;
+    private final HashSet<CalendarEventDTO> tempMemoryEventList;
 
-    public void saveTeamDataInRedis(String key, String identifier, Object value) {
+    public void saveTeamDataInRedis(String key, String identifier, Team target) {
+        List<TeamMember> members = new ArrayList<>();
+        for (TeamUser teamUser : target.getTeamUsers()) {
+            TeamMember member = TeamMember.builder()
+                    .teamId(teamUser.getTeamId())
+                    .userId(teamUser.getUserId())
+                    .build();
+            members.add(member);
+        }
+        if (members.isEmpty())
+            return ;
         String newKey = key + "-" + identifier;
-        redisTemplate.opsForValue().set(newKey, value);
+        redisTemplate.opsForValue().set(newKey, members);
     }
 
-    public Object getTeamDataInRedis(String key, String identifier) {
+    public void saveTeamMemberInRedis(String key, String identifier, List<TeamMember> target) {
+        String newKey = key + "-" + identifier;
+        redisTemplate.opsForValue().set(newKey, target);
+    }
+
+    public List<TeamMember> getTeamDataInRedis(String key, String identifier) {
         return redisTemplate.opsForValue().get(key + "-" + identifier);
     }
 
@@ -48,13 +62,15 @@ public class DnDSubService {
     }
 
     public boolean validCheckForTeam(Team target) {
-        return !target.getStatus().equals(TeamStatus.COMPLETE);
+        System.out.println("error 1");
+        return target.getStatus().equals(TeamStatus.COMPLETE) || target.getStatus().equals(TeamStatus.DISPERSE);
     }
 
     public boolean validCheckUserWithTeam(Team target, User requester) {
+        System.out.println("error 2");
         return target.getTeamUsers()
                 .stream()
-                .anyMatch(member -> member.getUserId().equals(requester.getId()));
+                .noneMatch(member -> member.getUserId().equals(requester.getId()));
     }
 
     public Long makeTemporaryEventId() {
@@ -100,22 +116,22 @@ public class DnDSubService {
                 .title(data.getTitle())
                 .build();
 
-        this.tempMemeoryEventList.add(saveEvent);
+        this.tempMemoryEventList.add(saveEvent);
 
         return id;
     }
 
     public Long updateEventToAlarm(CalendarEventDTO data){
-        if (this.tempMemeoryEventList.stream().noneMatch(event -> event.getEventId().equals(data.getEventId()))) {
+        if (this.tempMemoryEventList.stream().noneMatch(event -> event.getEventId().equals(data.getEventId()))) {
             return -1L;
         }
-        this.tempMemeoryEventList.remove(data);
-        this.tempMemeoryEventList.add(data);
+        this.tempMemoryEventList.remove(data);
+        this.tempMemoryEventList.add(data);
         return data.getEventId();
     }
 
     public void deleteEventFromAlarm(DeleteTargetDTO target) {
-        CalendarEventDTO filtered = this.tempMemeoryEventList.stream()
+        CalendarEventDTO filtered = this.tempMemoryEventList.stream()
                 .filter(event -> event.getEventId().equals(target.getEventId()))
                 .findFirst()
                 .orElse(null);
@@ -123,11 +139,11 @@ public class DnDSubService {
         if (filtered == null)
             throw new NoSuchElementException("이벤트가 존재하지 않습니다.");
 
-        this.tempMemeoryEventList.remove(filtered);
+        this.tempMemoryEventList.remove(filtered);
         return;
     }
 
     public List<CalendarEventDTO> getAllEvents() {
-        return new ArrayList<>(this.tempMemeoryEventList);
+        return new ArrayList<>(this.tempMemoryEventList);
     }
 }

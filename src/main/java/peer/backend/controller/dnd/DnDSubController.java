@@ -6,9 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import peer.backend.dto.dnd.TeamMember;
 import peer.backend.dto.dndSub.CalendarEventDTO;
 import peer.backend.dto.dndSub.DeleteTargetDTO;
 import peer.backend.dto.dndSub.MemberDTO;
+import peer.backend.dto.dndSub.TeamIdentifierDTO;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
@@ -28,11 +30,11 @@ public class DnDSubController {
 
     @PostMapping("calendar/team-list")
     @ApiOperation(value = "", notes = "달력을 위한 팀 멤버 리스트를 제공합니다. 임시용")
-    public ResponseEntity<Object> getTeamMemberList(Authentication auth, @RequestBody long teamId) {
-        Team target = this.dnDSubService.getTeamByTeamId(teamId);
+    public ResponseEntity<Object> getTeamMemberList(Authentication auth, @RequestBody TeamIdentifierDTO data) {
+        Team target = this.dnDSubService.getTeamByTeamId(data.getTeamId());
 
         // redis 에 자주 쓸 가능성이 있는 team 정보 저장
-        this.dnDSubService.saveTeamDataInRedis(Long.toString(teamId), CALENDAR_IDENTIFIER, target);
+//        this.dnDSubService.saveTeamDataInRedis(Long.toString(data.getTeamId()), CALENDAR_IDENTIFIER, target);
 
         // 유효성 검사
         if (this.dnDSubService.validCheckForTeam(target)
@@ -45,7 +47,7 @@ public class DnDSubController {
         try {
            ret = this.dnDSubService.getMemberList(User.authenticationToUser(auth), target);
         }
-        catch (NoSuchElementException | BadRequestException e) {
+        catch (Exception e) {
             return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
         }
         if(ret == null) {
@@ -57,14 +59,21 @@ public class DnDSubController {
     @PostMapping("calendar/set-alarm")
     @ApiOperation(value = "", notes = "알람으로 기록된 이벤트를 설정합니다.")
     public ResponseEntity<Object> setAlarmEvent(Authentication auth, @RequestBody CalendarEventDTO event) {
-       // redis 에서 team 정보 찾기
-        Team target = (Team)this.dnDSubService.getTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER);
-        if(target == null) {
-            target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
-            this.dnDSubService.saveTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER, target);
-        }
+//       // redis 에서 team 정보 찾기
+//        List<TeamMember> target = this.dnDSubService.getTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER);
+//        if(target == null) {
+//            this.dnDSubService.getTeamByTeamId(event.getTeamId()).getTeamUsers().forEach(m -> {
+//                TeamMember member = TeamMember.builder()
+//                        .teamId(m.getTeamId())
+//                        .userId(m.getUserId())
+//                        .build();
+//                target.add(member);
+//            });
+//            this.dnDSubService.saveTeamMemberInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER, target);
+//        }
 
         // 유효성 검사
+        Team target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
         if (this.dnDSubService.validCheckForTeam(target)
                 || this.dnDSubService.validCheckUserWithTeam(target, User.authenticationToUser(auth))) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -84,13 +93,15 @@ public class DnDSubController {
     @DeleteMapping("calendar/delete-alarm")
     @ApiOperation(value = "", notes = "알람으로 기록된 이벤트를 삭제합니다.")
     public ResponseEntity<Object> deleteAlarmEvent(Authentication auth, @RequestBody DeleteTargetDTO event) {
-        Team target = (Team)this.dnDSubService.getTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER);
-        if(target == null) {
-            target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
-            this.dnDSubService.saveTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER, target);
-        }
+//        Team target = (Team)this.dnDSubService.getTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER);
+//        if(target == null) {
+//            target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
+//            this.dnDSubService.saveTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER, target);
+//        }
+
 
         // 유효성 검사
+        Team target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
         if (this.dnDSubService.validCheckForTeam(target)
                 || this.dnDSubService.validCheckUserWithTeam(target, User.authenticationToUser(auth))) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -110,13 +121,14 @@ public class DnDSubController {
     @ApiOperation(value = "", notes = "알람으로 기록된 이벤트를 갱신합니다.")
     public ResponseEntity<Object> updateAlarmEvent(Authentication auth, @RequestBody CalendarEventDTO event) {
         // redis 에서 team 정보 찾기
-        Team target = (Team)this.dnDSubService.getTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER);
-        if(target == null) {
-            target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
-            this.dnDSubService.saveTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER, target);
-        }
+//        Team target = (Team)this.dnDSubService.getTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER);
+//        if(target == null) {
+//            target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
+//            this.dnDSubService.saveTeamDataInRedis(Long.toString(event.getTeamId()), CALENDAR_IDENTIFIER, target);
+//        }
 
         // 유효성 검사
+        Team target = this.dnDSubService.getTeamByTeamId(event.getTeamId());
         if (this.dnDSubService.validCheckForTeam(target)
                 || this.dnDSubService.validCheckUserWithTeam(target, User.authenticationToUser(auth))) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
