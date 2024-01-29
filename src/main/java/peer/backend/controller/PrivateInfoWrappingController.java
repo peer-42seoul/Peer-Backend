@@ -14,6 +14,9 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(PrivateInfoWrappingController.LETTER_URL)
@@ -46,10 +49,10 @@ public class PrivateInfoWrappingController {
 
     @ApiOperation(value = "", notes = "민감한 정보를 위한 수신합니다.")
     @PostMapping("/receive")
-    public ResponseEntity<?> sendTokenAndKey(Authentication auth, @RequestBody() PrivateDataDTO token) {
+    public ResponseEntity<?> sendTokenAndKey(Authentication auth, @RequestBody() PrivateDataDTO token, HttpServletResponse response) {
         User user = null;
         if (auth != null)
             user = User.authenticationToUser(auth);
-        return this.privateInfoWrappingService.processDataFromToken(user, token);
+        return this.privateInfoWrappingService.processDataFromToken(user, token, response);
     }
 }
