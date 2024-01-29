@@ -47,8 +47,6 @@ public class SignInController {
     @Value("${jwt.token.validity-in-seconds}")
     private long accessExpirationTime;
 
-    private static final String DEV_DOMAIN_URL = "peer-test.co.kr";
-
     @ApiOperation(value = "C-SIGN-01", notes = "로그인.")
     @PostMapping()
     public ResponseEntity<Object> login(@Valid @RequestBody UserLoginRequest userLoginRequest,

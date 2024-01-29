@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum PrivateActions {
     SIGNUP(662, "SIGNUP"),
+    SIGNIN(648, "SIGNIN"),
     PASSWORDCHECK(1425, "PASSWORDCHECK"),
     PASSWORDMODIFY(1563, "PASSWORDMODIFY");
 

@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import peer.backend.dto.privateinfo.enums.PrivateActions;
 import peer.backend.dto.profile.request.ChangePasswordRequest;
 import peer.backend.dto.profile.request.PasswordRequest;
 import peer.backend.dto.security.UserInfo;
+import peer.backend.dto.security.request.UserLoginRequest;
+import peer.backend.dto.security.response.JwtDto;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.ConflictException;
@@ -24,12 +27,15 @@ import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.service.profile.PersonalInfoService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -41,16 +47,22 @@ public class PrivateInfoWrappingService {
     private final PersonalInfoService personalInfoService;
     private final RedisTemplate<Long, String> redisTemplateForInitKey;
     private final RedisTemplate<String, String> redisTemplateForSecret;
+    private final LoginService loginService;
+
+    @Value("${jwt.token.validity-in-seconds-refresh}")
+    private long refreshExpirationTime;
+
 
     public PrivateInfoWrappingService(
             @Qualifier("redisTemplateForInitKey") RedisTemplate<Long, String> redisTemplateForInitKey,
             RedisTemplate<String, String> redisTemplate,
             MemberService memberService,
-            PersonalInfoService personalInfoService) {
+            PersonalInfoService personalInfoService, LoginService loginService) {
         this.redisTemplateForInitKey = redisTemplateForInitKey;
         this.redisTemplateForSecret = redisTemplate;
         this.memberService = memberService;
         this.personalInfoService = personalInfoService;
+        this.loginService = loginService;
     }
 
 
@@ -185,6 +197,15 @@ public class PrivateInfoWrappingService {
         return new UserInfo(email, password, nickname, name, socialEmail);
     }
 
+    private UserLoginRequest getDataForSingIn(PrivateDataDTO data) throws IllegalArgumentException {
+        Claims target = this.parseSecretData(data);
+
+        String userEmail = target.get("userEmail", String.class);
+        String password = target.get("password", String.class);
+
+        return new UserLoginRequest(userEmail, password);
+    }
+
     private PasswordRequest getDataForPasswordCheck(PrivateDataDTO data) throws IllegalArgumentException {
         Claims target = this.parseSecretData(data);
         String password = target.get("password", String.class);
@@ -199,7 +220,7 @@ public class PrivateInfoWrappingService {
         return new ChangePasswordRequest(password, code);
     }
 
-    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data) {
+    public ResponseEntity<?> processDataFromToken (User user, PrivateDataDTO data, HttpServletResponse response) {
         Integer type = Integer.parseInt(Objects.requireNonNull(this.redisTemplateForSecret.opsForValue().get("act-" + data.getCode())));
         this.redisTemplateForSecret.delete("act-" + data.getCode());
 
@@ -214,6 +235,28 @@ public class PrivateInfoWrappingService {
             this.memberService.signUp(newUser);
             return ResponseEntity.ok().build();
 
+        } else if (type == PrivateActions.SIGNIN.getCode()) {
+            UserLoginRequest userLoginRequest;
+            try {
+                userLoginRequest = this.getDataForSingIn(data);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+            LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
+            JwtDto jwtDto = loginService.login(userLoginRequest.getUserEmail(),
+                    userLoginRequest.getPassword());
+            maps.put("isLogin", "true");
+            maps.put("userId", jwtDto.getUserId());
+            maps.put("accessToken", jwtDto.getAccessToken());
+            Cookie cookie = new Cookie("refreshToken", jwtDto.getRefreshToken());
+            cookie.setMaxAge((int) refreshExpirationTime / 1000);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setSecure(true);
+
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok().body(maps);
         } else if (type == PrivateActions.PASSWORDCHECK.getCode()) {
             // 비밀번호 확인 로직
             PasswordRequest request;
