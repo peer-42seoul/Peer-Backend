@@ -3,6 +3,7 @@ package peer.backend.service.noti;
 import com.mongodb.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.noti.enums.*;
@@ -58,6 +59,7 @@ public class NotificationSubService {
                 NotificationTarget element = NotificationTarget.builder()
                         .notificationId(event.getId())
                         .specificEvent(event)
+                        .user(user)
                         .build();
                 element.setAlarmOptions(user);
                 result.add(element);
@@ -191,8 +193,9 @@ public class NotificationSubService {
      * @param time 알림을 전송할 시간을 지정해 줄 수 있다. null 인 경우 바로 보내는 것으로 취급한다.
      * @return
      */
+    @Async
     @Transactional
-    public Notification makeAlarm(List<Long> targets,
+    public void makeAlarm(List<Long> targets,
                                   NotificationTargetType notiTarget,
                                   String title,
                                   String body,
@@ -235,8 +238,6 @@ public class NotificationSubService {
         } else {
             //TODO: pushEventImmediately
         }
-
-        return event;
     }
 
     /**
@@ -249,8 +250,9 @@ public class NotificationSubService {
      * @param time 알림을 전송할 시간을 지정해 줄 수 있다. null 인 경우 바로 보내는 것으로 취급한다.
      * @return
      */
+    @Async
     @Transactional
-    public Notification makeAllAlarm(String title,
+    public void makeAllAlarm(String title,
                                   String body,
                                   String url,
                                   NotificationType type,
@@ -284,7 +286,6 @@ public class NotificationSubService {
         } else {
             //TODO: pushEventImmediately
         }
-        return event;
     }
 
     /**
