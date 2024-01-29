@@ -178,11 +178,11 @@ public class TeamController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/setting/finish")
-    public ResponseEntity<Void> finishTeam(@RequestBody @Valid TeamIdRequest request,
+    @PostMapping("/setting/complete")
+    public ResponseEntity<Void> completeTeam(@RequestBody @Valid TeamIdRequest request,
         Authentication auth) {
         User user = User.authenticationToUser(auth);
-        this.teamService.finishTeam(user, request.getTeamId());
+        this.teamService.completeTeam(user, request.getTeamId());
         try {
             this.userPortfolioService.makeWholeTeamUserForPortfolio(request.getTeamId());
         } catch (Exception e) {
