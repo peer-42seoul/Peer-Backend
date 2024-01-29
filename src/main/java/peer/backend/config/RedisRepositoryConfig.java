@@ -72,4 +72,13 @@ public class RedisRepositoryConfig {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
+
+//    @Bean("redisTemplateForTeamIds")
+//    public RedisTemplate<Long, Object> teamUserListRedis() {
+//        RedisTemplate<Long, Object> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setConnectionFactory(redisConnectionFactory());
+//        redisTemplate.setKeySerializer(new GenericToStringSerializer<>(Long.class));
+//        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+//        return redisTemplate;
+//    }
 }
