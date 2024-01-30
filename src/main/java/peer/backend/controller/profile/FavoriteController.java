@@ -16,7 +16,7 @@ import peer.backend.service.profile.FavoriteService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/mypage")
 public class FavoriteController {
     private final FavoriteService favoriteService;
 
@@ -27,7 +27,7 @@ public class FavoriteController {
     }
 
     @ApiOperation(value = "C-MYPAGE-37, 38", notes = "관심 리스트를 가져옵니다.")
-    @GetMapping("/recruit/favorite")
+    @GetMapping("/favorite")
     public Page<RecruitFavoriteDto> getFavorite(Authentication auth,
                                                 @RequestParam(value = "type") String type,
                                                 @RequestParam(value = "page") int page,
@@ -43,7 +43,7 @@ public class FavoriteController {
     }
 
     @ApiOperation(value = "C-MYPAGE-69", notes = "관심 리스트를 전부 삭제합니다.")
-    @DeleteMapping("/recruit/favorite")
+    @DeleteMapping("/favorite")
     public ResponseEntity<Object> deleteAll(Authentication auth,
                                             @RequestParam(value = "type") String type) {
         checkType(type);
