@@ -13,7 +13,7 @@ import peer.backend.entity.team.Team;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByBoardTeamIdAndBoardType(Long teamId, BoardType type);
-    Page<Post> findAllByBoardTypeOrderByCreatedAtDesc(BoardType type, Pageable pageable);
+    Page<Post> findAllByBoardTypeAndIsPublicOrderByCreatedAtDesc(BoardType type, boolean isPublic, Pageable pageable);
 
     @Query(value = "SELECT * FROM post WHERE board_id = :boardId ORDER BY id DESC",
             nativeQuery = true)
