@@ -4,18 +4,24 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationTargetType;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.user.User;
 import peer.backend.exception.AlreadyDeletedException;
 import peer.backend.service.message.MessageMainService;
+import peer.backend.service.noti.NotificationSubService;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.NoSuchElementException;
@@ -28,10 +34,15 @@ import java.util.concurrent.ExecutionException;
 public class MessaageController {
 
     public static final String LETTER_URL = "api/v1/message";
-    public static final String ERR_1 = "Thread interruption happens in ";
-    public static final String ERR_2 = "Problem is happened in ";
+    private static final String ERR_1 = "Thread interruption happens in ";
+    private static final String ERR_2 = "Problem is happened in ";
+
+    @Value("${url.dev-domain-url}")
+    private String DOMAIN;
+
 
     private final MessageMainService messageMainService;
+    private final NotificationSubService notificationSubService;
 
     @ApiOperation(value = "", notes = "유저의 쪽지 목록을 불러온다.")
 //    @ApiImplicitParam(name = "id", value = "사용자 아이디", required = true, dataType = "number", paramType = "Param", defaultValue = "None")
@@ -128,7 +139,7 @@ public class MessaageController {
     @PostMapping("/new-message")
     public ResponseEntity<?> sendLetterInNewWindow(Authentication auth, @RequestBody MsgContentDTO body) {
         // Message Index Create
-        AsyncResult<MessageIndex> wrappedIndex = new AsyncResult<>();
+        AsyncResult<MessageIndex> wrappedIndex;
         MessageIndex index;
         try {
             wrappedIndex = this.messageMainService.makeNewMessageIndex(auth, body).get();
@@ -166,6 +177,22 @@ public class MessaageController {
             ret = wrappedRet.getResult();
         else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+
+        // make Alarm Part
+        User sender = User.authenticationToUser(auth);
+        User target = index.getUserIdx1().equals(sender.getId()) ? index.getUser2() : index.getUser1();
+        List<User> targetList = new ArrayList<>();
+        targetList.add(target);
+        this.notificationSubService.makeAlarm(NotificationSubService.makeLongListWithUserList(targetList),
+                NotificationTargetType.USER,
+                sender.getNickname() + "님 께서 메시지를 보냈습니다",
+                body.getContent(),
+                this.DOMAIN + "/my-page/message",
+                NotificationType.MESSAGE,
+                NotificationPriority.IMMEDIATE,
+                null
+                );
 
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
