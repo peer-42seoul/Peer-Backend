@@ -20,4 +20,5 @@ public class PostDetail {
     int hit;
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime date;
+    Boolean isAuthor;
 }

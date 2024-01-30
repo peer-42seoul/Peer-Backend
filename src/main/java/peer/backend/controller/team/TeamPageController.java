@@ -47,10 +47,11 @@ public class TeamPageController {
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 특정 글을 가져옵니다.")
     @GetMapping("/post/{postId}")
-    public ResponseEntity<PostDetail> getPost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<PostDetail> getPost(@PathVariable("postId") Long postId, Authentication auth) {
+        User user = User.authenticationToUser(auth);
         Post post = teamPageService.getPostById(postId);
         PostDetail res = new PostDetail(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getContent(),
-                post.getHit(), post.getCreatedAt());
+                post.getHit(), post.getCreatedAt(), post.getUser().equals(user));
         return ResponseEntity.ok(res);
     }
 
