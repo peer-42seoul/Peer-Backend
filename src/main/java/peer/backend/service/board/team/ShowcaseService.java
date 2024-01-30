@@ -84,8 +84,10 @@ public class ShowcaseService {
     @Transactional
     public Page<ShowcaseListResponse> getShowCaseList(int page, int pageSize, Authentication auth) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Post> posts = postRepository.findAllByBoardTypeOrderByCreatedAtDesc(BoardType.SHOWCASE,
-            pageable);
+        Page<Post> posts = postRepository.findAllByBoardTypeAndIsPublicOrderByCreatedAtDesc(
+                BoardType.SHOWCASE,
+                true,
+                pageable);
 
         return posts.map(post -> convertToDto(post, auth));
     }
@@ -166,6 +168,8 @@ public class ShowcaseService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (!teamService.isLeader(teamId, user))
             throw new ForbiddenException("리더가 아닙니다.");
+        if (!team.getStatus().equals(TeamStatus.COMPLETE))
+            throw new ConflictException("팀이 종료되지 않았습니다.");
         return new ShowcaseWriteResponse(
                 team,
                 tagService.recruitTagListToTagList(team.getRecruit().getRecruitTags()),

@@ -1,8 +1,7 @@
 package peer.backend.board;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -143,7 +142,7 @@ class ShowcaseServiceTest {
     @Test
     @DisplayName("쇼케이스 리스트 가져오기 테스트")
     void getShowCaseListTest() {
-        when(postRepository.findAllByBoardTypeOrderByCreatedAtDesc(any(), any()))
+        when(postRepository.findAllByBoardTypeAndIsPublicOrderByCreatedAtDesc(any(), anyBoolean(), any()))
             .thenReturn(new PageImpl<>(posts, PageRequest.of(0, 2), 1L));
 
         assertThat(showcaseService.getShowCaseList(0, 1, auth).getTotalElements()).isEqualTo(1);
