@@ -11,6 +11,7 @@ import peer.backend.dto.board.recruit.HitchResponse;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.team.enums.TeamType;
+import peer.backend.entity.user.User;
 import peer.backend.exception.NotFoundException;
 import peer.backend.exception.OutOfRangeException;
 import peer.backend.repository.board.recruit.RecruitRepository;
@@ -27,12 +28,13 @@ public class HitchHikingService {
 
 
     @Transactional
-    public Page<HitchListResponse> getHitchList(int page, int pageSize, String type){
+    public Page<HitchListResponse> getHitchList(int page, int pageSize, String type, User user){
             if (page < 1)
                 throw new OutOfRangeException("page 번호는 1부터 시작합니다.");
             Page<Recruit> recruitList = recruitRepository.findAllByStatusAndTeamTypeAndFavorite(
                     RecruitStatus.ONGOING,
                     TeamType.from(type),
+                    user == null ? null : user.getId(),
                     PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending()));
             return recruitList.map(recruit ->
                     HitchListResponse.builder()
