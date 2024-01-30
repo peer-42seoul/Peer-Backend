@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class HitchListResponse {
+    private Long authorId;
     private String authorImage;
     private String teamName;
     private String title;
