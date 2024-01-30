@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.board.team.PostCreateRequest;
+import peer.backend.dto.board.team.PostNoticeReq;
 import peer.backend.dto.team.PostRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
+import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.user.User;
 import peer.backend.exception.ForbiddenException;
@@ -63,13 +65,11 @@ public class TeamPageService {
     }
 
     @Transactional
-    public Post createNoticePost(PostCreateRequest request, Authentication auth) {
+    public Post createNoticePost(PostNoticeReq request, Authentication auth) {
         User user = User.authenticationToUser(auth);
-        Board board = boardRepository.findById(request.getBoardId()).orElseThrow(
-                () -> new NotFoundException("존재하지 않는 게시판입니다."));
-        if (!board.getType().getType().equals("NOTICE")) {
-            throw new ForbiddenException("공지사항 게시판이 아닙니다.");
-        }
+
+        Board board = boardRepository.findByTeamIdAndType(request.getTeamId(), BoardType.NOTICE).orElseThrow(
+                () -> new NotFoundException("게시판이 존재하지 않습니다."));
         Team team = board.getTeam();
         if (!teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), team.getId())) {
             throw new ForbiddenException("팀 리더가 아닙니다.");
