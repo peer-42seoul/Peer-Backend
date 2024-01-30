@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "dev", release-** ]
   pull_request:
-    branches: [ "main", dev ]
+    branches: [ "dev", release-** ]
     types: [ "opened", "reopened", "synchronize", "closed" ]
 #  repository_dispatch:
 #    types: [ resources_update ]
@@ -12,16 +12,9 @@ on:
 permissions:
   contents: read
 
-#env:
-#  WORKING_DIRECTORY: ./backend
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
-#    defaults:
-#      run:
-#        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
     - name: Checkout
@@ -50,7 +43,7 @@ jobs:
       
   deploy-dev:
 #    if: (github.event_name == 'repository_dispatch' && github.event.action == 'resources_update') || (github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push'))
-    if: github.ref == 'refs/heads/dev' && (github.event.pull_request.merged == true || github.event_name == 'push')
+    if: (github.ref == 'refs/heads/dev' || contains(github.ref, 'release')) && (github.event.pull_request.merged == true || github.event_name == 'push')
     needs: build
     runs-on: ubuntu-latest
 
@@ -67,7 +60,6 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }} .
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
-#      working-directory: ./backend
 
     - name: Deploy
       uses: appleboy/ssh-action@v1.0.0
