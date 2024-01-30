@@ -28,13 +28,13 @@ public class HitchHikingService {
 
 
     @Transactional
-    public Page<HitchListResponse> getHitchList(int page, int pageSize, String type, User user){
+    public Page<HitchListResponse> getHitchList(int page, int pageSize, String type, Long userId){
             if (page < 1)
                 throw new OutOfRangeException("page 번호는 1부터 시작합니다.");
             Page<Recruit> recruitList = recruitRepository.findAllByStatusAndTeamTypeAndFavorite(
                     RecruitStatus.ONGOING,
                     TeamType.from(type),
-                    user == null ? null : user.getId(),
+                    userId,
                     PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending()));
             return recruitList.map(recruit ->
                     HitchListResponse.builder()
@@ -44,8 +44,7 @@ public class HitchHikingService {
                             .teamName(recruit.getTeam().getName())
                             .recruitId(recruit.getId())
                             .tagList(tagService.recruitTagListToTagResponseList(recruit.getRecruitTags()))
-                            .build()
-            );
+                            .build());
     }
 
     @Transactional

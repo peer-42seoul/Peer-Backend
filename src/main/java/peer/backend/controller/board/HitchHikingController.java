@@ -24,9 +24,14 @@ public class HitchHikingController {
                                                 @RequestParam int pageSize,
                                                 @RequestParam String type,
                                                 Authentication auth){
-        User user = auth == null ? null : User.authenticationToUser(auth);
-        return hitchHikingService.getHitchList(page, pageSize, type, user);
+        try {
+            User user = User.authenticationToUser(auth);
+            return hitchHikingService.getHitchList(page, pageSize, type, user.getId());
+        } catch (Exception e) {
+            return hitchHikingService.getHitchList(page, pageSize, type, null);
+        }
     }
+
     @GetMapping("/{hitchId}")
     public HitchResponse getHitch(@PathVariable Long hitchId){
         return hitchHikingService.getHitch(hitchId);
