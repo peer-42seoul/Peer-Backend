@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.recruit.HitchListResponse;
 import peer.backend.dto.board.recruit.HitchResponse;
 import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
+import peer.backend.entity.user.User;
 import peer.backend.service.board.recruit.HitchHikingService;
 import peer.backend.service.board.recruit.RecruitService;
 
@@ -23,8 +24,14 @@ public class HitchHikingController {
                                                 @RequestParam int pageSize,
                                                 @RequestParam String type,
                                                 Authentication auth){
-        return hitchHikingService.getHitchList(page, pageSize, type);
+        try {
+            User user = User.authenticationToUser(auth);
+            return hitchHikingService.getHitchList(page, pageSize, type, user.getId());
+        } catch (Exception e) {
+            return hitchHikingService.getHitchList(page, pageSize, type, null);
+        }
     }
+
     @GetMapping("/{hitchId}")
     public HitchResponse getHitch(@PathVariable Long hitchId){
         return hitchHikingService.getHitch(hitchId);
