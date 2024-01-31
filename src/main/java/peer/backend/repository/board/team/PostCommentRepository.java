@@ -1,10 +1,9 @@
 package peer.backend.repository.board.team;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import peer.backend.entity.board.team.PostComment;
 
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
-    Page<PostComment> findByPostId(Long postId, Pageable pageable);
+    List<PostComment> findByPostId(Long postId);
 }

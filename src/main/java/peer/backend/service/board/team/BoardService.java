@@ -1,14 +1,22 @@
 package peer.backend.service.board.team;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.annotation.tracking.PostCreateTracking;
-import peer.backend.dto.board.team.*;
+import peer.backend.dto.board.team.BoardCreateRequest;
+import peer.backend.dto.board.team.BoardUpdateRequest;
+import peer.backend.dto.board.team.PostCommentListResponse;
+import peer.backend.dto.board.team.PostCommentRequest;
+import peer.backend.dto.board.team.PostCommentUpdateRequest;
+import peer.backend.dto.board.team.PostCreateRequest;
+import peer.backend.dto.board.team.PostUpdateRequest;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
@@ -27,10 +35,6 @@ import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
-
-import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -200,22 +204,21 @@ public class BoardService {
     }
 
     @Transactional
-    public Page<PostCommentListResponse> getComments(Long postId, int page, int pageSize, Authentication auth) {
+    public List<PostCommentListResponse> getComments(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
-        User user = User.authenticationToUser(auth);
-
         boolean isApproved = teamUserRepository.existsByUserIdAndTeamIdAndStatus(
-                user.getId(),
+                userId,
                 post.getBoard().getTeam().getId(),
                 TeamUserStatus.APPROVED
         );
         if (!isApproved) {
             throw new ForbiddenException("답글을 불러올 권한이 없습니다.");
         }
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-        Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
-        return comments.map(PostCommentListResponse::new);
+        List<PostComment> comments = postCommentRepository.findByPostId(postId);
+        return comments.stream()
+                .map(PostCommentListResponse::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional
