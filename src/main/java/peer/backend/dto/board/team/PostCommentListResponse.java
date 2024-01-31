@@ -28,6 +28,6 @@ public class PostCommentListResponse {
         this.authorNickname = (author == null) ? "탈퇴한 유저" : author.getNickname();
         this.content = comment.getContent();
         this.createAt = comment.getCreatedAt().toString();
-        this.isAuthor = user.equals(author);
+        this.isAuthor = user != null && user.equals(author);
     }
 }
