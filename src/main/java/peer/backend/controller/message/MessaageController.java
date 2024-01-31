@@ -235,5 +235,16 @@ public class MessaageController {
         }
         return new ResponseEntity<>(ret, HttpStatus.CREATED);
     }
+
+    @ApiOperation(value = "", notes = "유저가 상대방 프로필에서 메시지를 전달합니다. ")
+    @PostMapping("/external-message")
+    public ResponseEntity<?> sendMessageFromExternalPage(Authentication auth, @RequestBody @Valid MsgContentDTO body) {
+        try {
+            this.messageMainService.sendMessageFromExternalPage(auth, body);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e);
+        }
+        return ResponseEntity.ok().build();
+    }
 }
 

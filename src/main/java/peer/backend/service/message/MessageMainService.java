@@ -422,4 +422,29 @@ public class MessageMainService {
 
         return CompletableFuture.completedFuture(AsyncResult.success(ret));
     }
+
+    @Transactional
+    public void sendMessageFromExternalPage(Authentication auth, MsgContentDTO message) {
+        User user = User.authenticationToUser(auth);
+        User target = this.userRepository.findById(message.getTargetId()).orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저입니다."));
+        MessageIndex conversation = this.indexRepository.findByUserIdx1AndUserIdx2(user.getId(), target.getId()).orElseGet(() -> {
+            MessageIndex firstLetter = MessageIndex.builder()
+                    .user1(user)
+                    .user2(target)
+                    .unreadMessageNumber1(1L)
+                    .unreadMessageNumber2(0L)
+                    .userIdx1(user.getId())
+                    .userIdx2(target.getId())
+                    .build();
+            firstLetter = this.indexRepository.save(firstLetter);
+            return firstLetter;
+        });
+
+        this.sendMessage(conversation, auth, message);
+        // message Index 찾기
+        // 있으면 기존 메시지 로직 호출
+        // 없으면 신규 생성
+        // 메시지 보내기
+        return ;
+    }
 }

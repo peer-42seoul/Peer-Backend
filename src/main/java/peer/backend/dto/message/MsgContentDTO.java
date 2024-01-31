@@ -13,7 +13,7 @@ import javax.validation.constraints.Positive;
 @Getter
 @NoArgsConstructor
 public class MsgContentDTO {
-    @Min(value = 0l, message = "쪽지 대상이 정확하지 않습니다.")
+    @Min(value = 1, message = "쪽지 대상이 정확하지 않습니다.")
     @Positive(message = "쪽지 대상이 정확하지 않습니다.")
     private long targetId;
 

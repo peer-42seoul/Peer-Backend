@@ -30,7 +30,7 @@ import peer.backend.dto.socket.tempDTO;
 
 @Component
 @Slf4j
-@RequestMapping("/")
+@RequestMapping("")
 public class SocketIoServerController {
     private final SocketServerService socketServerService;
     private final UserRepository userRepository;
