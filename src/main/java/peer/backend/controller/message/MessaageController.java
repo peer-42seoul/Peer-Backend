@@ -67,12 +67,11 @@ public class MessaageController {
     @DeleteMapping("/delete-message")
     public ResponseEntity<List<MsgObjectDTO>> deleteLetterList(Authentication auth, @RequestBody TargetDTO  body) {
         CompletableFuture<AsyncResult<Long>> deleted;
-        System.out.println("오잉?!");
         deleted = this.messageMainService.deleteLetterList(User.authenticationToUser(auth).getId(), body);
         try {
             Long finished = deleted.get().getResult();
         } catch (Exception e) {
-            log.error("Error from delete message");
+            log.error("Error from delete message :" + e.getMessage() );
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         AsyncResult<List<MsgObjectDTO>> wrappedRet;
@@ -234,6 +233,17 @@ public class MessaageController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(ret, HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "", notes = "유저가 상대방 프로필에서 메시지를 전달합니다. ")
+    @PostMapping("/external-message")
+    public ResponseEntity<?> sendMessageFromExternalPage(Authentication auth, @RequestBody @Valid MsgContentDTO body) {
+        try {
+            this.messageMainService.sendMessageFromExternalPage(auth, body);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e);
+        }
+        return ResponseEntity.ok().build();
     }
 }
 
