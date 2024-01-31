@@ -30,6 +30,7 @@ import peer.backend.service.team.TeamService;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -144,7 +145,6 @@ public class BoardService {
 
     }
 
-
     @Transactional
     public void deleteBoard(Long boardId, Authentication auth) {
         User user = User.authenticationToUser(auth);
@@ -174,18 +174,24 @@ public class BoardService {
         postRepository.delete(post);
     }
 
-    @Transactional
-    public void createComment(PostCommentRequest request, Authentication auth) {
-        Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
-        User user = User.authenticationToUser(auth);
-        if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
-                User.authenticationToUser(auth).getId(),
+    private void checkTeamMember(User user, Post post){
+        boolean isApproved = teamUserRepository.existsByUserIdAndTeamIdAndStatus(
+                user.getId(),
                 post.getBoard().getTeam().getId(),
-                TeamUserStatus.APPROVED)) {
-            throw new ForbiddenException("답글을 게시할 수 없습니다.");
+                TeamUserStatus.APPROVED
+        );
+        if (!isApproved) {
+            throw new ForbiddenException("답글을 불러올 권한이 없습니다.");
         }
-        post.addComment(request.getContent(), user);
+    }
+
+    @Transactional
+    public void createComment(Long postId, String content, User user, BoardType type) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
+        if (!type.equals(BoardType.SHOWCASE))
+            checkTeamMember(user, post);
+        post.addComment(content, user);
     }
 
     @Transactional
@@ -200,22 +206,13 @@ public class BoardService {
     }
 
     @Transactional
-    public Page<PostCommentListResponse> getComments(Long postId, int page, int pageSize, Authentication auth) {
+    public Page<PostCommentListResponse> getComments(Long postId, Pageable pageable, User user, BoardType type) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
-        User user = User.authenticationToUser(auth);
-
-        boolean isApproved = teamUserRepository.existsByUserIdAndTeamIdAndStatus(
-                user.getId(),
-                post.getBoard().getTeam().getId(),
-                TeamUserStatus.APPROVED
-        );
-        if (!isApproved) {
-            throw new ForbiddenException("답글을 불러올 권한이 없습니다.");
-        }
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        if (!type.equals(BoardType.SHOWCASE))
+            checkTeamMember(user, post);
         Page<PostComment> comments = postCommentRepository.findByPostId(postId, pageable);
-        return comments.map(PostCommentListResponse::new);
+        return comments.map(comment -> new PostCommentListResponse(comment, user));
     }
 
     @Transactional

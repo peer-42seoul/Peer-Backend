@@ -3,11 +3,16 @@ package peer.backend.controller.board;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.*;
+import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.user.User;
+import peer.backend.service.board.team.BoardService;
 import peer.backend.service.board.team.ShowcaseService;
 import peer.backend.service.profile.UserPortfolioService;
 
@@ -21,6 +26,7 @@ public class ShowcaseController {
 
     private final ShowcaseService showcaseService;
     private final UserPortfolioService userPortfolioService;
+    private final BoardService boardService;
 
     @GetMapping("")
     public Page<ShowcaseListResponse> getShowcaseList(@RequestParam int page, @RequestParam int pageSize, Authentication auth){
@@ -73,5 +79,30 @@ public class ShowcaseController {
     @PostMapping("/public/{showcaseId}")
     public boolean changeShowcasePublic(@PathVariable Long showcaseId, Authentication auth){
         return showcaseService.changeShowcasePublic(showcaseId, User.authenticationToUser(auth));
+    }
+
+    @GetMapping("/comment/{showcaseId}")
+    public Page<PostCommentListResponse> getShowcaseComments(
+            @PathVariable Long showcaseId,
+            @RequestParam int page,
+            @RequestParam int pageSize,
+            Authentication auth)
+    {
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+        try {
+            User user = User.authenticationToUser(auth);
+            return boardService.getComments(showcaseId, pageable, user, BoardType.SHOWCASE);
+        } catch (Exception e) {
+            return boardService.getComments(showcaseId, pageable, null, BoardType.SHOWCASE);
+        }
+    }
+
+    @PostMapping("/comment")
+    public void createShowcaseComment(@RequestBody PostCommentRequest request, Authentication auth){
+        boardService.createComment(
+                request.getPostId(),
+                request.getContent(),
+                User.authenticationToUser(auth),
+                BoardType.SHOWCASE);
     }
 }

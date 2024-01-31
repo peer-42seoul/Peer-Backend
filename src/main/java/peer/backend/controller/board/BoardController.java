@@ -2,10 +2,15 @@ package peer.backend.controller.board;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.*;
+import peer.backend.entity.board.team.enums.BoardType;
+import peer.backend.entity.user.User;
 import peer.backend.exception.OutOfRangeException;
 import peer.backend.service.board.team.BoardService;
 
@@ -58,7 +63,11 @@ public class BoardController {
 
     @PostMapping("/post/comment")
     public void createComment(@RequestBody @Valid PostCommentRequest request, Authentication auth) {
-        boardService.createComment(request, auth);
+        boardService.createComment(
+                request.getPostId(),
+                request.getContent(),
+                User.authenticationToUser(auth),
+                BoardType.NORMAL);
     }
 
     @PutMapping("/post/comment/{commentId}")
@@ -76,7 +85,8 @@ public class BoardController {
             Authentication auth) {
         if (page < 1 || pageSize < 0)
             throw new OutOfRangeException("페이지는 1부터 시작합니다.");
-        return boardService.getComments(postId, page - 1, pageSize, auth);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+        return boardService.getComments(postId, pageable, User.authenticationToUser(auth), BoardType.NORMAL);
     }
 
     @DeleteMapping("/post/comment/{commentId}")
