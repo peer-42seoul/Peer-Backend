@@ -3,12 +3,13 @@ package peer.backend.controller.profile;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.profile.response.RecruitFavoriteDto;
-import peer.backend.entity.board.recruit.RecruitFavorite;
+import peer.backend.dto.profile.response.ShowcaseFavoriteResponse;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.exception.OutOfRangeException;
@@ -24,6 +25,14 @@ public class FavoriteController {
         if (!type.equals("PROJECT") && !type.equals("STUDY")) {
             throw new BadRequestException("잘못된 type입니다.");
         }
+    }
+
+    @GetMapping("/favorite/showcase")
+    public Page<ShowcaseFavoriteResponse> getShowcaseFavorites(Authentication auth,
+                                                                @RequestParam int page,
+                                                                @RequestParam int pageSize){
+        User user = User.authenticationToUser(auth);
+        return favoriteService.getShowcaseFavorites(user, PageRequest.of(page - 1, pageSize));
     }
 
     @ApiOperation(value = "C-MYPAGE-37, 38", notes = "관심 리스트를 가져옵니다.")

@@ -14,9 +14,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Optional<Board> findByTeamAndName(Team team, String name);
 
-    @Query(value = "SELECT * FROM board WHERE team_id = :teamId ORDER BY id DESC",
-            nativeQuery = true)
-    List<Board> findByTeamId(Long teamId);
+
+    List<Board> findBoardsByTeamIdAndType(Long teamId, BoardType type);
 
     Optional<Board> findByTeamIdAndType(Long teamId, BoardType type);
 }

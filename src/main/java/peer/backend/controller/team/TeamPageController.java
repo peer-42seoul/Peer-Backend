@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.board.team.BoardPostRes;
 import peer.backend.dto.board.team.PostCreateRequest;
+import peer.backend.dto.board.team.PostNoticeReq;
 import peer.backend.dto.team.PostDetail;
 import peer.backend.dto.team.PostRes;
 import peer.backend.dto.team.SimpleBoardRes;
@@ -46,10 +47,11 @@ public class TeamPageController {
 
     @ApiOperation(value = "TEAM-PAGE", notes = "특정 게시판 특정 글을 가져옵니다.")
     @GetMapping("/post/{postId}")
-    public ResponseEntity<PostDetail> getPost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<PostDetail> getPost(@PathVariable("postId") Long postId, Authentication auth) {
+        User user = User.authenticationToUser(auth);
         Post post = teamPageService.getPostById(postId);
         PostDetail res = new PostDetail(post.getId(), post.getTitle(), post.getUser().getNickname(), post.getContent(),
-                post.getHit(), post.getCreatedAt());
+                post.getHit(), post.getCreatedAt(), post.getUser().equals(user));
         return ResponseEntity.ok(res);
     }
 
@@ -71,9 +73,9 @@ public class TeamPageController {
 
     @ApiOperation(value = "TEAM-PAGE-NOTICE", notes = "공지사항 게시판에 공지사항 글 게시.")
     @PostMapping("/notice/create")
-    public ResponseEntity<BoardPostRes> createNoticePost(@RequestBody PostCreateRequest postCreateRequest,
+    public ResponseEntity<BoardPostRes> createNoticePost(@RequestBody PostNoticeReq postNoticeReq,
                                                          Authentication auth) {
-        BoardPostRes res = BoardPostRes.from(teamPageService.createNoticePost(postCreateRequest, auth));
+        BoardPostRes res = BoardPostRes.from(teamPageService.createNoticePost(postNoticeReq, auth));
         return ResponseEntity.ok(res);
     }
 

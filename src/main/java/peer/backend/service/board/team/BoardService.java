@@ -96,7 +96,7 @@ public class BoardService {
     @Transactional
     public List<SimpleBoardRes> getSimpleBoards(Long teamId, Authentication auth) {
         User user = User.authenticationToUser(auth);
-        List<SimpleBoardRes> boards = boardRepository.findByTeamId(teamId)
+        List<SimpleBoardRes> boards = boardRepository.findBoardsByTeamIdAndType(teamId, BoardType.NORMAL)
                 .stream()
                 .map(board -> new SimpleBoardRes(board.getId(), board.getName()))
                 .collect(Collectors.toList());
