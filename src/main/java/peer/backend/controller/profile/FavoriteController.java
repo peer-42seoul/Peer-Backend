@@ -40,7 +40,7 @@ public class FavoriteController {
     public Page<RecruitFavoriteDto> getFavorite(Authentication auth,
                                                 @RequestParam(value = "type") String type,
                                                 @RequestParam(value = "page") int page,
-                                                @RequestParam(value = "pagesize") int pageSize) {
+                                                @RequestParam(value = "pageSize") int pageSize) {
         checkType(type);
         if (page < 1 || pageSize < 0)
             throw new OutOfRangeException("유효하지 않은 페이지 요청입니다.");
