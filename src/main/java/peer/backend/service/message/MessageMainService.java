@@ -30,6 +30,8 @@ import peer.backend.repository.user.UserRepository;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 @Service
 @RequiredArgsConstructor
 @EnableWebMvc
@@ -426,7 +428,7 @@ public class MessageMainService {
     }
 
     @Transactional
-    public void sendMessageFromExternalPage(Authentication auth, MsgContentDTO message) {
+    public void sendMessageFromExternalPage(Authentication auth, MsgContentDTO message) throws ExecutionException, InterruptedException {
         User user = User.authenticationToUser(auth);
         User target = this.userRepository.findById(message.getTargetId()).orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저입니다."));
         MessageIndex conversation = this.indexRepository.findByUserIdx1AndUserIdx2(user.getId(), target.getId()).orElseGet(() -> {
