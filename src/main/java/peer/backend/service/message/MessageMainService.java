@@ -30,8 +30,6 @@ import peer.backend.repository.user.UserRepository;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 @Service
 @RequiredArgsConstructor
 @EnableWebMvc
@@ -225,17 +223,17 @@ public class MessageMainService {
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
     public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         User msgOwner = User.authenticationToUser(auth);
-//        if (index.getUserIdx1().equals(msgOwner.getId())) {
-//            if (index.isUser2delete())
-//                throw new AlreadyDeletedException("Already user2 is delete this index.");
-//        } else if (index.getUserIdx2().equals(msgOwner.getId()))
-//            if (index.isUser1delete())
-//                throw new AlreadyDeletedException("Already user2 is delete this index.");
-        if (index.isUser1delete() || index.isUser2delete())
-            throw new AlreadyDeletedException("이미 종결된 메시지 입니다.");
+        if (index.getUserIdx1().equals(msgOwner.getId())) {
+            if (index.isUser2delete())
+                throw new AlreadyDeletedException("Already user2 is delete this index.");
+        } else if (index.getUserIdx2().equals(msgOwner.getId()))
+            if (index.isUser1delete())
+                throw new AlreadyDeletedException("Already user2 is delete this index.");
+//        if (index.isUser1delete() || index.isUser2delete())
+//            throw new AlreadyDeletedException("이미 종결된 메시지 입니다.");
         MessagePiece letter = MessagePiece.builder().
                 targetConversationId(index.getConversationId()).
                 senderNickname(msgOwner.getNickname()).
@@ -447,17 +445,14 @@ public class MessageMainService {
         });
 
         try {
-            this.sendMessage(conversation, auth, message);
+            sendMessage(conversation, auth, message);
         } catch (AlreadyDeletedException e) {
-            this.makeNewMessageIndex(auth, message);
-            this.sendMessage(auth, message);
+            AsyncResult<MessageIndex> data = makeNewMessageIndex(auth, message).get();
+            if (data.isSuccess()) {
+                sendMessage(auth, message);
+            }
         } catch (Exception e) {
             throw new BadRequestException(e.toString());
         }
-        // message Index 찾기
-        // 있으면 기존 메시지 로직 호출
-        // 없으면 신규 생성
-        // 메시지 보내기
-        return ;
     }
 }
