@@ -176,8 +176,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateComment(Long commentId, PostCommentUpdateRequest request, Authentication auth) {
-        User user = User.authenticationToUser(auth);
+    public void updateComment(Long commentId, PostCommentUpdateRequest request, User user) {
         PostComment comment = postCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
         if (!user.equals(comment.getUser())) {
@@ -210,10 +209,10 @@ public class BoardService {
     }
 
     @Transactional
-    public ResponseEntity<Object> deleteComment(Long commentId, Authentication auth) {
+    public ResponseEntity<Object> deleteComment(Long commentId, User user) {
         PostComment comment = postCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
-        if (!comment.getUser().equals(User.authenticationToUser(auth))) {
+        if (!comment.getUser().equals(user)) {
             throw new ForbiddenException("작성자가 아닙니다");
         }
         postCommentRepository.delete(comment);

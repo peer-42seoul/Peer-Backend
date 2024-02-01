@@ -82,7 +82,7 @@ public class BoardController {
     public void updateComment(@PathVariable Long commentId,
                               @RequestBody @Valid PostCommentUpdateRequest request,
                               Authentication auth) {
-        boardService.updateComment(commentId, request, auth);
+        boardService.updateComment(commentId, request, User.authenticationToUser(auth));
     }
 
     @GetMapping("/post/comment/{postId}")
@@ -95,6 +95,6 @@ public class BoardController {
 
     @DeleteMapping("/post/comment/{commentId}")
     public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Authentication auth) {
-        return boardService.deleteComment(commentId, auth);
+        return boardService.deleteComment(commentId, User.authenticationToUser(auth));
     }
 }

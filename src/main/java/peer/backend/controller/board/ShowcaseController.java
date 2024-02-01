@@ -80,7 +80,7 @@ public class ShowcaseController {
     }
 
     @GetMapping("/comment/{showcaseId}")
-    public List<PostCommentListResponse> getShowcaseComment(@PathVariable Long showcaseId, Authentication auth){
+    public List<PostCommentListResponse> getShowcaseComments(@PathVariable Long showcaseId, Authentication auth){
         try {
             User user = User.authenticationToUser(auth);
             return boardService.getComments(showcaseId, user, BoardType.SHOWCASE);
@@ -96,5 +96,15 @@ public class ShowcaseController {
                 request.getContent(),
                 User.authenticationToUser(auth),
                 BoardType.SHOWCASE);
+    }
+
+    @DeleteMapping("/comment/{commentId}")
+    public void deleteShowcaseComment(@PathVariable Long commentId, Authentication auth){
+        boardService.deleteComment(commentId, User.authenticationToUser(auth));
+    }
+
+    @PutMapping("/comment/{commentId}")
+    public void updateShowcaseComment(@PathVariable Long commentId, @RequestBody PostCommentUpdateRequest request, Authentication auth){
+        boardService.updateComment(commentId, request, User.authenticationToUser(auth));
     }
 }
