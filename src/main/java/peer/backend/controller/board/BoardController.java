@@ -1,15 +1,27 @@
 package peer.backend.controller.board;
 
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-import peer.backend.dto.board.team.*;
-import peer.backend.exception.OutOfRangeException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import peer.backend.dto.board.team.BoardCreateRequest;
+import peer.backend.dto.board.team.BoardUpdateRequest;
+import peer.backend.dto.board.team.PostCommentListResponse;
+import peer.backend.dto.board.team.PostCommentRequest;
+import peer.backend.dto.board.team.PostCommentUpdateRequest;
+import peer.backend.dto.board.team.PostCreateRequest;
+import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.entity.user.User;
 import peer.backend.service.board.team.BoardService;
-
-import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,18 +81,13 @@ public class BoardController {
     }
 
     @GetMapping("/post/comment/{postId}")
-    public Page<PostCommentListResponse> getComments(
-            @PathVariable Long postId,
-            @RequestParam int page,
-            @RequestParam int pageSize,
-            Authentication auth) {
-        if (page < 1 || pageSize < 0)
-            throw new OutOfRangeException("페이지는 1부터 시작합니다.");
-        return boardService.getComments(postId, page - 1, pageSize, auth);
+    public List<PostCommentListResponse> getComments(@PathVariable Long postId, Authentication auth) {
+        User user = User.authenticationToUser(auth);
+        return boardService.getComments(postId, user.getId());
     }
 
     @DeleteMapping("/post/comment/{commentId}")
-    public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Authentication auth){
+    public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Authentication auth) {
         return boardService.deleteComment(commentId, auth);
     }
 }
