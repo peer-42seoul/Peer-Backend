@@ -92,6 +92,8 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/tag")
             .permitAll()
+            .antMatchers(HttpMethod.GET,"api/v1/otherPortfolio/list")
+            .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/about/announcement/**")
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/profile/otherUser")
