@@ -266,7 +266,6 @@ public class ShowcaseService {
         if (!teamService.isLeader(post.getBoard().getTeam().getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
         post.changeIsPublic();
-
         return post.isPublic();
     }
 }

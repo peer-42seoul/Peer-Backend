@@ -59,7 +59,7 @@ public class TeamPageController {
     @GetMapping("/simple/{teamId}")
     public ResponseEntity<List<SimpleBoardRes>> getSimpleBoardList(@PathVariable("teamId") Long teamId,
                                                                    Authentication auth) {
-        List<SimpleBoardRes> boards = boardService.getSimpleBoards(teamId, auth);
+        List<SimpleBoardRes> boards = boardService.getSimpleBoards(teamId, User.authenticationToUser(auth));
         return ResponseEntity.ok(boards);
     }
 

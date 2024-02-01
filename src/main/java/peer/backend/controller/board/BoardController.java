@@ -20,6 +20,7 @@ import peer.backend.dto.board.team.PostCommentRequest;
 import peer.backend.dto.board.team.PostCommentUpdateRequest;
 import peer.backend.dto.board.team.PostCreateRequest;
 import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.user.User;
 import peer.backend.service.board.team.BoardService;
 
@@ -32,12 +33,12 @@ public class BoardController {
 
     @PostMapping("/board/create")
     public void createBoard(@RequestBody BoardCreateRequest request, Authentication auth) {
-        boardService.createBoard(request, auth);
+        boardService.createBoard(request, User.authenticationToUser(auth));
     }
 
     @PostMapping("/post/create")
     public void createPost(@RequestBody PostCreateRequest request, Authentication auth) {
-        boardService.createPost(request, auth);
+        boardService.createPost(request, User.authenticationToUser(auth));
     }
 
     @GetMapping("/board/list/{teamId}")
@@ -70,7 +71,11 @@ public class BoardController {
 
     @PostMapping("/post/comment")
     public void createComment(@RequestBody @Valid PostCommentRequest request, Authentication auth) {
-        boardService.createComment(request, auth);
+        boardService.createComment(
+                request.getPostId(),
+                request.getContent(),
+                User.authenticationToUser(auth),
+                BoardType.NORMAL);
     }
 
     @PutMapping("/post/comment/{commentId}")
@@ -82,8 +87,10 @@ public class BoardController {
 
     @GetMapping("/post/comment/{postId}")
     public List<PostCommentListResponse> getComments(@PathVariable Long postId, Authentication auth) {
-        User user = User.authenticationToUser(auth);
-        return boardService.getComments(postId, user.getId());
+        return boardService.getComments(
+                postId,
+                User.authenticationToUser(auth),
+                BoardType.NORMAL);
     }
 
     @DeleteMapping("/post/comment/{commentId}")

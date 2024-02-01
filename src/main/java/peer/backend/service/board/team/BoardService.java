@@ -1,8 +1,5 @@
 package peer.backend.service.board.team;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,13 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.annotation.tracking.PostCreateTracking;
-import peer.backend.dto.board.team.BoardCreateRequest;
-import peer.backend.dto.board.team.BoardUpdateRequest;
-import peer.backend.dto.board.team.PostCommentListResponse;
-import peer.backend.dto.board.team.PostCommentRequest;
-import peer.backend.dto.board.team.PostCommentUpdateRequest;
-import peer.backend.dto.board.team.PostCreateRequest;
-import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.board.team.*;
 import peer.backend.dto.team.SimpleBoardRes;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
@@ -36,6 +27,9 @@ import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.file.ObjectService;
 import peer.backend.service.team.TeamService;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -49,10 +43,12 @@ public class BoardService {
     private final PostCommentRepository postCommentRepository;
 
     @Transactional
-    public void createBoard(BoardCreateRequest request, Authentication auth) {
-        User user = User.authenticationToUser(auth);
+    public void createBoard(BoardCreateRequest request, User user) {
         Team team = teamRepository.findById(request.getTeamId()).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 팀입니다."));
+        if (!teamService.isLeader(team.getId(), user)) {
+            throw new ForbiddenException("팀 리더가 아닙니다.");
+        }
         boardRepository.findByTeamAndName(team, request.getName()).ifPresent(board -> {
             throw new ConflictException("이미 존재하는 게시판입니다.");
         });
@@ -67,14 +63,15 @@ public class BoardService {
 
     @PostCreateTracking
     @Transactional
-    public Post createPost(PostCreateRequest request, Authentication auth) {
-        User user = User.authenticationToUser(auth);
+    public void createPost(PostCreateRequest request, User user) {
         Board board = boardRepository.findById(request.getBoardId()).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 게시판입니다."));
         Team team = board.getTeam();
-        if (!teamService.isLeader(team.getId(), user)) {
+        if (board.getType().equals(BoardType.NOTICE) && !teamService.isLeader(team.getId(), user)) {
             throw new ForbiddenException("팀 리더가 아닙니다.");
         }
+        if (board.getType().equals(BoardType.NORMAL))
+            checkMember(team.getId(), user.getId());
         Post post = Post.builder()
                 .board(board)
                 .title(request.getTitle())
@@ -85,7 +82,7 @@ public class BoardService {
                         null : objectService.uploadObject(
                         request.getImage(), "board/" + board.getId(), "image"))
                 .build();
-        return postRepository.save(post);
+        postRepository.save(post);
     }
 
     @Transactional
@@ -98,22 +95,13 @@ public class BoardService {
     }
 
     @Transactional
-    public List<SimpleBoardRes> getSimpleBoards(Long teamId, Authentication auth) {
-        User user = User.authenticationToUser(auth);
-        List<SimpleBoardRes> boards = boardRepository.findBoardsByTeamIdAndType(teamId, BoardType.NORMAL)
+    public List<SimpleBoardRes> getSimpleBoards(Long teamId, User user) {
+        checkMember(teamId, user.getId());
+        return boardRepository.findBoardsByTeamIdAndType(teamId, BoardType.NORMAL)
                 .stream()
                 .map(board -> new SimpleBoardRes(board.getId(), board.getName()))
                 .collect(Collectors.toList());
-
-        return boards;
     }
-
-    @Transactional
-    public Board getBoardById(Long boardId) {
-        return boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
-    }
-
 
     @Transactional
     public void updateBoard(Long boardId, BoardUpdateRequest request, Authentication auth) {
@@ -179,17 +167,12 @@ public class BoardService {
     }
 
     @Transactional
-    public void createComment(PostCommentRequest request, Authentication auth) {
-        Post post = postRepository.findById(request.getPostId())
+    public void createComment(Long postId, String content, User user, BoardType type) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
-        User user = User.authenticationToUser(auth);
-        if (!teamUserRepository.existsByUserIdAndTeamIdAndStatus(
-                User.authenticationToUser(auth).getId(),
-                post.getBoard().getTeam().getId(),
-                TeamUserStatus.APPROVED)) {
-            throw new ForbiddenException("답글을 게시할 수 없습니다.");
-        }
-        post.addComment(request.getContent(), user);
+        if (!type.equals(BoardType.SHOWCASE))
+            checkMember(user.getId(), post.getBoard().getTeam().getId());
+        post.addComment(content, user);
     }
 
     @Transactional
@@ -203,21 +186,26 @@ public class BoardService {
         comment.update(request.getContent());
     }
 
-    @Transactional
-    public List<PostCommentListResponse> getComments(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+    private void checkMember(Long userId, Long teamId) {
         boolean isApproved = teamUserRepository.existsByUserIdAndTeamIdAndStatus(
                 userId,
-                post.getBoard().getTeam().getId(),
+                teamId,
                 TeamUserStatus.APPROVED
         );
         if (!isApproved) {
             throw new ForbiddenException("답글을 불러올 권한이 없습니다.");
         }
+    }
+
+    @Transactional
+    public List<PostCommentListResponse> getComments(Long postId, User user, BoardType type) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+        if (!type.equals(BoardType.SHOWCASE))
+            checkMember(user.getId(), post.getBoard().getTeam().getId());
         List<PostComment> comments = postCommentRepository.findByPostId(postId);
         return comments.stream()
-                .map(PostCommentListResponse::new)
+                .map(comment -> new PostCommentListResponse(comment, user))
                 .collect(Collectors.toList());
     }
 
