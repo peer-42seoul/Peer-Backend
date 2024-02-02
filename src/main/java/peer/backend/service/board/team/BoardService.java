@@ -96,7 +96,7 @@ public class BoardService {
 
     @Transactional
     public List<SimpleBoardRes> getSimpleBoards(Long teamId, User user) {
-        checkMember(teamId, user.getId());
+        checkMember(user.getId(), teamId);
         return boardRepository.findBoardsByTeamIdAndType(teamId, BoardType.NORMAL)
                 .stream()
                 .map(board -> new SimpleBoardRes(board.getId(), board.getName()))
