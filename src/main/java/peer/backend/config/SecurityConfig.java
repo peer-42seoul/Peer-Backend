@@ -24,6 +24,7 @@ import peer.backend.config.jwt.JwtFilter;
 import peer.backend.config.jwt.TokenProvider;
 import peer.backend.oauth.OAuthAuthenticationSuccessHandler;
 import peer.backend.oauth.PrincipalOauth2UserService;
+import peer.backend.oauth.provider.OAuthAuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -45,6 +46,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuthAuthenticationSuccessHandler oAuthAuthenticationSuccessHandler;
+    private final OAuthAuthenticationFailureHandler oAuthAuthenticationFailureHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -116,6 +118,7 @@ public class SecurityConfig {
             .and()
             .oauth2Login()
             .successHandler(oAuthAuthenticationSuccessHandler)
+            .failureHandler(oAuthAuthenticationFailureHandler)
             .userInfoEndpoint()
             .userService(principalOauth2UserService);
         return httpSecurity.build();
