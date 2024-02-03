@@ -446,4 +446,15 @@ public class RecruitService {
                         .build()
                 ).collect(Collectors.toList());
     }
+
+    @Transactional
+    public boolean getFavorite(Long recruit_id, User user) {
+        if (!recruitRepository.existsById(recruit_id))
+            throw new NotFoundException("존재하지 않는 게시글입니다.");
+        return (user != null
+                && recruitFavoriteRepository
+                .existsByUserIdAndRecruitIdAndType(
+                        user.getId(), recruit_id, RecruitFavoriteEnum.LIKE)
+        );
+    }
 }

@@ -96,12 +96,22 @@ public class RecruitController {
     }
 
     @GetMapping("/favorites")
-    public List<RecruitFavoriteResponse> getFavorite(@Valid RecruitListRequest request, Authentication auth) {
+    public List<RecruitFavoriteResponse> getFavorites(@Valid RecruitListRequest request, Authentication auth) {
         try {
             User user = User.authenticationToUser(auth);
             return recruitService.getFavoriteList(request, user);
         } catch (NullPointerException e) {
             return recruitService.getFavoriteList(request, null);
+        }
+    }
+
+    @GetMapping("/favorite/{recruit_id}")
+    public boolean getFavorite(@PathVariable Long recruit_id, Authentication auth){
+        try {
+            User user = User.authenticationToUser(auth);
+            return recruitService.getFavorite(recruit_id, user);
+        } catch (NullPointerException e) {
+            return recruitService.getFavorite(recruit_id, null);
         }
     }
 
