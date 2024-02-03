@@ -47,6 +47,7 @@ public class SecurityConfig {
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuthAuthenticationSuccessHandler oAuthAuthenticationSuccessHandler;
     private final OAuthAuthenticationFailureHandler oAuthAuthenticationFailureHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -54,6 +55,7 @@ public class SecurityConfig {
     ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -82,11 +84,13 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/recruit/*")
             .permitAll()
-            .antMatchers(HttpMethod.GET, "/api/v1/recruit/*", "/api/v1/recruit/favorites", "/api/v1/recruit/favorite/*")
+            .antMatchers(HttpMethod.GET, "/api/v1/recruit/*", "/api/v1/recruit/favorites",
+                "/api/v1/recruit/favorite/*")
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/hitch/*", "/api/v1/hitch")
             .permitAll()
-            .antMatchers(HttpMethod.GET, "/api/v1/showcase/*", "/api/v1/showcase", "/api/v1/showcase/comment/*")
+            .antMatchers(HttpMethod.GET, "/api/v1/showcase/*", "/api/v1/showcase",
+                "/api/v1/showcase/comment/*")
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/profile/other")
             .permitAll()
@@ -94,7 +98,7 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/tag")
             .permitAll()
-            .antMatchers(HttpMethod.GET,"api/v1/otherPortfolio/list")
+            .antMatchers(HttpMethod.GET, "api/v1/otherPortfolio/list")
             .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/about/announcement/**")
             .permitAll()
@@ -117,6 +121,9 @@ public class SecurityConfig {
 
             .and()
             .oauth2Login()
+            .authorizationEndpoint().baseUri("/oauth2/authorization")
+            .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+            .and()
             .successHandler(oAuthAuthenticationSuccessHandler)
             .failureHandler(oAuthAuthenticationFailureHandler)
             .userInfoEndpoint()
