@@ -10,7 +10,7 @@ import peer.backend.annotation.ValidEnum;
 import peer.backend.entity.announcement.AnnouncementNoticeStatus;
 
 @Getter
-public class UpdateAnnouncementRequest extends CreateAnnouncementRequest {
+public class UpdateAnnouncementRequest {
 
     @NotBlank(message = "제목은 필수입니다.")
     private String title;
