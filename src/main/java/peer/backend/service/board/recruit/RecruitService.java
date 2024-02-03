@@ -189,7 +189,7 @@ public class RecruitService {
     }
 
     public Page<RecruitListResponse> getRecruitSearchList(Pageable pageable,
-        RecruitListRequest request) {
+        RecruitListRequest request, User user) {
 
         List<Recruit> recruits = getRecruitListByCriteria(request);
 
@@ -203,8 +203,10 @@ public class RecruitService {
                 recruit2.getStatus().toString(),
                 // TODO:  맞나 성능 개선이 필요한거 같기도
                 this.tagService.recruitTagListToTagResponseList(recruit2.getRecruitTags()),
-                recruit2.getId()))
-            .collect(Collectors.toList());
+                recruit2.getId(),
+        user != null && recruitFavoriteRepository
+                                .existsByUserIdAndRecruitIdAndType(user.getId(), recruit2.getId(), RecruitFavoriteEnum.LIKE))
+            ).collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
         if (fromIndex > results.size()) {
@@ -430,15 +432,29 @@ public class RecruitService {
     }
 
     @Transactional
-    public List<Boolean> getFavoriteList(RecruitListRequest request, User user)
+    public List<RecruitFavoriteResponse> getFavoriteList(RecruitListRequest request, User user)
     {
         List<Recruit> recruitList = getRecruitListByCriteria(request);
 
         return recruitList.stream()
-                .map(recruit -> (user != null) && (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
-                                user.getId(),
-                                recruit.getId(),
-                                RecruitFavoriteEnum.LIKE))
+                .map(recruit -> RecruitFavoriteResponse.builder()
+                        .recruit_id(recruit.getId())
+                        .favorite(user != null && (recruitFavoriteRepository.existsByUserIdAndRecruitIdAndType(
+                                    user.getId(),
+                                    recruit.getId(),
+                                    RecruitFavoriteEnum.LIKE)))
+                        .build()
                 ).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean getFavorite(Long recruit_id, User user) {
+        if (!recruitRepository.existsById(recruit_id))
+            throw new NotFoundException("존재하지 않는 게시글입니다.");
+        return (user != null
+                && recruitFavoriteRepository
+                .existsByUserIdAndRecruitIdAndType(
+                        user.getId(), recruit_id, RecruitFavoriteEnum.LIKE)
+        );
     }
 }
