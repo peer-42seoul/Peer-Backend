@@ -96,7 +96,7 @@ public class RecruitController {
     }
 
     @GetMapping("/favorites")
-    public List<Boolean> getFavorite(@Valid RecruitListRequest request, Authentication auth) {
+    public List<RecruitFavoriteResponse> getFavorite(@Valid RecruitListRequest request, Authentication auth) {
         try {
             User user = User.authenticationToUser(auth);
             return recruitService.getFavoriteList(request, user);
