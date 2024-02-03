@@ -6,8 +6,11 @@ import java.util.Objects;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.announcement.CreateAnnouncementRequest;
 import peer.backend.dto.announcement.UpdateAnnouncementRequest;
@@ -21,6 +24,7 @@ import peer.backend.service.file.ObjectService;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
@@ -178,7 +182,13 @@ public class AnnouncementService {
     @Transactional
     public Page<Announcement> getAnnouncementListByStatusAndPageable(AnnouncementStatus status,
         Pageable pageable) {
-        return this.announcementRepository.findAllByAnnouncementStatus(status, pageable);
+        int page = pageable.getPageNumber() - 1;
+        int size = pageable.getPageSize();
+        Sort sort = Sort.by("id").ascending();
+
+        Pageable reNew = PageRequest.of(page, size, sort);
+
+        return announcementRepository.findAllByAnnouncementStatus(status, reNew);
     }
 
     @Transactional
