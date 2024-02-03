@@ -12,6 +12,5 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
 
     List<Announcement> findAllByAnnouncementStatus(AnnouncementStatus status);
 
-//    @Query("SELECT m FROM Announcement m WHERE m.announcementStatus = :status")
     Page<Announcement> findAllByAnnouncementStatus(AnnouncementStatus status, Pageable pageable);
 }
