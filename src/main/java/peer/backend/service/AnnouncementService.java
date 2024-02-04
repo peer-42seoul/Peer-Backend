@@ -188,7 +188,7 @@ public class AnnouncementService {
 
         Pageable reNew = PageRequest.of(page, size, sort);
 
-        return announcementRepository.findAllByAnnouncementStatusOrderByCreatedAtDesc(status,
+        return announcementRepository.findAllByAnnouncementStatusOrderByIdDesc(status,
             reNew);
     }
 
