@@ -19,6 +19,7 @@ import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.composite.RecruitFavoritePK;
 import peer.backend.entity.composite.TeamUserJobPK;
 import peer.backend.entity.tag.RecruitTag;
+import peer.backend.entity.tag.Tag;
 import peer.backend.entity.team.Team;
 import peer.backend.entity.team.TeamJob;
 import peer.backend.entity.team.TeamUser;
@@ -137,8 +138,9 @@ public class RecruitService {
             predicates.add(recruit.get("status").in(statuses));
         }
         if (request.getTag() != null && !request.getTag().isEmpty()) {
-            Join<Recruit, String> tagList = recruit.join("tag");
-            predicates.add(tagList.in(request.getTag()));
+            Join<Recruit, RecruitTag> recruitTagsJoin = recruit.join("recruitTags");
+            Join<RecruitTag, Tag> tagJoin = recruitTagsJoin.join("tag");
+            predicates.add(tagJoin.get("name").in(request.getTag()));
         }
         if (request.getType() != null && !request.getType().isEmpty()) {
             predicates.add(cb.equal(teamJoin.get("type"), TeamType.valueOf(request.getType())));
