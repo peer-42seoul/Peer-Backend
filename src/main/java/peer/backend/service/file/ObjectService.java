@@ -106,16 +106,24 @@ public class ObjectService {
     }
 
 
-    public String uploadImage(MultipartFile file) throws IOException {
+    public String uploadImage(MultipartFile file, String folderPath) throws IOException {
         if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
         byte[] bytes = file.getBytes();
-        String contentType = mimeTypeCheck(bytes, "image");
-        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
-        String url = this.getUrl("temp", objectName);
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
 
+        return uploadToStorage(bytes, "image", folderPath);
+    }
+
+    private String uploadToStorage(byte[] fileData, String typeCheck, String folderName){
+        String contentType = mimeTypeCheck(fileData, typeCheck);
+        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
+        String url = this.getUrl(folderName, objectName);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+
+
+        // InputStream을 요청 본문에 추가할 수 있도록 RequestCallback 오버라이드
         final RequestCallback requestCallback = request -> {
             request.getHeaders().add("X-Auth-Token", tokenId);
             IOUtils.copy(inputStream, request.getBody());
@@ -132,7 +140,7 @@ public class ObjectService {
         // API 호출
         restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
 
-        return storageUrl + "/" + containerName + "/" + "temp" + "/" + objectName;
+        return storageUrl + "/" + containerName + "/" + folderName + "/" + objectName;
     }
 
 
@@ -143,32 +151,10 @@ public class ObjectService {
             this.requestToken();
         }
         byte[] fileData = Base64.getDecoder().decode(base64String);
-        String contentType = mimeTypeCheck(fileData, typeCheck);
-        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
-        String url = this.getUrl(folderName, objectName);
         if (base64String == null) {
             return null;
         }
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
-
-        // InputStream을 요청 본문에 추가할 수 있도록 RequestCallback 오버라이드
-        final RequestCallback requestCallback = request -> {
-            request.getHeaders().add("X-Auth-Token", tokenId);
-            IOUtils.copy(inputStream, request.getBody());
-        };
-
-        // 오버라이드한 RequestCallback을 사용할 수 있도록 설정
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setBufferRequestBody(false);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(
-            String.class, restTemplate.getMessageConverters());
-
-        // API 호출
-        restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
-
-        return storageUrl + "/" + containerName + "/" + folderName + "/" + objectName;
+        return uploadToStorage(fileData, typeCheck, folderName);
     }
 
     public void deleteObject(String imageUrl) {

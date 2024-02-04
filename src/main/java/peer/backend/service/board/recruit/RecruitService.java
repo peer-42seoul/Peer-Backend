@@ -352,13 +352,6 @@ public class RecruitService {
     @RecruitWritingTracking
     public Recruit createRecruit(RecruitCreateRequest request, Authentication auth) {
         User user = User.authenticationToUser(auth);
-        //동일한 팀 이름 검사
-        teamRepository.findByName(request.getName()).ifPresent(
-            team1 -> {
-                throw new IllegalArgumentException("이미 존재하는 팀 이름입니다.");
-            }
-        );
-
         //팀 생성
         Team team = this.teamService.createTeam(user, request);
 
