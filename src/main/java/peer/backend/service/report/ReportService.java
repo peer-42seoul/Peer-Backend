@@ -40,7 +40,7 @@ public class ReportService {
 
     @Transactional
     public Page<Report> getReportList(Pageable pageable) {
-        return this.reportRepository.findAllByOrderByStatusAscCreatedAtDesc(pageable);
+        return this.reportRepository.findAllByOrderByStatusAscIdDesc(pageable);
     }
 
     @Transactional

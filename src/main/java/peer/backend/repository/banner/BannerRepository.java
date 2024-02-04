@@ -11,5 +11,5 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
 
     List<Banner> findAllByBannerStatus(BannerStatus status);
 
-    Page<Banner> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<Banner> findAllByOrderByIdDesc(Pageable pageable);
 }

@@ -35,7 +35,7 @@ public class BannerService {
 
     @Transactional
     public Page<Banner> getBannerList(Pageable pageable) {
-        return this.bannerRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return this.bannerRepository.findAllByOrderByIdDesc(pageable);
     }
 
     @Transactional

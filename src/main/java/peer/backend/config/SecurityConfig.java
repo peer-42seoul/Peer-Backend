@@ -24,7 +24,7 @@ import peer.backend.config.jwt.JwtFilter;
 import peer.backend.config.jwt.TokenProvider;
 import peer.backend.oauth.OAuthAuthenticationSuccessHandler;
 import peer.backend.oauth.PrincipalOauth2UserService;
-import peer.backend.oauth.provider.OAuthAuthenticationFailureHandler;
+import peer.backend.oauth.OAuthAuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
