@@ -15,5 +15,5 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     Page<Announcement> findAllByAnnouncementStatusOrderByCreatedAtDesc(AnnouncementStatus status,
         Pageable pageable);
 
-    Page<Announcement> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<Announcement> findAllByOrderByIdDesc(Pageable pageable);
 }
