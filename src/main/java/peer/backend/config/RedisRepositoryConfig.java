@@ -3,16 +3,17 @@ package peer.backend.config;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.*;
 import peer.backend.dto.dnd.TeamMember;
-import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.SocialLogin;
 
 import java.util.List;
@@ -21,13 +22,23 @@ import java.util.List;
 @Configuration
 @EnableRedisRepositories
 public class RedisRepositoryConfig {
+    @Value("${spring.data.redis.host}")
+    private String host;
 
-    private final RedisProperties redisProperties;
+    @Value("${spring.data.redis.port}")
+    private int port;
+
+    @Value("${spring.data.redis.password}")
+    private String password;
 
     // lettuce
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
+//        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
+        config.setDatabase(0);
+        config.setPassword(password);
+        return new LettuceConnectionFactory(config);
     }
 
     @Bean
