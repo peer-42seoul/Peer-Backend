@@ -195,19 +195,23 @@ public class MessageMainService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<AsyncResult<MessageIndex>> makeNewMessageIndex(Authentication auth, MsgContentDTO message) {
         User owner = User.authenticationToUser(auth);
+        System.out.println("여기서 터지나?!1");
         try {
             this.subService.checkMessageIndexExistOrNot(owner.getId(), message.getTargetId());
         } catch (Exception e){
             return CompletableFuture.completedFuture(AsyncResult.failure(e));
         }
         User target;
+        System.out.println("여기서 터지나?!112");
         Optional<User> data = this.userRepository.findById(message.getTargetId());
+        System.out.println("여기서 터지나?!12");
         try {
             target = data.orElseThrow(() -> new Exception("User not found"));
         } catch (Exception e) {
             return CompletableFuture.completedFuture((AsyncResult.failure(e)));
         }
         MessageIndex saved = this.subService.saveNewData(owner, target);
+        System.out.println("여기서 터지나?!13");
         return CompletableFuture.completedFuture(AsyncResult.success(saved));
     }
 
@@ -225,7 +229,7 @@ public class MessageMainService {
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
-    @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
+    @Transactional(readOnly = false)
     public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         User msgOwner = User.authenticationToUser(auth);
         if (index.getUserIdx1().equals(msgOwner.getId())) {
