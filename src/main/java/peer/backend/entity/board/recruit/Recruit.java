@@ -78,6 +78,7 @@ public class Recruit extends BaseEntity {
         this.status = RecruitStatus.from(request.getStatus());
         this.link = request.getLink();
         this.recruitTags.clear();
+        if (request.getTagList() != null && !request.getTagList().isEmpty())
         this.recruitTags = request.getTagList().stream()
                 .map(e -> (new RecruitTag(this.id, e)))
                 .collect(
