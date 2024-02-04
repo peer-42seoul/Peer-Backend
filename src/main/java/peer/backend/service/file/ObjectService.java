@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import peer.backend.exception.IllegalArgumentException;
 
 import javax.validation.constraints.NotNull;
@@ -103,6 +104,37 @@ public class ObjectService {
         }
         return mimeType;
     }
+
+
+    public String uploadImage(MultipartFile file) throws IOException {
+        if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
+            this.requestToken();
+        }
+        byte[] bytes = file.getBytes();
+        String contentType = mimeTypeCheck(bytes, "image");
+        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
+        String url = this.getUrl("temp", objectName);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+
+        final RequestCallback requestCallback = request -> {
+            request.getHeaders().add("X-Auth-Token", tokenId);
+            IOUtils.copy(inputStream, request.getBody());
+        };
+
+        // 오버라이드한 RequestCallback을 사용할 수 있도록 설정
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setBufferRequestBody(false);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+
+        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(
+                String.class, restTemplate.getMessageConverters());
+
+        // API 호출
+        restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
+
+        return storageUrl + "/" + containerName + "/" + "temp" + "/" + objectName;
+    }
+
 
 
     // TODO: 예외처리가 필요해보임.
