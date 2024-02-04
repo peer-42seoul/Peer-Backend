@@ -39,8 +39,7 @@ public class AnnouncementService {
 
     @Transactional
     public Page<Announcement> getAnnouncementList(Pageable pageable) {
-//        return this.announcementRepository.findAll(pageable);
-        return this.announcementRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return this.announcementRepository.findAllByOrderByIdDesc(pageable);
     }
 
     @Transactional
@@ -189,7 +188,7 @@ public class AnnouncementService {
 
         Pageable reNew = PageRequest.of(page, size, sort);
 
-        return announcementRepository.findAllByAnnouncementStatusOrderByCreatedAtDesc(status,
+        return announcementRepository.findAllByAnnouncementStatusOrderByIdDesc(status,
             reNew);
     }
 
