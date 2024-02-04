@@ -118,6 +118,11 @@ public class BannerService {
                 throw new ConflictException("이미 진행 중인 배너의 예약 타입을 예약으로 설정할 수 없습니다!");
             }
         }
+        if (Objects.nonNull(request.getImage())) {
+            this.objectService.deleteObject(banner.getImageUrl());
+            String imageUrl = this.uploadBannerImage(request.getImage());
+            banner.setImageUrl(imageUrl);
+        }
     }
 
     private BannerStatus getBannerStatusFromBannerReservationType(BannerReservationType type) {
