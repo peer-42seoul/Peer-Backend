@@ -37,7 +37,7 @@ public class RecruitUpdateRequestDTO {
     private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
     private String image;
-    private int max;
+    private Integer max;
 
     public String getRegion1() {
         if ((this.region == null && this.place.equals("OFFLINE")) ||
