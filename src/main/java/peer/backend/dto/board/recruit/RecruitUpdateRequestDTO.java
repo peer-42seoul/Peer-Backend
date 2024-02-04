@@ -28,7 +28,6 @@ public class RecruitUpdateRequestDTO {
     @NotNull
     private String due;
     @NotNull
-    @Lob
     private String content;
     private List<String> region;
     private String link;
@@ -38,6 +37,7 @@ public class RecruitUpdateRequestDTO {
     private List<TeamJobDto> roleList;
     private List<RecruitInterviewDto> interviewList;
     private String image;
+    private Integer max;
 
     public String getRegion1() {
         if ((this.region == null && this.place.equals("OFFLINE")) ||

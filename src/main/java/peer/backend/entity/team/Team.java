@@ -58,7 +58,7 @@ public class Team extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     @Size(min = 2, max = 30)
     private String name;
 
@@ -143,7 +143,7 @@ public class Team extends BaseEntity {
     public void update(RecruitUpdateRequestDTO request) {
         this.name = request.getName();
         this.dueTo = RecruitDueEnum.from(request.getDue());
-        if (!request.getRegion().isEmpty()) {
+        if (request.getRegion() != null && !request.getRegion().isEmpty()) {
             this.region1 = request.getRegion1();
             this.region2 = request.getRegion2();
         }
@@ -152,6 +152,8 @@ public class Team extends BaseEntity {
         if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
             request.getRoleList().forEach(this::addRole);
         }
+        if (request.getMax() != null)
+            this.maxMember = request.getMax();
     }
 
     public void addRole(TeamJobDto role) {
