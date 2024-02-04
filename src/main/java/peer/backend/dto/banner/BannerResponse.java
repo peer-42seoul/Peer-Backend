@@ -18,6 +18,7 @@ public class BannerResponse {
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     private LocalDateTime date;
     private final String getReservationDate;
+    private final String announcementUrl;
 
     public BannerResponse(Banner banner) {
         this.bannerStatus = banner.getBannerStatus();
@@ -30,5 +31,6 @@ public class BannerResponse {
         } else {
             this.date = banner.getCreatedAt();
         }
+        this.announcementUrl = banner.getAnnouncementUrl();
     }
 }
