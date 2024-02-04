@@ -225,7 +225,7 @@ public class MessageMainService {
      * @return true 면 정상 저장. 만약 실패하면 false 를 반환한다.
      */
 
-    @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
+    @Transactional(readOnly = false)
     public Msg sendMessage(MessageIndex index, Authentication auth, MsgContentDTO message) throws AlreadyDeletedException {
         User msgOwner = User.authenticationToUser(auth);
         if (index.getUserIdx1().equals(msgOwner.getId())) {
