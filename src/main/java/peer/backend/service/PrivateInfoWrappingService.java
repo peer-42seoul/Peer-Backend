@@ -245,8 +245,6 @@ public class PrivateInfoWrappingService {
             LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
             JwtDto jwtDto = loginService.login(userLoginRequest.getUserEmail(),
                     userLoginRequest.getPassword());
-            maps.put("isLogin", "true");
-            maps.put("userId", jwtDto.getUserId());
             maps.put("accessToken", jwtDto.getAccessToken());
             Cookie cookie = new Cookie("refreshToken", jwtDto.getRefreshToken());
             cookie.setMaxAge((int) refreshExpirationTime / 1000);
