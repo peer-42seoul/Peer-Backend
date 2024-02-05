@@ -224,7 +224,7 @@ public class ShowcaseService {
                     objectService.uploadObject(filePath, request.getImage(), "image"));
             objectService.deleteObject(temp);
         } else
-            post.update(request, request.getImage());
+            post.update(request, null);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
