@@ -75,7 +75,7 @@ public class ProfileController {
     public ResponseEntity<Object> isExistNickname(@RequestBody @Valid NicknameResponse nickname) {
         if (profileService.isExistNickname(nickname.getNickname())) {
 //            throw new ConflictException("이미 사용 중인 닉네임입니다.");
-            return new ResponseEntity<>("닉네임이 중복됩니다. 다른 닉네임으로 시도해 주세요.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("닉네임이 중복됩니다. 다른 닉네임으로 시도해 주세요.", HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
