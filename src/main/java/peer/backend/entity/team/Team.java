@@ -34,6 +34,7 @@ import peer.backend.dto.team.TeamSettingInfoDto;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitDueEnum;
+import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.team.enums.TeamMemberStatus;
 import peer.backend.entity.team.enums.TeamOperationFormat;
@@ -128,10 +129,15 @@ public class Team extends BaseEntity {
     }
 
 
+    //TODO: 팀 상태, 모집글 상태 변경 로직 개선 필요함.
     public void update(TeamSettingInfoDto teamSettingInfoDto) {
         this.name = teamSettingInfoDto.getName();
         this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
         this.status = teamSettingInfoDto.getStatus();
+        if (this.status != TeamStatus.RECRUITING)
+            recruit.setStatus(RecruitStatus.DONE);
+        else
+            recruit.setStatus(RecruitStatus.ONGOING);
         String[] regions = teamSettingInfoDto.getRegion();
         if (teamSettingInfoDto.getRegion().length == 2) {
             this.region1 = regions[0];
