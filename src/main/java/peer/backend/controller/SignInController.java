@@ -95,9 +95,6 @@ public class SignInController {
         if (!this.memberService.emailExistsCheck(email)) {
             throw new NotFoundException("가입되지 않은 이메일 입니다!");
         }
-
-//        Message message = emailService.sendEmail(address.getEmail(),
-//            "비밀번호 임시 발급을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n");
         this.emailService.sendAuthCode(address.getEmail(),
             "비밀번호 임시 발급을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n");
         return ResponseEntity.ok().build();
