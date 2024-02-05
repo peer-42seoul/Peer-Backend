@@ -239,7 +239,7 @@ public class RecruitService {
             .region((Objects.isNull(team.getRecruit()) || Objects.isNull(team.getRegion2()) ? null
                 : new ArrayList<>(List.of(team.getRegion1(), team.getRegion2()))))
             .status(recruit.getStatus())
-            .totalNumber(recruit.getTeam().getTeamUsers().size())
+            .totalNumber(team.getJobs().stream().mapToInt(TeamJob::getMax).sum())
             .current(teamUserJobRepository.findByTeamUserTeamIdAndStatus(team.getId(),
                 TeamUserStatus.APPROVED).size())
             .due(team.getDueTo().getLabel())
