@@ -35,4 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByIdIn(List<Long> ids);
 
     Long countByCreatedAtBefore(LocalDateTime time);
+    @Query("SELECT CASE WHEN COUNT(n) > 0 THEN true ELSE false END FROM User n WHERE n.nickname = :nickname")
+    Boolean existsByNickname(String nickname);
 }
