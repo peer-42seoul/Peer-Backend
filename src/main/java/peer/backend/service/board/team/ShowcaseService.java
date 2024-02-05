@@ -62,7 +62,7 @@ public class ShowcaseService {
         Team team = post.getBoard().getTeam();
         return ShowcaseListResponse.builder()
             .id(post.getId())
-            .image(post.getFiles().get(0).getUrl())     // showcase에서 대표이미지는 항상 첫번째인덱스에 있습니다.
+            .image(post.getImage())     // showcase에서 대표이미지는 항상 첫번째인덱스에 있습니다.
             .name(post.getBoard().getTeam().getName())
             .description(post.getContent())
             .skill(
@@ -147,7 +147,7 @@ public class ShowcaseService {
         showcase.increaseHit();
         return ShowcaseResponse.builder()
                 .content(showcase.getContent())
-                .image(showcase.getFiles().get(0).getUrl())
+                .image(showcase.getImage())
                 .start(team.getCreatedAt().toString())
                 .end(team.getEnd().toString())
                 .likeCount(showcase.getLiked())
@@ -194,6 +194,7 @@ public class ShowcaseService {
                 .type(BoardType.SHOWCASE)
                 .build();
         boardRepository.save(board);
+        String filePath = "team/showcase/" + team.getName();
         Post post = Post.builder()
                 .content(request.getContent())
                 .liked(0)
@@ -201,11 +202,12 @@ public class ShowcaseService {
                 .board(board)
                 .user(user)
                 .title(team.getName() + "'s showcase")
+                .image(objectService.uploadObject(filePath, request.getImage(), "image"))
                 .build();
-        String filePath = "team/showcase/" + team.getName();
+
         postRepository.save(post);
         post.addLinks(request.getLinks());
-        post.addFile(objectService.uploadObject(filePath, request.getImage(), "image"));
+        post.addFiles(objectService.extractContentImage(request.getContent()));
         return post.getId();
     }
 
@@ -214,17 +216,19 @@ public class ShowcaseService {
         Post post = postRepository.findById(showcaseId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
         Team team = post.getBoard().getTeam();
+        List<String> contentImages = objectService.extractContentImage(request.getContent());
         if (!teamService.isLeader(team.getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
         String filePath = "team/showcase/" + post.getBoard().getTeam().getName();
-        String temp = post.getFiles().get(0).getUrl();
+        String temp = post.getImage();
         if (Objects.nonNull(request.getImage())) {
             post.update(
                     request,
-                    objectService.uploadObject(filePath, request.getImage(), "image"));
+                    objectService.uploadObject(filePath, request.getImage(), "image"),
+                    contentImages);
             objectService.deleteObject(temp);
         } else
-            post.update(request, null);
+            post.update(request, null, contentImages);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

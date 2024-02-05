@@ -35,7 +35,6 @@ import peer.backend.exception.*;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
-import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
@@ -51,6 +50,8 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,7 +60,6 @@ import java.util.stream.Collectors;
 public class RecruitService {
 
     private final RecruitRepository recruitRepository;
-    private final TeamRepository teamRepository;
     private final RecruitFavoriteRepository recruitFavoriteRepository;
     private final TeamService teamService;
     private final ObjectService objectService;
@@ -306,30 +306,6 @@ public class RecruitService {
         }
     }
 
-// TODO: 2스텝에서 에디터 변경시 적용 필요
-//    private List<String> processMarkdownWithFormData(String markdown) throws IOException {
-//        //TODO:Storage에 맞춰 filePath 수정, fileType검사, file 모듈로 리팩토링, fileList에 추가
-//        Matcher matcher = IMAGE_PATTERN.matcher(markdown);
-//        StringBuilder sb = new StringBuilder();
-//        List<String> result = new ArrayList<>();
-//        while (matcher.find()) {
-//            String formData = matcher.group().substring(26, matcher.group().length() - 1);
-//            byte[] imageBytes = Base64.getDecoder().decode(formData);
-//            Path path = Paths.get("/Users/jwee/upload", UUID.randomUUID() + ".png");
-//            Files.write(path, imageBytes);
-//            if (result.isEmpty()) {
-//                result.add(path.toString());
-//            }
-//            matcher.appendReplacement(sb, "![image](" + path + ")");
-//        }
-//        if (result.isEmpty()) {
-//            result.add("");
-//        }
-//        matcher.appendTail(sb);
-//        result.add(sb.toString());
-//        return result;
-//    }
-
     private Recruit createRecruitFromDto(RecruitCreateRequest request, Team team, User user) {
         Recruit recruit = Recruit.builder()
             .team(team)
@@ -345,7 +321,6 @@ public class RecruitService {
             .hit(0L)
             .build();
         addInterviewsToRecruit(recruit, request.getInterviewList());
-        recruit.b.add
         return recruit;
     }
 
@@ -363,6 +338,7 @@ public class RecruitService {
                 .map(e -> (new RecruitTag(recruit.getId(), e))).collect(
                     Collectors.toList()));
         }
+        recruit.addFiles(objectService.extractContentImage(request.getContent()));
         return recruit;
     }
 
@@ -415,14 +391,15 @@ public class RecruitService {
     public Long updateRecruit(Long recruit_id, RecruitUpdateRequestDTO recruitUpdateRequestDTO) {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
+        List<String> contentImages = objectService.extractContentImage(recruitUpdateRequestDTO.getContent());
         if (recruitUpdateRequestDTO.getImage() != null) {
-            recruit.update(recruitUpdateRequestDTO);
+            recruit.update(recruitUpdateRequestDTO, contentImages);
             objectService.deleteObject(recruit.getThumbnailUrl());
             recruit.setThumbnailUrl(objectService.uploadObject(recruitUpdateRequestDTO.getImage(),
                 "recruit/" + recruit_id, "image"));
             this.userPortfolioService.setRecruitImagePath(recruit.getId(), recruit.getThumbnailUrl());
         } else {
-            recruit.update(recruitUpdateRequestDTO);
+            recruit.update(recruitUpdateRequestDTO, contentImages);
         }
         return recruit.getId();
     }

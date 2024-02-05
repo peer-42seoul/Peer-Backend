@@ -19,11 +19,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.exception.IllegalArgumentException;
 
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
@@ -90,6 +95,21 @@ public class ObjectService {
         this.tokenId = body.substring(body.indexOf("id") + 5, body.indexOf("expires") - 3);
         this.tokenExpireTime = OffsetDateTime.parse(
             body.substring(body.indexOf("expires") + 10, body.indexOf("tenant") - 3));
+    }
+
+    private static final Pattern IMAGE_TAG_PATTERN = Pattern.compile( "!\\[[^\\]]+\\]\\(([^)]+)\\)");
+    @Transactional
+    public List<String> extractContentImage(String content){
+
+
+        Matcher matcher = IMAGE_TAG_PATTERN.matcher(content);
+
+        List<String> result = new ArrayList<>();
+        while (matcher.find()) {
+            String url = matcher.group(1);
+            result.add(url);
+        }
+        return result;
     }
 
     private String getUrl(@NotNull String folderName, @NotNull String objectName) {
