@@ -55,6 +55,7 @@ public class Recruit extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
+    @Lob
     private String content;
     @Column
     private String link;
@@ -71,7 +72,7 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserPortfolio> userPortfoliosHistories;
 
-    public void update(RecruitUpdateRequestDTO request) {
+    public void update(RecruitUpdateRequestDTO request, List<String> urls) {
         this.getTeam().update(request);
         this.title = request.getTitle();
         this.content = request.getContent();
@@ -89,6 +90,10 @@ public class Recruit extends BaseEntity {
                 this.addInterview(interview);
             }
         }
+        this.files.clear();
+        if (urls != null && !urls.isEmpty()) {
+            urls.forEach(this::addFile);
+        }
     }
 
     public void addInterview(RecruitInterviewDto interview) {
@@ -105,5 +110,20 @@ public class Recruit extends BaseEntity {
 
     public void setHit(Long hit) {
         this.hit = hit;
+    }
+
+    public void addFiles(List<String> urls){
+        urls.forEach(this::addFile);
+    }
+
+    public void addFile(String url) {
+        if (this.files == null)
+            this.files = new ArrayList<>();
+        this.files.add(
+                RecruitFile.builder()
+                        .recruit(this)
+                        .url(url)
+                        .build()
+        );
     }
 }

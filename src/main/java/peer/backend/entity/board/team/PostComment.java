@@ -27,7 +27,7 @@ public class PostComment extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @Lob
+    @Column(length = 300)
     private String content;
 
     public void update(String comment){

@@ -90,7 +90,7 @@ public class ShowcaseController {
     }
 
     @PostMapping("/comment")
-    public void createShowcaseComment(@RequestBody PostCommentRequest request, Authentication auth){
+    public void createShowcaseComment(@RequestBody @Valid PostCommentRequest request, Authentication auth){
         boardService.createComment(
                 request.getPostId(),
                 request.getContent(),
@@ -104,7 +104,7 @@ public class ShowcaseController {
     }
 
     @PutMapping("/comment/{commentId}")
-    public void updateShowcaseComment(@PathVariable Long commentId, @RequestBody PostCommentUpdateRequest request, Authentication auth){
+    public void updateShowcaseComment(@PathVariable Long commentId, @RequestBody @Valid PostCommentUpdateRequest request, Authentication auth){
         boardService.updateComment(commentId, request, User.authenticationToUser(auth));
     }
 }

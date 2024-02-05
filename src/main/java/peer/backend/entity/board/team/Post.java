@@ -67,17 +67,22 @@ public class Post extends BaseEntity{
         this.isPublic = !this.isPublic;
     }
 
-    public void update(PostUpdateRequest request){
+    public void update(PostUpdateRequest request, List<String>urls){
         this.title = request.getTitle();
         this.content = request.getContent();
+        this.files.clear();
+        this.addFiles(urls);
     }
 
-    public void update(ShowcaseUpdateDto request, String url){
+    public void update(ShowcaseUpdateDto request, String url, List<String> urls){
         this.content = request.getContent();
         this.links.clear();
         this.clearAndAddLink(request.getLinks());
         if (url != null)
-            this.clearAndAddFile(url);
+            this.image = url;
+        this.files.clear();
+        if (urls != null && !urls.isEmpty())
+            addFiles(urls);
     }
 
     public void setImage(String url){
@@ -101,6 +106,10 @@ public class Post extends BaseEntity{
             this.links = new ArrayList<>();
         if (linkList != null && !linkList.isEmpty())
             linkList.forEach(link -> this.links.add(new PostLink(link, this)));
+    }
+
+    public void addFiles(List<String> urls){
+        urls.forEach(this::addFile);
     }
 
     public void addFile(String url){

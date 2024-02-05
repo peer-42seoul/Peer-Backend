@@ -19,11 +19,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import peer.backend.exception.IllegalArgumentException;
 
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
@@ -92,6 +97,20 @@ public class ObjectService {
             body.substring(body.indexOf("expires") + 10, body.indexOf("tenant") - 3));
     }
 
+    @Transactional
+    public List<String> extractContentImage(String content){
+
+        Pattern pattern = Pattern.compile(  "!\\[.*?\\]\\((" + storageUrl + "[^)]+)\\)");
+
+        Matcher matcher = pattern.matcher(content);
+        List<String> result = new ArrayList<>();
+        while (matcher.find()) {
+            String url = matcher.group(1);
+            result.add(url);
+        }
+        return result;
+    }
+
     private String getUrl(@NotNull String folderName, @NotNull String objectName) {
         return this.getStorageUrl() + "/" + containerName + "/" + folderName + "/" + objectName;
     }
@@ -106,16 +125,24 @@ public class ObjectService {
     }
 
 
-    public String uploadImage(MultipartFile file) throws IOException {
+    public String uploadImage(MultipartFile file, String folderPath) throws IOException {
         if (this.tokenId == null || this.tokenExpireTime.isBefore(OffsetDateTime.now())) {
             this.requestToken();
         }
         byte[] bytes = file.getBytes();
-        String contentType = mimeTypeCheck(bytes, "image");
-        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
-        String url = this.getUrl("temp", objectName);
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
 
+        return uploadToStorage(bytes, "image", folderPath);
+    }
+
+    private String uploadToStorage(byte[] fileData, String typeCheck, String folderName){
+        String contentType = mimeTypeCheck(fileData, typeCheck);
+        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
+        String url = this.getUrl(folderName, objectName);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+
+
+        // InputStream을 요청 본문에 추가할 수 있도록 RequestCallback 오버라이드
         final RequestCallback requestCallback = request -> {
             request.getHeaders().add("X-Auth-Token", tokenId);
             IOUtils.copy(inputStream, request.getBody());
@@ -132,7 +159,7 @@ public class ObjectService {
         // API 호출
         restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
 
-        return storageUrl + "/" + containerName + "/" + "temp" + "/" + objectName;
+        return storageUrl + "/" + containerName + "/" + folderName + "/" + objectName;
     }
 
 
@@ -143,32 +170,10 @@ public class ObjectService {
             this.requestToken();
         }
         byte[] fileData = Base64.getDecoder().decode(base64String);
-        String contentType = mimeTypeCheck(fileData, typeCheck);
-        String objectName = UUID.randomUUID() + "." + this.getExtensionFromMimeType(contentType);
-        String url = this.getUrl(folderName, objectName);
         if (base64String == null) {
             return null;
         }
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
-
-        // InputStream을 요청 본문에 추가할 수 있도록 RequestCallback 오버라이드
-        final RequestCallback requestCallback = request -> {
-            request.getHeaders().add("X-Auth-Token", tokenId);
-            IOUtils.copy(inputStream, request.getBody());
-        };
-
-        // 오버라이드한 RequestCallback을 사용할 수 있도록 설정
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setBufferRequestBody(false);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-        HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(
-            String.class, restTemplate.getMessageConverters());
-
-        // API 호출
-        restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor);
-
-        return storageUrl + "/" + containerName + "/" + folderName + "/" + objectName;
+        return uploadToStorage(fileData, typeCheck, folderName);
     }
 
     public void deleteObject(String imageUrl) {
