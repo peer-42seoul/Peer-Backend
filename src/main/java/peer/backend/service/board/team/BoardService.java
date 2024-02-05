@@ -83,6 +83,7 @@ public class BoardService {
                         request.getImage(), "board/" + board.getId(), "image"))
                 .build();
         postRepository.save(post);
+        post.addFiles(objectService.extractContentImage(request.getContent()));
     }
 
     @Transactional
@@ -127,7 +128,7 @@ public class BoardService {
                 user)) {
             throw new ForbiddenException("게시글을 수정할 권한이 업습니다.");
         }
-        post.update(request);
+        post.update(request, objectService.extractContentImage(request.getContent()));
         if (request.getImage() != null) {
             objectService.deleteObject(post.getImage());
             objectService.uploadObject(request.getImage(), "board/" + post.getBoard().getId(),
@@ -162,6 +163,9 @@ public class BoardService {
         }
         if (post.getImage() != null) {
             objectService.deleteObject(post.getImage());
+        }
+        if (post.getFiles() != null && !post.getFiles().isEmpty()) {
+            post.getFiles().forEach(postFile -> objectService.deleteObject(postFile.getUrl()));
         }
         postRepository.delete(post);
     }

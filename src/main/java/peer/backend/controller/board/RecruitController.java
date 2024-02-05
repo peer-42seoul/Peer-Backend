@@ -1,7 +1,7 @@
 package peer.backend.controller.board;
 
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +13,8 @@ import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
 import peer.backend.entity.user.User;
+import peer.backend.exception.NotFoundException;
+import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.service.board.recruit.RecruitService;
 
 import javax.validation.Valid;
@@ -114,5 +116,4 @@ public class RecruitController {
             return recruitService.getFavorite(recruit_id, null);
         }
     }
-
 }
