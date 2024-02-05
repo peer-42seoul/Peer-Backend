@@ -1,7 +1,6 @@
 package peer.backend.service;
 
 import java.security.SecureRandom;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,11 +25,25 @@ public class EmailAuthService {
     private final SecureRandom random = new SecureRandom();
 
     private String getAuthCode(String email) {
-        String code = this.random.ints('0', 'Z' + 1)
-            .filter(i -> (i <= '9' || i >= 'A'))
-            .limit(7)
-            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-            .toString();
+        int length = 10;
+        String upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
+        String numericChars = "0123456789";
+        String specialChars = "!@#$%^&*";
+        String allChars = upperCaseChars + lowerCaseChars + numericChars + specialChars;
+
+        StringBuilder sb = new StringBuilder(length);
+        sb.append(upperCaseChars.charAt(this.random.nextInt(upperCaseChars.length())));
+        sb.append(lowerCaseChars.charAt(this.random.nextInt(lowerCaseChars.length())));
+        sb.append(numericChars.charAt(this.random.nextInt(numericChars.length())));
+        sb.append(specialChars.charAt(this.random.nextInt(specialChars.length())));
+        for (int i = 4; i < length; i++) {
+            int randomIndex = this.random.nextInt(allChars.length());
+            char randomChar = allChars.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+        String code = sb.toString();
+
         this.putRedisEmailCode(email, code);
         return code;
     }
