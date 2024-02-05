@@ -76,7 +76,8 @@ public class Post extends BaseEntity{
         this.content = request.getContent();
         this.links.clear();
         this.clearAndAddLink(request.getLinks());
-        this.clearAndAddFile(url);
+        if (url != null)
+            this.clearAndAddFile(url);
     }
 
     public void setImage(String url){
