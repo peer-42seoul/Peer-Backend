@@ -4,7 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import peer.backend.mongo.entity.TeamTracking;
 
-public interface TeamTrackingRepository extends MongoRepository<TeamTracking, ObjectId> {
+public interface TeamTrackingRepository extends MongoRepository<TeamTracking, Long> {
 
     TeamTracking findByTeamId(Long id);
 }
