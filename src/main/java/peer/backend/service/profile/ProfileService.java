@@ -167,6 +167,7 @@ public class ProfileService {
     @Transactional
     public void editProfile(Authentication auth, EditProfileRequest profile, boolean isChange) throws IOException {
         User user = User.authenticationToUser(auth);
+
         // 기존 이미지가 있는 경우
         //     요청한 이미지가 있는 경우 -> 변경
         //     요청한 이미지가 없고, 변경을 원하는 경우 -> 삭제
