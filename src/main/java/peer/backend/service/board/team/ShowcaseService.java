@@ -239,8 +239,12 @@ public class ShowcaseService {
         Team team = post.getBoard().getTeam();
         if (!teamService.isLeader(team.getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
-        objectService.deleteObject(post.getFiles().get(0).getUrl());
+        if (post.getImage() != null)
+            objectService.deleteObject(post.getImage());
+        if (post.getFiles() != null && !post.getFiles().isEmpty())
+            post.getFiles().forEach(file -> objectService.deleteObject(file.getUrl()));
         boardRepository.delete(post.getBoard());
+        postRepository.delete(post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

@@ -164,6 +164,9 @@ public class BoardService {
         if (post.getImage() != null) {
             objectService.deleteObject(post.getImage());
         }
+        if (post.getFiles() != null && !post.getFiles().isEmpty()) {
+            post.getFiles().forEach(postFile -> objectService.deleteObject(postFile.getUrl()));
+        }
         postRepository.delete(post);
     }
 

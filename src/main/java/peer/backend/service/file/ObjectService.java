@@ -97,13 +97,13 @@ public class ObjectService {
             body.substring(body.indexOf("expires") + 10, body.indexOf("tenant") - 3));
     }
 
-    private static final Pattern IMAGE_TAG_PATTERN = Pattern.compile( "!\\[[^\\]]+\\]\\(([^)]+)\\)");
+//    private static final Pattern IMAGE_TAG_PATTERN = Pattern.compile( "!\\[[^\\]]+\\]\\(([^)]+)\\)");
+    private Pattern IMAGE_TAG_PATTERN = Pattern.compile(  "!\\[.*?\\]\\((https://kr1-api-object-storage.nhncloudservice.com/v1/AUTH_ad016d3302b840af94a1946c5784d85a[^)]+)\\)");
     @Transactional
     public List<String> extractContentImage(String content){
 
 
         Matcher matcher = IMAGE_TAG_PATTERN.matcher(content);
-
         List<String> result = new ArrayList<>();
         while (matcher.find()) {
             String url = matcher.group(1);
