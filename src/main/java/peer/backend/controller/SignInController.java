@@ -125,7 +125,7 @@ public class SignInController {
         cookie.setMaxAge((int) accessExpirationTime / 1000);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-//        cookie.setSecure(true);
+        cookie.setSecure(true);
 
         response.addCookie(cookie);
 
