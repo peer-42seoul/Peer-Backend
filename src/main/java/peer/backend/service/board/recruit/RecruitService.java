@@ -345,6 +345,7 @@ public class RecruitService {
             .hit(0L)
             .build();
         addInterviewsToRecruit(recruit, request.getInterviewList());
+        recruit.b.add
         return recruit;
     }
 

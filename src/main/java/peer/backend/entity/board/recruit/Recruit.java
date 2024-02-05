@@ -106,4 +106,10 @@ public class Recruit extends BaseEntity {
     public void setHit(Long hit) {
         this.hit = hit;
     }
+
+    public void addFiles(String url) {
+        if (this.files == null)
+            this.files = new ArrayList<>();
+        this.files.add(RecruitFile.builder().recruit(this).url(url).build());
+    }
 }
