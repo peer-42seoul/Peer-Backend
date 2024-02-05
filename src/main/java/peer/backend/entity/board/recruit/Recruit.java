@@ -64,7 +64,7 @@ public class Recruit extends BaseEntity {
     private RecruitStatus status;
     @Column
     private String thumbnailUrl;
-    @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitTag> recruitTags = new ArrayList<>();
     @Column
     private Long writerId;
@@ -80,10 +80,7 @@ public class Recruit extends BaseEntity {
         this.link = request.getLink();
         this.recruitTags.clear();
         if (request.getTagList() != null && !request.getTagList().isEmpty())
-        this.recruitTags = request.getTagList().stream()
-                .map(e -> (new RecruitTag(this.id, e)))
-                .collect(
-                        Collectors.toList());
+            addTags(request.getTagList());
         this.interviews.clear();
         if (request.getInterviewList() != null && !request.getInterviewList().isEmpty()) {
             for (RecruitInterviewDto interview : request.getInterviewList()) {
@@ -94,6 +91,14 @@ public class Recruit extends BaseEntity {
         if (urls != null && !urls.isEmpty()) {
             urls.forEach(this::addFile);
         }
+    }
+
+    private void addTag(Long tagId){
+        this.recruitTags.add(new RecruitTag(this.id, tagId));
+    }
+
+    private void addTags(List<Long> tags){
+        tags.forEach(this::addTag);
     }
 
     public void addInterview(RecruitInterviewDto interview) {
