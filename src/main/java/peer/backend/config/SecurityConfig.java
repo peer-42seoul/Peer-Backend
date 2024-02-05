@@ -69,7 +69,7 @@ public class SecurityConfig {
 
             .and()
             .authorizeRequests()
-//            .antMatchers("/api/v1/admin/**").hasRole("ADMIN")
+            .antMatchers("/api/v1/admin/**").hasRole("ADMIN")
             .antMatchers("/api/v1/admin/**").permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/report").hasRole("ADMIN")
             .antMatchers("/api/v1/signin/**", "/api/v1/signup/**", "/access-token", "/", "/error")
