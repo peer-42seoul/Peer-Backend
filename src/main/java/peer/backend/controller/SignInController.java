@@ -120,9 +120,9 @@ public class SignInController {
 
         Cookie cookie = new Cookie("adminToken", accessToken);
         cookie.setMaxAge((int) refreshExpirationTime / 1000);
-//        cookie.setHttpOnly(true);
-//        cookie.setPath("/");
-//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setSecure(true);
 //        cookie.setDomain("peer-test.co.kr");
 
 //        String cookieString =
