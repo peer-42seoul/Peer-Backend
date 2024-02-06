@@ -24,4 +24,5 @@ public class RecruitListResponse {
     private List<TagResponse> tagList;
     private Long recruit_id;
     private boolean favorite;
+    private String updatedAt;
 }
