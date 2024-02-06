@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ShowcaseFavoriteResponse {
+
     private Long showcaseId;
     private String image;
     private String teamLogo;
@@ -19,9 +20,9 @@ public class ShowcaseFavoriteResponse {
     private String content;
     private List<TagResponse> tags;
 
-    public ShowcaseFavoriteResponse(Post post, List<TagResponse> tagList){
+    public ShowcaseFavoriteResponse(Post post, List<TagResponse> tagList) {
         this.showcaseId = post.getId();
-        this.image = post.getFiles().get(0).getUrl();
+        this.image = post.getImage();
         this.teamLogo = post.getBoard().getTeam().getTeamLogoPath();
         this.content = post.getContent();
         this.tags = tagList;

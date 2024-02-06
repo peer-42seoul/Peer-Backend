@@ -33,4 +33,5 @@ public class RecruitResponce {
     private String image;
     private String teamName;
     private boolean isFavorite;
+    private String updatedAt;
 }

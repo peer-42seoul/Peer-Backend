@@ -71,7 +71,7 @@ public class TeamPageService {
         Board board = boardRepository.findByTeamIdAndType(request.getTeamId(), BoardType.NOTICE).orElseThrow(
                 () -> new NotFoundException("게시판이 존재하지 않습니다."));
         Team team = board.getTeam();
-        if (!teamUserRepository.existsAndMemberByUserIdAndTeamId(user.getId(), team.getId())) {
+        if (!teamUserRepository.existsAndLeaderByUserIdAndTeamId(user.getId(), team.getId())) {
             throw new ForbiddenException("팀 리더가 아닙니다.");
         }
         Post post = Post.builder()

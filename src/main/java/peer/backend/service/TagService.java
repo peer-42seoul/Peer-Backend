@@ -14,6 +14,7 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.TagRepository;
 import peer.backend.repository.board.recruit.RecruitTagRepository;
+import peer.backend.repository.user.UserSkillRepository;
 
 @RequiredArgsConstructor
 @Service
@@ -22,6 +23,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
     private final RecruitTagRepository recruitTagRepository;
+    private final UserSkillRepository userSkillRepository;
 
     @Transactional
     public void createTag(String name, String color) {
@@ -35,6 +37,7 @@ public class TagService {
     @Transactional
     public void deleteTag(Long tagId) {
         this.recruitTagRepository.deleteAllByTagId(tagId);
+        this.userSkillRepository.deleteAllByTagId(tagId);
         this.tagRepository.deleteById(tagId);
     }
 
