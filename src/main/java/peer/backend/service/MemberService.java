@@ -32,6 +32,9 @@ public class MemberService {
 
     private final BCryptPasswordEncoder encoder;
 
+    //TODO: 뺄게 있을까?
+    private final String randomSpecialkeys = "!@#$%^&*";
+
     @Transactional
     @UserRegistrationTracking
     public User signUp(UserInfo info) {
@@ -114,6 +117,12 @@ public class MemberService {
             //index의 위치한 랜덤값
             sb.append(chars.charAt(index));
         }
+
+        int specialKey1 = Math.abs(rm.nextInt() % randomSpecialkeys.length());
+        int specialKey2 = Math.abs(rm.nextInt() % randomSpecialkeys.length());
+
+        sb.append(randomSpecialkeys.charAt(specialKey1));
+        sb.append(randomSpecialkeys.charAt(specialKey2));
 
         return sb.toString();
     }
