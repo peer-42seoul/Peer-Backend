@@ -13,4 +13,9 @@ public interface UserSkillRepository extends JpaRepository<UserSkill, Long> {
     @Transactional
     @Query("DELETE FROM UserSkill m WHERE m.userId = :userId")
     int deleteAllByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM UserSkill us WHERE us.tagId = :tagId")
+    void deleteAllByTagId(Long tagId);
 }
