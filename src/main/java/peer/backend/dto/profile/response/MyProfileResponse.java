@@ -18,5 +18,5 @@ public class MyProfileResponse {
     private String introduction;
     private List<UserLinkResponse> linkList;
     private List<SkillDTO> skillList;
-    private boolean portfolioVisbility;
+    private boolean portfolioVisibility;
 }
