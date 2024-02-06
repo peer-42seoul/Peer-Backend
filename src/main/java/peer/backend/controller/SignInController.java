@@ -119,7 +119,7 @@ public class SignInController {
             adminLoginRequest.getPassword());
 
         Cookie cookie = new Cookie("adminToken", accessToken);
-        cookie.setMaxAge((int) accessExpirationTime / 1000);
+        cookie.setMaxAge((int) refreshExpirationTime / 1000);
 //        cookie.setHttpOnly(true);
 //        cookie.setPath("/");
 //        cookie.setSecure(true);
