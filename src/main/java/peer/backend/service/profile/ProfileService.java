@@ -78,7 +78,7 @@ public class ProfileService {
                 .introduction(user.getIntroduce() == null ? "" : user.getIntroduce())
                 .linkList(links)
                 .skillList(tagList)
-                .portfolioVisbility(user.isVisibilityForPortfolio())
+                .portfolioVisibility(user.isVisibilityForPortfolio())
                 .build();
     }
 

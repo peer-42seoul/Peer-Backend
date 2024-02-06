@@ -106,7 +106,9 @@ public class MemberService {
     }
 
     public String getRandomPassword() {
-        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String chars_little = "abcdefghijklmnopqrstuvwxyz";
+        final String numbers = "0123456789";
 
         SecureRandom rm = new SecureRandom();
         StringBuilder sb = new StringBuilder();
@@ -115,14 +117,21 @@ public class MemberService {
             //무작위로 문자열의 인덱스 반환
             int index = rm.nextInt(chars.length());
             //index의 위치한 랜덤값
-            sb.append(chars.charAt(index));
+            if (i % 2 != 0)
+                sb.append(chars.charAt(index));
+            else
+                sb.append(chars_little.charAt(index));
         }
 
         int specialKey1 = Math.abs(rm.nextInt() % randomSpecialkeys.length());
         int specialKey2 = Math.abs(rm.nextInt() % randomSpecialkeys.length());
+        int specialKey3 = Math.abs(rm.nextInt() % numbers.length());
+        int specialKey4 = Math.abs(rm.nextInt() % numbers.length());
 
         sb.append(randomSpecialkeys.charAt(specialKey1));
+        sb.append(numbers.charAt(specialKey3));
         sb.append(randomSpecialkeys.charAt(specialKey2));
+        sb.append(numbers.charAt(specialKey4));
 
         return sb.toString();
     }
