@@ -42,3 +42,9 @@ out/
 
 ### logs ###
 logs/
+
+### upload ###
+upload
+
+temp/
+resources/
