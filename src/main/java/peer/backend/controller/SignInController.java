@@ -120,17 +120,17 @@ public class SignInController {
 
         Cookie cookie = new Cookie("adminToken", accessToken);
         cookie.setMaxAge((int) accessExpirationTime / 1000);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setSecure(true);
-        cookie.setDomain("peer-test.co.kr");
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/");
+//        cookie.setSecure(true);
+//        cookie.setDomain("peer-test.co.kr");
 
-        String cookieString =
-            "adminToken=" + accessToken + ";max-age=2592000;path=/;SameSite=None;secure;";
+//        String cookieString =
+//            "adminToken=" + accessToken + ";max-age=2592000;path=/;SameSite=None;secure;";
 
-//        response.addCookie(cookie);
+        response.addCookie(cookie);
 
-        response.addHeader("Set-Cookie", cookieString);
+//        response.addHeader("Set-Cookie", cookieString);
 
         return ResponseEntity.ok().build();
     }
