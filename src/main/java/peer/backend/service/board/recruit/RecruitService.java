@@ -207,7 +207,9 @@ public class RecruitService {
                 this.tagService.recruitTagListToTagResponseList(recruit2.getRecruitTags()),
                 recruit2.getId(),
         user != null && recruitFavoriteRepository
-                                .existsByUserIdAndRecruitIdAndType(user.getId(), recruit2.getId(), RecruitFavoriteEnum.LIKE))
+                                .existsByUserIdAndRecruitIdAndType(user.getId(), recruit2.getId(),RecruitFavoriteEnum.LIKE),
+                recruit2.getUpdatedAt().toString()
+                    )
             ).collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -258,6 +260,7 @@ public class RecruitService {
                     recruit_id,
                     RecruitFavoriteEnum.LIKE)
             )
+            .updatedAt(recruit.getUpdatedAt().toString())
             .build();
     }
 

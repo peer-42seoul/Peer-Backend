@@ -349,7 +349,7 @@ public class TeamService {
         throws IllegalArgumentException {
         Team team = Team.builder()
             .name(request.getName())
-            .type(TeamType.valueOf(request.getType()))
+            .type(TeamType.from(request.getType()))
             .operationFormat(TeamOperationFormat.valueOf(request.getPlace()))
             .status(TeamStatus.RECRUITING)
             .teamMemberStatus(TeamMemberStatus.RECRUITING)
