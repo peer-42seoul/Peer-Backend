@@ -125,7 +125,12 @@ public class SignInController {
         cookie.setSecure(true);
         cookie.setDomain("peer-test.co.kr");
 
-        response.addCookie(cookie);
+        String cookieString =
+            "adminToken=" + accessToken + ";max-age=2592000;path=/;SameSite=None;secure;";
+
+//        response.addCookie(cookie);
+
+        response.addHeader("Set-Cookie", cookieString);
 
         return ResponseEntity.ok().build();
     }
