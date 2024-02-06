@@ -208,8 +208,7 @@ public class RecruitService {
                 recruit2.getId(),
         user != null && recruitFavoriteRepository
                                 .existsByUserIdAndRecruitIdAndType(user.getId(), recruit2.getId(),RecruitFavoriteEnum.LIKE),
-                recruit2.getUpdatedAt().toString()
-                    )
+                recruit2.getUpdatedAt().toString())
             ).collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
