@@ -38,14 +38,13 @@ public class RecruitFavoriteDto {
     public RecruitFavoriteDto(RecruitFavorite favorite){
         Recruit recruit = favorite.getRecruit();
         User writer = recruit.getWriter();
-        Team team = recruit.getTeam();
         this.recruit_id = recruit.getId();
         this.title = recruit.getTitle();
         this.image = recruit.getThumbnailUrl();
         this.userId = recruit.getWriterId();
         this.userNickname = (writer == null) ? "탈퇴한 유저" : writer.getNickname();
         this.userImage = (writer == null) ? null : writer.getImageUrl();
-        this.status = team.getStatus().getValue();
+        this.status = recruit.getStatus().getStatus();
         this.skillList = recruit.getRecruitTags().stream().map(RecruitTag::getSkillFromTag).collect(Collectors.toList());
         this.isFavorite = true;
     }
