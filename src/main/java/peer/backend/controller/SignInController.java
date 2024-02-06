@@ -123,6 +123,7 @@ public class SignInController {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setSecure(true);
+        cookie.setDomain("peer-test.co.kr");
 
         response.addCookie(cookie);
 
