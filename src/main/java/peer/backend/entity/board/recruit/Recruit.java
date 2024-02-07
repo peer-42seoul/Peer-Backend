@@ -65,7 +65,7 @@ public class Recruit extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RecruitStatus status;
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
     @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitTag> recruitTags = new ArrayList<>();
