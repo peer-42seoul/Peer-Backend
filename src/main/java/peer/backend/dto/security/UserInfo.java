@@ -103,6 +103,7 @@ public class UserInfo {
             .messageAlarm(true)
             .nightAlarm(true)
             .teamAlarm(true)
+            .activated(true)
             .build();
     }
 }

@@ -13,7 +13,6 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.board.recruit.Recruit;
@@ -44,6 +43,9 @@ public class User extends BaseEntity implements Login {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private Boolean activated = true;
 
     @Column(length = 100, unique = true, nullable = false)
     private String email;
