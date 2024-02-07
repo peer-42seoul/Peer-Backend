@@ -14,6 +14,7 @@ import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,6 +53,7 @@ public class Recruit extends BaseEntity {
     @Column
     private Long hit = 0L;
     @Column(nullable = false)
+    @Size(max=100)
     private String title;
 
     @Column(nullable = false)
