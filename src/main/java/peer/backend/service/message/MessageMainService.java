@@ -435,7 +435,7 @@ public class MessageMainService {
             MessageIndex firstLetter = MessageIndex.builder()
                     .user1(user)
                     .user2(target)
-                    .unreadMessageNumber1(1L)
+                    .unreadMessageNumber1(0L)
                     .unreadMessageNumber2(0L)
                     .userIdx1(user.getId())
                     .user1delete(false)
