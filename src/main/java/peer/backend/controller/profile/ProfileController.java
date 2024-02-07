@@ -134,8 +134,8 @@ public class ProfileController {
     @GetMapping("/skill/search")
     public ResponseEntity<?> getSkilsList(Authentication auth,
                                          @RequestParam("keyword") String keyword) {
-        if (keyword.length() > 15 || keyword.length() < 2)
-            return new ResponseEntity<>("검색 가능한 글자 수는 최소 2자부터 최대 15자까지 입니다.", HttpStatus.BAD_REQUEST);
+        if (keyword.length() > 15)
+            return new ResponseEntity<>("검색 가능한 글자 수는 최소 1자부터 최대 15자까지 입니다.", HttpStatus.BAD_REQUEST);
 
         // TODO ; skill tag searching keyword converter
         try {
