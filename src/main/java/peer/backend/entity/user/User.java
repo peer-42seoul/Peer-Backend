@@ -45,7 +45,7 @@ public class User extends BaseEntity implements Login {
     private Long id;
 
     @Column
-    private Boolean activated = true;
+    private boolean activated = true;
 
     @Column(length = 100, unique = true, nullable = false)
     private String email;
