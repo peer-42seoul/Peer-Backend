@@ -81,8 +81,6 @@ public class Recruit extends BaseEntity {
         this.content = request.getContent();
         this.status = RecruitStatus.from(request.getStatus());
         this.link = request.getLink();
-        if (request.getType().equals(TeamType.STUDY.getValue()))
-            this.team.getJobs().get(1).setMax(request.getMax());
         this.recruitTags.clear();
         if (request.getTagList() != null && !request.getTagList().isEmpty())
             addTags(request.getTagList());
