@@ -154,12 +154,8 @@ public class Team extends BaseEntity {
             this.region2 = request.getRegion2();
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
-        jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
-            request.getRoleList().forEach(this::addRole);
-        }
-        if (request.getMax() != null)
-            this.maxMember = request.getMax();
+        if (request.getType().equals(TeamType.STUDY.getValue()))
+            this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().get().setMax(request.getMax());
     }
 
     public void addRole(TeamJobDto role) {
