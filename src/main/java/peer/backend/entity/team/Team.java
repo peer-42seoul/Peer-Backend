@@ -3,6 +3,7 @@ package peer.backend.entity.team;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -155,7 +156,12 @@ public class Team extends BaseEntity {
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
         if (request.getType().equals(TeamType.STUDY.getValue()))
-            this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().get().setMax(request.getMax());
+        {
+            TeamJob data;
+//                this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().get().setMax(request.getMax());
+            data = this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().orElseThrow(() -> new NoSuchElementException("업데이트 중 문제가 발생하였습니다."));
+            data.setMax(request.getMax());
+        }
     }
 
     public void addRole(TeamJobDto role) {
