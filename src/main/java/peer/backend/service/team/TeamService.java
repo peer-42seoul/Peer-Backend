@@ -151,15 +151,14 @@ public class TeamService {
             String filePath = "TeamImage";
             if (team.getTeamLogoPath() != null) {
                 if (teamSettingInfoDto.getTeamImage() != null) {
-                    if (team.getTeamLogoPath().equals(teamSettingInfoDto.getTeamImage())) {
-                        return;
+                    if (!team.getTeamLogoPath().equals(teamSettingInfoDto.getTeamImage())) {
+                        String newImage = objectService.uploadObject(
+                                filePath + "/" + team.getId().toString(),
+                                teamSettingInfoDto.getTeamImage(), "image");
+                        objectService.deleteObject(team.getTeamLogoPath());
+                        team.setTeamLogoPath(newImage);
+                        this.userPortfolioService.setTeamLogoPath(team.getId(), newImage);
                     }
-                    String newImage = objectService.uploadObject(
-                        filePath + "/" + team.getId().toString(),
-                        teamSettingInfoDto.getTeamImage(), "image");
-                    objectService.deleteObject(team.getTeamLogoPath());
-                    team.setTeamLogoPath(newImage);
-                    this.userPortfolioService.setTeamLogoPath(team.getId(), newImage);
                 } else {
                     objectService.deleteObject(team.getTeamLogoPath());
                     team.setTeamLogoPath(null);

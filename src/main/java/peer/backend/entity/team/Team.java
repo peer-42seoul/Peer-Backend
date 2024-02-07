@@ -3,6 +3,7 @@ package peer.backend.entity.team;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -60,7 +61,7 @@ public class Team extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    @Size(min = 2, max = 30)
+    @Size(min = 2, max = 40)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -73,14 +74,14 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     private int dueValue;
 
-    @Column()
+    @Column(columnDefinition = "TEXT")
     private String teamPicturePath;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TeamOperationFormat operationFormat;
 
-    @Column()
+    @Column(columnDefinition = "TEXT")
     private String teamLogoPath;
 
     @Enumerated(EnumType.STRING)
@@ -154,12 +155,13 @@ public class Team extends BaseEntity {
             this.region2 = request.getRegion2();
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
-        jobs.clear();
-        if (request.getRoleList() != null && !request.getInterviewList().isEmpty()) {
-            request.getRoleList().forEach(this::addRole);
+        if (request.getType().equals(TeamType.STUDY.getValue()))
+        {
+            TeamJob data;
+//                this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().get().setMax(request.getMax());
+            data = this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().orElseThrow(() -> new NoSuchElementException("업데이트 중 문제가 발생하였습니다."));
+            data.setMax(request.getMax());
         }
-        if (request.getMax() != null)
-            this.maxMember = request.getMax();
     }
 
     public void addRole(TeamJobDto role) {

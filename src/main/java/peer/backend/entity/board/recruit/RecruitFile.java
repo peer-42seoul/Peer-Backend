@@ -20,6 +20,6 @@ public class RecruitFile {
     @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String url;
 }

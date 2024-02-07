@@ -39,10 +39,10 @@ public class Announcement extends BaseEntity {
     @Column(nullable = false)
     private String writer;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String image;
 
     @Column(nullable = false)

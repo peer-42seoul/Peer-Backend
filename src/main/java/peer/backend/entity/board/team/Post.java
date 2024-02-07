@@ -11,6 +11,7 @@ import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +43,7 @@ public class Post extends BaseEntity{
     private List<PostLike> postLike = new ArrayList<>();
 
     @Column(nullable = false)
+    @Size(max=100)
     private String title;
 
     @Column
@@ -53,8 +55,11 @@ public class Post extends BaseEntity{
     @Lob
     @NotNull
     private String content;
+    @Column
     private int hit;
+    @Column(columnDefinition = "TEXT")
     private String image;
+    @Column
     private int liked;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)

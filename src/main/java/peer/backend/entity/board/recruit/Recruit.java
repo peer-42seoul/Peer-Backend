@@ -10,10 +10,12 @@ import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserPortfolio;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,18 +54,23 @@ public class Recruit extends BaseEntity {
     @Column
     private Long hit = 0L;
     @Column(nullable = false)
+    @Size(max=100)
     private String title;
 
     @Column(nullable = false)
     @Lob
     private String content;
+
     @Column
     private String link;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RecruitStatus status;
-    @Column
+
+    @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
+
     @OneToMany(mappedBy = "recruit", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitTag> recruitTags = new ArrayList<>();
     @Column

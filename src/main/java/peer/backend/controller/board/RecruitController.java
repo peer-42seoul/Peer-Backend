@@ -73,7 +73,7 @@ public class RecruitController {
     @ApiOperation(value = "", notes = "모집에 지원한다.")
     @PostMapping("/interview/{recruit_id}")
     public void applyRecruit(@PathVariable Long recruit_id,
-        @RequestBody ApplyRecruitRequest request, Authentication auth) {
+        @RequestBody @Valid ApplyRecruitRequest request, Authentication auth) {
         recruitService.applyRecruit(recruit_id, request, auth);
     }
 
