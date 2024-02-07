@@ -36,7 +36,7 @@ public class RecruitCreateRequest {
     private String place;
     @NotNull
     private String type;
-    @Size(min = 1, max = 1000, message = "")
+    @Size(min = 1, max = 20000, message = "")
     @NotNull
     @Lob
     private String content;
