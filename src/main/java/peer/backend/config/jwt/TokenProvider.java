@@ -112,13 +112,16 @@ public class TokenProvider {
         if (Objects.nonNull(bearerToken)) {
             return bearerToken;
         }
+        return bearerToken;
+    }
+
+    public String resolveAdminToken(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         Cookie cookie = this.utilService.getCookieByName(cookies, "adminToken");
         if (Objects.nonNull(cookie)) {
-            log.info("cookie??");
-            bearerToken = cookie.getValue();
+            return cookie.getValue();
         }
-        return bearerToken;
+        return null;
     }
 
     public boolean validateToken(String accessToken) {
