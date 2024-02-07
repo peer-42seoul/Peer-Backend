@@ -17,6 +17,10 @@ import peer.backend.exception.OutOfRangeException;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.service.TagService;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +30,11 @@ public class HitchHikingService {
     private final RecruitRepository recruitRepository;
     private final TagService tagService;
 
+    private String excludeImageUrlFromContent(String origin){
+        String noTag = origin.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
+        return noTag;
+
+    }
 
     @Transactional
     public Page<HitchListResponse> getHitchList(int page, int pageSize, String type, Long userId){
@@ -53,7 +62,7 @@ public class HitchHikingService {
         Recruit recruit = recruitRepository.findById(hitchId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         return HitchResponse.builder()
-                .content(recruit.getContent())
+                .content(excludeImageUrlFromContent(recruit.getContent()))
                 .memberImage(recruit.getTeam().getTeamUsers().stream().map(
                         teamUser -> teamUser.getUser().getImageUrl()).collect(Collectors.toList()))
                 .recruitmentQuota(recruit.getTeam().getMaxMember())
