@@ -21,7 +21,14 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
-        String token = tokenProvider.resolveAccessToken(request);
+        String requestURI = request.getRequestURI();
+        String token;
+        // TODO: 일반 JwtFilter와 어드민 JwtFilter를 나누도록 리팩토링 하는게 좋을 것 같음.
+        if (requestURI.startsWith("/api/v1/admin")) {
+            token = this.tokenProvider.resolveAdminToken(request);
+        } else {
+            token = this.tokenProvider.resolveAccessToken(request);
+        }
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
