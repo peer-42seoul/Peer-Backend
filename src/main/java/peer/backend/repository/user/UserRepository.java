@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.peerOperation WHERE u.id = :id")
     Optional<User> findById(Long id);
 
-    @Query("SELECT m FROM User m WHERE (m.nickname LIKE %:keyword%) ORDER BY m.nickname")
+    @Query("SELECT m FROM User m WHERE (m.nickname LIKE %:keyword% AND m.activated = true) ORDER BY m.nickname")
     Optional<List<User>> findByKeyWord(String keyword);
 
     Optional<List<User>> findByEmailOrNickname(String email, String nickname);
