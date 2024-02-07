@@ -26,6 +26,7 @@ import peer.backend.service.profile.UserPortfolioService;
 import javax.persistence.LockModeType;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -136,6 +137,12 @@ public class ProfileController {
         if (keyword.length() > 15)
             return new ResponseEntity<>("검색 가능한 글자 수는 최소 1자부터 최대 15자까지 입니다.", HttpStatus.BAD_REQUEST);
 
+        // TODO ; skill tag searching keyword converter
+        try {
+            keyword = this.profileService.convertSearchingKeyword(keyword);
+        } catch ( UnsupportedEncodingException e) {
+            return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
+        }
         List<SkillDTO> result = this.profileService.searchTagsWithKeyword(keyword);
         if (result.isEmpty())
             return new ResponseEntity<>("태그가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);

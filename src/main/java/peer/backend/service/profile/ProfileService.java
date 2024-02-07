@@ -27,6 +27,9 @@ import peer.backend.repository.user.UserSkillRepository;
 import peer.backend.service.file.ObjectService;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -241,5 +244,29 @@ public class ProfileService {
             skillList.add(hisSkil);
         };
         this.userSkillsRepository.saveAll(skillList);
+    }
+
+    public String convertSearchingKeyword(String keyword) throws UnsupportedEncodingException {
+        String result = "";
+        StringBuilder targetWord = new StringBuilder();
+
+        int firstPin;
+
+        for (int i = 0; i < keyword.length(); i++) {
+            if (keyword.charAt(i) == '%') {
+                firstPin = i;
+                targetWord.append('%');
+                while (keyword.charAt(i + 1) != '%') {
+                    targetWord.append(keyword.charAt(i));
+                    i++;
+                }
+                String encodedString = targetWord.toString();
+                String decodedString = URLDecoder.decode(encodedString, StandardCharsets.UTF_8);
+                keyword = keyword.replace(encodedString, decodedString);
+                i = firstPin + 1;
+            }
+        }
+        result = keyword;
+        return result;
     }
 }
