@@ -10,6 +10,7 @@ import peer.backend.entity.board.recruit.enums.RecruitInterviewType;
 import peer.backend.entity.board.recruit.enums.RecruitStatus;
 import peer.backend.entity.tag.RecruitTag;
 import peer.backend.entity.team.Team;
+import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.user.User;
 import peer.backend.entity.user.UserPortfolio;
 
@@ -80,6 +81,8 @@ public class Recruit extends BaseEntity {
         this.content = request.getContent();
         this.status = RecruitStatus.from(request.getStatus());
         this.link = request.getLink();
+        if (request.getType().equals(TeamType.STUDY.getValue()))
+            this.team.getJobs().get(1).setMax(request.getMax());
         this.recruitTags.clear();
         if (request.getTagList() != null && !request.getTagList().isEmpty())
             addTags(request.getTagList());
