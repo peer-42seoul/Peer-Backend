@@ -38,7 +38,7 @@ public class Banner extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(nullable = false)
@@ -48,7 +48,7 @@ public class Banner extends BaseEntity {
     @Column
     private LocalDateTime reservationDate;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String announcementUrl;
 
     public void setBannerStatus(BannerStatus bannerStatus) {
