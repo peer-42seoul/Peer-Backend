@@ -58,13 +58,17 @@ public class ShowcaseService {
                 .collect(Collectors.toList());
     }
 
+    private String excludeImageUrlFromContent(String origin){
+        return origin.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
+    }
+
     private ShowcaseListResponse convertToDto(Post post, Authentication auth) {
         Team team = post.getBoard().getTeam();
         return ShowcaseListResponse.builder()
             .id(post.getId())
             .image(post.getImage())     // showcase에서 대표이미지는 항상 첫번째인덱스에 있습니다.
             .name(post.getBoard().getTeam().getName())
-            .description(post.getContent())
+            .description(excludeImageUrlFromContent(post.getContent()))
             .skill(
                 this.tagService.recruitTagListToTagResponseList(team.getRecruit().getRecruitTags()))
             .like(post.getLiked())
