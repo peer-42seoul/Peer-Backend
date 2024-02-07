@@ -73,14 +73,14 @@ public class Team extends BaseEntity {
     @Column(nullable = false)
     private int dueValue;
 
-    @Column()
+    @Column(columnDefinition = "TEXT")
     private String teamPicturePath;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TeamOperationFormat operationFormat;
 
-    @Column()
+    @Column(columnDefinition = "TEXT")
     private String teamLogoPath;
 
     @Enumerated(EnumType.STRING)

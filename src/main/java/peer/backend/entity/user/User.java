@@ -77,7 +77,7 @@ public class User extends BaseEntity implements Login {
     @Column//(nullable = false)
     private String address;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column//(nullable = false)

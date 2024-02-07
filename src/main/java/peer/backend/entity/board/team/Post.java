@@ -55,8 +55,11 @@ public class Post extends BaseEntity{
     @Lob
     @NotNull
     private String content;
+    @Column
     private int hit;
+    @Column(columnDefinition = "TEXT")
     private String image;
+    @Column
     private int liked;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST, orphanRemoval = true)
