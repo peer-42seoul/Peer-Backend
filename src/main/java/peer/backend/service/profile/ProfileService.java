@@ -109,8 +109,11 @@ public class ProfileService {
         } else {
             tagList = Collections.emptyList();
         }
+
+        Long id = user.isActivated() ? user.getId() : -1L;
+
         return OtherProfileResponseDTO.builder()
-                .id(user.getId())
+                .id(id)
                 .email(user.getEmail())
                 .profileImageUrl(user.getImageUrl())
                 .nickname(user.getNickname())
