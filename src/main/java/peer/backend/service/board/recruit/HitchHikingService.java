@@ -31,9 +31,7 @@ public class HitchHikingService {
     private final TagService tagService;
 
     private String excludeImageUrlFromContent(String origin){
-        String noTag = origin.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
-        return noTag;
-
+        return origin.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
     }
 
     @Transactional
