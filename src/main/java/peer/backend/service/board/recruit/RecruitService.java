@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
 import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.team.TeamApplyDataDTO;
 import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
@@ -68,6 +69,7 @@ public class RecruitService {
     private final TeamJobRepository teamJobRepository;
     private final TeamUserJobRepository teamUserJobRepository;
     private final UserPortfolioService userPortfolioService;
+    private final EntityManager entityManager;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -345,20 +347,45 @@ public class RecruitService {
 
     @Transactional
     public void applyRecruit(Long recruit_id, ApplyRecruitRequest request, Authentication auth) {
+        // 모집글 찾기
         Recruit recruit = recruitRepository.findById(recruit_id)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
+
+
+        // 모집글 작성자 여부 검증
         User user = User.authenticationToUser(auth);
         if (user.getId().equals(recruit.getWriterId())) {
             throw new BadRequestException("모집글 작성자는 팀에 지원할 수 없습니다.");
         }
         Team team = recruit.getTeam();
 
+        // 모집 완료 경우 검증
+        if (recruit.getStatus().equals(RecruitStatus.DONE)) {
+            throw new BadRequestException("모집이 완료된 모집글에서는 지원할 수가 없습니다.");
+        }
+
+        // 지원 역할 검증
         TeamJob teamJob = teamJobRepository.findByTeamIdAndName(recruit_id, request.getRole())
             .orElseThrow(() -> new NotFoundException("존재하지 않는 역할입니다."));
 
+        String query = "SELECT new peer.backend.dto.team.TeamApplyDataDTO(" +
+                "tj.id, tj.name, tj.max, tj.team.id, " +
+                "(SELECT COUNT(tu) FROM TeamUserJob tu WHERE tu.teamJobId = tj.id AND tu.status = 'PENDING'), " +
+                "(SELECT COUNT(tv) FROM TeamUserJob tv WHERE tv.teamJobId = tj.id AND tv.status = 'APPROVED')) " +
+                " FROM TeamJob tj " +
+                " WHERE tj.team.id = :teamId AND tj.name != 'Leader'";
+
+        List<TeamApplyDataDTO> teamData = this.entityManager.createQuery(query, TeamApplyDataDTO.class).setParameter("teamId", team.getId()).getResultList();
+        teamData.forEach(m -> {
+            if (m.getName().equals(request.getRole())) {
+                if (m.getMax() - m.getApplyNumber() == 0)
+                    throw new BadRequestException("지원이 불가능합니다!");
+            }
+        });
+
+        // 팀 지원자 리스트 확인
         TeamUser teamUser = this.teamUserRepository.findByUserIdAndTeamId(user.getId(),
             team.getId()).orElse(null);
-
         if (Objects.isNull(teamUser)) {
             teamUser = TeamUser.builder()
                 .teamId(team.getId())
@@ -369,9 +396,11 @@ public class RecruitService {
             teamUserRepository.save(teamUser);
         } else if (teamUserJobRepository.existsById(
             new TeamUserJobPK(teamUser.getId(), teamJob.getId()))) {
+            // 이미 지원한 경우
             throw new ConflictException("이미 지원하였습니다.");
         }
 
+        // 팀 유저에 추가
         teamUser.addTeamUserJob(TeamUserJob.builder()
             .teamJobId(teamJob.getId())
             .teamUserId(teamUser.getId())
