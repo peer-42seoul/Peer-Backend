@@ -7,12 +7,10 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.dto.noti.enums.NotificationPriority;
 import peer.backend.dto.noti.enums.NotificationType;
-import peer.backend.dto.noti.enums.TargetType;
 import peer.backend.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -39,9 +37,6 @@ public  class Notification extends BaseEntity {
 
     @Column
     public String linkData;
-
-    @Column(nullable = false)
-    public TargetType targetType;
 
     @Column
     public Boolean sent;

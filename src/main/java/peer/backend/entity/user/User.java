@@ -60,6 +60,9 @@ public class User extends BaseEntity implements Login {
     @Size(min = 2, max = 30)
     private String nickname;
 
+    @Column
+    private Integer alarmCounter = 0;
+
     //TODO : 사용자 알림 설정 API 작성이 필요
     @Column
     private boolean keywordRecommendAlarm;
@@ -156,5 +159,27 @@ public class User extends BaseEntity implements Login {
 
     public Collection<Post> getPost() {
         return post;
+    }
+
+    @Override
+    public Long getId() {
+        if (this.activated)
+            return this.id;
+        else
+            return -1L;
+    }
+
+    public void upNotificationCounter() {
+        if (!this.activated)
+            return;
+        this.alarmCounter++;
+    }
+
+    public void downNotificationCounter() {
+        if (!this.activated)
+            return;
+        if (this.alarmCounter == 0)
+            return;
+        this.alarmCounter--;
     }
 }
