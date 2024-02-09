@@ -1,10 +1,14 @@
 package peer.backend.entity.noti;
 
 import lombok.*;
+import peer.backend.comparator.LongComparator;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.entity.BaseEntity;
 import peer.backend.entity.user.User;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
+import java.util.*;
 
 @Getter
 @Setter
@@ -22,33 +26,68 @@ public class NotificationTarget extends BaseEntity {
     private Long notificationId;
 
     @Column(nullable = false)
-    private Long userId;
+    private Long columnIndex;
 
     @Column
-    private boolean keywordOk;
+    private String userList;
 
     @Column
-    private boolean teamOK;
+    private NotificationType messageType;
 
-    @Column
-    private boolean messageOk;
-
-    @Column
-    private boolean nightOk;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "target_event_id")
     private Notification specificEvent;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "target_user")
-    private User user;
+    private void repackUserIds(List<Long> userIds) {
+        this.userList = "";
+        userIds.forEach(l -> {
+            this.userList += l + "###";
+        });
+    }
 
-    public void setAlarmOptions(User user) {
-        this.keywordOk = user.isKeywordRecommendAlarm();
-        this.teamOK = user.isTeamAlarm();
-        this.messageOk = user.isMessageAlarm();
-        this.nightOk = user.isNightAlarm();
-        this.userId = user.getId();
+    public List<Long> getUserIds(){
+        if (userList.isEmpty())
+            return null;
+        List<String> users = List.of(this.userList.split("###"));
+        List<Long> results = new ArrayList<>();
+        users.forEach(m -> {
+            Long id = Long.parseLong(m);
+            results.add(id);
+        });
+        return results;
+    }
+
+    @Transactional
+    public void appendUserId(Long userId) {
+        List<Long> userIds = this.getUserIds();
+        if (userIds == null) {
+            this.userList = userId + "###";
+        }
+        else {
+            userIds.add(userId);
+            userIds.sort(new LongComparator());
+            this.repackUserIds(userIds);
+        }
+        this.specificEvent.referenceCounter++;
+    }
+
+    @Transactional
+    public boolean deleteUserId(Long userId) {
+        List<Long> userIds = this.getUserIds();
+        int index = userIds.indexOf(userId);
+        if (index == -1)
+            return false;
+        else {
+            userIds.remove(index);
+            this.repackUserIds(userIds);
+            this.specificEvent.referenceCounter--;
+        }
+        return true;
+    }
+
+    public boolean findUserId(Long userId){
+        List<Long> userIds = this.getUserIds();
+        int index = userIds.indexOf(userId);
+        return index != -1;
     }
 }

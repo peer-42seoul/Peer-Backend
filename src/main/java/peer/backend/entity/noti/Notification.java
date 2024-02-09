@@ -43,10 +43,6 @@ public  class Notification extends BaseEntity {
     @Column(nullable = false)
     public TargetType targetType;
 
-    @OneToMany(mappedBy = "specificEvent",
-            cascade = CascadeType.ALL)
-    public List<NotificationTarget> targets;
-
     @Column
     public Boolean sent;
 
@@ -62,8 +58,5 @@ public  class Notification extends BaseEntity {
     public LocalDateTime scheduledTime;
 
     @Column
-    public Long totalCount;
-
-    @Column
-    public Long deleteCount;
+    public Long referenceCounter;
 }
