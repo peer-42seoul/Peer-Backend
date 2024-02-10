@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import peer.backend.repository.noti.NotificationRepository;
 import peer.backend.repository.noti.NotificationSubscriptionKeysRepsitory;
+import peer.backend.repository.noti.NotificationTargetRepository;
 import peer.backend.repository.user.UserRepository;
 
 // 포어 그라운드에서 동작하는 내용들을 담아야 하는 서비스

@@ -11,6 +11,7 @@ import peer.backend.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,34 +25,37 @@ import java.time.LocalDateTime;
 public  class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
     @Column
-    public String imageUrl;
+    private String imageUrl;
 
     @Column
-    public String title;
+    private String title;
 
     @Column
-    public String body;
+    private String body;
 
     @Column
-    public String linkData;
+    private String linkData;
 
     @Column
-    public Boolean sent;
+    private Boolean sent;
 
     @Column(nullable = false)
-    public NotificationPriority priority;
+    private NotificationPriority priority;
 
     @Column(nullable = false)
-    public NotificationType messageType;
+    private NotificationType messageType;
 
     @Column(nullable = true)
     @JsonSerialize
     @JsonDeserialize
-    public LocalDateTime scheduledTime;
+    private LocalDateTime scheduledTime;
 
     @Column
-    public Long referenceCounter;
+    private Integer referenceCounter;
+
+    @OneToMany(mappedBy = "specificEvent", cascade = CascadeType.ALL)
+    private List<NotificationTarget> targetList;
 }

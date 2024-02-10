@@ -68,7 +68,9 @@ public class NotificationTarget extends BaseEntity {
             userIds.sort(new LongComparator());
             this.repackUserIds(userIds);
         }
-        this.specificEvent.referenceCounter++;
+//        Integer referenceCounter = this.getSpecificEvent().getReferenceCounter();
+//        referenceCounter++;
+//        this.getSpecificEvent().setReferenceCounter(referenceCounter);
     }
 
     @Transactional
@@ -80,7 +82,11 @@ public class NotificationTarget extends BaseEntity {
         else {
             userIds.remove(index);
             this.repackUserIds(userIds);
-            this.specificEvent.referenceCounter--;
+            Integer referenceCounter = this.getSpecificEvent().getReferenceCounter();
+            referenceCounter--;
+            if (referenceCounter == -1)
+                referenceCounter = 0;
+            this.getSpecificEvent().setReferenceCounter(referenceCounter);
         }
         return true;
     }

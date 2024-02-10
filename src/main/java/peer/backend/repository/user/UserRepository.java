@@ -1,5 +1,6 @@
 package peer.backend.repository.user;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -37,4 +38,25 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Long countByCreatedAtBefore(LocalDateTime time);
     @Query("SELECT CASE WHEN COUNT(n) > 0 THEN true ELSE false END FROM User n WHERE n.nickname = :nickname")
     Boolean existsByNickname(String nickname);
+
+    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1")
+    void increaseAlarmCountForALL();
+
+    @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END")
+    void decreaseAlarmCountForALL();
+
+    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id IN : userIds")
+    void increaseAlarmCountForUsers(@Param("userIds") List<Long> userIds);
+
+    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id = :userId")
+    void increaseAlarmCountForOne(@Param("userId") Long userId);
+
+    @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END WHERE m.id IN :userIds")
+    void decreaseAlarmCountForUsers(@Param("userIds") List<Long> userIds);
+
+    @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END WHERE m.id = :userId")
+    void decreaseAlarmCountForOne(@Param("userId") Long userId);
+
+    @Query("SELECT m.id FROM User m")
+    List<Long> findAllIds();
 }

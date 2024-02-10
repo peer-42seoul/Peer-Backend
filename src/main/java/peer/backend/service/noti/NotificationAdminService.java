@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationAdminService {
-    private final NotificationSubService notificationSubService;
+    private final NotificationCreationService notificationCreationService;
 }
