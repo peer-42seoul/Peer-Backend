@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.user.UserAlarmSettingDTO;
 import peer.backend.entity.user.User;
+import peer.backend.exception.BadRequestException;
+import peer.backend.repository.user.UserRepository;
 import peer.backend.service.noti.NotificationMainService;
 
 @RestController
@@ -21,7 +23,9 @@ import peer.backend.service.noti.NotificationMainService;
 @Slf4j
 public class NotificationController {
     public static final String MAPPING_URL = "api/v1/noti";
-    public final NotificationMainService notificationMainService;
+    private final NotificationMainService notificationMainService;
+
+    private final UserRepository userRepository;
 
     ///api/v1/noti/spring?type=${}&pgIdx=${number}&pgSize={number}
     @GetMapping("/spring")
@@ -74,5 +78,15 @@ public class NotificationController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<?> summarizeYourAlarm(Authentication auth) {
+        User user = this.userRepository.findById(User.authenticationToUser(auth).getId()).orElseThrow(() -> new BadRequestException("잘못된 요청입니다."));
+        Integer newAlarm = user.getAlarmCounter();
+        if(newAlarm.equals(0))
+            return ResponseEntity.noContent().build();
+        else
+            return ResponseEntity.ok(newAlarm);
     }
 }
