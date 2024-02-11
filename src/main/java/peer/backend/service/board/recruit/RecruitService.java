@@ -361,6 +361,19 @@ public class RecruitService {
                     Collectors.toList()));
         }
         recruit.addFiles(objectService.extractContentImage(request.getContent()));
+
+        // 모집글 쓰기를 완료함에 대한 알림
+        this.notificationCreationService.makeNotificationForUser(
+                null,
+                "성공적인 글쓰기를 마무리 지었습니다! 이제 팀을 설정해 볼까요? 여러분의 팀을 가꾸고 사람들에게 당신의 꿈과 목표를 소개해보세요!",
+                "/teams/" + team.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.TEAM,
+                null,
+                user.getId(),
+                null
+        );
+
         return recruit;
     }
 
