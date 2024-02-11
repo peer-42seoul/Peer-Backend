@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import peer.backend.entity.user.User;
 
@@ -48,6 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id IN : userIds")
     void increaseAlarmCountForUsers(@Param("userIds") List<Long> userIds);
 
+    @Modifying
     @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id = :userId")
     void increaseAlarmCountForOne(@Param("userId") Long userId);
 

@@ -9,6 +9,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.privateinfo.InitSecretDTO;
 import peer.backend.dto.privateinfo.InitTokenDTO;
 import peer.backend.dto.privateinfo.MainSeedDTO;
@@ -35,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Objects;
@@ -54,7 +57,6 @@ public class PrivateInfoWrappingService {
     private long refreshExpirationTime;
 
     private final NotificationCreationService notificationCreationService;
-
 
     public PrivateInfoWrappingService(
             @Qualifier("redisTemplateForInitKey") RedisTemplate<Long, String> redisTemplateForInitKey,
@@ -237,8 +239,16 @@ public class PrivateInfoWrappingService {
             catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
-            this.memberService.signUp(newUser);
-
+            User target = this.memberService.signUp(newUser);
+            this.notificationCreationService.makeNotificationForUser(null,
+                    "환영합니다! peer에서 스터디, 프로젝트를 찾아보세요." +
+                    "메인 화면부터 상세히 알아볼까요?",
+                    null,
+                    NotificationPriority.IMMEDIATE,
+                    NotificationType.SYSTEM,
+                    null,
+                    target.getId(),
+                    null);
             return ResponseEntity.ok().build();
 
         } else if (type == PrivateActions.SIGNIN.getCode()) {

@@ -12,14 +12,10 @@ import peer.backend.entity.noti.Notification;
 import peer.backend.entity.noti.NotificationTarget;
 import peer.backend.entity.user.User;
 import peer.backend.repository.noti.NotificationRepository;
-import peer.backend.repository.noti.NotificationSubscriptionKeysRepsitory;
 import peer.backend.repository.noti.NotificationTargetRepository;
-import peer.backend.repository.team.TeamRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -33,18 +29,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationCreationService {
     private final UserRepository userRepository;
-    private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationTargetRepository notificationTargetRepository;
-    private final NotificationSubscriptionKeysRepsitory notificationSubscriptionKeysRepsitory;
-
-    @PersistenceContext
-    private final EntityManager entityManager;
 
     //TODO : 어떻게 할 건지 정하자
     @Value("${nhn.default.icon}")
-    private String DEFAULTICON;
+    public String DEFAULTICON;
+
+    @Value("${url.dev-domain-url}")
+    public String DOMAIN;
 
     private final String DEFAULT_DELIMITTER = "###";
 
@@ -132,20 +126,21 @@ public class NotificationCreationService {
      * 한 사람을 위한 알림
      * @param title 알림의 타이틀을 지정한다. 지정된 값이 없다면 Default로 peer 가 들어간다.
      * @param body 알림의 메시지 값을 지정한다. 지정된 값이 반드시 필요하다.
-     * @param link 알림에서 리다이렉션 들어갈 링크를 지정한다. 반드시 필요하다.
+     * @param link 알림에서 리다이렉션 들어갈 링크를 지정한다. DOMAIN은 자동으로 입력되므로, 입력하지 말며, 해당 이벤트를 들어갈 세부 주소만 기록하면 된다.
+     *             ex) localhost:3000/my-page/message 라는 링크를 만들어야 한다면 link = "/my-page/message" 까지 입력하면 된다.
      * @param priority 우선순위를 지정한다. 해당 값에 따라 web Push 가 결정난다.
      * @param type 메시지의 타입을 지정한다. 알림바에서 구분용도이다.
      * @param reservedTime 알림을 보낼 시간을 지정한다. 예약일 경우 값이 들어간다.
      * @param userId 대상이 되는 유저
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
-    @Transactional
     @Async
+    @Transactional()
     public void makeNotificationForUser(@Nullable String title,
                                         @NotNull String body,
-                                        @NotNull String link,
+                                        @Nullable String link,
                                         @NotNull NotificationPriority priority,
-                                        @Nullable NotificationType type,
+                                        @NotNull NotificationType type,
                                         @Nullable LocalDateTime reservedTime,
                                         @NotNull Long userId,
                                         @Nullable String imageLink) {
@@ -159,9 +154,9 @@ public class NotificationCreationService {
           5. user 알림 카운터 등록하기
          */
         String url;
-        String editedTitle = Objects.requireNonNull(title).isEmpty() ? "peer" : title;
+        String editedTitle = Objects.isNull(title)? "peer" : title;
 
-        if (Objects.requireNonNull(imageLink).isEmpty() )
+        if (Objects.isNull(imageLink))
             url = this.DEFAULTICON;
         else
             url = imageLink;
@@ -170,7 +165,7 @@ public class NotificationCreationService {
         Notification event = Notification.builder()
                 .title(editedTitle)
                 .body(body)
-                .linkData(link)
+                .linkData(DOMAIN + link)
                 .priority(priority)
                 .messageType(type)
                 .referenceCounter(1)
@@ -192,7 +187,6 @@ public class NotificationCreationService {
         // PWA 업데이트 예정
         if (!event.getPriority().equals(NotificationPriority.SCHEDULED)) {
             //TODO: sent PWA alarm to NestJS
-            return;
         }
         // 알림 우선순위 설명
         /*
@@ -206,8 +200,8 @@ public class NotificationCreationService {
      * 여러 유저를 위한 알림
      * @param title 알림의 타이틀을 지정한다. 지정된 값이 없다면 Default로 peer 가 들어간다.
      * @param body 알림의 메시지 값을 지정한다. 지정된 값이 반드시 필요하다.
-     * @param link 알림에서 리다이렉션 들어갈 링크를 지정한다. 반드시 필요하다.
-     * @param priority 우선순위를 지정한다. 해당 값에 따라 web Push 가 결정난다.
+     * @param link 알림에서 리다이렉션 들어갈 링크를 지정한다. DOMAIN은 자동으로 입력되므로, 입력하지 말며, 해당 이벤트를 들어갈 세부 주소만 기록하면 된다.
+     *             ex) localhost:3000/my-page/message 라는 링크를 만들어야 한다면 link = "/my-page/message" 까지 입력하면 된다.     * @param priority 우선순위를 지정한다. 해당 값에 따라 web Push 가 결정난다.
      * @param type 메시지의 타입을 지정한다. 알림바에서 구분용도이다.
      * @param reservedTime 알림을 보낼 시간을 지정한다. 예약일 경우 값이 들어간다.
      * @param userIds 대상이 되는 유저 목록.
@@ -224,8 +218,9 @@ public class NotificationCreationService {
                                             @NotNull List<Long> userIds,
                                             @Nullable String imageLink) {
         String url;
-        String editedTitle = Objects.requireNonNull(title).isEmpty() ? "peer" : title;
-        if (Objects.requireNonNull(imageLink).isEmpty())
+        String editedTitle = Objects.isNull(title)? "peer" : title;
+
+        if (Objects.isNull(imageLink) )
             url = this.DEFAULTICON;
         else
             url = imageLink;
@@ -233,7 +228,7 @@ public class NotificationCreationService {
         Notification event = Notification.builder()
                 .title(editedTitle)
                 .body(body)
-                .linkData(link)
+                .linkData(DOMAIN + link)
                 .priority(priority)
                 .messageType(type)
                 .referenceCounter(userIds.size())
@@ -251,7 +246,6 @@ public class NotificationCreationService {
 
         if (!event.getPriority().equals(NotificationPriority.SCHEDULED)) {
             //TODO: sent PWA alarm to NestJS
-            return;
         }
     }
 

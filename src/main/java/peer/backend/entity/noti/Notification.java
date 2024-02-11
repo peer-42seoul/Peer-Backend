@@ -40,7 +40,7 @@ public  class Notification extends BaseEntity {
     private String linkData;
 
     @Column
-    private Boolean sent;
+    private boolean sent;
 
     @Column(nullable = false)
     private NotificationPriority priority;
@@ -48,7 +48,7 @@ public  class Notification extends BaseEntity {
     @Column(nullable = false)
     private NotificationType messageType;
 
-    @Column(nullable = true)
+    @Column()
     @JsonSerialize
     @JsonDeserialize
     private LocalDateTime scheduledTime;

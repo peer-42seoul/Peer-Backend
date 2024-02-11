@@ -1,6 +1,7 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectDeletedException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import peer.backend.comparator.MessagePieceComparator;
 import peer.backend.dto.asyncresult.AsyncResult;
 import peer.backend.dto.message.*;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.message.MessagePiece;
 import peer.backend.entity.user.User;
@@ -27,6 +30,7 @@ import peer.backend.exception.NotFoundException;
 import peer.backend.repository.message.MessageIndexRepository;
 import peer.backend.repository.message.MessagePieceRepository;
 import peer.backend.repository.user.UserRepository;
+import peer.backend.service.noti.NotificationCreationService;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +47,7 @@ public class MessageMainService {
     private final MessagePieceRepository pieceRepository;
     private final MessageSubService subService;
 
+    private final NotificationCreationService notificationCreationService;
 
     /**
      * OutLine : 사용자 대화 목록을 모두 발견하고, 해당 목록과 마지막 대화를 불러와 MsgObject를 만들어 전달한다.
@@ -275,6 +280,27 @@ public class MessageMainService {
                 date(this.subService.makeFormattedDate(rawRet.getCreatedAt())).
                 userId(rawRet.getSenderId()).
                 build();
+
+        // Notification Creation
+        Long targetId;
+        String imageUrl;
+        if (letter.getSenderId().equals(index.getUserIdx1())) {
+            targetId = index.getUserIdx2();
+            imageUrl = index.getUser2().getImageUrl();
+        } else {
+            targetId = index.getUserIdx1();
+            imageUrl = index.getUser1().getImageUrl();
+        }
+        this.notificationCreationService.makeNotificationForUser(
+                "메시지가 도착했습니다",
+                letter.getText(),
+                "/my-page/message",
+                NotificationPriority.IMMEDIATE,
+                NotificationType.MESSAGE,
+                null,
+                targetId,
+                imageUrl
+        );
 
         return ret;
     }
