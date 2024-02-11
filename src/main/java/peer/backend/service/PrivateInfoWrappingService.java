@@ -25,6 +25,7 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.ForbiddenException;
 
 import peer.backend.exception.IllegalArgumentException;
+import peer.backend.service.noti.NotificationCreationService;
 import peer.backend.service.profile.PersonalInfoService;
 
 import javax.servlet.http.Cookie;
@@ -52,17 +53,21 @@ public class PrivateInfoWrappingService {
     @Value("${jwt.token.validity-in-seconds-refresh}")
     private long refreshExpirationTime;
 
+    private final NotificationCreationService notificationCreationService;
+
 
     public PrivateInfoWrappingService(
             @Qualifier("redisTemplateForInitKey") RedisTemplate<Long, String> redisTemplateForInitKey,
             RedisTemplate<String, String> redisTemplate,
             MemberService memberService,
-            PersonalInfoService personalInfoService, LoginService loginService) {
+            PersonalInfoService personalInfoService, LoginService loginService,
+            NotificationCreationService notificationCreationService) {
         this.redisTemplateForInitKey = redisTemplateForInitKey;
         this.redisTemplateForSecret = redisTemplate;
         this.memberService = memberService;
         this.personalInfoService = personalInfoService;
         this.loginService = loginService;
+        this.notificationCreationService = notificationCreationService;
     }
 
 
@@ -233,6 +238,7 @@ public class PrivateInfoWrappingService {
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
             this.memberService.signUp(newUser);
+
             return ResponseEntity.ok().build();
 
         } else if (type == PrivateActions.SIGNIN.getCode()) {

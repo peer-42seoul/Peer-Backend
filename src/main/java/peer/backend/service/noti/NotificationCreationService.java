@@ -353,6 +353,11 @@ public class NotificationCreationService {
         );
 
     }
+
+    /**
+     * 모든 알림 목록을 전달한다.예외나 조건 사항은 존재하지 않는다.
+     * @return 알림의 리스트를 전달한다.
+     */
     public List<Notification> getAllNotificationList() {
         return this.notificationRepository.findAllBy();
     }
@@ -360,18 +365,39 @@ public class NotificationCreationService {
         return this.notificationRepository.findAllActivatedBy();
     }
 
+    /**
+     * PWA로 예약 발송이 되어 있는 경우의 알림의 리스트를 전체 전달한다. 
+     * @return 알림의 리스트를 전달한다.
+     */
     public List<Notification> getReservedNotificationList() {
         return this.notificationRepository.findAllNotSentBy();
     }
 
+    /**
+     * 키워드를 입력하여 타이틀 또는 본문 내용을 검색하여 해당 키워드가 포함된 알림만을 전달한다. 
+     * @param keyword 2자 이상의 글자를 넣으면 된다.
+     * @return 성공하면 성공한 이벤트 리스트, 실패하면 Null 을 반환한다.
+     */
     public List<Notification> searchNotificationByKeyword(String keyword) {
+        if(keyword.length() < 2)
+            return null;
         return this.notificationRepository.findByKeyword(keyword);
     }
 
+    /**
+     * 기준이 되는 날을 넣으면 이에 대해 알림을 검색해낸다.
+     * @param date 기준이 되는 날짜를 입력한다.
+     * @return 해당하는 날짜 이후에 알림 목록을 전달한다.
+     */
     public List<Notification> searchNotificationAfterThisDay(LocalDateTime date) {
         return this.notificationRepository.findByCreatedAtAfter(date);
     }
 
+    /**
+     * 기준이 되는 날을 넣으면 이에 대해 알림을 검색해낸다.
+     * @param date 기준이 되는 날짜를 입력한다.
+     * @return 해당하는 날짜 이후에 알림 목록을 전달한다.
+     */
     public List<Notification> searchNotificationBeforeThisDay(LocalDateTime date) {
         return this.notificationRepository.findByCreatedAtBefore(date);
     }
@@ -380,6 +406,11 @@ public class NotificationCreationService {
         return this.notificationRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException("해당 이벤트는 존재하지 않습니다."));
     }
 
+    /**
+     * 이벤트 Id를 통해 해당하는 유저 목록을 전달한다.
+     * @param eventId 이벤트의 구분자를 전달한다.
+     * @return 유저의 목록을 반환한다.
+     */
     public List<User> getUserListFromEvent(Long eventId) {
         List<String> targets =  this.notificationTargetRepository.findUserListById(eventId);
         List<Long> userList = targets.stream()
@@ -389,18 +420,13 @@ public class NotificationCreationService {
         return this.userRepository.findByIdIn(userList);
     }
 
-//    public void updateUserListFromEvent(Long eventId, List<User> olderOne, List<User> newOne) {
-//        List<Long> old = olderOne.stream()
-//                .map(User::getId)
-//                .collect(Collectors.toList());
-//
-//        List<Long> updateTarget = newOne.stream()
-//                .map(User::getId)
-//                .collect(Collectors.toList());
-//
-//
-//    }
+
     //TODO: 갱신 로직 고민할 것, 갱신할 대상은? 유저? eventId?
+    // 필요한 갱신의 종류는?
+    // 1. 예약 대상의 취소
+    // 2. 예약된 알림 자체의 취소
+    // 3. 내용 변경 (타이틀, 바디, 링크)
+    // 4. 
 
     //TODO: 알림 권한 받는 컨트롤러
     //TODO: 새 알림 여부 확인 api
@@ -408,6 +434,10 @@ public class NotificationCreationService {
     //TODO: 알림들 각종 api에 적용
     //
 
+    /**
+     * 이벤트 Id 기준으로 해당하는 알림을 삭제한다.
+     * @param eventId 이벤트 구분자
+     */
     public void deleteNotificationById(Long eventId) {
         this.notificationRepository.deleteById(eventId);
     }
