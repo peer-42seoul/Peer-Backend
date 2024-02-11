@@ -76,6 +76,7 @@ public class BoardController {
                 request.getContent(),
                 User.authenticationToUser(auth),
                 BoardType.NORMAL);
+
     }
 
     @PutMapping("/post/comment/{commentId}")

@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.board.team.*;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.user.UserShowcaseResponse;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
@@ -117,6 +119,19 @@ public class ShowcaseService {
             newFavorite.setPostId(showcaseId);
             newFavorite.setType(PostLikeType.FAVORITE);
             postLikeRepository.save(newFavorite);
+
+            // 관심리스트에 추가 됨을 알림
+            this.notificationCreationService.makeNotificationForTeam(
+                    null,
+                    showcase.getTitle() + " 쇼케이스가 누군가의 관심리스트에 등록되었습니다!",
+                    "/showcase/detail/" + showcase.getId(),
+                    NotificationPriority.IMMEDIATE,
+                    NotificationType.SYSTEM,
+                    null,
+                    showcase.getOwnTeamId(),
+                    null
+            );
+
             return true;
         }
     }
@@ -141,6 +156,17 @@ public class ShowcaseService {
             postLikeRepository.save(newFavorite);
             showcase.increaseLike();
         }
+
+        this.notificationCreationService.makeNotificationForTeam(
+                null,
+                showcase.getTitle() + " 쇼케이스가 좋아요를 받았습니다! 확인해보시겠어요?",
+                "/showcase/detail/" + showcase.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                showcase.getOwnTeamId(),
+                null
+        );
 
         return showcase.getLiked();
     }
@@ -217,6 +243,18 @@ public class ShowcaseService {
         postRepository.save(post);
         post.addLinks(request.getLinks());
         post.addFiles(objectService.extractContentImage(request.getContent()));
+
+        this.notificationCreationService.makeNotificationForTeam(
+                null,
+                post.getTitle() + " 쇼케이스가 등록 되었습니다! 한 번 확인하러 가볼까요?",
+                "/showcase/detail/" + post.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                team.getId(),
+                team.getTeamLogoPath()
+        );
+
         return post.getId();
     }
 
