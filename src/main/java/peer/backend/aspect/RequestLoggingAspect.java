@@ -42,6 +42,8 @@ public class RequestLoggingAspect {
             .append(" ")
             .append(request.getRequestURI())
             .append(" ")
+            .append(request.getRemoteAddr())
+            .append(" ")
             .append(params)
             .toString();
     }
@@ -61,24 +63,19 @@ public class RequestLoggingAspect {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         String requestInfo = this.getRequestInfo(pjp, request);
-
+        long start = System.currentTimeMillis();
         try {
-            long start = System.currentTimeMillis();
-            log.info("[Request] {}", requestInfo);
-            Object result = pjp.proceed();
-            long end = System.currentTimeMillis();
-            log.info("[Response] {}: {} < ({}ms)", requestInfo,
-                mapper.writeValueAsString(result), end - start);
-            return result;
+            return pjp.proceed();
         } catch (Exception e) {
             StringBuilder message = new StringBuilder();
-
             for (StackTraceElement stackTraceElement : e.getStackTrace()) {
                 message.append(System.lineSeparator()).append(stackTraceElement.toString());
             }
-
-            log.error("[Error] {} {} {}", requestInfo, e, message.toString());
+            log.error("[Error] {} {} {}", requestInfo, e, message);
             throw e;
+        } finally {
+            long end = System.currentTimeMillis();
+            log.info("[Request] {} < ({}ms)", requestInfo, end - start);
         }
     }
 }
