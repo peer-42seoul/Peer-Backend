@@ -171,12 +171,13 @@ public class BoardService {
     }
 
     @Transactional
-    public void createComment(Long postId, String content, User user, BoardType type) {
+    public Post createComment(Long postId, String content, User user, BoardType type) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 게시물입니다."));
         if (!type.equals(BoardType.SHOWCASE))
             checkMember(user.getId(), post.getBoard().getTeam().getId());
         post.addComment(content, user);
+        return post;
     }
 
     @Transactional
