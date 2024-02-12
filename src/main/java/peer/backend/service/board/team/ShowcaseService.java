@@ -55,8 +55,8 @@ public class ShowcaseService {
     private final ObjectService objectService;
 
     private final NotificationCreationService notificationCreationService;
-    private final static String detailPage = "/showcase/detail/";
-    private final static String filePath = "/team/showcase/";
+    private static final String detailPage = "/showcase/detail/";
+    private static final String filePath = "/team/showcase/";
 
     private List<UserShowcaseResponse> getMembers(List<TeamUser> teamUsers){
         return teamUsers.stream()
@@ -230,7 +230,7 @@ public class ShowcaseService {
                 .type(BoardType.SHOWCASE)
                 .build();
         boardRepository.save(board);
-        String filePath = ShowcaseService.filePath + team.getName();
+        String path = ShowcaseService.filePath + team.getName();
         Post post = Post.builder()
                 .content(request.getContent())
                 .liked(0)
@@ -239,7 +239,7 @@ public class ShowcaseService {
                 .user(user)
                 .title(team.getName() + "'s showcase")
                 .ownTeamId(team.getId())
-                .image(objectService.uploadObject(filePath, request.getImage(), "image"))
+                .image(objectService.uploadObject(path, request.getImage(), "image"))
                 .build();
 
         postRepository.save(post);
@@ -268,12 +268,12 @@ public class ShowcaseService {
         List<String> contentImages = objectService.extractContentImage(request.getContent());
         if (!teamService.isLeader(team.getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
-        String filePath = ShowcaseService.filePath + post.getBoard().getTeam().getName();
+        String path = ShowcaseService.filePath + post.getBoard().getTeam().getName();
         String temp = post.getImage();
         if (Objects.nonNull(request.getImage())) {
             post.update(
                     request,
-                    objectService.uploadObject(filePath, request.getImage(), "image"),
+                    objectService.uploadObject(path, request.getImage(), "image"),
                     contentImages);
             objectService.deleteObject(temp);
         } else
