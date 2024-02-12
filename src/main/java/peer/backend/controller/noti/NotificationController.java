@@ -34,6 +34,8 @@ public class NotificationController {
                                           @Param("pgIdx") Long pageIndex,
                                           @Param("Size") Long size) {
         //TODO : making code logic
+        //TODO: User-> newAlarmCounter = 0 으로 만들어버리기(전체 일때만)
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -83,7 +85,7 @@ public class NotificationController {
     @GetMapping("/summary")
     public ResponseEntity<?> summarizeYourAlarm(Authentication auth) {
         User user = this.userRepository.findById(User.authenticationToUser(auth).getId()).orElseThrow(() -> new BadRequestException("잘못된 요청입니다."));
-        Integer newAlarm = user.getAlarmCounter();
+        Integer newAlarm = user.getNewAlarmCounter();
         if(newAlarm.equals(0))
             return ResponseEntity.noContent().build();
         else
