@@ -21,7 +21,6 @@ import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.noti.NotificationSubscriptionKeys;
-import peer.backend.entity.noti.NotificationTarget;
 import peer.backend.entity.tag.UserSkill;
 import peer.backend.entity.team.TeamUser;
 import peer.backend.entity.user.enums.Role;
@@ -60,6 +59,9 @@ public class User extends BaseEntity implements Login {
     @Column(unique = true, nullable = false)
     @Size(min = 2, max = 30)
     private String nickname;
+
+    @Column
+    private Integer alarmCounter = 0;
 
     //TODO : 사용자 알림 설정 API 작성이 필요
     @Column
@@ -140,9 +142,6 @@ public class User extends BaseEntity implements Login {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<NotificationSubscriptionKeys> tokens;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    private List<NotificationTarget> myEvents;
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<UserSkill> skills;
@@ -160,5 +159,27 @@ public class User extends BaseEntity implements Login {
 
     public Collection<Post> getPost() {
         return post;
+    }
+
+    @Override
+    public Long getId() {
+        if (this.activated)
+            return this.id;
+        else
+            return -1L;
+    }
+
+    public void upNotificationCounter() {
+        if (!this.activated)
+            return;
+        this.alarmCounter++;
+    }
+
+    public void downNotificationCounter() {
+        if (!this.activated)
+            return;
+        if (this.alarmCounter == 0)
+            return;
+        this.alarmCounter--;
     }
 }

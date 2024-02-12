@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum NotificationType {
-    ALL("ALL"),
     MESSAGE("MESSAGE"),
     TEAM("TEAM"),
     SYSTEM("SYSTEM");

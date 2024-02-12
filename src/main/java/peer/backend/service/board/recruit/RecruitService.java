@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
 import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.team.TeamApplyDataDTO;
 import peer.backend.dto.team.TeamJobDto;
 import peer.backend.entity.board.recruit.Recruit;
@@ -40,6 +42,7 @@ import peer.backend.repository.team.TeamUserJobRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.noti.NotificationCreationService;
 import peer.backend.service.profile.UserPortfolioService;
 import peer.backend.service.team.TeamService;
 
@@ -51,6 +54,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,6 +74,7 @@ public class RecruitService {
     private final TeamUserJobRepository teamUserJobRepository;
     private final UserPortfolioService userPortfolioService;
     private final EntityManager entityManager;
+    private final NotificationCreationService notificationCreationService;
 
     //query 생성 및 주입
     @PersistenceContext
@@ -83,9 +88,12 @@ public class RecruitService {
     public void changeRecruitFavorite(Authentication auth, Long recruitId,
         RecruitFavoriteEnum type) {
         User user = User.authenticationToUser(auth);
-        if (!recruitRepository.existsById(recruitId)) {
+        Optional<Recruit> rawTarget = recruitRepository.findById(recruitId);
+
+        if (rawTarget.isEmpty()) {
             throw new NotFoundException("존재하지 않는 모집글입니다.");
         }
+
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
             .ifPresentOrElse(
                 favorite -> {
@@ -103,6 +111,17 @@ public class RecruitService {
                     newFavorite.setType(type);
                     recruitFavoriteRepository.save(newFavorite);
                 });
+
+        this.notificationCreationService.makeNotificationForUser(
+                null,
+                user.getNickname() + "님께서 당신의 글에 좋아요를 눌렀습니다",
+                "/recruit/" + recruitId,
+                NotificationPriority.IMMEDIATE,
+                NotificationType.TEAM,
+                null,
+                rawTarget.get().getWriterId(),
+                rawTarget.get().getThumbnailUrl()
+        );
     }
 
     public List<RecruitInterviewDto> getInterviewList(Long recruit_id) {
@@ -342,6 +361,19 @@ public class RecruitService {
                     Collectors.toList()));
         }
         recruit.addFiles(objectService.extractContentImage(request.getContent()));
+
+        // 모집글 쓰기를 완료함에 대한 알림
+        this.notificationCreationService.makeNotificationForUser(
+                null,
+                "성공적인 글쓰기를 마무리 지었습니다! 이제 팀을 설정해 볼까요? 여러분의 팀을 가꾸고 사람들에게 당신의 꿈과 목표를 소개해보세요!",
+                "/teams/" + team.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.TEAM,
+                null,
+                user.getId(),
+                null
+        );
+
         return recruit;
     }
 

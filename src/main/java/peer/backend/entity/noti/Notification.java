@@ -7,7 +7,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import peer.backend.dto.noti.enums.NotificationPriority;
 import peer.backend.dto.noti.enums.NotificationType;
-import peer.backend.dto.noti.enums.TargetType;
 import peer.backend.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -26,44 +25,37 @@ import java.util.List;
 public  class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
     @Column
-    public String imageUrl;
+    private String imageUrl;
 
     @Column
-    public String title;
+    private String title;
 
     @Column
-    public String body;
+    private String body;
 
     @Column
-    public String linkData;
+    private String linkData;
+
+    @Column
+    private boolean sent;
 
     @Column(nullable = false)
-    public TargetType targetType;
-
-    @OneToMany(mappedBy = "specificEvent",
-            cascade = CascadeType.ALL)
-    public List<NotificationTarget> targets;
-
-    @Column
-    public Boolean sent;
+    private NotificationPriority priority;
 
     @Column(nullable = false)
-    public NotificationPriority priority;
+    private NotificationType messageType;
 
-    @Column(nullable = false)
-    public NotificationType messageType;
-
-    @Column(nullable = true)
+    @Column()
     @JsonSerialize
     @JsonDeserialize
-    public LocalDateTime scheduledTime;
+    private LocalDateTime scheduledTime;
 
     @Column
-    public Long totalCount;
+    private Integer referenceCounter;
 
-    @Column
-    public Long deleteCount;
+    @OneToMany(mappedBy = "specificEvent", cascade = CascadeType.ALL)
+    private List<NotificationTarget> targetList;
 }

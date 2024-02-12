@@ -37,4 +37,10 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     @Query("select t from TeamUser t where t.teamId IN :ids")
     List<TeamUser> findByIdIn(@Param("ids") List<Long> ids);
+
+    @Query("SELECT m.userId FROM TeamUser m WHERE m.teamId IN :teamId")
+    List<Long> findAllUserIdsIn(@Param("teamId") List<Long> teamId);
+
+    @Query("SELECT m.userId FROM TeamUser m WHERE m.teamId = :teamId")
+    List<Long> findUserIdsIn(@Param("teamId") Long teamId);
 }
