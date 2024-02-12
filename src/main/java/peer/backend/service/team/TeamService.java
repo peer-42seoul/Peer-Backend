@@ -81,6 +81,9 @@ public class TeamService {
 
     private final NotificationCreationService notificationCreationService;
 
+    private final static String teamPage = "/teams/";
+    private final static String teamList = "/team-list";
+
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
             == TeamUserRoleType.LEADER;
@@ -182,7 +185,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 "팀 설정이 변경되었습니다. 확인 부탁드립니다.",
-                "/teams/" + teamId,
+                teamPage + teamId,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -210,7 +213,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 "당신은 " + team.getName() + " 팀에서 추방당하셨습니다. 비정상적인 처리일 경우 peer 운영팀에에 문의 부탁드립니다.",
-                null,
+                "",
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -243,7 +246,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 "당신은 " + team.getName() + " 팀의 " + role + " 로 설정되셨습니다.",
-                "/teams/" + team.getId(),
+                teamPage + team.getId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -271,7 +274,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 "아쉽게도 " + user.getNickname() + " 님께서 팀에서 나가셨습니다.",
-                "/teams/" + teamId,
+                teamPage + teamId,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -325,7 +328,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 "축하드립니다! " + team.getName() + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
-                "/team-list",
+                teamList,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
@@ -336,13 +339,11 @@ public class TeamService {
         //팀리더에게 알림
         List<TeamUser> owner = team.getTeamUsers().stream().filter(m -> m.getRole().equals(TeamUserRoleType.LEADER)).collect(Collectors.toList());
         List<Long> userIds = new ArrayList<>();
-        owner.forEach(m -> {
-            userIds.add(m.getUserId());
-        });
+        owner.forEach(m -> userIds.add(m.getUserId()));
         this.notificationCreationService.makeNotificationForUserList(
                 null,
                 team.getName() + " 팀에 새로운 동료 신청이 들어왔습니다! 어떤 분인지 맞이하러 가볼까요?",
-                "/teams/"+ team.getId() + "/setting",
+                teamPage+ team.getId() + "/setting",
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -369,7 +370,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 "축하드립니다! 신청하신 팀에서 신청을 수락하였습니다. 팀페이지에서 자세한 내용을 확인해주세요.",
-                "/team-list",
+                teamList,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
@@ -379,7 +380,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 "여러분 새로운 동료가 찾아왔습니다. 모두 축하해주세요!",
-                "/teams/" + teamId,
+                teamPage + teamId,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -407,7 +408,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 "안타깝게도 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
-                "/team-list",
+                teamList,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
@@ -563,7 +564,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 body,
-                "/teams/" + team.getId(),
+                teamPage + team.getId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -636,7 +637,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
             null,
                 user.getNickname() + " 님께서 팀을 나가셨습니다.",
-                "/teams/" + teamId,
+                teamPage + teamId,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
                 null,
@@ -667,7 +668,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 team.getName() + " 팀이 해산되었슴을 알립니다.",
-                "/team-list",
+                teamList,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
@@ -695,7 +696,7 @@ public class TeamService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 team.getName() + " 팀이 성공적으로 마무리 되었습니다! 지금까지의 이야기를 쇼케이스, 피어로그로 남겨보세요. 여러분의 이야기가 누군가의 길잡이가 되어줄 것입니다.",
-                "/teams/" + teamId,
+                teamPage + teamId,
                 NotificationPriority.FORCE,
                 NotificationType.TEAM,
                 null,

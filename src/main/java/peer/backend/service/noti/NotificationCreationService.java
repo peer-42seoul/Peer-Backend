@@ -3,7 +3,6 @@ package peer.backend.service.noti;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import peer.backend.repository.noti.NotificationTargetRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -36,12 +36,12 @@ public class NotificationCreationService {
 
     //TODO : 어떻게 할 건지 정하자
     @Value("${nhn.default.icon}")
-    public String DEFAULTICON;
+    public String defaultIcon;
 
     @Value("${url.dev-domain-url}")
-    public String DOMAIN;
+    public String domain;
 
-    private final String DEFAULT_DELIMITTER = "###";
+    private final static String defaultDelimitter = "###";
 
     /**
      * teamId를 통해 사용자의 Id 리스트를 확보한다.
@@ -71,7 +71,7 @@ public class NotificationCreationService {
     private NotificationTarget makeOneTargetForEvent(Notification event, NotificationType type, Long userId) {
         return NotificationTarget.builder()
                 .notificationId(event.getId())
-                .userList(userId + DEFAULT_DELIMITTER)
+                .userList(userId + defaultDelimitter)
                 .messageType(type)
                 .columnIndex(userId / 100)
                 .specificEvent(event)
@@ -102,7 +102,7 @@ public class NotificationCreationService {
                         .columnIndex(indexPiece)
                         .messageType(type)
                         .specificEvent(event)
-                        .userList(userId + DEFAULT_DELIMITTER)
+                        .userList(userId + defaultDelimitter)
                         .build();
                 results.add(newData);
             }
@@ -158,7 +158,7 @@ public class NotificationCreationService {
         String editedTitle = Objects.isNull(title)? "peer" : title;
 
         if (Objects.isNull(imageLink))
-            url = this.DEFAULTICON;
+            url = this.defaultIcon;
         else
             url = imageLink;
 
@@ -166,7 +166,7 @@ public class NotificationCreationService {
         Notification event = Notification.builder()
                 .title(editedTitle)
                 .body(body)
-                .linkData(DOMAIN + link)
+                .linkData(domain + link)
                 .priority(priority)
                 .messageType(type)
                 .referenceCounter(1)
@@ -222,14 +222,14 @@ public class NotificationCreationService {
         String editedTitle = Objects.isNull(title)? "peer" : title;
 
         if (Objects.isNull(imageLink) )
-            url = this.DEFAULTICON;
+            url = this.defaultIcon;
         else
             url = imageLink;
 
         Notification event = Notification.builder()
                 .title(editedTitle)
                 .body(body)
-                .linkData(DOMAIN + link)
+                .linkData(domain + link)
                 .priority(priority)
                 .messageType(type)
                 .referenceCounter(userIds.size())
@@ -262,7 +262,7 @@ public class NotificationCreationService {
      * @param teamId 대상이 되는 팀
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
-    @Transactional
+    @Async
     public void makeNotificationForTeam(@Nullable String title,
                                         @NotNull String body,
                                         @NotNull String link,
@@ -295,7 +295,7 @@ public class NotificationCreationService {
      * @param teamIds 대상이 되는 팀 목록.
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
-    @Transactional
+    @Async
     public void makeNotificationForTeams(@Nullable String title,
                                          @NotNull String body,
                                          @NotNull String link,
@@ -327,7 +327,7 @@ public class NotificationCreationService {
      * @param reservedTime 알림을 보낼 시간을 지정한다. 예약일 경우 값이 들어간다.
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
-    @Transactional
+    @Async
     public void makeNotificationForALL(@Nullable String title,
                                        @NotNull String body,
                                        @NotNull String link,
@@ -409,7 +409,7 @@ public class NotificationCreationService {
     public List<User> getUserListFromEvent(Long eventId) {
         List<String> targets =  this.notificationTargetRepository.findUserListById(eventId);
         List<Long> userList = targets.stream()
-                .flatMap(s -> Arrays.stream(s.split(DEFAULT_DELIMITTER)))
+                .flatMap(s -> Arrays.stream(s.split(defaultDelimitter)))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
         return this.userRepository.findByIdIn(userList);

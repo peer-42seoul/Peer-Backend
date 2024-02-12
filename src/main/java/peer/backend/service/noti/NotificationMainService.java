@@ -27,18 +27,20 @@ public class NotificationMainService {
 
 
     @Transactional
-    public void setAlarmForUser(User user,String type, boolean value) throws IOException {
-        if (type.equals("keyword")) {
-            user.setKeywordRecommendAlarm(value);
-        }
-        else if (type.equals("team")) {
-            user.setTeamAlarm(value);
-        }
-        else if (type.equals("message")) {
-            user.setMessageAlarm(value);
-        }
-        else {
-            user.setNightAlarm(value);
+    public void setAlarmForUser(User user,String type, boolean value) {
+        switch (type) {
+            case "keyword":
+                user.setKeywordRecommendAlarm(value);
+                break;
+            case "team":
+                user.setTeamAlarm(value);
+                break;
+            case "message":
+                user.setMessageAlarm(value);
+                break;
+            default:
+                user.setNightAlarm(value);
+                break;
         }
         userRepository.save(user);
     }

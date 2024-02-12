@@ -45,7 +45,7 @@ public class AnnouncementService {
         this.notificationCreationService.makeNotificationForALL(
                 null,
                 request.getTitle() + "라는 공지사항이 올라왔습니다! 확인해주세요.",
-                null,
+                "",
                 NotificationPriority.SCHEDULED,
                 NotificationType.SYSTEM,
                 request.getReservationDate(),
