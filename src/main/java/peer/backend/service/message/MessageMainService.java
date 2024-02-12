@@ -1,7 +1,6 @@
 package peer.backend.service.message;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectDeletedException;
 import org.springframework.dao.OptimisticLockingFailureException;

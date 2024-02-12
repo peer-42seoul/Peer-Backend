@@ -14,7 +14,6 @@ import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.PrivateInfoWrappingService;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController

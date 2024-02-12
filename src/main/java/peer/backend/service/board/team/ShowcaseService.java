@@ -1,7 +1,6 @@
 package peer.backend.service.board.team;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.Ignore;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +55,8 @@ public class ShowcaseService {
     private final ObjectService objectService;
 
     private final NotificationCreationService notificationCreationService;
+    private static final String detailPage = "/showcase/detail/";
+    private static final String filePath = "/team/showcase/";
 
     private List<UserShowcaseResponse> getMembers(List<TeamUser> teamUsers){
         return teamUsers.stream()
@@ -125,7 +126,7 @@ public class ShowcaseService {
             this.notificationCreationService.makeNotificationForTeam(
                     null,
                     showcase.getTitle() + " 쇼케이스가 누군가의 관심리스트에 등록되었습니다!",
-                    "/showcase/detail/" + showcase.getId(),
+                    detailPage + showcase.getId(),
                     NotificationPriority.IMMEDIATE,
                     NotificationType.SYSTEM,
                     null,
@@ -161,7 +162,7 @@ public class ShowcaseService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 showcase.getTitle() + " 쇼케이스가 좋아요를 받았습니다! 확인해보시겠어요?",
-                "/showcase/detail/" + showcase.getId(),
+                detailPage + showcase.getId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
@@ -229,7 +230,7 @@ public class ShowcaseService {
                 .type(BoardType.SHOWCASE)
                 .build();
         boardRepository.save(board);
-        String filePath = "team/showcase/" + team.getName();
+        String path = ShowcaseService.filePath + team.getName();
         Post post = Post.builder()
                 .content(request.getContent())
                 .liked(0)
@@ -238,7 +239,7 @@ public class ShowcaseService {
                 .user(user)
                 .title(team.getName() + "'s showcase")
                 .ownTeamId(team.getId())
-                .image(objectService.uploadObject(filePath, request.getImage(), "image"))
+                .image(objectService.uploadObject(path, request.getImage(), "image"))
                 .build();
 
         postRepository.save(post);
@@ -248,7 +249,7 @@ public class ShowcaseService {
         this.notificationCreationService.makeNotificationForTeam(
                 null,
                 post.getTitle() + " 쇼케이스가 등록 되었습니다! 한 번 확인하러 가볼까요?",
-                "/showcase/detail/" + post.getId(),
+                detailPage + post.getId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
@@ -267,12 +268,12 @@ public class ShowcaseService {
         List<String> contentImages = objectService.extractContentImage(request.getContent());
         if (!teamService.isLeader(team.getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
-        String filePath = "team/showcase/" + post.getBoard().getTeam().getName();
+        String path = ShowcaseService.filePath + post.getBoard().getTeam().getName();
         String temp = post.getImage();
         if (Objects.nonNull(request.getImage())) {
             post.update(
                     request,
-                    objectService.uploadObject(filePath, request.getImage(), "image"),
+                    objectService.uploadObject(path, request.getImage(), "image"),
                     contentImages);
             objectService.deleteObject(temp);
         } else
