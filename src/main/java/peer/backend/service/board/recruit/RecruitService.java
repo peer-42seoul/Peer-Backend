@@ -1,6 +1,21 @@
 package peer.backend.service.board.recruit;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,7 +24,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import peer.backend.annotation.tracking.RecruitWritingTracking;
-import peer.backend.dto.board.recruit.*;
+import peer.backend.dto.board.recruit.ApplyRecruitRequest;
+import peer.backend.dto.board.recruit.RecruitCreateRequest;
+import peer.backend.dto.board.recruit.RecruitFavoriteResponse;
+import peer.backend.dto.board.recruit.RecruitInterviewDto;
+import peer.backend.dto.board.recruit.RecruitListRequest;
+import peer.backend.dto.board.recruit.RecruitListResponse;
+import peer.backend.dto.board.recruit.RecruitResponce;
+import peer.backend.dto.board.recruit.RecruitUpdateRequestDTO;
+import peer.backend.dto.board.recruit.RecruitUpdateResponse;
 import peer.backend.dto.noti.enums.NotificationPriority;
 import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.team.TeamApplyDataDTO;
@@ -32,9 +55,11 @@ import peer.backend.entity.team.enums.TeamType;
 import peer.backend.entity.team.enums.TeamUserRoleType;
 import peer.backend.entity.team.enums.TeamUserStatus;
 import peer.backend.entity.user.User;
+import peer.backend.exception.BadRequestException;
+import peer.backend.exception.ConflictException;
 import peer.backend.exception.IllegalArgumentException;
 import peer.backend.exception.IndexOutOfBoundsException;
-import peer.backend.exception.*;
+import peer.backend.exception.NotFoundException;
 import peer.backend.repository.board.recruit.RecruitFavoriteRepository;
 import peer.backend.repository.board.recruit.RecruitRepository;
 import peer.backend.repository.team.TeamJobRepository;
@@ -45,19 +70,6 @@ import peer.backend.service.file.ObjectService;
 import peer.backend.service.noti.NotificationCreationService;
 import peer.backend.service.profile.UserPortfolioService;
 import peer.backend.service.team.TeamService;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -441,7 +453,7 @@ public class RecruitService {
     }
 
     @Transactional
-    public void deleteRecruit(Long recruit_id) {
+    public void deleteRecruit(Long recruit_id, User user) {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
         if (recruit.getStatus().equals(RecruitStatus.DONE)) {
@@ -450,10 +462,10 @@ public class RecruitService {
         if (teamUserRepository.existsApprovedByTeamId(recruit.getTeam().getId())) {
             throw new BadRequestException("승인된 팀원이 있는 경우 삭제할 수 없습니다.");
         }
-
         objectService.deleteObject(recruit.getThumbnailUrl());
         if (recruit.getFiles() != null && !recruit.getFiles().isEmpty())
             recruit.getFiles().forEach(file -> objectService.deleteObject(file.getUrl()));
+        teamService.deleteTeam(recruit.getTeam().getId());
         recruitRepository.delete(recruit);
     }
 

@@ -256,6 +256,17 @@ public class TeamService {
     }
 
     @Transactional
+    public void deleteTeam(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀을 찾을 수 없습니다."));
+        // TeamUser 엔티티 삭제
+        team.getTeamUsers().forEach(teamUser -> {
+            teamUserRepository.delete(teamUser);
+        });
+        // Team 엔티티 삭제
+        teamRepository.delete(team);
+    }
+
+    @Transactional
     public void exitTeam(Long teamId, User user) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
