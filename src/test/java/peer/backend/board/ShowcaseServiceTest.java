@@ -35,8 +35,11 @@ import peer.backend.entity.user.User;
 import peer.backend.oauth.PrincipalDetails;
 import peer.backend.repository.board.team.PostLikeRepository;
 import peer.backend.repository.board.team.PostRepository;
+import peer.backend.repository.noti.NotificationRepository;
+import peer.backend.repository.noti.NotificationTargetRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.board.team.ShowcaseService;
+import peer.backend.service.noti.NotificationCreationService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShowcaseService Test")
@@ -48,6 +51,16 @@ class ShowcaseServiceTest {
     private PostLikeRepository postLikeRepository;
     @Mock
     private TagService tagService;
+
+    @Mock
+    private NotificationCreationService notificationCreationService;
+
+    @Mock
+    private NotificationRepository notificationRepository;
+
+    @Mock
+    private NotificationTargetRepository notificationTargetRepository;
+
     @InjectMocks
     private ShowcaseService showcaseService;
 
@@ -123,6 +136,7 @@ class ShowcaseServiceTest {
             .title("12345")
             .user(user)
             .board(board)
+            .ownTeamId(1L)
             .files(new ArrayList<>())
             .links(new ArrayList<>())
             .build();
