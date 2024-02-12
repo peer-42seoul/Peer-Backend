@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import peer.backend.annotation.AuthorCheck;
@@ -13,6 +14,7 @@ import peer.backend.dto.board.recruit.*;
 import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
 import peer.backend.entity.user.User;
+import peer.backend.exception.BadRequestException;
 import peer.backend.service.board.recruit.RecruitService;
 
 import javax.validation.Valid;
@@ -64,9 +66,13 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")
     @DeleteMapping("/{recruit_id}")
-    public void deleteRecruit(@PathVariable Long recruit_id, Authentication auth) {
-        User user = User.authenticationToUser(auth);
-        recruitService.deleteRecruit(recruit_id, user);
+    public ResponseEntity<?> deleteRecruit(@PathVariable Long recruit_id, Authentication auth) {
+        try {
+            recruitService.deleteRecruit(recruit_id, User.authenticationToUser(auth));
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e);
+        }
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "", notes = "모집에 지원한다.")
