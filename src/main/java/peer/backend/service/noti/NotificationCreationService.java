@@ -16,7 +16,6 @@ import peer.backend.repository.noti.NotificationTargetRepository;
 import peer.backend.repository.team.TeamUserRepository;
 import peer.backend.repository.user.UserRepository;
 
-import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -41,7 +40,7 @@ public class NotificationCreationService {
     @Value("${url.dev-domain-url}")
     public String domain;
 
-    private final static String defaultDelimitter = "###";
+    private static final String defaultDelimitter = "###";
 
     /**
      * teamId를 통해 사용자의 Id 리스트를 확보한다.
@@ -136,7 +135,7 @@ public class NotificationCreationService {
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
     @Async
-    @Transactional()
+    @Transactional
     public void makeNotificationForUser(@Nullable String title,
                                         @NotNull String body,
                                         @Nullable String link,
@@ -263,6 +262,7 @@ public class NotificationCreationService {
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
     @Async
+    @Transactional
     public void makeNotificationForTeam(@Nullable String title,
                                         @NotNull String body,
                                         @NotNull String link,
@@ -296,6 +296,7 @@ public class NotificationCreationService {
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
     @Async
+    @Transactional
     public void makeNotificationForTeams(@Nullable String title,
                                          @NotNull String body,
                                          @NotNull String link,
@@ -328,6 +329,7 @@ public class NotificationCreationService {
      * @param imageLink 알림에 보여질 이미지 링크, 기본적으로 제공하는 것은 peer 의 아이콘이다.
      */
     @Async
+    @Transactional
     public void makeNotificationForALL(@Nullable String title,
                                        @NotNull String body,
                                        @NotNull String link,

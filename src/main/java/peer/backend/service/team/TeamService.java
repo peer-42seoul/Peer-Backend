@@ -81,8 +81,8 @@ public class TeamService {
 
     private final NotificationCreationService notificationCreationService;
 
-    private final static String teamPage = "/teams/";
-    private final static String teamList = "/team-list";
+    private static final String teamPage = "/teams/";
+    private static final String teamList = "/team-list";
 
     public boolean isLeader(Long teamId, User user) {
         return teamUserRepository.findTeamUserRoleTypeByTeamIdAndUserId(teamId, user.getId())
