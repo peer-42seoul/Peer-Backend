@@ -1,10 +1,12 @@
 package peer.backend.repository.team;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import peer.backend.dto.team.TeamApplyDataDTO;
 import peer.backend.entity.team.Team;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {

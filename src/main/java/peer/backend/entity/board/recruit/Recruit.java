@@ -53,6 +53,7 @@ public class Recruit extends BaseEntity {
 
     @Column
     private Long hit = 0L;
+
     @Column(nullable = false)
     @Size(max=100)
     private String title;
