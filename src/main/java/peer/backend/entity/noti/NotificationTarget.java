@@ -39,6 +39,10 @@ public class NotificationTarget extends BaseEntity {
     private Notification specificEvent;
 
     private void repackUserIds(List<Long> userIds) {
+        if (userIds == null) {
+            this.userList = "";
+            return;
+        }
         this.userList = "";
         userIds.forEach(l -> this.userList += l + "###");
     }
