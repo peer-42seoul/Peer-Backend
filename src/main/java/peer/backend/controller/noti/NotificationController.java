@@ -57,11 +57,11 @@ public class NotificationController {
 
     @DeleteMapping("/spring/delete-target")
     public ResponseEntity<?> deleteAlarmTarget(Authentication auth,
-                                               @Param("targetId") Long alarmId) {
+                                               @Param("notificationId") Long notificationId) {
         try {
             this.notificationMainService.deleteNotification(
                     User.authenticationToUser(auth),
-                    alarmId
+                    notificationId
             );
         } catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(e);
