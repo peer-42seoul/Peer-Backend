@@ -32,6 +32,7 @@ import peer.backend.repository.board.team.PostRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.noti.NotificationCreationService;
 import peer.backend.service.team.TeamService;
 
 import java.util.List;
@@ -50,6 +51,8 @@ public class ShowcaseService {
     private final TeamRepository teamRepository;
     private final BoardRepository boardRepository;
     private final ObjectService objectService;
+
+    private final NotificationCreationService notificationCreationService;
 
     private List<UserShowcaseResponse> getMembers(List<TeamUser> teamUsers){
         return teamUsers.stream()
@@ -138,6 +141,7 @@ public class ShowcaseService {
             postLikeRepository.save(newFavorite);
             showcase.increaseLike();
         }
+
         return showcase.getLiked();
     }
 
@@ -206,6 +210,7 @@ public class ShowcaseService {
                 .board(board)
                 .user(user)
                 .title(team.getName() + "'s showcase")
+                .ownTeamId(team.getId())
                 .image(objectService.uploadObject(filePath, request.getImage(), "image"))
                 .build();
 

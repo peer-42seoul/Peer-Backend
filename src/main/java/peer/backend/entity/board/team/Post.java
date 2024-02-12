@@ -49,6 +49,9 @@ public class Post extends BaseEntity{
     @Column
     private boolean isPublic = true;
 
+    @Column
+    private Long ownTeamId;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<UserPortfolio> userPortfolioHistories;
 
