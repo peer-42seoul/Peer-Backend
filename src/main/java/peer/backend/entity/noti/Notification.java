@@ -56,6 +56,6 @@ public  class Notification extends BaseEntity {
     @Column
     private Integer referenceCounter;
 
-    @OneToMany(mappedBy = "specificEvent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "specificEvent", cascade = CascadeType.PERSIST)
     private List<NotificationTarget> targetList;
 }

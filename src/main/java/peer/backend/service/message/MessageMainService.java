@@ -281,24 +281,21 @@ public class MessageMainService {
                 build();
 
         // Notification Creation
-        Long targetId;
-        String imageUrl;
+        User targetUser;
         if (letter.getSenderId().equals(index.getUserIdx1())) {
-            targetId = index.getUserIdx2();
-            imageUrl = index.getUser2().getImageUrl();
+            targetUser = index.getUser2();
         } else {
-            targetId = index.getUserIdx1();
-            imageUrl = index.getUser1().getImageUrl();
+            targetUser = index.getUser1();
         }
         this.notificationCreationService.makeNotificationForUser(
                 "메시지가 도착했습니다",
-                letter.getText(),
+                letter.getSenderNickname() + " : " + letter.getText(),
                 "/my-page/message",
                 NotificationPriority.IMMEDIATE,
                 NotificationType.MESSAGE,
                 null,
-                targetId,
-                imageUrl
+                targetUser.getId(),
+                targetUser.getImageUrl()
         );
 
         return ret;

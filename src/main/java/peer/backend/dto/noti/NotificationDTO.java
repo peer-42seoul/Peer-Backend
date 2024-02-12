@@ -1,15 +1,14 @@
 package peer.backend.dto.noti;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.entity.noti.Notification;
 
 import java.time.LocalDateTime;
 
-@Builder
+@Getter
 @RequiredArgsConstructor
 public class NotificationDTO {
     private String title;
@@ -23,7 +22,7 @@ public class NotificationDTO {
     @JsonProperty("isEnd")
     private boolean end;
 
-    NotificationDTO(Notification data, boolean end) {
+    public NotificationDTO(Notification data, boolean end) {
         this.title = data.getTitle();
         this.body = data.getBody();
         this.redirectUrl = data.getLinkData();

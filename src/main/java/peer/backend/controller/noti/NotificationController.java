@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import peer.backend.dto.noti.NotificationDTO;
 import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.user.UserAlarmSettingDTO;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.repository.user.UserRepository;
 import peer.backend.service.noti.NotificationMainService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,29 +35,38 @@ public class NotificationController {
     @GetMapping("/spring")
     public ResponseEntity<?> getAlarmList(Authentication auth,
                                           @Param("type") NotificationType type,
-                                          @Param("pgIdx") Long pageIndex,
+                                          @Param("pgIdx") Long pgIdx,
                                           @Param("Size") Long size) {
-        //TODO : making code logic
-        //TODO: User-> newAlarmCounter = 0 으로 만들어버리기(전체 일때만)
-
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        List<NotificationDTO> result = new ArrayList<>();
+        try {
+            result = this.notificationMainService.getNotificationList(User.authenticationToUser(auth), type, pgIdx, size);
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(result);
     }
 
-    ///api/v1/noti/spring/delete-all?type=${}
     @DeleteMapping("/spring/delete-all")
-    public ResponseEntity<?> deleteAlarmAll(Authentication auth,
+    public ResponseEntity<Void> deleteAlarmAll(Authentication auth,
                                             @Param("type") NotificationType type) {
-        //TODO : making code logic
-        return new ResponseEntity<>(HttpStatus.OK);
+        this.notificationMainService.deleteNotificationAll(
+                User.authenticationToUser(auth),
+                type);
+        return ResponseEntity.ok().build();
     }
 
-    ///api/v1/noti/spring/delete-taget?targetId=${alarmId}
     @DeleteMapping("/spring/delete-target")
     public ResponseEntity<?> deleteAlarmTarget(Authentication auth,
                                                @Param("targetId") Long alarmId) {
-        //TODO : making code logic
-        return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            this.notificationMainService.deleteNotification(
+                    User.authenticationToUser(auth),
+                    alarmId
+            );
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e);
+        }
+        return ResponseEntity.ok().build();
     }
 
 
