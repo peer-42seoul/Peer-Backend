@@ -36,6 +36,7 @@ public class NotificationController {
         //TODO : making code logic
         //TODO: User-> newAlarmCounter = 0 으로 만들어버리기(전체 일때만)
 
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
