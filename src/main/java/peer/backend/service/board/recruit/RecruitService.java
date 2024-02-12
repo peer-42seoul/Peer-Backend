@@ -409,8 +409,7 @@ public class RecruitService {
 
         List<TeamApplyDataDTO> teamData = this.entityManager.createQuery(query, TeamApplyDataDTO.class).setParameter("teamId", team.getId()).getResultList();
         teamData.forEach(m -> {
-            if (m.getName().equals(request.getRole())) {
-                if (m.getMax() - m.getApplyNumber() == 0)
+            if (m.getName().equals(request.getRole()) && m.getMax() - m.getApplyNumber() == 0) {
                     throw new BadRequestException("지원이 불가능합니다!");
             }
         });
