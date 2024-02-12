@@ -64,7 +64,7 @@ public class User extends BaseEntity implements Login {
     private Integer alarmCounter = 0;
 
     @Column
-    private Integer newAlarm = 0;
+    private Integer newAlarmCounter = 0;
 
     //TODO : 사용자 알림 설정 API 작성이 필요
     @Column
