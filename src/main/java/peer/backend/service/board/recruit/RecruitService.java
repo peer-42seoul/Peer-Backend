@@ -444,6 +444,13 @@ public class RecruitService {
     public void deleteRecruit(Long recruit_id) {
         Recruit recruit = recruitRepository.findById(recruit_id).orElseThrow(
             () -> new NotFoundException("존재하지 않는 모집게시글입니다."));
+        if (recruit.getStatus().equals(RecruitStatus.DONE)) {
+            throw new BadRequestException("모집이 완료된 게시글은 삭제할 수 없습니다.");
+        }
+        if (teamUserRepository.existsApprovedByTeamId(recruit.getTeam().getId())) {
+            throw new BadRequestException("승인된 팀원이 있는 팀의 모집글은 삭제할 수 없습니다.");
+        }
+
         objectService.deleteObject(recruit.getThumbnailUrl());
         if (recruit.getFiles() != null && !recruit.getFiles().isEmpty())
             recruit.getFiles().forEach(file -> objectService.deleteObject(file.getUrl()));
