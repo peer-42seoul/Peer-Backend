@@ -40,19 +40,17 @@ public class NotificationTarget extends BaseEntity {
 
     private void repackUserIds(List<Long> userIds) {
         this.userList = "";
-        userIds.forEach(l -> {
-            this.userList += l + "###";
-        });
+        userIds.forEach(l -> this.userList += l + "###");
     }
 
     public List<Long> getUserIds(){
         if (userList.isEmpty())
-            return null;
+            return Collections.emptyList();
         List<String> users = List.of(this.userList.split("###"));
         List<Long> results = new ArrayList<>();
         users.forEach(m -> {
-            Long id = Long.parseLong(m);
-            results.add(id);
+            Long userId = Long.parseLong(m);
+            results.add(userId);
         });
         return results;
     }
@@ -68,9 +66,6 @@ public class NotificationTarget extends BaseEntity {
             userIds.sort(new LongComparator());
             this.repackUserIds(userIds);
         }
-//        Integer referenceCounter = this.getSpecificEvent().getReferenceCounter();
-//        referenceCounter++;
-//        this.getSpecificEvent().setReferenceCounter(referenceCounter);
     }
 
     @Transactional

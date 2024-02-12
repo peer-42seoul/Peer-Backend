@@ -10,9 +10,6 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-//    @Query("SELECT COUNT(n.id) = :size FROM Notification n WHERE n.id IN :ids")
-//    boolean existsAllByIdIn(@Param("ids") List<Long> ids, @Param("size") long size);
-
     @Query("SELECT e FROM Notification e WHERE e.title Like :keyword OR e.body Like :keyword")
     List<Notification> findByKeyword(@Param("keyword") String keyword);
 

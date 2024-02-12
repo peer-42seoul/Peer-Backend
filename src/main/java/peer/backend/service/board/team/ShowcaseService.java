@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.board.team.*;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.user.UserShowcaseResponse;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
@@ -32,6 +34,7 @@ import peer.backend.repository.board.team.PostRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.noti.NotificationCreationService;
 import peer.backend.service.team.TeamService;
 
 import java.util.List;
@@ -50,6 +53,10 @@ public class ShowcaseService {
     private final TeamRepository teamRepository;
     private final BoardRepository boardRepository;
     private final ObjectService objectService;
+
+    private final NotificationCreationService notificationCreationService;
+    private static final String detailPage = "/showcase/detail/";
+    private static final String filePath = "/team/showcase/";
 
     private List<UserShowcaseResponse> getMembers(List<TeamUser> teamUsers){
         return teamUsers.stream()
@@ -114,6 +121,19 @@ public class ShowcaseService {
             newFavorite.setPostId(showcaseId);
             newFavorite.setType(PostLikeType.FAVORITE);
             postLikeRepository.save(newFavorite);
+
+            // 관심리스트에 추가 됨을 알림
+            this.notificationCreationService.makeNotificationForTeam(
+                    null,
+                    showcase.getTitle() + " 쇼케이스가 누군가의 관심리스트에 등록되었습니다!",
+                    detailPage + showcase.getId(),
+                    NotificationPriority.IMMEDIATE,
+                    NotificationType.SYSTEM,
+                    null,
+                    showcase.getOwnTeamId(),
+                    null
+            );
+
             return true;
         }
     }
@@ -138,6 +158,18 @@ public class ShowcaseService {
             postLikeRepository.save(newFavorite);
             showcase.increaseLike();
         }
+
+        this.notificationCreationService.makeNotificationForTeam(
+                null,
+                showcase.getTitle() + " 쇼케이스가 좋아요를 받았습니다! 확인해보시겠어요?",
+                detailPage + showcase.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                showcase.getOwnTeamId(),
+                null
+        );
+
         return showcase.getLiked();
     }
 
@@ -198,7 +230,7 @@ public class ShowcaseService {
                 .type(BoardType.SHOWCASE)
                 .build();
         boardRepository.save(board);
-        String filePath = "team/showcase/" + team.getName();
+        String path = ShowcaseService.filePath + team.getName();
         Post post = Post.builder()
                 .content(request.getContent())
                 .liked(0)
@@ -206,12 +238,25 @@ public class ShowcaseService {
                 .board(board)
                 .user(user)
                 .title(team.getName() + "'s showcase")
-                .image(objectService.uploadObject(filePath, request.getImage(), "image"))
+                .ownTeamId(team.getId())
+                .image(objectService.uploadObject(path, request.getImage(), "image"))
                 .build();
 
         postRepository.save(post);
         post.addLinks(request.getLinks());
         post.addFiles(objectService.extractContentImage(request.getContent()));
+
+        this.notificationCreationService.makeNotificationForTeam(
+                null,
+                post.getTitle() + " 쇼케이스가 등록 되었습니다! 한 번 확인하러 가볼까요?",
+                detailPage + post.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                team.getId(),
+                team.getTeamLogoPath()
+        );
+
         return post.getId();
     }
 
@@ -223,12 +268,12 @@ public class ShowcaseService {
         List<String> contentImages = objectService.extractContentImage(request.getContent());
         if (!teamService.isLeader(team.getId(), user))
             throw new ForbiddenException("리더가 아닙니다.");
-        String filePath = "team/showcase/" + post.getBoard().getTeam().getName();
+        String path = ShowcaseService.filePath + post.getBoard().getTeam().getName();
         String temp = post.getImage();
         if (Objects.nonNull(request.getImage())) {
             post.update(
                     request,
-                    objectService.uploadObject(filePath, request.getImage(), "image"),
+                    objectService.uploadObject(path, request.getImage(), "image"),
                     contentImages);
             objectService.deleteObject(temp);
         } else

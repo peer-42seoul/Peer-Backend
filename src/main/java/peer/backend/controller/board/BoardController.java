@@ -20,9 +20,13 @@ import peer.backend.dto.board.team.PostCommentRequest;
 import peer.backend.dto.board.team.PostCommentUpdateRequest;
 import peer.backend.dto.board.team.PostCreateRequest;
 import peer.backend.dto.board.team.PostUpdateRequest;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
+import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.user.User;
 import peer.backend.service.board.team.BoardService;
+import peer.backend.service.noti.NotificationCreationService;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +34,7 @@ import peer.backend.service.board.team.BoardService;
 public class BoardController {
 
     private final BoardService boardService;
+    private final NotificationCreationService notificationCreationService;
 
     @PostMapping("/board/create")
     public void createBoard(@RequestBody BoardCreateRequest request, Authentication auth) {
@@ -71,11 +76,25 @@ public class BoardController {
 
     @PostMapping("/post/comment")
     public void createComment(@RequestBody @Valid PostCommentRequest request, Authentication auth) {
-        boardService.createComment(
+        User user = User.authenticationToUser(auth);
+        Post post = boardService.createComment(
                 request.getPostId(),
                 request.getContent(),
-                User.authenticationToUser(auth),
+                user,
                 BoardType.NORMAL);
+
+        Long writer = post.getUser().getId();
+
+        this.notificationCreationService.makeNotificationForUser(
+                null,
+                user.getNickname() + " 님께서 댓글을 다셨습니다 : " + request.getContent(),
+                null,
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                writer,
+                null
+        );
     }
 
     @PutMapping("/post/comment/{commentId}")
