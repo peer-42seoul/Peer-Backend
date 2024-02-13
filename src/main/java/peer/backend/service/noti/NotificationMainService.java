@@ -125,6 +125,8 @@ public class NotificationMainService {
                 deleteTarget.add(target);
             counter.getAndSet(counter.get() - 1);
         });
+        if (counter.get() < 0)
+            counter.getAndSet(0);
         user.setAlarmCounter(counter.get());
         this.notificationTargetRepository.deleteAll(deleteTarget);
         this.userRepository.save(user);
@@ -139,6 +141,8 @@ public class NotificationMainService {
         if (target.getUserList().isEmpty())
             this.notificationTargetRepository.delete(target);
         Integer value = user.getAlarmCounter() - 1;
+        if (value < 0)
+            value = 0;
         user.setAlarmCounter(value);
         this.userRepository.save(user);
     }
