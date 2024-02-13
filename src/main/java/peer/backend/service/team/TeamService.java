@@ -238,7 +238,7 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         if (!team.grantLeaderPermission(userId, teamUserRoleType)) {
-            throw new NotFoundException("존재하지 않는 유저 아이디 입니다!");
+            throw new BadRequestException("팀에 속해있는 유저가 아닙니다!");
         }
 
         String role;
