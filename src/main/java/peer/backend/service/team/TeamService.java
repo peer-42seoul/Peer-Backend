@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import peer.backend.annotation.ValidUserId;
 import peer.backend.annotation.tracking.CompleteTeamTracking;
 import peer.backend.annotation.tracking.DisperseTeamTracking;
 import peer.backend.annotation.tracking.TeamCreateTracking;
@@ -161,8 +162,8 @@ public class TeamService {
                 if (teamSettingInfoDto.getTeamImage() != null) {
                     if (!team.getTeamLogoPath().equals(teamSettingInfoDto.getTeamImage())) {
                         String newImage = objectService.uploadObject(
-                                filePath + "/" + team.getId().toString(),
-                                teamSettingInfoDto.getTeamImage(), "image");
+                            filePath + "/" + team.getId().toString(),
+                            teamSettingInfoDto.getTeamImage(), "image");
                         objectService.deleteObject(team.getTeamLogoPath());
                         team.setTeamLogoPath(newImage);
                         this.userPortfolioService.setTeamLogoPath(team.getId(), newImage);
@@ -183,14 +184,14 @@ public class TeamService {
         }
 
         this.notificationCreationService.makeNotificationForTeam(
-                null,
-                "팀 설정이 변경되었습니다. 확인 부탁드립니다.",
-                teamPage + teamId,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                team.getId(),
-                team.getTeamLogoPath()
+            null,
+            "팀 설정이 변경되었습니다. 확인 부탁드립니다.",
+            teamPage + teamId,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            team.getId(),
+            team.getTeamLogoPath()
         );
     }
 
@@ -211,23 +212,24 @@ public class TeamService {
         }
 
         this.notificationCreationService.makeNotificationForUser(
-                null,
-                "당신은 " + team.getName() + " 팀에서 추방당하셨습니다. 비정상적인 처리일 경우 peer 운영팀에에 문의 부탁드립니다.",
-                "",
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                deletingToUserId,
-                null);
+            null,
+            "당신은 " + team.getName() + " 팀에서 추방당하셨습니다. 비정상적인 처리일 경우 peer 운영팀에에 문의 부탁드립니다.",
+            "",
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            deletingToUserId,
+            null);
 
         return team.getTeamUsers().stream().map(TeamMemberDto::new)
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    @ValidUserId
     @Transactional
-    public void grantRole(Long teamId, Long grantingUserId, User user,
+    public void grantRole(Long teamId, Long userId, User user,
         TeamUserRoleType teamUserRoleType) {
-        if (grantingUserId.equals(user.getId())) {
+        if (userId.equals(user.getId())) {
             throw new ForbiddenException("자기 자신에게 권한을 부여할 수 없습니다.");
         }
         if (!isLeader(teamId, user)) {
@@ -235,23 +237,26 @@ public class TeamService {
         }
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        team.grantLeaderPermission(grantingUserId, teamUserRoleType);
+        if (!team.grantLeaderPermission(userId, teamUserRoleType)) {
+            throw new NotFoundException("존재하지 않는 유저 아이디 입니다!");
+        }
 
         String role;
         if (teamUserRoleType.equals(TeamUserRoleType.LEADER)) {
             role = "팀 리더";
-        } else
+        } else {
             role = "팀 멤버";
+        }
 
         this.notificationCreationService.makeNotificationForUser(
-                null,
-                "당신은 " + team.getName() + " 팀의 " + role + " 로 설정되셨습니다.",
-                teamPage + team.getId(),
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                grantingUserId,
-                team.getTeamLogoPath()
+            null,
+            "당신은 " + team.getName() + " 팀의 " + role + " 로 설정되셨습니다.",
+            teamPage + team.getId(),
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            userId,
+            team.getTeamLogoPath()
         );
     }
 
@@ -272,14 +277,14 @@ public class TeamService {
         }
 
         this.notificationCreationService.makeNotificationForTeam(
-                null,
-                "아쉽게도 " + user.getNickname() + " 님께서 팀에서 나가셨습니다.",
-                teamPage + teamId,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                teamId,
-                team.getTeamLogoPath()
+            null,
+            "아쉽게도 " + user.getNickname() + " 님께서 팀에서 나가셨습니다.",
+            teamPage + teamId,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            teamId,
+            team.getTeamLogoPath()
         );
     }
 
@@ -326,29 +331,31 @@ public class TeamService {
 
         // 신청자를 위한 알림
         this.notificationCreationService.makeNotificationForUser(
-                null,
-                "축하드립니다! " + team.getName() + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
-                teamList,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.SYSTEM,
-                null,
-                user.getId(),
-                null
+            null,
+            "축하드립니다! " + team.getName()
+                + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
+            teamList,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.SYSTEM,
+            null,
+            user.getId(),
+            null
         );
 
         //팀리더에게 알림
-        List<TeamUser> owner = team.getTeamUsers().stream().filter(m -> m.getRole().equals(TeamUserRoleType.LEADER)).collect(Collectors.toList());
+        List<TeamUser> owner = team.getTeamUsers().stream()
+            .filter(m -> m.getRole().equals(TeamUserRoleType.LEADER)).collect(Collectors.toList());
         List<Long> userIds = new ArrayList<>();
         owner.forEach(m -> userIds.add(m.getUserId()));
         this.notificationCreationService.makeNotificationForUserList(
-                null,
-                team.getName() + " 팀에 새로운 동료 신청이 들어왔습니다! 어떤 분인지 맞이하러 가볼까요?",
-                teamPage+ team.getId() + "/setting",
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                userIds,
-                team.getTeamLogoPath()
+            null,
+            team.getName() + " 팀에 새로운 동료 신청이 들어왔습니다! 어떤 분인지 맞이하러 가볼까요?",
+            teamPage + team.getId() + "/setting",
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            userIds,
+            team.getTeamLogoPath()
         );
 
         return result;
@@ -364,28 +371,28 @@ public class TeamService {
         teamUserJob.acceptApplicant();
 
         Team team = this.teamRepository.findById(teamId).orElseThrow(
-                () -> new NotFoundException("존재하지 않는 팀입니다.")
+            () -> new NotFoundException("존재하지 않는 팀입니다.")
         );
         // 신청자에게 알리기
         this.notificationCreationService.makeNotificationForUser(
-                null,
-                "축하드립니다! 신청하신 팀에서 신청을 수락하였습니다. 팀페이지에서 자세한 내용을 확인해주세요.",
-                teamList,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.SYSTEM,
-                null,
-                user.getId(),
-                null
+            null,
+            "축하드립니다! 신청하신 팀에서 신청을 수락하였습니다. 팀페이지에서 자세한 내용을 확인해주세요.",
+            teamList,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.SYSTEM,
+            null,
+            user.getId(),
+            null
         );
         this.notificationCreationService.makeNotificationForTeam(
-                null,
-                "여러분 새로운 동료가 찾아왔습니다. 모두 축하해주세요!",
-                teamPage + teamId,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                teamId,
-                team.getTeamLogoPath()
+            null,
+            "여러분 새로운 동료가 찾아왔습니다. 모두 축하해주세요!",
+            teamPage + teamId,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            teamId,
+            team.getTeamLogoPath()
         );
     }
 
@@ -403,17 +410,16 @@ public class TeamService {
             teamUserRepository.delete(teamUser);
         }
 
-
         // 신청자에게 알림 보냄
         this.notificationCreationService.makeNotificationForUser(
-                null,
-                "안타깝게도 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
-                teamList,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.SYSTEM,
-                null,
-                user.getId(),
-                null
+            null,
+            "안타깝게도 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
+            teamList,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.SYSTEM,
+            null,
+            user.getId(),
+            null
         );
     }
 
@@ -557,19 +563,20 @@ public class TeamService {
         // 팀 설정 변경에 대한 알림 전달
         String newName = request.getJob().getName();
         String body;
-        if (oldName.equals(newName))
+        if (oldName.equals(newName)) {
             body = "팀의 " + oldName + " 역할이 수정이 되었습니다.";
-        else
+        } else {
             body = "팀의 " + oldName + " 은 " + newName + "으로 변경되었습니다.";
+        }
         this.notificationCreationService.makeNotificationForTeam(
-                null,
-                body,
-                teamPage + team.getId(),
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                team.getId(),
-                team.getTeamLogoPath()
+            null,
+            body,
+            teamPage + team.getId(),
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            team.getId(),
+            team.getTeamLogoPath()
         );
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -636,13 +643,13 @@ public class TeamService {
         // 팀 나가기 되었음을 알림
         this.notificationCreationService.makeNotificationForTeam(
             null,
-                user.getNickname() + " 님께서 팀을 나가셨습니다.",
-                teamPage + teamId,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
-                null,
-                teamId,
-                team.getTeamLogoPath()
+            user.getNickname() + " 님께서 팀을 나가셨습니다.",
+            teamPage + teamId,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.TEAM,
+            null,
+            teamId,
+            team.getTeamLogoPath()
         );
     }
 
@@ -666,14 +673,14 @@ public class TeamService {
         team.getRecruit().setStatus(RecruitStatus.DONE);
 
         this.notificationCreationService.makeNotificationForTeam(
-                null,
-                team.getName() + " 팀이 해산되었슴을 알립니다.",
-                teamList,
-                NotificationPriority.IMMEDIATE,
-                NotificationType.SYSTEM,
-                null,
-                team.getId(),
-                null
+            null,
+            team.getName() + " 팀이 해산되었슴을 알립니다.",
+            teamList,
+            NotificationPriority.IMMEDIATE,
+            NotificationType.SYSTEM,
+            null,
+            team.getId(),
+            null
         );
 
         return team;
@@ -694,14 +701,15 @@ public class TeamService {
 
         // 팀 완료되었음을 알림
         this.notificationCreationService.makeNotificationForTeam(
-                null,
-                team.getName() + " 팀이 성공적으로 마무리 되었습니다! 지금까지의 이야기를 쇼케이스, 피어로그로 남겨보세요. 여러분의 이야기가 누군가의 길잡이가 되어줄 것입니다.",
-                teamPage + teamId,
-                NotificationPriority.FORCE,
-                NotificationType.TEAM,
-                null,
-                team.getId(),
-                team.getTeamLogoPath()
+            null,
+            team.getName()
+                + " 팀이 성공적으로 마무리 되었습니다! 지금까지의 이야기를 쇼케이스, 피어로그로 남겨보세요. 여러분의 이야기가 누군가의 길잡이가 되어줄 것입니다.",
+            teamPage + teamId,
+            NotificationPriority.FORCE,
+            NotificationType.TEAM,
+            null,
+            team.getId(),
+            team.getTeamLogoPath()
         );
         return team;
     }
