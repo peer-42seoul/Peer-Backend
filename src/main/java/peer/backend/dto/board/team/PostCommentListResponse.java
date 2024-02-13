@@ -22,6 +22,7 @@ public class PostCommentListResponse {
     private String createAt;
     @JsonProperty("isAuthor")
     private boolean isAuthor;
+    private Long authorId;
 
     public PostCommentListResponse(PostComment comment, User user){
         User author = comment.getUser();
@@ -31,5 +32,6 @@ public class PostCommentListResponse {
         this.content = comment.getContent();
         this.createAt = comment.getCreatedAt().toString();
         this.isAuthor = Objects.equals(author, user);
+        this.authorId = author.getId();
     }
 }
