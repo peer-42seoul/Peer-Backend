@@ -32,6 +32,6 @@ public class PostCommentListResponse {
         this.content = comment.getContent();
         this.createAt = comment.getCreatedAt().toString();
         this.isAuthor = Objects.equals(author, user);
-        this.authorId = author.getId();
+        this.authorId = (author == null) ? -1 : author.getId();
     }
 }
