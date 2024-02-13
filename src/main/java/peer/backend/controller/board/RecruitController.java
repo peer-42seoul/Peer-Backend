@@ -66,6 +66,7 @@ public class RecruitController {
 
     @ApiOperation(value = "", notes = "모집글을 삭제한다.")
     @DeleteMapping("/{recruit_id}")
+    @AuthorCheck
     public ResponseEntity<?> deleteRecruit(@PathVariable Long recruit_id, Authentication auth) {
         try {
             recruitService.deleteRecruit(recruit_id, User.authenticationToUser(auth));
