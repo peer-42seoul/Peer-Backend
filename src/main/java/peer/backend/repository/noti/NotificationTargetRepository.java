@@ -21,7 +21,7 @@ public interface NotificationTargetRepository extends JpaRepository<Notification
             "WHERE (" +
             "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.messageType = :type AND m.specificEvent.priority != 'SCHEDULED')" +
             "OR " +
-            "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.messageType = :type AND m.specificEvent.priority = 'SCHEDULED' AND m.specificEvent.scheduledTime < :stadardDate)" +
+            "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.messageType = :type AND m.specificEvent.priority = 'SCHEDULED' AND m.specificEvent.scheduledTime < :standardDate)" +
             ") ORDER BY m.createdAt DESC")
     List<Notification> getAllEventsByColumnIndexAndUserIdAndMessageType(@Param("columnIndex") Long columnIndex,
                                                                         @Param("userId") String userId,
