@@ -31,7 +31,6 @@ public class NotificationController {
 
     private final UserRepository userRepository;
 
-    ///api/v1/noti/spring?type=${}&pgIdx=${number}&pgSize={number}
     @GetMapping("/spring")
     public ResponseEntity<?> getAlarmList(Authentication auth,
                                           @Param("type") NotificationType type,
