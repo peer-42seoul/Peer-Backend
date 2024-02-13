@@ -43,13 +43,13 @@ public class AnnouncementService {
 
         // 공지사항 글 관련 알림 전달
         this.notificationCreationService.makeNotificationForALL(
-                null,
-                request.getTitle() + "라는 공지사항이 올라왔습니다! 확인해주세요.",
-                "",
-                NotificationPriority.SCHEDULED,
-                NotificationType.SYSTEM,
-                request.getReservationDate(),
-                null
+            null,
+            request.getTitle() + "라는 공지사항이 올라왔습니다! 확인해주세요.",
+            "",
+            NotificationPriority.SCHEDULED,
+            NotificationType.SYSTEM,
+            request.getReservationDate(),
+            null
         );
     }
 
@@ -73,7 +73,6 @@ public class AnnouncementService {
     public void deleteAnnouncement(Long announcementId) {
         Announcement announcement = this.getAnnouncement(announcementId);
         this.announcementRepository.deleteById(announcementId);
-        this.objectService.deleteObject(announcement.getImage());
     }
 
     @Transactional
@@ -86,8 +85,6 @@ public class AnnouncementService {
 
     private Announcement createAnnouncementFromCreateAnnouncementRequest(
         CreateAnnouncementRequest request) {
-        String imageUrl = this.uploadAnnouncementImage(request.getImage());
-
         Announcement announcement = Announcement.builder()
             .title(request.getTitle())
             .writer(request.getWriter())
@@ -96,7 +93,6 @@ public class AnnouncementService {
                 this.getAnnouncementStatusFromAnnouncementNoticeStatus(
                     request.getAnnouncementNoticeStatus()))
             .announcementNoticeStatus(request.getAnnouncementNoticeStatus())
-            .image(imageUrl)
             .view(0L)
             .build();
 
@@ -144,11 +140,11 @@ public class AnnouncementService {
                 this.setAnnouncementReservationDate(announcement, request.getReservationDate());
             }
         }
-        if (Objects.nonNull(request.getImage())) {
-            this.objectService.deleteObject(announcement.getImage());
-            String imageUrl = this.uploadAnnouncementImage(request.getImage());
-            announcement.setImage(imageUrl);
-        }
+//        if (Objects.nonNull(request.getImage())) {
+//            this.objectService.deleteObject(announcement.getImage());
+//            String imageUrl = this.uploadAnnouncementImage(request.getImage());
+//            announcement.setImage(imageUrl);
+//        }
     }
 
     @Transactional

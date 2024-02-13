@@ -24,9 +24,6 @@ public class CreateAnnouncementRequest {
     @Size(max = 10000, message = "길이는 10000 이하여야합니다.")
     private String content;
 
-    @NotBlank(message = "이미지는 필수입니다.")
-    private String image;
-
     @ValidEnum(enumClass = AnnouncementNoticeStatus.class)
     private AnnouncementNoticeStatus announcementNoticeStatus;
 

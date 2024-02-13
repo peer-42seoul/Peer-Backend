@@ -15,8 +15,6 @@ public class AboutAnnouncementResponse {
 
     private String content;
 
-    private String image;
-
     private Long view;
 
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
@@ -29,7 +27,6 @@ public class AboutAnnouncementResponse {
         this.title = announcement.getTitle();
         this.writer = announcement.getWriter();
         this.content = announcement.getContent();
-        this.image = announcement.getImage();
         this.view = announcement.getView();
         this.createdAt = announcement.getCreatedAt();
         this.updatedAt = announcement.getUpdatedAt();
