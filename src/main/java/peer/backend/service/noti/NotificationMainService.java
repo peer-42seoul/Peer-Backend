@@ -15,7 +15,6 @@ import peer.backend.repository.noti.NotificationTargetRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,16 +72,14 @@ public class NotificationMainService {
         {
             specificEventList = this.notificationTargetRepository.getAllEventsByColumnIndexAndUserId(
                     user.getId() / 100,
-                    user.getId().toString(),
-                    LocalDateTime.now()
+                    user.getId().toString()
             );
         }
         else {
             specificEventList = this.notificationTargetRepository
                     .getAllEventsByColumnIndexAndUserIdAndMessageType(user.getId() / 100,
                             user.getId().toString(),
-                            type,
-                            LocalDateTime.now());
+                            type);
         }
         int start = (int) (pgIndex * size - size);
         int end = (int) (start + size - 1);
@@ -128,6 +125,8 @@ public class NotificationMainService {
                 deleteTarget.add(target);
             counter.getAndSet(counter.get() - 1);
         });
+        if (counter.get() < 0)
+            counter.getAndSet(0);
         user.setAlarmCounter(counter.get());
         this.notificationTargetRepository.deleteAll(deleteTarget);
         this.userRepository.save(user);
@@ -142,6 +141,8 @@ public class NotificationMainService {
         if (target.getUserList().isEmpty())
             this.notificationTargetRepository.delete(target);
         Integer value = user.getAlarmCounter() - 1;
+        if (value < 0)
+            value = 0;
         user.setAlarmCounter(value);
         this.userRepository.save(user);
     }
