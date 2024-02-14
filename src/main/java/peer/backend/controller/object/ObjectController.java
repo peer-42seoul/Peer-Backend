@@ -16,8 +16,10 @@ public class ObjectController {
 
     private final ObjectService objectService;
 
-    @PostMapping("/editor/image")
-    public String uploadImage(@RequestParam("image")MultipartFile image, Authentication auth) throws IOException {
-        return objectService.uploadImage(image, "editor/" + User.authenticationToUser(auth).getId());
+    @PostMapping({"/editor/image", "/admin/editor/image"})
+    public String uploadImage(@RequestParam("image") MultipartFile image, Authentication auth)
+        throws IOException {
+        return objectService.uploadImage(image,
+            "editor/" + User.authenticationToUser(auth).getId());
     }
 }
