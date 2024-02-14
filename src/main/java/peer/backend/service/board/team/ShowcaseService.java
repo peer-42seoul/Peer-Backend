@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peer.backend.dto.board.team.*;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.dto.user.UserShowcaseResponse;
 import peer.backend.entity.board.team.Board;
 import peer.backend.entity.board.team.Post;
@@ -32,6 +34,7 @@ import peer.backend.repository.board.team.PostRepository;
 import peer.backend.repository.team.TeamRepository;
 import peer.backend.service.TagService;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.noti.NotificationCreationService;
 import peer.backend.service.team.TeamService;
 
 import java.util.List;
@@ -51,14 +54,18 @@ public class ShowcaseService {
     private final BoardRepository boardRepository;
     private final ObjectService objectService;
 
-    private List<UserShowcaseResponse> getMembers(List<TeamUser> teamUsers){
+    private final NotificationCreationService notificationCreationService;
+    private static final String detailPage = "/showcase/detail/";
+    private static final String filePath = "team/showcase/";
+
+    private List<UserShowcaseResponse> getMembers(List<TeamUser> teamUsers) {
         return teamUsers.stream()
-                .filter(teamUser -> teamUser.getStatus().equals(TeamUserStatus.APPROVED))
-                .map(UserShowcaseResponse::new)
-                .collect(Collectors.toList());
+            .filter(teamUser -> teamUser.getStatus().equals(TeamUserStatus.APPROVED))
+            .map(UserShowcaseResponse::new)
+            .collect(Collectors.toList());
     }
 
-    private String excludeImageUrlFromContent(String origin){
+    private String excludeImageUrlFromContent(String origin) {
         return origin.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
     }
 
@@ -89,9 +96,9 @@ public class ShowcaseService {
     public Page<ShowcaseListResponse> getShowCaseList(int page, int pageSize, Authentication auth) {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Post> posts = postRepository.findAllByBoardTypeAndIsPublicOrderByCreatedAtDesc(
-                BoardType.SHOWCASE,
-                true,
-                pageable);
+            BoardType.SHOWCASE,
+            true,
+            pageable);
 
         return posts.map(post -> convertToDto(post, auth));
     }
@@ -114,6 +121,19 @@ public class ShowcaseService {
             newFavorite.setPostId(showcaseId);
             newFavorite.setType(PostLikeType.FAVORITE);
             postLikeRepository.save(newFavorite);
+
+            // 관심리스트에 추가 됨을 알림
+            this.notificationCreationService.makeNotificationForTeam(
+                null,
+                showcase.getTitle() + " 쇼케이스가 누군가의 관심리스트에 등록되었습니다!",
+                detailPage + showcase.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                showcase.getOwnTeamId(),
+                null
+            );
+
             return true;
         }
     }
@@ -138,115 +158,157 @@ public class ShowcaseService {
             postLikeRepository.save(newFavorite);
             showcase.increaseLike();
         }
+
+        this.notificationCreationService.makeNotificationForTeam(
+            null,
+            showcase.getTitle() + " 쇼케이스가 좋아요를 받았습니다! 확인해보시겠어요?",
+            detailPage + showcase.getId(),
+            NotificationPriority.IMMEDIATE,
+            NotificationType.SYSTEM,
+            null,
+            showcase.getOwnTeamId(),
+            null
+        );
+
         return showcase.getLiked();
     }
 
     @Transactional
-    public ShowcaseResponse getShowcase(Long showcaseId, Authentication auth){
-        Post showcase = postRepository.findById(showcaseId).orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
-        if (!showcase.getBoard().getType().equals(BoardType.SHOWCASE))
+    public ShowcaseResponse getShowcase(Long showcaseId, Authentication auth) {
+        Post showcase = postRepository.findById(showcaseId)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
+        if (!showcase.getBoard().getType().equals(BoardType.SHOWCASE)) {
             throw new IllegalArgumentException("쇼케이스 게시물이 아닙니다.");
+        }
         User user = (auth != null ? User.authenticationToUser(auth) : null);
         Team team = showcase.getBoard().getTeam();
         showcase.increaseHit();
         return ShowcaseResponse.builder()
-                .content(showcase.getContent())
-                .image(showcase.getImage())
-                .start(team.getCreatedAt().toString())
-                .end(team.getEnd().toString())
-                .likeCount(showcase.getLiked())
-                .liked(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE)).isPresent())
-                .favorite(auth != null && postLikeRepository.findById(new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE)).isPresent())
-                .author(auth != null && user.getId().equals(showcase.getUser().getId()))
-                .name(team.getName())
-                .skills(tagService.recruitTagListToTagResponseList(team.getRecruit().getRecruitTags()))
-                .member(getMembers(team.getTeamUsers()))
-                .links(showcase.getLinks().stream().map(PostLinkResponse::new).collect(Collectors.toList()))
-                .build();
+            .content(showcase.getContent())
+            .image(showcase.getImage())
+            .start(team.getCreatedAt().toString())
+            .end(team.getEnd().toString())
+            .likeCount(showcase.getLiked())
+            .liked(auth != null && postLikeRepository.findById(
+                new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE)).isPresent())
+            .favorite(auth != null && postLikeRepository.findById(
+                new PostLikePK(user.getId(), showcaseId, PostLikeType.FAVORITE)).isPresent())
+            .author(auth != null && user.getId().equals(showcase.getUser().getId()))
+            .name(team.getName())
+            .skills(tagService.recruitTagListToTagResponseList(team.getRecruit().getRecruitTags()))
+            .member(getMembers(team.getTeamUsers()))
+            .links(showcase.getLinks().stream().map(PostLinkResponse::new)
+                .collect(Collectors.toList()))
+            .build();
     }
 
     @Transactional
-    public ShowcaseWriteResponse getTeamInfoForCreateShowcase(Long teamId, Authentication auth){
+    public ShowcaseWriteResponse getTeamInfoForCreateShowcase(Long teamId, Authentication auth) {
         User user = User.authenticationToUser(auth);
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
-        if (!teamService.isLeader(teamId, user))
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+        if (!teamService.isLeader(teamId, user)) {
             throw new ForbiddenException("리더가 아닙니다.");
-        if (!team.getStatus().equals(TeamStatus.COMPLETE))
+        }
+        if (!team.getStatus().equals(TeamStatus.COMPLETE)) {
             throw new ConflictException("팀이 종료되지 않았습니다.");
+        }
         return new ShowcaseWriteResponse(
-                team,
-                tagService.recruitTagListToTagList(team.getRecruit().getRecruitTags()),
-                team.getTeamUsers());
+            team,
+            tagService.recruitTagListToTagList(team.getRecruit().getRecruitTags()),
+            team.getTeamUsers());
     }
 
     //TODO:모듈화 필요
     @Transactional
-    public Long createShowcase(ShowcaseCreateDto request, Authentication auth){
+    public Long createShowcase(ShowcaseCreateDto request, Authentication auth) {
         Team team = teamRepository.findById(request.getTeamId())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 팀입니다."));
         User user = User.authenticationToUser(auth);
-        if (!teamService.isLeader(team.getId(), user))
+        if (!teamService.isLeader(team.getId(), user)) {
             throw new ForbiddenException("리더가 아닙니다.");
-        if (postRepository.findByBoardTeamIdAndBoardType(team.getId(), BoardType.SHOWCASE).isPresent())
+        }
+        if (postRepository.findByBoardTeamIdAndBoardType(team.getId(), BoardType.SHOWCASE)
+            .isPresent()) {
             throw new ConflictException("이미 쇼케이스가 존재합니다.");
-        if (!team.getStatus().equals(TeamStatus.COMPLETE))
+        }
+        if (!team.getStatus().equals(TeamStatus.COMPLETE)) {
             throw new ConflictException("프로젝트가 종료되지 않았습니다.");
+        }
         Board board = Board.builder()
-                .team(team)
-                .name("쇼케이스")
-                .type(BoardType.SHOWCASE)
-                .build();
+            .team(team)
+            .name("쇼케이스")
+            .type(BoardType.SHOWCASE)
+            .build();
         boardRepository.save(board);
-        String filePath = "team/showcase/" + team.getName();
+        String path = ShowcaseService.filePath + team.getName();
         Post post = Post.builder()
-                .content(request.getContent())
-                .liked(0)
-                .hit(0)
-                .board(board)
-                .user(user)
-                .title(team.getName() + "'s showcase")
-                .image(objectService.uploadObject(filePath, request.getImage(), "image"))
-                .build();
+            .content(request.getContent())
+            .liked(0)
+            .hit(0)
+            .board(board)
+            .user(user)
+            .title(team.getName() + "'s showcase")
+            .ownTeamId(team.getId())
+            .image(objectService.uploadObject(path, request.getImage(), "image"))
+            .build();
 
         postRepository.save(post);
         post.addLinks(request.getLinks());
         post.addFiles(objectService.extractContentImage(request.getContent()));
+
+        this.notificationCreationService.makeNotificationForTeam(
+            null,
+            post.getTitle() + " 쇼케이스가 등록 되었습니다! 한 번 확인하러 가볼까요?",
+            detailPage + post.getId(),
+            NotificationPriority.IMMEDIATE,
+            NotificationType.SYSTEM,
+            null,
+            team.getId(),
+            team.getTeamLogoPath()
+        );
+
         return post.getId();
     }
 
     @Transactional
-    public ResponseEntity<Object> updateShowcase(Long showcaseId, ShowcaseUpdateDto request, User user){
+    public ResponseEntity<Object> updateShowcase(Long showcaseId, ShowcaseUpdateDto request,
+        User user) {
         Post post = postRepository.findById(showcaseId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
         Team team = post.getBoard().getTeam();
         List<String> contentImages = objectService.extractContentImage(request.getContent());
-        if (!teamService.isLeader(team.getId(), user))
+        if (!teamService.isLeader(team.getId(), user)) {
             throw new ForbiddenException("리더가 아닙니다.");
-        String filePath = "team/showcase/" + post.getBoard().getTeam().getName();
+        }
+        String path = ShowcaseService.filePath + post.getBoard().getTeam().getName();
         String temp = post.getImage();
         if (Objects.nonNull(request.getImage())) {
             post.update(
-                    request,
-                    objectService.uploadObject(filePath, request.getImage(), "image"),
-                    contentImages);
+                request,
+                objectService.uploadObject(path, request.getImage(), "image"),
+                contentImages);
             objectService.deleteObject(temp);
-        } else
+        } else {
             post.update(request, null, contentImages);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<Object> deleteShowcase(Long showcaseId, User user){
+    public ResponseEntity<Object> deleteShowcase(Long showcaseId, User user) {
         Post post = postRepository.findById(showcaseId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 게시글입니다."));
         Team team = post.getBoard().getTeam();
-        if (!teamService.isLeader(team.getId(), user))
+        if (!teamService.isLeader(team.getId(), user)) {
             throw new ForbiddenException("리더가 아닙니다.");
-        if (post.getImage() != null)
+        }
+        if (post.getImage() != null) {
             objectService.deleteObject(post.getImage());
-        if (post.getFiles() != null && !post.getFiles().isEmpty())
+        }
+        if (post.getFiles() != null && !post.getFiles().isEmpty()) {
             post.getFiles().forEach(file -> objectService.deleteObject(file.getUrl()));
+        }
         boardRepository.delete(post.getBoard());
         postRepository.delete(post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -254,29 +316,33 @@ public class ShowcaseService {
 
     @Transactional
     public ShowcasePageInfoResponse getShowcasePageInfo(Long teamId, User user) {
-        if (!teamService.isLeader(teamId, user))
+        if (!teamService.isLeader(teamId, user)) {
             throw new ForbiddenException("리더가 아닙니다.");
-        Optional<Post> post = postRepository.findByBoardTeamIdAndBoardType(teamId, BoardType.SHOWCASE);
-        if (post.isEmpty())
+        }
+        Optional<Post> post = postRepository.findByBoardTeamIdAndBoardType(teamId,
+            BoardType.SHOWCASE);
+        if (post.isEmpty()) {
             return ShowcasePageInfoResponse.builder()
-                    .isPublihsed(false)
-                    .isPublic(false)
-                    .showcaseId(0L)
-                    .build();
+                .isPublihsed(false)
+                .isPublic(false)
+                .showcaseId(0L)
+                .build();
+        }
         Post showcase = post.get();
         return ShowcasePageInfoResponse.builder()
-                .isPublihsed(true)
-                .isPublic(showcase.isPublic())
-                .showcaseId(showcase.getId())
-                .build();
+            .isPublihsed(true)
+            .isPublic(showcase.isPublic())
+            .showcaseId(showcase.getId())
+            .build();
     }
 
     @Transactional
-    public boolean changeShowcasePublic(Long showcaseId, User user){
+    public boolean changeShowcasePublic(Long showcaseId, User user) {
         Post post = postRepository.findById(showcaseId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
-        if (!teamService.isLeader(post.getBoard().getTeam().getId(), user))
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 쇼케이스입니다."));
+        if (!teamService.isLeader(post.getBoard().getTeam().getId(), user)) {
             throw new ForbiddenException("리더가 아닙니다.");
+        }
         post.changeIsPublic();
         return post.isPublic();
     }

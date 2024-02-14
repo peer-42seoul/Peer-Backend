@@ -14,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import peer.backend.dto.announcement.CreateAnnouncementRequest;
 import peer.backend.dto.announcement.UpdateAnnouncementRequest;
+import peer.backend.dto.noti.enums.NotificationPriority;
+import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.entity.announcement.Announcement;
 import peer.backend.entity.announcement.AnnouncementStatus;
 import peer.backend.entity.announcement.AnnouncementNoticeStatus;
@@ -21,6 +23,7 @@ import peer.backend.exception.ConflictException;
 import peer.backend.exception.NotFoundException;
 import peer.backend.repository.announcement.AnnouncementRepository;
 import peer.backend.service.file.ObjectService;
+import peer.backend.service.noti.NotificationCreationService;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +34,23 @@ public class AnnouncementService {
     private final ObjectService objectService;
     private final UtilService utilService;
 
+    private final NotificationCreationService notificationCreationService;
+
     @Transactional
     public void writeAnnouncement(CreateAnnouncementRequest request) {
         Announcement announcement = this.createAnnouncementFromCreateAnnouncementRequest(request);
         this.announcementRepository.save(announcement);
+
+        // 공지사항 글 관련 알림 전달
+        this.notificationCreationService.makeNotificationForALL(
+            null,
+            request.getTitle() + "라는 공지사항이 올라왔습니다! 확인해주세요.",
+            "",
+            NotificationPriority.SCHEDULED,
+            NotificationType.SYSTEM,
+            request.getReservationDate(),
+            null
+        );
     }
 
     @Transactional
@@ -57,7 +73,6 @@ public class AnnouncementService {
     public void deleteAnnouncement(Long announcementId) {
         Announcement announcement = this.getAnnouncement(announcementId);
         this.announcementRepository.deleteById(announcementId);
-        this.objectService.deleteObject(announcement.getImage());
     }
 
     @Transactional
@@ -70,8 +85,6 @@ public class AnnouncementService {
 
     private Announcement createAnnouncementFromCreateAnnouncementRequest(
         CreateAnnouncementRequest request) {
-        String imageUrl = this.uploadAnnouncementImage(request.getImage());
-
         Announcement announcement = Announcement.builder()
             .title(request.getTitle())
             .writer(request.getWriter())
@@ -80,7 +93,6 @@ public class AnnouncementService {
                 this.getAnnouncementStatusFromAnnouncementNoticeStatus(
                     request.getAnnouncementNoticeStatus()))
             .announcementNoticeStatus(request.getAnnouncementNoticeStatus())
-            .image(imageUrl)
             .view(0L)
             .build();
 
@@ -128,11 +140,11 @@ public class AnnouncementService {
                 this.setAnnouncementReservationDate(announcement, request.getReservationDate());
             }
         }
-        if (Objects.nonNull(request.getImage())) {
-            this.objectService.deleteObject(announcement.getImage());
-            String imageUrl = this.uploadAnnouncementImage(request.getImage());
-            announcement.setImage(imageUrl);
-        }
+//        if (Objects.nonNull(request.getImage())) {
+//            this.objectService.deleteObject(announcement.getImage());
+//            String imageUrl = this.uploadAnnouncementImage(request.getImage());
+//            announcement.setImage(imageUrl);
+//        }
     }
 
     @Transactional

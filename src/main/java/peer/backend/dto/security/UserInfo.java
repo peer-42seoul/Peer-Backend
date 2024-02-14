@@ -104,6 +104,8 @@ public class UserInfo {
             .nightAlarm(true)
             .teamAlarm(true)
             .activated(true)
+            .alarmCounter(0)
+            .newAlarmCounter(0)
             .build();
     }
 }

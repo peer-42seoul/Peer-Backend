@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum NotificationTargetType {
     TEAM("TEAM"),
-    USER("USER");
+    USER("USER"),
+    ALL("ALL");
 
     private final String value;
 }
