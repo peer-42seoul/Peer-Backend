@@ -88,7 +88,7 @@ public class BoardController {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 user.getNickname() + " 님께서 댓글을 다셨습니다 : " + request.getContent(),
-                null,
+                "",
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
