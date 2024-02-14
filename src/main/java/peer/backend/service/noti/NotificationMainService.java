@@ -15,6 +15,7 @@ import peer.backend.repository.noti.NotificationTargetRepository;
 import peer.backend.repository.user.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,14 +73,16 @@ public class NotificationMainService {
         {
             specificEventList = this.notificationTargetRepository.getAllEventsByColumnIndexAndUserId(
                     user.getId() / 100,
-                    user.getId().toString()
+                    user.getId().toString(),
+                    LocalDateTime.now()
             );
         }
         else {
             specificEventList = this.notificationTargetRepository
                     .getAllEventsByColumnIndexAndUserIdAndMessageType(user.getId() / 100,
                             user.getId().toString(),
-                            type);
+                            type,
+                            LocalDateTime.now());
         }
         int start = (int) (pgIndex * size - size);
         int end = (int) (start + size - 1);
