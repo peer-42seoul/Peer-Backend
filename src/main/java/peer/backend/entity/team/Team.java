@@ -135,10 +135,11 @@ public class Team extends BaseEntity {
         this.name = teamSettingInfoDto.getName();
         this.dueTo = RecruitDueEnum.from(teamSettingInfoDto.getDueTo());
         this.status = teamSettingInfoDto.getStatus();
-        if (this.status != TeamStatus.RECRUITING)
+        if (this.status != TeamStatus.RECRUITING) {
             recruit.setStatus(RecruitStatus.DONE);
-        else
+        } else {
             recruit.setStatus(RecruitStatus.ONGOING);
+        }
         String[] regions = teamSettingInfoDto.getRegion();
         if (teamSettingInfoDto.getRegion().length == 2) {
             this.region1 = regions[0];
@@ -155,11 +156,11 @@ public class Team extends BaseEntity {
             this.region2 = request.getRegion2();
         }
         this.operationFormat = TeamOperationFormat.from(request.getPlace());
-        if (request.getType().equals(TeamType.STUDY.getValue()))
-        {
+        if (request.getType().equals(TeamType.STUDY.getValue())) {
             TeamJob data;
 //                this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().get().setMax(request.getMax());
-            data = this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst().orElseThrow(() -> new NoSuchElementException("업데이트 중 문제가 발생하였습니다."));
+            data = this.jobs.stream().filter(job -> job.getName().equals("STUDY")).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("업데이트 중 문제가 발생하였습니다."));
             data.setMax(request.getMax());
         }
     }
@@ -200,12 +201,14 @@ public class Team extends BaseEntity {
         return this.teamUsers.removeIf(teamUser -> teamUser.getUserId().equals(deletingToUserId));
     }
 
-    public void grantLeaderPermission(Long grantingUserId, TeamUserRoleType teamUserRoleType) {
+    public boolean grantLeaderPermission(Long grantingUserId, TeamUserRoleType teamUserRoleType) {
         for (TeamUser teamUser : this.teamUsers) {
             if (teamUser.getUserId().equals(grantingUserId)) {
                 teamUser.grantLeader(teamUserRoleType);
+                return true;
             }
         }
+        return false;
     }
 
     public void setTeamLogoPath(String teamLogoPath) {
