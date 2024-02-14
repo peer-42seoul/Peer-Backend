@@ -240,7 +240,7 @@ public class PrivateInfoWrappingService {
             this.notificationCreationService.makeNotificationForUser(null,
                     "환영합니다! peer에서 스터디, 프로젝트를 찾아보세요." +
                     "메인 화면부터 상세히 알아볼까요?",
-                    null,
+                    "",
                     NotificationPriority.IMMEDIATE,
                     NotificationType.SYSTEM,
                     null,
