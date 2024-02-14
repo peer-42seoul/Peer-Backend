@@ -84,8 +84,8 @@ public class BoardController {
                 BoardType.NORMAL);
 
         Long writer = post.getUser().getId();
-
-        this.notificationCreationService.makeNotificationForUser(
+        if (post.getUser().isActivated())
+            this.notificationCreationService.makeNotificationForUser(
                 null,
                 user.getNickname() + " 님께서 댓글을 다셨습니다 : " + request.getContent(),
                 "",
@@ -94,7 +94,7 @@ public class BoardController {
                 null,
                 writer,
                 null
-        );
+            );
     }
 
     @PutMapping("/post/comment/{commentId}")
