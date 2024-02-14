@@ -46,7 +46,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END")
     void decreaseAlarmCountForALL();
 
-    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id IN : userIds")
+    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id IN : userIds AND m.activated = true")
     void increaseAlarmCountForUsers(@Param("userIds") List<Long> userIds);
 
     @Modifying
