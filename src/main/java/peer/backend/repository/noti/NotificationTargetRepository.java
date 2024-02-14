@@ -7,7 +7,6 @@ import peer.backend.dto.noti.enums.NotificationType;
 import peer.backend.entity.noti.Notification;
 import peer.backend.entity.noti.NotificationTarget;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,26 +16,14 @@ public interface NotificationTargetRepository extends JpaRepository<Notification
     List<String> findUserListById(@Param("eventId") Long eventId);
 
 
-    @Query("SELECT m.specificEvent FROM NotificationTarget m " +
-            "WHERE (" +
-            "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.messageType = :type AND m.specificEvent.priority != 'SCHEDULED')" +
-            "OR " +
-            "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.messageType = :type AND m.specificEvent.priority = 'SCHEDULED' AND m.specificEvent.scheduledTime < :standardDate)" +
-            ") ORDER BY m.createdAt DESC")
+    @Query("SELECT m.specificEvent FROM NotificationTarget m WHERE m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.messageType = :type ORDER BY m.createdAt DESC")
     List<Notification> getAllEventsByColumnIndexAndUserIdAndMessageType(@Param("columnIndex") Long columnIndex,
                                                                         @Param("userId") String userId,
-                                                                        @Param("type") NotificationType type,
-                                                                        @Param("standardDate") LocalDateTime standardDate);
+                                                                        @Param("type") NotificationType type);
 
-    @Query("SELECT m.specificEvent FROM NotificationTarget m " +
-            "WHERE (" +
-            "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.specificEvent.priority != 'SCHEDULED') " +
-            "OR " +
-            "(m.columnIndex = :columnIndex AND m.userList LIKE %:userId% AND m.specificEvent.priority = 'SCHEDULED' AND m.specificEvent.scheduledTime < :standardDate)" +
-            ") ORDER BY m.createdAt DESC")
+    @Query("SELECT m.specificEvent FROM NotificationTarget m WHERE m.columnIndex = :columnIndex AND m.userList LIKE %:userId% ORDER BY m.createdAt DESC")
     List<Notification> getAllEventsByColumnIndexAndUserId(@Param("columnIndex") Long columnIndex,
-                                                          @Param("userId") String userId,
-                                                          @Param("standardDate") LocalDateTime standardDate);
+                                                          @Param("userId") String userId);
 
     @Query("SELECT m FROM NotificationTarget m WHERE m.columnIndex = :columnIndex AND m.userList LIKE %:userId% ORDER BY m.createdAt DESC")
     List<NotificationTarget> findAllByColumnIndexAndUserId(@Param("columnIndex") Long columnIndex,
