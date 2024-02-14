@@ -123,8 +123,8 @@ public class RecruitService {
                             newFavorite.setType(type);
                             recruitFavoriteRepository.save(newFavorite);
                         });
-
-        this.notificationCreationService.makeNotificationForUser(
+        if (rawTarget.get().getWriter().isActivated())
+            this.notificationCreationService.makeNotificationForUser(
                 null,
                 user.getNickname() + "님께서 당신의 글에 좋아요를 눌렀습니다",
                 "/recruit/" + recruitId,
@@ -133,7 +133,7 @@ public class RecruitService {
                 null,
                 rawTarget.get().getWriterId(),
                 rawTarget.get().getThumbnailUrl()
-        );
+            );
     }
 
     public List<RecruitInterviewDto> getInterviewList(Long recruit_id) {
