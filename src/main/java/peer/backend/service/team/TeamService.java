@@ -384,6 +384,8 @@ public class TeamService {
         Team team = this.teamRepository.findById(teamId).orElseThrow(
             () -> new NotFoundException("존재하지 않는 팀입니다.")
         );
+
+        Long targetId =  teamUserJob.getTeamUser().getUser().getId();
         // 신청자에게 알리기
         this.notificationCreationService.makeNotificationForUser(
             null,
@@ -392,17 +394,28 @@ public class TeamService {
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
             null,
-            teamUserJob.getTeamUser().getUser().getId(),
+            targetId,
             null
         );
-        this.notificationCreationService.makeNotificationForTeam(
-            null,
+
+        List<Long> userIds = new ArrayList<>();
+        team.getTeamUsers().forEach(m -> {
+                    if (m.getStatus().equals(TeamUserStatus.APPROVED)) {
+                        if (!m.getUserId().equals(targetId)){
+                            userIds.add(m.getUserId());
+                        }
+                    }
+                }
+        );
+
+        this.notificationCreationService.makeNotificationForUserList(
+                null,
             "여러분 새로운 동료가 찾아왔습니다. 모두 축하해주세요!",
             teamPage + teamId,
             NotificationPriority.IMMEDIATE,
             NotificationType.TEAM,
             null,
-            teamId,
+            userIds,
             team.getTeamLogoPath()
         );
     }
