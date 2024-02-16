@@ -88,6 +88,9 @@ public class RecruitService {
     private final EntityManager entityManager;
     private final NotificationCreationService notificationCreationService;
 
+    private static final String teamPage = "/teams/";
+    private static final String teamList = "/team-list";
+
     //query 생성 및 주입
     @PersistenceContext
     private EntityManager em;
@@ -451,6 +454,30 @@ public class RecruitService {
                 .status(TeamUserStatus.PENDING)
                 .answers(request.getAnswerList())
                 .build());
+
+        // 신청자를 위한 알림
+        this.notificationCreationService.makeNotificationForUser(
+                null,
+                "축하드립니다! " + team.getName()
+                        + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
+                teamList,
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                user.getId(),
+                null
+        );
+
+        this.notificationCreationService.makeNotificationForTeam(
+                null,
+                team.getName() + " 팀에 새로운 동료가 접수되었습니다! 확인 하러 가시죠!",
+                teamPage + team.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                team.getId(),
+                null
+        );
     }
 
     @Transactional

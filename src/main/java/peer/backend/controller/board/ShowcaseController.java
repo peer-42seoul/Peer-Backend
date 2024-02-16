@@ -104,7 +104,7 @@ public class ShowcaseController {
                 BoardType.SHOWCASE);
         this.notificationCreationService.makeNotificationForTeam(
                 null,
-                user.getNickname() + "님께서 코멘트를 다셨습니다. : " + request.getContent(),
+                user.getNickname() + "님께서 댓글을 다셨습니다. : " + request.getContent(),
                 "/showcase/detail/" + request.getPostId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,

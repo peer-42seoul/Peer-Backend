@@ -16,6 +16,7 @@ import peer.backend.entity.board.recruit.enums.RecruitFavoriteEnum;
 import peer.backend.entity.user.User;
 import peer.backend.exception.BadRequestException;
 import peer.backend.service.board.recruit.RecruitService;
+import peer.backend.service.noti.NotificationCreationService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.List;
 public class RecruitController {
 
     private final RecruitService recruitService;
+    private final NotificationCreationService notificationCreationService;
 
     @ApiOperation(value = "", notes = "모집게시글을 불러온다.")
     @GetMapping("/{recruit_id}")

@@ -340,34 +340,34 @@ public class TeamService {
                 .build());
         }
 
-        // 신청자를 위한 알림
-        this.notificationCreationService.makeNotificationForUser(
-            null,
-            "축하드립니다! " + team.getName()
-                + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
-            teamList,
-            NotificationPriority.IMMEDIATE,
-            NotificationType.SYSTEM,
-            null,
-            user.getId(),
-            null
-        );
+//        // 신청자를 위한 알림
+//        this.notificationCreationService.makeNotificationForUser(
+//            null,
+//            "축하드립니다! " + team.getName()
+//                + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
+//            teamList,
+//            NotificationPriority.IMMEDIATE,
+//            NotificationType.SYSTEM,
+//            null,
+//            user.getId(),
+//            null
+//        );
 
-        //팀리더에게 알림
-        List<TeamUser> owner = team.getTeamUsers().stream()
-            .filter(m -> m.getRole().equals(TeamUserRoleType.LEADER)).collect(Collectors.toList());
-        List<Long> userIds = new ArrayList<>();
-        owner.forEach(m -> userIds.add(m.getUserId()));
-        this.notificationCreationService.makeNotificationForUserList(
-            null,
-            team.getName() + " 팀에 새로운 동료 신청이 들어왔습니다! 어떤 분인지 맞이하러 가볼까요?",
-            teamPage + team.getId() + "/setting",
-            NotificationPriority.IMMEDIATE,
-            NotificationType.TEAM,
-            null,
-            userIds,
-            team.getTeamLogoPath()
-        );
+//        //팀리더에게 알림
+//        List<TeamUser> owner = team.getTeamUsers().stream()
+//            .filter(m -> m.getRole().equals(TeamUserRoleType.LEADER)).collect(Collectors.toList());
+//        List<Long> userIds = new ArrayList<>();
+//        owner.forEach(m -> userIds.add(m.getUserId()));
+//        this.notificationCreationService.makeNotificationForUserList(
+//            null,
+//            team.getName() + " 팀에 새로운 동료 신청이 들어왔습니다! 어떤 분인지 맞이하러 가볼까요?",
+//            teamPage + team.getId() + "/setting",
+//            NotificationPriority.IMMEDIATE,
+//            NotificationType.TEAM,
+//            null,
+//            userIds,
+//            team.getTeamLogoPath()
+//        );
 
         return result;
     }
@@ -392,7 +392,7 @@ public class TeamService {
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
             null,
-            user.getId(),
+            teamUserJob.getTeamUser().getUser().getId(),
             null
         );
         this.notificationCreationService.makeNotificationForTeam(
@@ -424,12 +424,12 @@ public class TeamService {
         // 신청자에게 알림 보냄
         this.notificationCreationService.makeNotificationForUser(
             null,
-            "안타깝게도 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
+            "안타깝게도 " + teamUser.getTeam().getName() +" 팀에 대한 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
             teamList,
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
             null,
-            user.getId(),
+            teamUser.getUserId(),
             null
         );
     }

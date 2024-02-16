@@ -40,22 +40,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT CASE WHEN COUNT(n) > 0 THEN true ELSE false END FROM User n WHERE n.nickname = :nickname")
     Boolean existsByNickname(String nickname);
 
+    @Modifying
     @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1")
     void increaseAlarmCountForALL();
 
+    @Modifying
     @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END")
     void decreaseAlarmCountForALL();
 
-    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1 WHERE m.id IN : userIds AND m.activated = true")
+    @Modifying
+    @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1, m.newAlarmCounter = m.newAlarmCounter + 1 WHERE m.id IN :userIds AND m.activated = true")
     void increaseAlarmCountForUsers(@Param("userIds") List<Long> userIds);
 
     @Modifying
     @Query("UPDATE User m SET m.alarmCounter = m.alarmCounter + 1, m.newAlarmCounter = m.newAlarmCounter + 1 WHERE m.id = :userId AND m.activated = true")
     void increaseAlarmCountForOne(@Param("userId") Long userId);
 
+    @Modifying
     @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END WHERE m.id IN :userIds")
     void decreaseAlarmCountForUsers(@Param("userIds") List<Long> userIds);
 
+    @Modifying
     @Query("UPDATE User m SET m.alarmCounter = CASE WHEN (m.alarmCounter - 1) < 0 then 0 ELSE (m.alarmCounter - 1) END WHERE m.id = :userId")
     void decreaseAlarmCountForOne(@Param("userId") Long userId);
 
