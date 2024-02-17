@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -109,14 +110,18 @@ public class RecruitService {
             throw new NotFoundException("존재하지 않는 모집글입니다.");
         }
 
+        AtomicBoolean likeOrHate = new AtomicBoolean(false);
+
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
                 .ifPresentOrElse(
                         favorite -> {
                             if (favorite.getType().equals(type)) {
                                 recruitFavoriteRepository.delete(favorite);
+                                likeOrHate.set(false);
                             } else {
                                 favorite.setType(type);
                                 recruitFavoriteRepository.save(favorite);
+                                likeOrHate.set(true);
                             }
                         },
                         () -> {
@@ -125,14 +130,15 @@ public class RecruitService {
                             newFavorite.setRecruitId(recruitId);
                             newFavorite.setType(type);
                             recruitFavoriteRepository.save(newFavorite);
+                            likeOrHate.set(true);
                         });
-        if (rawTarget.get().getWriter().isActivated())
+        if (rawTarget.get().getWriter().isActivated() && likeOrHate.get())
             this.notificationCreationService.makeNotificationForUser(
                 null,
-                user.getNickname() + "님께서 당신의 글에 좋아요를 눌렀습니다",
+                user.getNickname() + "님께서 당신의 "  + rawTarget.get().getTitle() + " 글에 좋아요를 눌렀습니다",
                 "/recruit/" + recruitId,
                 NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
+                NotificationType.SYSTEM,
                 null,
                 rawTarget.get().getWriterId(),
                 rawTarget.get().getThumbnailUrl()
