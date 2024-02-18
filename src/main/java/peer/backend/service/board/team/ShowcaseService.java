@@ -125,7 +125,7 @@ public class ShowcaseService {
             // 관심리스트에 추가 됨을 알림
             this.notificationCreationService.makeNotificationForTeam(
                 null,
-                showcase.getTitle() + " 쇼케이스가 누군가의 관심리스트에 등록되었습니다!",
+                showcase.getTitle() + "  가 누군가의 관심리스트에 등록되었습니다!",
                 detailPage + showcase.getId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
@@ -145,9 +145,13 @@ public class ShowcaseService {
             .orElseThrow(() -> new NotFoundException("존재하지 않는 모집글입니다."));
         Optional<PostLike> postLike = postLikeRepository.findById(
             new PostLikePK(user.getId(), showcaseId, PostLikeType.LIKE));
+
+        boolean likeOrHate;
+
         if (postLike.isPresent()) {
             postLikeRepository.delete(postLike.get());
             showcase.decreaseLike();
+            likeOrHate = false;
         } else {
             PostLike newFavorite = new PostLike();
             newFavorite.setUser(user);
@@ -157,18 +161,21 @@ public class ShowcaseService {
             newFavorite.setType(PostLikeType.LIKE);
             postLikeRepository.save(newFavorite);
             showcase.increaseLike();
+            likeOrHate = true;
         }
 
-        this.notificationCreationService.makeNotificationForTeam(
-            null,
-            showcase.getTitle() + " 쇼케이스가 좋아요를 받았습니다! 확인해보시겠어요?",
-            detailPage + showcase.getId(),
-            NotificationPriority.IMMEDIATE,
-            NotificationType.SYSTEM,
-            null,
-            showcase.getOwnTeamId(),
-            null
-        );
+        if (likeOrHate) {
+            this.notificationCreationService.makeNotificationForTeam(
+                null,
+                showcase.getTitle() + " 가 좋아요를 받았습니다! 확인해보시겠어요?",
+                detailPage + showcase.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                showcase.getOwnTeamId(),
+                null
+            );
+        }
 
         return showcase.getLiked();
     }
@@ -259,7 +266,7 @@ public class ShowcaseService {
 
         this.notificationCreationService.makeNotificationForTeam(
             null,
-            post.getTitle() + " 쇼케이스가 등록 되었습니다! 한 번 확인하러 가볼까요?",
+            post.getTitle() + " 가 등록 되었습니다! 한 번 확인하러 가볼까요?",
             detailPage + post.getId(),
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,

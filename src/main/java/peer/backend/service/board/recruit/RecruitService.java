@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -88,6 +89,9 @@ public class RecruitService {
     private final EntityManager entityManager;
     private final NotificationCreationService notificationCreationService;
 
+    private static final String teamPage = "/teams/";
+    private static final String teamList = "/team-list";
+
     //query 생성 및 주입
     @PersistenceContext
     private EntityManager em;
@@ -106,14 +110,18 @@ public class RecruitService {
             throw new NotFoundException("존재하지 않는 모집글입니다.");
         }
 
+        AtomicBoolean likeOrHate = new AtomicBoolean(false);
+
         recruitFavoriteRepository.findById(new RecruitFavoritePK(user.getId(), recruitId))
                 .ifPresentOrElse(
                         favorite -> {
                             if (favorite.getType().equals(type)) {
                                 recruitFavoriteRepository.delete(favorite);
+                                likeOrHate.set(false);
                             } else {
                                 favorite.setType(type);
                                 recruitFavoriteRepository.save(favorite);
+                                likeOrHate.set(true);
                             }
                         },
                         () -> {
@@ -122,14 +130,15 @@ public class RecruitService {
                             newFavorite.setRecruitId(recruitId);
                             newFavorite.setType(type);
                             recruitFavoriteRepository.save(newFavorite);
+                            likeOrHate.set(true);
                         });
-        if (rawTarget.get().getWriter().isActivated())
+        if (rawTarget.get().getWriter().isActivated() && likeOrHate.get())
             this.notificationCreationService.makeNotificationForUser(
                 null,
-                user.getNickname() + "님께서 당신의 글에 좋아요를 눌렀습니다",
+                user.getNickname() + "님께서 당신의 "  + rawTarget.get().getTitle() + " 글에 좋아요를 눌렀습니다",
                 "/recruit/" + recruitId,
                 NotificationPriority.IMMEDIATE,
-                NotificationType.TEAM,
+                NotificationType.SYSTEM,
                 null,
                 rawTarget.get().getWriterId(),
                 rawTarget.get().getThumbnailUrl()
@@ -451,6 +460,30 @@ public class RecruitService {
                 .status(TeamUserStatus.PENDING)
                 .answers(request.getAnswerList())
                 .build());
+
+        // 신청자를 위한 알림
+        this.notificationCreationService.makeNotificationForUser(
+                null,
+                "축하드립니다! " + team.getName()
+                        + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
+                teamList,
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                user.getId(),
+                null
+        );
+
+        this.notificationCreationService.makeNotificationForTeam(
+                null,
+                team.getName() + " 팀에 새로운 동료가 접수되었습니다! 확인 하러 가시죠!",
+                teamPage + team.getId(),
+                NotificationPriority.IMMEDIATE,
+                NotificationType.SYSTEM,
+                null,
+                team.getId(),
+                null
+        );
     }
 
     @Transactional

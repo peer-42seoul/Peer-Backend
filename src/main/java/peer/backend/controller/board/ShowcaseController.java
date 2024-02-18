@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import peer.backend.dto.board.team.*;
 import peer.backend.dto.noti.enums.NotificationPriority;
 import peer.backend.dto.noti.enums.NotificationType;
+import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.enums.BoardType;
 import peer.backend.entity.user.User;
 import peer.backend.service.board.team.BoardService;
@@ -94,22 +95,23 @@ public class ShowcaseController {
         }
     }
 
+    //TODO : DTO 수정 필요...!!
     @PostMapping("/comment")
     public void createShowcaseComment(@RequestBody @Valid PostCommentRequest request, Authentication auth){
         User user = User.authenticationToUser(auth);
-        boardService.createComment(
+        Post data = boardService.createComment(
                 request.getPostId(),
                 request.getContent(),
                 user,
                 BoardType.SHOWCASE);
         this.notificationCreationService.makeNotificationForTeam(
                 null,
-                user.getNickname() + "님께서 코멘트를 다셨습니다. : " + request.getContent(),
+                user.getNickname() + "님께서 "+ data.getTitle() +" 에 댓글을 다셨습니다 : " + request.getContent(),
                 "/showcase/detail/" + request.getPostId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
                 null,
-                request.getTeamId(),
+                data.getOwnTeamId(),
                 null
         );
     }

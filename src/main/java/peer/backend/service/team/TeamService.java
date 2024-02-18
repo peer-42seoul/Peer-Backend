@@ -185,8 +185,8 @@ public class TeamService {
 
         this.notificationCreationService.makeNotificationForTeam(
             null,
-            "팀 설정이 변경되었습니다. 확인 부탁드립니다.",
-            teamPage + teamId,
+            team.getName() + " 팀 상태가 변경되었습니다. 확인 해볼까요? 자세한 내용은 리더들에게 확인해보세요.",
+            teamList,
             NotificationPriority.IMMEDIATE,
             NotificationType.TEAM,
             null,
@@ -339,36 +339,6 @@ public class TeamService {
                 .image(applicantUser.getImageUrl())
                 .build());
         }
-
-        // 신청자를 위한 알림
-        this.notificationCreationService.makeNotificationForUser(
-            null,
-            "축하드립니다! " + team.getName()
-                + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
-            teamList,
-            NotificationPriority.IMMEDIATE,
-            NotificationType.SYSTEM,
-            null,
-            user.getId(),
-            null
-        );
-
-        //팀리더에게 알림
-        List<TeamUser> owner = team.getTeamUsers().stream()
-            .filter(m -> m.getRole().equals(TeamUserRoleType.LEADER)).collect(Collectors.toList());
-        List<Long> userIds = new ArrayList<>();
-        owner.forEach(m -> userIds.add(m.getUserId()));
-        this.notificationCreationService.makeNotificationForUserList(
-            null,
-            team.getName() + " 팀에 새로운 동료 신청이 들어왔습니다! 어떤 분인지 맞이하러 가볼까요?",
-            teamPage + team.getId() + "/setting",
-            NotificationPriority.IMMEDIATE,
-            NotificationType.TEAM,
-            null,
-            userIds,
-            team.getTeamLogoPath()
-        );
-
         return result;
     }
 
@@ -384,6 +354,8 @@ public class TeamService {
         Team team = this.teamRepository.findById(teamId).orElseThrow(
             () -> new NotFoundException("존재하지 않는 팀입니다.")
         );
+
+        Long targetId =  teamUserJob.getTeamUser().getUser().getId();
         // 신청자에게 알리기
         this.notificationCreationService.makeNotificationForUser(
             null,
@@ -392,17 +364,28 @@ public class TeamService {
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
             null,
-            user.getId(),
+            targetId,
             null
         );
-        this.notificationCreationService.makeNotificationForTeam(
-            null,
+
+        List<Long> userIds = new ArrayList<>();
+        team.getTeamUsers().forEach(m -> {
+                    if (m.getStatus().equals(TeamUserStatus.APPROVED)) {
+                        if (!m.getUserId().equals(targetId)){
+                            userIds.add(m.getUserId());
+                        }
+                    }
+                }
+        );
+
+        this.notificationCreationService.makeNotificationForUserList(
+                null,
             "여러분 새로운 동료가 찾아왔습니다. 모두 축하해주세요!",
             teamPage + teamId,
             NotificationPriority.IMMEDIATE,
             NotificationType.TEAM,
             null,
-            teamId,
+            userIds,
             team.getTeamLogoPath()
         );
     }
@@ -424,12 +407,12 @@ public class TeamService {
         // 신청자에게 알림 보냄
         this.notificationCreationService.makeNotificationForUser(
             null,
-            "안타깝게도 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
+            "안타깝게도 " + teamUser.getTeam().getName() +" 팀에 대한 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
             teamList,
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
             null,
-            user.getId(),
+            teamUser.getUserId(),
             null
         );
     }
@@ -685,7 +668,7 @@ public class TeamService {
 
         this.notificationCreationService.makeNotificationForTeam(
             null,
-            team.getName() + " 팀이 해산되었슴을 알립니다.",
+            team.getName() + " 팀이 해산되었습니다.",
             teamList,
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
