@@ -272,6 +272,9 @@ public class NotificationCreationService {
                                         @NotNull Long teamId,
                                         @Nullable String imageLink)  {
         List<Long> targetUsers = this.makeUserListFromTeamId(teamId);
+
+        targetUsers.forEach(m-> System.out.println("나오나? : " + m.toString()));
+
         this.makeNotificationForUserList(
                 title,
                 body,
