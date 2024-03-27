@@ -28,7 +28,6 @@ public class NotificationSubscriptionKeys extends BaseEntity {
 
     @Column
     private DeviceType type;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriber")
     private User user;

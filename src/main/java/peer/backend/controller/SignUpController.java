@@ -39,6 +39,7 @@ public class SignUpController {
 
 //        Message message = emailService.sendEmail(address.getEmail(),
 //            "회원가입을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n");
+        log.info("받은 이메일:" + address.getEmail());
         this.emailService.sendAuthCode(address.getEmail(),
             "회원가입을 위해 아래의 코드를 입력창에 입력해 주세요.\n\n%s\n");
         return ResponseEntity.ok().build();

@@ -3,6 +3,7 @@ package peer.backend.service;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
@@ -15,6 +16,7 @@ import peer.backend.exception.ForbiddenException;
 import peer.backend.exception.UnauthorizedException;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EmailAuthService {
 
@@ -37,11 +39,14 @@ public class EmailAuthService {
     private void send(EmailMessage emailMessage) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         try {
+            mailMessage.setFrom("42peer@gmail.com");
             mailMessage.setTo(emailMessage.getTo());
             mailMessage.setSubject(emailMessage.getSubject());
             mailMessage.setText(emailMessage.getText());
+            log.info(mailMessage.toString());
             sender.send(mailMessage);
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new ForbiddenException("잘못된 접근 입니다.");
         }
     }
@@ -60,6 +65,7 @@ public class EmailAuthService {
             this.send(emailMessage);
             message.setStatus(HttpStatus.OK);
         } catch (Exception e) {
+            log.error("뭐가 문제일까?: " + e.getMessage());
             throw new ForbiddenException("Failed to send E-mail");
         }
     }
