@@ -288,14 +288,14 @@ public class MessageMainService {
             targetUser = index.getUser1();
         }
         this.notificationCreationService.makeNotificationForUser(
-                "메시지가 도착했습니다",
-                letter.getSenderNickname() + " : " + letter.getText(),
+                "peer 쪽지",
+                letter.getSenderNickname() + ": " + letter.getText(),
                 "/my-page/message",
                 NotificationPriority.IMMEDIATE,
                 NotificationType.MESSAGE,
                 null,
                 targetUser.getId(),
-                targetUser.getImageUrl()
+                msgOwner.getImageUrl()
         );
 
         return ret;

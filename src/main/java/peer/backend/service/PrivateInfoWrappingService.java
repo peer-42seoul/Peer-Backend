@@ -238,8 +238,7 @@ public class PrivateInfoWrappingService {
             }
             User target = this.memberService.signUp(newUser);
             this.notificationCreationService.makeNotificationForUser(null,
-                    "환영합니다! peer에서 스터디, 프로젝트를 찾아보세요." +
-                    "메인 화면부터 상세히 알아볼까요?",
+                    "환영합니다! peer에서 스터디, 프로젝트를 찾아보세요.",
                     "",
                     NotificationPriority.IMMEDIATE,
                     NotificationType.SYSTEM,

@@ -135,7 +135,7 @@ public class RecruitService {
         if (rawTarget.get().getWriter().isActivated() && likeOrHate.get())
             this.notificationCreationService.makeNotificationForUser(
                 null,
-                user.getNickname() + "님께서 당신의 "  + rawTarget.get().getTitle() + " 글에 좋아요를 눌렀습니다",
+                user.getNickname() + "님께서 당신의 \""  + rawTarget.get().getTitle() + "\" 에 좋아요를 눌렀습니다",
                 "/recruit/" + recruitId,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
@@ -387,7 +387,7 @@ public class RecruitService {
         // 모집글 쓰기를 완료함에 대한 알림
         this.notificationCreationService.makeNotificationForUser(
                 null,
-                "성공적인 글쓰기를 마무리 지었습니다! 이제 팀을 설정해 볼까요? 여러분의 팀을 가꾸고 사람들에게 당신의 꿈과 목표를 소개해보세요!",
+                "이제 팀을 설정해 볼까요? 여러분의 팀을 가꾸고 사람들에게 당신의 꿈과 목표를 소개해보세요!",
                 "/teams/" + team.getId(),
                 NotificationPriority.IMMEDIATE,
                 NotificationType.TEAM,
@@ -465,7 +465,7 @@ public class RecruitService {
         this.notificationCreationService.makeNotificationForUser(
                 null,
                 "축하드립니다! " + team.getName()
-                        + " 팀에 신청을 완료하였습니다. 답변이 올 때까지 기다려볼까요? 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
+                        + " 팀에 신청을 완료하였습니다. 궁금한 것은 팀장에게 메시지를 날려보아도 좋습니다!",
                 teamList,
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,

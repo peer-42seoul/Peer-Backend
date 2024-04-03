@@ -359,7 +359,7 @@ public class TeamService {
         // 신청자에게 알리기
         this.notificationCreationService.makeNotificationForUser(
             null,
-            "축하드립니다! 신청하신 팀에서 신청을 수락하였습니다. 팀페이지에서 자세한 내용을 확인해주세요.",
+            "신청하신 팀에서 신청을 수락하였습니다. 팀페이지에서 자세한 내용을 확인해주세요.",
             teamList,
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
@@ -407,7 +407,7 @@ public class TeamService {
         // 신청자에게 알림 보냄
         this.notificationCreationService.makeNotificationForUser(
             null,
-            "안타깝게도 " + teamUser.getTeam().getName() +" 팀에 대한 지원이 거절 당했습니다. 팀 페이지에서 자세한 내용을 확인해주세요.",
+            teamUser.getTeam().getName() +" 팀에 대한 지원이 거절 당했습니다.",
             teamList,
             NotificationPriority.IMMEDIATE,
             NotificationType.SYSTEM,
