@@ -8,4 +8,5 @@ import lombok.RequiredArgsConstructor;
 public class SubscriptionDTO {
     private String firebaseToken;
     private String deviceInfo;
+
 }

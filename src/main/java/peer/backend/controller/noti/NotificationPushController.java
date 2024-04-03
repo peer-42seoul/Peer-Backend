@@ -24,6 +24,7 @@ public class NotificationPushController {
     public ResponseEntity<Void> subscribeNotification(Authentication auth,
                                                       @RequestBody SubscriptionDTO data) {
 
+        log.info(data.getDeviceInfo());
         return ResponseEntity.ok().build();
     }
 }
