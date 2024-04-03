@@ -22,7 +22,7 @@ import java.util.List;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "notification")
-public  class Notification extends BaseEntity {
+public class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +33,7 @@ public  class Notification extends BaseEntity {
     @Column
     private String title;
 
-    @Column
+    @Column(length = 1000)
     private String body;
 
     @Column
