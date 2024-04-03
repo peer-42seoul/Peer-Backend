@@ -87,7 +87,7 @@ public class BoardController {
         if (post.getUser().isActivated())
             this.notificationCreationService.makeNotificationForUser(
                 null,
-                user.getNickname() + " 님께서 댓글을 다셨습니다 : " + request.getContent(),
+                user.getNickname() + " 님께서 댓글을 다셨습니다: " + request.getContent(),
                 "",
                 NotificationPriority.IMMEDIATE,
                 NotificationType.SYSTEM,
