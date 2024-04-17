@@ -184,7 +184,7 @@ public class RecruitService {
             Join<RecruitTag, Tag> tagJoin = recruitTagsJoin.join("tag");
             predicates.add(tagJoin.get("name").in(request.getTag()));
         }
-        if (request.getType() != null && !request.getType().isEmpty()) {
+        if (request.getType() != null && !request.getType().isEmpty() && !request.getType().equals("ALL")) {
             predicates.add(cb.equal(teamJoin.get("type"), TeamType.valueOf(request.getType())));
         }
         if (request.getPlace() != null && !request.getPlace().isEmpty()) {

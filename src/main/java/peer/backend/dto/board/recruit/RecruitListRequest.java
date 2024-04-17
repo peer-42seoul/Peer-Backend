@@ -42,6 +42,4 @@ public class RecruitListRequest{
     public int getEnd() {
         return due.get(1) != null ? RecruitDueEnum.from(due.get(1)).getValue() : null;
     }
-
-    public String getType() { return type.equals("ALL") ? null : type; }
 }
