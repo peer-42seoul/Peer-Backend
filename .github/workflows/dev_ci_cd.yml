@@ -66,13 +66,16 @@ jobs:
       with:
         host: ${{ secrets.DEV_HOST }}
         port: 22
-        username: ${{ secrets.DEV_SERVER_USERNAME }}
-        password: ${{ secrets.DEV_SERVER_PASSWORD }}
+        username: ${{ secrets.DEV_USERNAME }}
+        key: ${{ secrets.DEV_KEY }}
+        # username: ${{ secrets.DEV_SERVER_USERNAME }}
+        # password: ${{ secrets.DEV_SERVER_PASSWORD }}
         debug: true
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker stop ${{ secrets.DOCKER_DEV_IMAGE }}
           docker rm ${{ secrets.DOCKER_DEV_IMAGE }}
-          docker run --name=${{ secrets.DOCKER_DEV_IMAGE }} --network ${{ secrets.DEV_NETWORK }} -d -p 8080-8082:8080-8082 --ip ${{ secrets.DEV_APP_IP }} -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+          # docker run --name=${{ secrets.DOCKER_DEV_IMAGE }} --network ${{ secrets.DEV_NETWORK }} -d -p 8080-8082:8080-8082 --ip ${{ secrets.DEV_APP_IP }} -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
+          docker run --name=${{ secrets.DOCKER_DEV_IMAGE }} -d -p 8080-8082:8080-8082 -v $HOME/logs:/logs ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_IMAGE }}
           docker container prune -f
           docker image prune -f
