@@ -25,4 +25,6 @@ public class RecruitListResponse {
     private Long recruit_id;
     private boolean favorite;
     private String updatedAt;
+    private String createdAt;
+    private int member;
 }

@@ -251,7 +251,10 @@ public class RecruitService {
                         user != null && recruitFavoriteRepository
                                 .existsByUserIdAndRecruitIdAndType(user.getId(), recruit2.getId(),
                                         RecruitFavoriteEnum.LIKE),
-                        recruit2.getUpdatedAt().toString())
+                        recruit2.getUpdatedAt().toString(),
+                        recruit2.getCreatedAt().toString(),
+                        recruit2.getTeam().getMaxMember()
+                        )
                 ).collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
