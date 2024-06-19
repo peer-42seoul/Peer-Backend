@@ -34,4 +34,5 @@ public class RecruitResponce {
     private String teamName;
     private boolean isFavorite;
     private String updatedAt;
+    private String createdAt;
 }

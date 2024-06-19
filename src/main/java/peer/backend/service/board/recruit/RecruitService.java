@@ -239,6 +239,7 @@ public class RecruitService {
 
         List<RecruitListResponse> results = recruits.stream()
                 .map(recruit2 -> new RecruitListResponse(
+                        recruit2.getTeam().getType().getValue(),
                         recruit2.getTitle(),
                         recruit2.getThumbnailUrl(),
                         recruit2.getWriterId(),
@@ -251,7 +252,10 @@ public class RecruitService {
                         user != null && recruitFavoriteRepository
                                 .existsByUserIdAndRecruitIdAndType(user.getId(), recruit2.getId(),
                                         RecruitFavoriteEnum.LIKE),
-                        recruit2.getUpdatedAt().toString())
+                        recruit2.getUpdatedAt().toString(),
+                        recruit2.getCreatedAt().toString(),
+                        recruit2.getTeam().getMaxMember()
+                        )
                 ).collect(Collectors.toList());
 
         int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -303,6 +307,7 @@ public class RecruitService {
                                 RecruitFavoriteEnum.LIKE)
                 )
                 .updatedAt(recruit.getUpdatedAt().toString())
+                .createdAt(recruit.getCreatedAt().toString())
                 .build();
     }
 
