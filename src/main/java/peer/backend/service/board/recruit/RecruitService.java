@@ -307,6 +307,7 @@ public class RecruitService {
                                 RecruitFavoriteEnum.LIKE)
                 )
                 .updatedAt(recruit.getUpdatedAt().toString())
+                .createdAt(recruit.getCreatedAt().toString())
                 .build();
     }
 
