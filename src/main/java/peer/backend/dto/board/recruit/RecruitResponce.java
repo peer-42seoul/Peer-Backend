@@ -15,7 +15,7 @@ import peer.backend.entity.team.enums.TeamOperationFormat;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecruitResponce {
-
+    private String type;
     private String title;
     private int totalNumber;
     private int current;
