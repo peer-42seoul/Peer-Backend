@@ -239,6 +239,7 @@ public class RecruitService {
 
         List<RecruitListResponse> results = recruits.stream()
                 .map(recruit2 -> new RecruitListResponse(
+                        recruit2.getTeam().getType().getValue(),
                         recruit2.getTitle(),
                         recruit2.getThumbnailUrl(),
                         recruit2.getWriterId(),

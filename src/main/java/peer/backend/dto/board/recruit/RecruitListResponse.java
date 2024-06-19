@@ -14,7 +14,7 @@ import peer.backend.dto.tag.TagResponse;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecruitListResponse {
-
+    private String type;
     private String title;
     private String image;
     private Long user_id;
