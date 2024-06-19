@@ -282,6 +282,7 @@ public class RecruitService {
                                 role.getCurrent())));
         Team team = recruit.getTeam();
         return RecruitResponce.builder()
+                .type(recruit.getTeam().getType().getValue())
                 .title(recruit.getTitle())
                 .content(recruit.getContent())
                 .region((Objects.isNull(team.getRecruit()) || Objects.isNull(team.getRegion2()) ? null
