@@ -35,8 +35,8 @@ public class JobService {
                 .orElseThrow(() -> new NotFoundException("Not Found"));
         return new JobResponse(job.getTitle(),
                 job.getUser().getNickname(),
-                job.getContent(),
                 job.getCreatedAt().toString(),
+                job.getContent(),
                 job.getId());
     }
 }
