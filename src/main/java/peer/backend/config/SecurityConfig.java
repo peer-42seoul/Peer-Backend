@@ -91,6 +91,8 @@ public class SecurityConfig {
             .antMatchers(HttpMethod.GET, "/api/v1/showcase/*", "/api/v1/showcase",
                 "/api/v1/showcase/comment/*")
             .permitAll()
+            .antMatchers(HttpMethod.GET, "/api/v1/job/*", "/api/v1/job")
+            .permitAll()
             .antMatchers(HttpMethod.GET, "/api/v1/profile/other")
             .permitAll()
             .antMatchers(HttpMethod.GET, "/socket.io/**")

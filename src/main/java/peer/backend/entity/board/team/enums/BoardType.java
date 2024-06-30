@@ -11,7 +11,8 @@ public enum BoardType {
     NORMAL("NORMAL"),
     ADMIN("ADMIN"),
     SHOWCASE("SHOWCASE"),
-    NOTICE("NOTICE")
+    NOTICE("NOTICE"),
+    JOB("JOB")
     ;
     private final String type;
 

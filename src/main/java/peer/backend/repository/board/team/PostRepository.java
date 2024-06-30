@@ -23,4 +23,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p JOIN p.postLike pl JOIN p.board b WHERE pl.userId = :userId AND pl.type = :type AND p.isPublic = :isPublic AND b.type = :boardType")
     Page<Post> findShowcaseFavoriteList(boolean isPublic, BoardType boardType, Long userId, PostLikeType type, Pageable pageable);
+
+    Page<Post> findAllByBoardType(BoardType type, Pageable pageable);
 }
