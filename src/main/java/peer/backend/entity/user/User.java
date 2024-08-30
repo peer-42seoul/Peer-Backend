@@ -19,6 +19,7 @@ import peer.backend.entity.board.recruit.Recruit;
 import peer.backend.entity.board.recruit.RecruitFavorite;
 import peer.backend.entity.board.team.Post;
 import peer.backend.entity.board.team.PostLike;
+import peer.backend.entity.chat.Chat;
 import peer.backend.entity.message.MessageIndex;
 import peer.backend.entity.noti.NotificationSubscriptionKeys;
 import peer.backend.entity.tag.UserSkill;
@@ -35,8 +36,8 @@ import peer.backend.oauth.PrincipalDetails;
 @Table(name = "user")
 @DynamicUpdate
 @DynamicInsert
-@NamedEntityGraph(name="User.withSkills"
-                    , attributeNodes = @NamedAttributeNode("skills"))
+@NamedEntityGraph(name = "User.withSkills"
+    , attributeNodes = @NamedAttributeNode("skills"))
 public class User extends BaseEntity implements Login {
 
     @Id
@@ -145,9 +146,12 @@ public class User extends BaseEntity implements Login {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<NotificationSubscriptionKeys> tokens;
-    
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<UserSkill> skills;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Chat> chats;
 
     public static User authenticationToUser(Authentication authentication) {
         return (User) ((PrincipalDetails) authentication.getPrincipal()).getUser();
@@ -166,23 +170,27 @@ public class User extends BaseEntity implements Login {
 
     @Override
     public Long getId() {
-        if (this.activated)
+        if (this.activated) {
             return this.id;
-        else
+        } else {
             return -1L;
+        }
     }
 
     public void upNotificationCounter() {
-        if (!this.activated)
+        if (!this.activated) {
             return;
+        }
         this.alarmCounter++;
     }
 
     public void downNotificationCounter() {
-        if (!this.activated)
+        if (!this.activated) {
             return;
-        if (this.alarmCounter == 0)
+        }
+        if (this.alarmCounter == 0) {
             return;
+        }
         this.alarmCounter--;
     }
 }
