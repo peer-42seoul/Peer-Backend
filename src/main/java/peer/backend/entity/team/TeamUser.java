@@ -1,6 +1,5 @@
 package peer.backend.entity.team;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -64,9 +63,6 @@ public class TeamUser {
     @Column
     @Enumerated(EnumType.STRING)
     private TeamUserStatus status;
-
-    @Column(name = "last_read_time")
-    private LocalDateTime lastReadTime;
 
     public void grantLeader(TeamUserRoleType teamUserRoleType) {
         this.role = teamUserRoleType;
