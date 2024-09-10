@@ -16,7 +16,8 @@ public class ChatService {
     private final ChatRepository chatRepository;
 
     @Transactional
-    public Chat createChat(Long userId, Long teamId, String message, LocalDateTime date) {
-        return this.chatRepository.save(new Chat(userId, teamId, message, date));
+    public Chat createChat(Long userId, String userName, Long teamId, String message,
+        LocalDateTime date) {
+        return this.chatRepository.save(new Chat(userId, userName, teamId, message, date));
     }
 }

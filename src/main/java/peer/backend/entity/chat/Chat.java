@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -31,20 +33,21 @@ public class Chat {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
-    @Column(name = "team_id")
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(name = "user_name")
     private String userName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", insertable = false, updatable = false)
     private Team team;
 
     @Column(name = "team_id")
@@ -57,10 +60,11 @@ public class Chat {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime date;
 
-    public Chat(Long userId, Long teamId, String message, LocalDateTime date) {
+    public Chat(Long userId, String userName, Long teamId, String message, LocalDateTime date) {
         this.userId = userId;
         this.teamId = teamId;
         this.message = message;
         this.date = date;
+        this.userName = userName;
     }
 }

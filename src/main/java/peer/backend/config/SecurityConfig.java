@@ -109,6 +109,8 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers("/login")
             .permitAll()
+            .antMatchers("/ws-stomp/**")
+            .permitAll()
             .anyRequest().authenticated()
 
             .and()
