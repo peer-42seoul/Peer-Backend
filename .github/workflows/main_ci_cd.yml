@@ -21,17 +21,17 @@ jobs:
             exit 1
           fi
 
-  check-merged:
+  validate-merged:
     needs: validate-branch
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Check merged
+      - name: Validate merged
         run: |
           echo 'The PR was merged'
   
   extract-version:
-    needs: check-merged
+    needs: validate-merged
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract-version.outputs.version }}
