@@ -111,6 +111,8 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers("/ws-stomp/**")
             .permitAll()
+            .antMatchers("/api/v1/chat/**")
+            .permitAll()
             .anyRequest().authenticated()
 
             .and()
