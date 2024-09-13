@@ -36,10 +36,10 @@ jobs:
     outputs:
       version: ${{ steps.extract-version.outputs.version }}
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.GITHUB_SHA }}
+      # - name: checkout
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: ${{ env.GITHUB_SHA }}
           
       - name: extract version
         id: extract-version
